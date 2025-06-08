@@ -4,6 +4,7 @@ public class MonsterMovementBounds
 {
     private RectTransform _rectTransform;
     private GameManager _gameManager;
+    private const float PADDING = 50f; // Match SettingsManager padding
     
     public MonsterMovementBounds(RectTransform rectTransform, GameManager gameManager)
     {
@@ -20,7 +21,7 @@ public class MonsterMovementBounds
         );
     }
     
-    private (Vector2 min, Vector2 max) CalculateMovementBounds()
+    public (Vector2 min, Vector2 max) CalculateMovementBounds()
     {
         var gameAreaRect = _gameManager.gameArea;
         Vector2 size = gameAreaRect.sizeDelta;
@@ -29,8 +30,16 @@ public class MonsterMovementBounds
         float halfHeight = _rectTransform.rect.height / 2;
 
         return (
-            new Vector2(-size.x / 2 + halfWidth, -size.y / 2 + halfHeight),
-            new Vector2(size.x / 2 - halfWidth, size.y / 2 - halfHeight)
+            new Vector2(-size.x / 2 + halfWidth + PADDING, -size.y / 2 + halfHeight + PADDING),
+            new Vector2(size.x / 2 - halfWidth - PADDING, size.y / 2 - halfHeight - PADDING)
         );
+    }
+    
+    // Add method to check if position is within bounds
+    public bool IsWithinBounds(Vector2 position)
+    {
+        var bounds = CalculateMovementBounds();
+        return position.x >= bounds.min.x && position.x <= bounds.max.x &&
+               position.y >= bounds.min.y && position.y <= bounds.max.y;
     }
 }

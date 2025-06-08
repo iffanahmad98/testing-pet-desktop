@@ -255,15 +255,28 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             _targetPosition = _separationBehavior.ApplySeparationToTarget(_targetPosition);
         }
 
-        Vector2 oldPosition = _rectTransform.anchoredPosition;
         _movementHandler.UpdateMovement(ref _targetPosition, monsterData);
+        
+        // Add bounds checking after movement
+        Vector2 currentPos = _rectTransform.anchoredPosition;
+        if (!_movementBounds.IsWithinBounds(currentPos))
+        {
+            // Clamp position to bounds and set new random target
+            var bounds = _movementBounds.CalculateMovementBounds();
+            Vector2 clampedPos = new Vector2(
+                Mathf.Clamp(currentPos.x, bounds.min.x, bounds.max.x),
+                Mathf.Clamp(currentPos.y, bounds.min.y, bounds.max.y)
+            );
+            _rectTransform.anchoredPosition = clampedPos;
+            SetRandomTarget();
+        }
         
         // Check if monster moved significantly and request immediate depth sort
         Vector2 newPosition = _rectTransform.anchoredPosition;
         if (Vector2.Distance(newPosition, _lastSortPosition) >= _depthSortThreshold)
         {
             _lastSortPosition = newPosition;
-            ServiceLocator.Get<GameManager>().SortMonstersByDepth(); // Add this line
+            ServiceLocator.Get<GameManager>().SortMonstersByDepth();
         }
 
         bool isPursuingFood = _foodHandler?.NearestFood != null;

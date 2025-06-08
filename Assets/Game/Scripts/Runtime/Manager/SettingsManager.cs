@@ -50,6 +50,7 @@ public class SettingsManager : MonoBehaviour
 
     private const float MIN_SIZE = 200f;
     private const float DEFAULT_MONSTER_SCALE = 1f;
+    private const float MONSTER_BOUNDS_PADDING = 50f; 
     private const string DECIMAL_FORMAT = "F0";
     private const string SCALE_FORMAT = "F2";
     private const string VOLUME_FORMAT = "F1";
@@ -479,21 +480,34 @@ public class SettingsManager : MonoBehaviour
             var rectTransform = monster.GetComponent<RectTransform>();
             Vector2 currentPos = rectTransform.anchoredPosition;
             
-            // Get new game area bounds
-            var bounds = gameArea.rect;
+            // Use proper bounds calculation like MonsterMovementBounds does
+            Vector2 gameAreaSize = gameArea.sizeDelta;
+            float monsterHalfWidth = rectTransform.rect.width / 2;
+            float monsterHalfHeight = rectTransform.rect.height / 2;
+            
+            // Calculate actual movement bounds with consistent padding
+            Vector2 boundsMin = new Vector2(
+                -gameAreaSize.x / 2 + monsterHalfWidth + MONSTER_BOUNDS_PADDING,
+                -gameAreaSize.y / 2 + monsterHalfHeight + MONSTER_BOUNDS_PADDING
+            );
+            
+            Vector2 boundsMax = new Vector2(
+                gameAreaSize.x / 2 - monsterHalfWidth - MONSTER_BOUNDS_PADDING,
+                gameAreaSize.y / 2 - monsterHalfHeight - MONSTER_BOUNDS_PADDING
+            );
             
             // Check if monster is outside new bounds
-            bool isOutside = currentPos.x < bounds.xMin + 25f || 
-                            currentPos.x > bounds.xMax - 25f ||
-                            currentPos.y < bounds.yMin + 25f || 
-                            currentPos.y > bounds.yMax - 25f;
+            bool isOutside = currentPos.x < boundsMin.x || 
+                            currentPos.x > boundsMax.x ||
+                            currentPos.y < boundsMin.y || 
+                            currentPos.y > boundsMax.y;
             
             if (isOutside)
             {
-                // Clamp to new bounds with padding
+                // Clamp to new bounds with consistent padding
                 Vector2 newPos = new Vector2(
-                    Mathf.Clamp(currentPos.x, bounds.xMin + 25f, bounds.xMax - 25f),
-                    Mathf.Clamp(currentPos.y, bounds.yMin + 25f, bounds.yMax - 25f)
+                    Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
+                    Mathf.Clamp(currentPos.y, boundsMin.y, boundsMax.y)
                 );
                 
                 rectTransform.anchoredPosition = newPos;

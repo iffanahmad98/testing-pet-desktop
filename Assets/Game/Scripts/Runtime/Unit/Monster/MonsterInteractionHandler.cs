@@ -54,12 +54,14 @@ public class MonsterInteractionHandler
     public void OnPointerEnter(PointerEventData e)
     {
         _controller.SetHovered(true);
-        ServiceLocator.Get<CursorManager>().Set(CursorType.Monster);
+        var cursorManager = ServiceLocator.Get<CursorManager>();
+        cursorManager?.Set(CursorType.Monster);
     }
     public void OnPointerExit(PointerEventData e)
     {
          _controller.SetHovered(false);
-        ServiceLocator.Get<CursorManager>().Reset();
+        var cursorManager = ServiceLocator.Get<CursorManager>();
+        cursorManager?.Reset();
     }
     public void OnPointerClick(PointerEventData eventData)
     {
