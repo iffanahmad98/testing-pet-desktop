@@ -545,26 +545,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49101a1d19c02c14b8c57283a1c5f80d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats:
-    hungerDepletionRate: 0
-    happinessDepletionRatef: 0
-    poopInterval: 0
-    moveSpeed: 0
-    foodDetectionRange: 200
-    eatDistance: 5
-    pokeHappinessIncrease: 0
-    areaHappinessRate: 0
-    pokeCooldownDuration: 5
-    separationRadius: 100
-    separationForce: 2
-    enableSeparation: 1
   ui:
     hungerInfo: {fileID: 1890837207535386077}
     happinessInfo: {fileID: 1225282339728586993}
     hungerText: {fileID: 9072586404376867894}
     happinessText: {fileID: 4933357510878399878}
   monsterID: 
-  isEvolved: 0
   isFinalForm: 0
   evolutionLevel: 0
 --- !u!114 &2708909758104116800
@@ -642,7 +628,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

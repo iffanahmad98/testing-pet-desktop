@@ -33,12 +33,9 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        ServiceLocator.Get<GameManager>().coinCollected += value;
-
+        ServiceLocator.Get<GameManager>().OnCoinChanged?.Invoke(ServiceLocator.Get<GameManager>().coinCollected += value);
         SaveSystem.SaveCoin(ServiceLocator.Get<GameManager>().coinCollected);
         SaveSystem.Flush();
-
-        ServiceLocator.Get<UIManager>().UpdateCoinCounter();
         ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
     }
 }

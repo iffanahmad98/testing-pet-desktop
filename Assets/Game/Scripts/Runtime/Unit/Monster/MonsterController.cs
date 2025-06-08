@@ -263,6 +263,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (Vector2.Distance(newPosition, _lastSortPosition) >= _depthSortThreshold)
         {
             _lastSortPosition = newPosition;
+            ServiceLocator.Get<GameManager>().SortMonstersByDepth(); // Add this line
         }
 
         bool isPursuingFood = _foodHandler?.NearestFood != null;

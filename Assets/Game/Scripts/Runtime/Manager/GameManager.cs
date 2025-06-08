@@ -490,10 +490,10 @@ public class GameManager : MonoBehaviour
         validMonsters.Sort((a, b) => 
             b.transform.position.y.CompareTo(a.transform.position.y));
 
-        // Update sibling indices
+        // Update sibling indices, starting from index 1 to preserve background at index 0
         for (int i = 0; i < validMonsters.Count; i++)
         {
-            validMonsters[i].transform.SetSiblingIndex(i);
+            validMonsters[i].transform.SetSiblingIndex(i + 1); // +1 to skip background
         }
     }
 }
