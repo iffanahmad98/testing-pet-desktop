@@ -56,4 +56,25 @@ public class MonsterDataSO : ScriptableObject
     public AudioClip evolveSound;     // Played during evolution
     public AudioClip deathSound;     // Played when monster dies
     public AudioClip interactionSound; // Played when player interacts
+
+    [Header("Evolution Animations")]
+    public EvolutionAnimationSet[] evolutionAnimationSets;
+
+    [Header("Evolution Behaviors")]
+    public EvolutionBehaviorConfig[] evolutionBehaviors;
+}
+
+[System.Serializable]
+public class EvolutionBehaviorConfig
+{
+    public int evolutionLevel;
+    public MonsterBehaviorConfigSO behaviorConfig;
+}
+
+[System.Serializable]
+public class EvolutionAnimationSet
+{
+    public int evolutionLevel;
+    public string[] availableAnimations;
+    public string[] preferredStateAnimations; 
 }

@@ -78,24 +78,63 @@ public class MonsterStateMachine : MonoBehaviour
         }
     }
 
+    private MonsterBehaviorConfigSO GetCurrentBehaviorConfig()
+    {
+        if (_controller?.MonsterData?.evolutionBehaviors != null)
+        {
+            var evolutionBehavior = System.Array.Find(_controller.MonsterData.evolutionBehaviors,
+                config => config.evolutionLevel == _controller.evolutionLevel);
+                
+            if (evolutionBehavior?.behaviorConfig != null)
+            {
+                return evolutionBehavior.behaviorConfig;
+            }
+        }
+        
+        return behaviorConfig; // Fallback to default
+    }
+
     private List<StateTransition> GetValidTransitions()
     {
         _transitions.Clear();
         
-        if (behaviorConfig == null || behaviorConfig.transitions == null)
+        var currentBehaviorConfig = GetCurrentBehaviorConfig();
+        if (currentBehaviorConfig == null || currentBehaviorConfig.transitions == null)
             return _transitions;
 
-        foreach (var transition in behaviorConfig.transitions)
+        foreach (var transition in currentBehaviorConfig.transitions)
         {
             if (transition.fromState != _currentState) continue;
             if (transition.requiresFood && _controller.nearestFood == null) continue;
             if (_controller.currentHunger < transition.hungerThreshold) continue;
             if (_controller.currentHappiness < transition.happinessThreshold) continue;
+            
+            // NEW: Check if target state has available animations
+            if (!HasAnimationForState(transition.toState)) continue;
 
             _transitions.Add(transition);
         }
 
         return _transitions;
+    }
+
+    private bool HasAnimationForState(MonsterState state)
+    {
+        string[] animations = GetEvolutionSpecificAnimations(state);
+        if (animations == null || animations.Length == 0)
+        {
+            animations = GetDefaultAnimations(state);
+        }
+        
+        foreach (string animName in animations)
+        {
+            if (HasAnimation(animName))
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     private void ChangeState(MonsterState newState)
@@ -152,17 +191,14 @@ public class MonsterStateMachine : MonoBehaviour
 
     private string GetAvailableAnimation(MonsterState state)
     {
-        string[] preferredAnimations = state switch
+        // Get evolution-specific animations if available
+        string[] preferredAnimations = GetEvolutionSpecificAnimations(state);
+        
+        // Fallback to default animations if no evolution-specific ones
+        if (preferredAnimations == null || preferredAnimations.Length == 0)
         {
-            MonsterState.Idle => new[] { "idle" },
-            MonsterState.Walking => new[] { "walking", "walk" },
-            MonsterState.Running => new[] { "running", "run", "flying", "fly", "walking", "walk" },
-            MonsterState.Flying => new[] { "flying", "fly", "running", "run", "walking", "walk" },
-            MonsterState.Jumping => new[] { "jumping", "jump" },
-            MonsterState.Itching => new[] { "itching", "itch" },
-            MonsterState.Eating => new[] { "eating", "eat" },
-            _ => new[] { "idle" }
-        };
+            preferredAnimations = GetDefaultAnimations(state);
+        }
 
         // Check if any of the preferred animations exist
         foreach (string animName in preferredAnimations)
@@ -175,6 +211,63 @@ public class MonsterStateMachine : MonoBehaviour
 
         // Fallback to idle if nothing else works
         return "idle";
+    }
+
+    private string[] GetEvolutionSpecificAnimations(MonsterState state)
+    {
+        if (_controller?.MonsterData?.evolutionAnimationSets == null)
+            return null;
+            
+        int currentEvolutionLevel = _controller.evolutionLevel;
+        
+        // Find the animation set for current evolution level
+        var animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
+            set => set.evolutionLevel == currentEvolutionLevel);
+        
+        if (animationSet?.availableAnimations == null)
+            return null;
+        
+        return state switch
+        {
+            MonsterState.Idle => FilterAnimations(animationSet.availableAnimations, new[] { "idle" }),
+            MonsterState.Walking => FilterAnimations(animationSet.availableAnimations, new[] { "walking", "walk" }),
+            MonsterState.Running => FilterAnimations(animationSet.availableAnimations, new[] { "running", "run" }),
+            MonsterState.Flying => FilterAnimations(animationSet.availableAnimations, new[] { "flying", "fly" }),
+            MonsterState.Jumping => FilterAnimations(animationSet.availableAnimations, new[] { "jumping", "jump" }),
+            MonsterState.Itching => FilterAnimations(animationSet.availableAnimations, new[] { "itching", "itch" }),
+            MonsterState.Eating => FilterAnimations(animationSet.availableAnimations, new[] { "eating", "eat" }),
+            _ => new[] { "idle" }
+        };
+    }
+
+    private string[] FilterAnimations(string[] availableAnimations, string[] preferredNames)
+    {
+        var filtered = new System.Collections.Generic.List<string>();
+        
+        foreach (string preferred in preferredNames)
+        {
+            if (System.Array.Exists(availableAnimations, anim => anim.Equals(preferred, System.StringComparison.OrdinalIgnoreCase)))
+            {
+                filtered.Add(preferred);
+            }
+        }
+        
+        return filtered.ToArray();
+    }
+
+    private string[] GetDefaultAnimations(MonsterState state)
+    {
+        return state switch
+        {
+            MonsterState.Idle => new[] { "idle" },
+            MonsterState.Walking => new[] { "walking", "walk" },
+            MonsterState.Running => new[] { "running", "run", "walking", "walk" },
+            MonsterState.Flying => new[] { "flying", "fly", "running", "run", "walking", "walk" },
+            MonsterState.Jumping => new[] { "jumping", "jump" },
+            MonsterState.Itching => new[] { "itching", "itch" },
+            MonsterState.Eating => new[] { "eating", "eat" },
+            _ => new[] { "idle" }
+        };
     }
 
     private bool HasAnimation(string animationName)

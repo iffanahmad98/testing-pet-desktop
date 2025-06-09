@@ -43,7 +43,8 @@ public enum MonsterState
     Idle,
     Walking,
     Running,
-    Flying,  // Add this
+    Flying,
+    Flapping,
     Jumping,
     Itching,
     Eating
