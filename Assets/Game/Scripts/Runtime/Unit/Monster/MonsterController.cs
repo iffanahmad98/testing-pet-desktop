@@ -56,8 +56,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private float _depthSortThreshold = 20f;
     private bool _isSick = false;
     private float _lowHungerTime = 0f;
-    private const float SICK_HUNGER_THRESHOLD = 15f;
-    private const float SICK_THRESHOLD_TIME = 600f; // 10 minute of low hunger to get sick
+    private const float SICK_HUNGER_THRESHOLD = 30f;
+    private const float SICK_THRESHOLD_TIME = 1f; // 10 minute of low hunger to get sick
 
 
     private void Awake()
@@ -156,9 +156,10 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         OnHappinessChanged += (happiness) => ui.UpdateHappinessDisplay(happiness, _isHovered);
         
         // Add sick status event if you have UI for it
-        OnSickChanged += (isSick) => {
+        OnSickChanged += (hovered) => {
             // Handle sick status UI updates here if needed
-            Debug.Log($"Monster sick status changed: {isSick}");
+            ui.UpdateSickStatusDisplay(_isSick, hovered);
+            Debug.Log($"Monster sick status changed: {_isSick}");
         };
         
         // Control visibility on hover
@@ -172,8 +173,9 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         OnHungerChanged -= (hunger) => ui.UpdateHungerDisplay(hunger, _isHovered);
         OnHappinessChanged -= (happiness) => ui.UpdateHappinessDisplay(happiness, _isHovered);
-        OnSickChanged -= (isSick) => {
-            Debug.Log($"Monster sick status changed: {isSick}");
+        OnSickChanged -= (hovered) => {
+            ui.UpdateSickStatusDisplay(_isSick, hovered);
+            Debug.Log($"Monster sick status changed: {_isSick}");
         };
         OnHoverChanged -= (hovered) => {
             ui.UpdateHungerDisplay(currentHunger, hovered);
@@ -350,7 +352,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (_isSick == value) return;
         _isSick = value;
         OnSickChanged?.Invoke(_isSick);
-        
+
         if (_isSick)
         {
             Debug.Log($"{gameObject.name} became sick!");
@@ -361,20 +363,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             Debug.Log($"{gameObject.name} recovered from sickness!");
         }
     }
-
-    public void TreatSickness()
-    {
-        if (!_isSick) return;
-        
-        // Reset to healthy state
-        SetSick(false);
-        SetHunger(50f); // Override to 50% hunger
-        SetHappiness(10f); // Override to 10% happiness
-        _lowHungerTime = 0f; // Reset low hunger timer
-        
-        Debug.Log($"{gameObject.name} has been treated and is now healthy!");
-    }
-
+    
     public void GiveMedicine()
     {
         if (_isSick)
@@ -383,6 +372,21 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             // Could consume medicine item, cost coins, etc.
         }
     }
+
+    public void TreatSickness()
+    {
+        if (!_isSick) return;
+
+        // Reset to healthy state
+        SetSick(false);
+        SetHunger(50f); // Override to 50% hunger
+        SetHappiness(10f); // Override to 10% happiness
+        _lowHungerTime = 0f; // Reset low hunger timer
+
+        Debug.Log($"{gameObject.name} has been treated and is now healthy!");
+    }
+
+    
 
     public void OnPointerEnter(PointerEventData e) => _interactionHandler?.OnPointerEnter(e);
     public void OnPointerExit(PointerEventData e) => _interactionHandler?.OnPointerExit(e);

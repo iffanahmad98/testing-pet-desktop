@@ -141,16 +141,16 @@ public class GameManager : MonoBehaviour
         SaveSystem.Flush();
     }
 
-    public void SpawnMonster(MonsterDataSO monsterData = null, string existingID = null)
+    public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
     {
         GameObject monster = CreateMonster(monsterData);
         
         var controller = monster.GetComponent<MonsterController>();
 
-        if (!string.IsNullOrEmpty(existingID))
+        if (!string.IsNullOrEmpty(id))
         {
-            controller.monsterID = existingID;
-            var (_, evolutionLevel) = GetMonsterDataAndLevelFromID(existingID);
+            controller.monsterID = id;
+            var (_, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
             if (evolutionLevel > 0) controller.evolutionLevel = evolutionLevel;
         }
         else
@@ -164,7 +164,7 @@ public class GameManager : MonoBehaviour
         var finalData = controller.MonsterData;
         monster.name = $"{finalData.monsterName}_{controller.monsterID}";
 
-        if (string.IsNullOrEmpty(existingID))
+        if (string.IsNullOrEmpty(id))
             RegisterMonster(controller);
         else
             RegisterActiveMonster(controller);
@@ -220,18 +220,18 @@ public class GameManager : MonoBehaviour
 
         if (monsterController != null)
         {
-            MonsterDataSO dataToUse = monsterData;
+            MonsterDataSO _data = monsterData;
             
             // If no data provided, pick random from database
-            if (dataToUse == null && monsterDatabase != null && monsterDatabase.monsters.Count > 0)
+            if (_data == null && monsterDatabase != null && monsterDatabase.monsters.Count > 0)
             {
-                dataToUse = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
+                _data = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
             }
             
-            if (dataToUse != null)
+            if (_data != null)
             {
-                monsterController.SetMonsterData(dataToUse);
-                monster.name = $"{dataToUse.monsterName}_Temp";
+                monsterController.SetMonsterData(_data);
+                monster.name = $"{_data.monsterName}_Temp";
             }
             else
             {
@@ -493,7 +493,7 @@ public class GameManager : MonoBehaviour
         // Update sibling indices, starting from index 1 to preserve background at index 0
         for (int i = 0; i < validMonsters.Count; i++)
         {
-            validMonsters[i].transform.SetSiblingIndex(i + 1); // +1 to skip background
+            validMonsters[i].transform.SetSiblingIndex(i + 2); // +1 to skip background
         }
     }
 }

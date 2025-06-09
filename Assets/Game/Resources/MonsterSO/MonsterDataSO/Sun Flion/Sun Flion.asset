@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Sun Flion
+  m_EditorClassIdentifier: 
+  monsterName: Sun Flion
+  id: 004
+  monPrice: 10
+  monType: 0
+  moveSpd: 100
+  hungerDepleteRate: 0.05
+  poopRate: 20
+  baseHunger: 50
+  baseHappiness: 0
+  foodDetectionRange: 200
+  eatDistance: 5
+  pokeCooldownDuration: 10
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 2
+  hungerHappinessThreshold: 30
+  hungerHappinessDrainRate: 2
+  clickToCollectPoop: 1
+  canEvolve: 1
+  isEvolved: 0
+  isFinalEvol: 0
+  evolutionLevel: 0
+  startingEvolutionLevel: 1
+  evolutionRequirements: {fileID: 11400000, guid: d3e14830d29dbef47bab7b4a75a30888, type: 2}
+  monsterSpine:
+  - {fileID: 11400000, guid: f26daceca8dbb71478522fdfea9196f5, type: 2}
+  - {fileID: 11400000, guid: 386995bad8f1f5848bc4abf6f0705b9c, type: 2}
+  - {fileID: 0}
+  monsImgs: []
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}
+  evolutionAnimationSets: []
+  evolutionBehaviors: []
