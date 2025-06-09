@@ -220,6 +220,18 @@ public class TransparentWindow : MonoBehaviour
             SetTransparentWindow();
         }
     }
+
+    public void MinimizeWindow()
+    {
+        if (windowHandle == IntPtr.Zero) return;
+
+        // Disable topmost temporarily
+        SetWindowPos(windowHandle, new IntPtr(-2), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+
+        // Minimize
+        ShowWindow(windowHandle, 6); // 6 = SW_MINIMIZE
+    }
+
     #endregion
 }
 #endif
