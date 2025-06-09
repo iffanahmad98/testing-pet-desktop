@@ -3,7 +3,13 @@ using UnityEngine.EventSystems;
 
 public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
-    public int poopValue = 1;
+    public PoopType poopType;
+    public int poopValue;
+
+    private void Start()
+    {
+        poopValue = (int)poopType;
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {

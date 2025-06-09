@@ -16,7 +16,9 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField] CoinType type;
     [SerializeField] float rate;
-    [SerializeField] int value;    public void Initialize(CoinType coinType)
+    [SerializeField] int value;
+
+    public void Initialize(CoinType coinType)
     {
         type = coinType;
         value = CalculateValue(type);
@@ -29,7 +31,9 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
         {
             image.color = Color.gray; // Silver color
         }
-    }    public int CalculateValue(CoinType type) => value = (int)type;
+    }
+
+    public int CalculateValue(CoinType type) => value = (int)type;
 
     public void OnPointerDown(PointerEventData eventData)
     {

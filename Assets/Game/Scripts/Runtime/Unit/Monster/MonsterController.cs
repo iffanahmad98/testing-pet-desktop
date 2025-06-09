@@ -342,7 +342,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         SetHappiness(Mathf.Clamp(currentHappiness + amount, 0f, 100f));
     }
 
-    private void Poop() => ServiceLocator.Get<GameManager>().SpawnPoopAt(_rectTransform.anchoredPosition);
+    private void Poop(PoopType type = PoopType.Normal) => ServiceLocator.Get<GameManager>().SpawnPoopAt(_rectTransform.anchoredPosition, type);
     private void DropCoin(CoinType type) => ServiceLocator.Get<GameManager>().SpawnCoinAt(_rectTransform.anchoredPosition, type);
 
     public void SetSick(bool value)

@@ -370,7 +370,7 @@ public class GameManager : MonoBehaviour
         return coin;
     }
 
-    public GameObject SpawnPoopAt(Vector2 anchoredPos)
+    public GameObject SpawnPoopAt(Vector2 anchoredPos, PoopType type)
     {
         var poop = GetPooledObject(_poopPool, poopPrefab);
         SetupPooledObject(poop, gameArea, anchoredPos);
