@@ -7,10 +7,13 @@ public class UIManager : MonoBehaviour
 {
     [Header("UI Elements")]
     public Button UIMenuButton;
-    [Header("New Menu Panel")]
     public GameObject UINewMenuPanel; 
     public CanvasGroup UINewMenuCanvasGroup;
-    public Button closeMenuButton;
+    public Button groundButton;
+    public Button doorButton;
+    public Button windowButton;
+    public Button shopButton;
+    public Button settingsButton;
     public TextMeshProUGUI poopCounterText;
     public TextMeshProUGUI coinCounterText;
     public Button spawnPetButton;
@@ -26,7 +29,6 @@ public class UIManager : MonoBehaviour
 
     private bool _onMenuOpened = false;
     private bool _isAnimating = false;
-    private Vector3 _menuInitialPosition;
     private Vector3 _newMenuInitialPosition;
     private Vector3 _buttonInitialPosition;
     private CanvasGroup _buttonCanvasGroup;
@@ -68,7 +70,7 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         UIMenuButton.onClick.AddListener(ShowMenu);
-        closeMenuButton?.onClick.AddListener(HideMenu);
+        groundButton?.onClick.AddListener(HideMenu);
         
         var gameManager = ServiceLocator.Get<GameManager>();
         if (gameManager != null)
