@@ -48,13 +48,28 @@ MonoBehaviour:
   deathSound: {fileID: 0}
   interactionSound: {fileID: 0}
   evolutionAnimationSets:
+  - evolutionLevel: 0
+    availableAnimations:
+    - idle
+    - itching
+    - eating
+    - jumping
+    - running
+    - walking
   - evolutionLevel: 1
-    availableAnimations: []
-    preferredStateAnimations: []
+    availableAnimations:
+    - idle
+    - itching
+    - eating
+    - jumping
+    - running
+    - walking
   - evolutionLevel: 2
-    availableAnimations: []
-    preferredStateAnimations: []
-  - evolutionLevel: 3
-    availableAnimations: []
-    preferredStateAnimations: []
+    availableAnimations:
+    - idle
+    - itching
+    - eating
+    - jumping
+    - running
+    - walking
   evolutionBehaviors: []

@@ -61,16 +61,8 @@ public class MonsterMovement
     
     private string GetAnimationForState(MonsterState state)
     {
-        return state switch
-        {
-            MonsterState.Idle => "idle",
-            MonsterState.Walking => "walking",
-            MonsterState.Running => "running",
-            MonsterState.Jumping => "jumping",
-            MonsterState.Itching => "itching",
-            MonsterState.Eating => "eating",
-            _ => "idle"
-        };
+        // Let MonsterStateMachine handle the logic
+        return _stateMachine?.GetAvailableAnimation(state) ?? "idle";
     }
     
     private void HandleDirectionalFlipping(Vector2 pos, Vector2 target)

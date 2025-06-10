@@ -187,8 +187,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         float goldCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Gold).TotalSeconds;
         float silverCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Silver).TotalSeconds;
-        // float poopInterval = (float)TimeSpan.FromMinutes(20).TotalSeconds;
-        float poopInterval = 20f;
+        float poopInterval = (float)TimeSpan.FromMinutes(20).TotalSeconds;
+        // float poopInterval = 20f;
 
         _hungerCoroutine = StartCoroutine(HungerRoutine(1f));
         _happinessCoroutine = StartCoroutine(HappinessRoutine(1f));

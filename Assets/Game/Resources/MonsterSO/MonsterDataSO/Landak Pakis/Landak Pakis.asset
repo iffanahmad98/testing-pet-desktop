@@ -21,6 +21,9 @@ MonoBehaviour:
   poopRate: 20
   baseHunger: 50
   baseHappiness: 0
+  foodDetectionRange: 200
+  eatDistance: 5
+  pokeCooldownDuration: 10
   areaHappinessRate: 0.2
   pokeHappinessValue: 2
   hungerHappinessThreshold: 30
@@ -44,3 +47,29 @@ MonoBehaviour:
   evolveSound: {fileID: 0}
   deathSound: {fileID: 0}
   interactionSound: {fileID: 0}
+  evolutionAnimationSets:
+  - evolutionLevel: 0
+    availableAnimations:
+    - idle
+    - itching
+    - jumping
+    - eating
+    - running
+    - walking
+  - evolutionLevel: 1
+    availableAnimations:
+    - idle
+    - itching
+    - jumping
+    - eating
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - idle
+    - itching
+    - jumping
+    - eating
+    - running
+    - walking
+  evolutionBehaviors: []

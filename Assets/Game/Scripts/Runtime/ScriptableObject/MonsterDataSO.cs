@@ -37,7 +37,6 @@ public class MonsterDataSO : ScriptableObject
     public bool isEvolved = false;
     public bool isFinalEvol = false;
     public int evolutionLevel = 0;
-    public int startingEvolutionLevel = 1; // Or 0, depending on your indexing
     [Header("Evolution Requirements")]
     [Tooltip("Required: Each monster must have its own evolution requirements")]
     public EvolutionRequirementsSO evolutionRequirements;
@@ -76,5 +75,4 @@ public class EvolutionAnimationSet
 {
     public int evolutionLevel;
     public string[] availableAnimations;
-    public string[] preferredStateAnimations; 
 }

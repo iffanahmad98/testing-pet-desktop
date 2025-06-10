@@ -8,7 +8,8 @@ public static class SaveSystem
     private const string SaveFileName = "playerConfig.json";
     private static PlayerConfig _playerConfig;
     private static DateTime _sessionStartTime;
-    // Global game state
+
+    // Global game statss
     private const string CoinKey = "Coin";
     private const string PoopKey = "Poop";
     private const string MonsterKey = "MonsterIDs";
@@ -105,11 +106,11 @@ public static class SaveSystem
 
     public static void Flush() => PlayerPrefs.Save();
 
-    public static void ClearSaveData()
+    public static void ResetSaveData()
     {
-        PlayerPrefs.DeleteKey(CoinKey);
-        PlayerPrefs.DeleteKey(PoopKey);
-        PlayerPrefs.DeleteKey(MonsterKey);
+        PlayerPrefs.SetInt(CoinKey, 100);
+        PlayerPrefs.SetInt(PoopKey, 0);
+        PlayerPrefs.SetString(MonsterKey, "");
 
         // Clear all pet data
         var keys = PlayerPrefs.GetString(MonsterKey, "").Split(',');
@@ -121,6 +122,7 @@ public static class SaveSystem
 
         PlayerPrefs.Save();
     }
+
     #region Time Tracking
     public static DateTime GetLastLoginTime()
     {
@@ -247,8 +249,8 @@ public static class SaveSystem
         Debug.Log("All game data deleted");
     }
     #endregion
+    
     #region Farming System Integration
-
 
     public static void SavePlants(PlantListWrapper plants)
     {
@@ -282,54 +284,8 @@ public static class SaveSystem
         return null;
     }
     #endregion
-    //  #region Player Stats
-    // public static int Coins
-    // {
-    //     get => _playerConfig.coins;
-    //     set => _playerConfig.coins = value;
-    // }
-
-    // public static int Poop
-    // {
-    //     get => _playerConfig.poop;
-    //     set => _playerConfig.poop = value;
-    // }
-    // #endregion
-
-    // #region Monster Management
-    // public static void SaveMonster(MonsterSaveData data)
-    // {
-    //     if (_playerConfig.monsters.ContainsKey(data.monsterId))
-    //     {
-    //         _playerConfig.monsters[data.monsterId] = data;
-    //     }
-    //     else
-    //     {
-    //         _playerConfig.monsters.Add(data.monsterId, data);
-    //         _playerConfig.monsterIDs.Add(data.monsterId);
-    //     }
-    // }
-
-    // public static bool TryGetMonster(string monsterId, out MonsterSaveData data)
-    // {
-    //     return _playerConfig.monsters.TryGetValue(monsterId, out data);
-    // }
-
-    // public static void DeleteMonster(string monsterId)
-    // {
-    //     if (_playerConfig.monsters.ContainsKey(monsterId))
-    //     {
-    //         _playerConfig.monsters.Remove(monsterId);
-    //         _playerConfig.monsterIDs.Remove(monsterId);
-    //     }
-    // }
-
-    // public static List<string> GetAllMonsterIDs()
-    // {
-    //     return new List<string>(_playerConfig.monsterIDs);
-    // }
-    // #endregion
 }
+
 [Serializable]
 public class PlantListWrapper
 {

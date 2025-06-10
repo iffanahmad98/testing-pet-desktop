@@ -106,7 +106,6 @@ public class MonsterDataSOEditor : Editor
             EditorGUILayout.PropertyField(serializedObject.FindProperty("isEvolved"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("isFinalEvol"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionLevel"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("startingEvolutionLevel"));
             
             EditorGUILayout.Space(3);
             EditorGUILayout.LabelField("Requirements & Behaviors", EditorStyles.boldLabel);
@@ -131,7 +130,6 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterSpine"), true);
         
         EditorGUILayout.Space(3);
-        EditorGUILayout.LabelField("Evolution Animations", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionAnimationSets"), true);
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);

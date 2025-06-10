@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,7 @@ public class UIManager : MonoBehaviour
     public Button windowButton;
     public Button shopButton;
     public Button settingsButton;
+    [Header("Temporary UI Elements")]
     public TextMeshProUGUI poopCounterText;
     public TextMeshProUGUI coinCounterText;
     public Button spawnPetButton;
@@ -69,8 +71,9 @@ public class UIManager : MonoBehaviour
     
     void Start()
     {
-        UIMenuButton.onClick.AddListener(ShowMenu);
+        UIMenuButton?.onClick.AddListener(ShowMenu);
         groundButton?.onClick.AddListener(HideMenu);
+        doorButton?.onClick.AddListener(MinimizeApplication);
         
         var gameManager = ServiceLocator.Get<GameManager>();
         if (gameManager != null)
@@ -140,8 +143,6 @@ public class UIManager : MonoBehaviour
             
             _buttonCanvasGroup.alpha = 1f - t;
             _buttonRect.anchoredPosition = Vector3.Lerp(_buttonInitialPosition, buttonTargetPos, easeOut);
-            
-            float fadeProgress = t < 0.3f ? t / 0.3f : (t > 0.7f ? (1f - t) / 0.3f : 1f);
             
             _newMenuPanelRect.anchoredPosition = Vector3.Lerp(newPanelStartPos, _newMenuInitialPosition, easeOut);
             UINewMenuCanvasGroup.alpha = t;
@@ -232,8 +233,33 @@ public class UIManager : MonoBehaviour
         messageText.gameObject.SetActive(false);
     }
 
+    private void MinimizeApplication()
+    {
+        var transparentWindow = ServiceLocator.Get<TransparentWindow>();
+        if (transparentWindow != null)
+        {
+            transparentWindow.MinimizeWindow();
+            HideMenu();
+        }
+        else
+        {
+            Debug.LogWarning("TransparentWindow service not found - cannot minimize");
+            
+            #if !UNITY_STANDALONE_WIN && !UNITY_EDITOR_WIN
+            Application.Quit();
+            #endif
+        }
+    }
+
     void OnDestroy()
     {
+        UIMenuButton?.onClick.RemoveAllListeners();
+        groundButton?.onClick.RemoveAllListeners();
+        doorButton?.onClick.RemoveAllListeners();
+        spawnPetButton?.onClick.RemoveAllListeners();
+        spawnFoodButton?.onClick.RemoveAllListeners();
+        gachaButton?.onClick.RemoveAllListeners();
+        
         var gameManager = ServiceLocator.Get<GameManager>();
         if (gameManager != null)
         {

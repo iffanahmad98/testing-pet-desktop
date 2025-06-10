@@ -109,8 +109,12 @@ public class MonsterStateMachine : MonoBehaviour
             if (_controller.currentHunger < transition.hungerThreshold) continue;
             if (_controller.currentHappiness < transition.happinessThreshold) continue;
             
-            // NEW: Check if target state has available animations
-            if (!HasAnimationForState(transition.toState)) continue;
+            // CRITICAL: Check if target state has available animations
+            if (!HasValidAnimationForState(transition.toState)) 
+            {
+                Debug.LogWarning($"Skipping transition to {transition.toState} - no valid animations found");
+                continue;
+            }
 
             _transitions.Add(transition);
         }
@@ -118,13 +122,9 @@ public class MonsterStateMachine : MonoBehaviour
         return _transitions;
     }
 
-    private bool HasAnimationForState(MonsterState state)
+    private bool HasValidAnimationForState(MonsterState state)
     {
         string[] animations = GetEvolutionSpecificAnimations(state);
-        if (animations == null || animations.Length == 0)
-        {
-            animations = GetDefaultAnimations(state);
-        }
         
         foreach (string animName in animations)
         {
@@ -134,7 +134,8 @@ public class MonsterStateMachine : MonoBehaviour
             }
         }
         
-        return false;
+        // If no specific animations, check if idle exists as absolute fallback
+        return state == MonsterState.Idle ? HasAnimation("idle") : false;
     }
 
     private void ChangeState(MonsterState newState)
@@ -189,7 +190,7 @@ public class MonsterStateMachine : MonoBehaviour
         }
     }
 
-    private string GetAvailableAnimation(MonsterState state)
+    public string GetAvailableAnimation(MonsterState state)
     {
         // Get evolution-specific animations if available
         string[] preferredAnimations = GetEvolutionSpecificAnimations(state);
@@ -216,43 +217,78 @@ public class MonsterStateMachine : MonoBehaviour
     private string[] GetEvolutionSpecificAnimations(MonsterState state)
     {
         if (_controller?.MonsterData?.evolutionAnimationSets == null)
-            return null;
-            
+            return GetDefaultAnimations(state);
+    
         int currentEvolutionLevel = _controller.evolutionLevel;
-        
-        // Find the animation set for current evolution level
+    
+        // Try current evolution level first
         var animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
             set => set.evolutionLevel == currentEvolutionLevel);
-        
-        if (animationSet?.availableAnimations == null)
-            return null;
-        
-        return state switch
+    
+        // Fallback strategy: Try lower evolution levels in descending order
+        if (animationSet?.availableAnimations == null || animationSet.availableAnimations.Length == 0)
         {
-            MonsterState.Idle => FilterAnimations(animationSet.availableAnimations, new[] { "idle" }),
-            MonsterState.Walking => FilterAnimations(animationSet.availableAnimations, new[] { "walking", "walk" }),
-            MonsterState.Running => FilterAnimations(animationSet.availableAnimations, new[] { "running", "run" }),
-            MonsterState.Flying => FilterAnimations(animationSet.availableAnimations, new[] { "flying", "fly" }),
-            MonsterState.Jumping => FilterAnimations(animationSet.availableAnimations, new[] { "jumping", "jump" }),
-            MonsterState.Itching => FilterAnimations(animationSet.availableAnimations, new[] { "itching", "itch" }),
-            MonsterState.Eating => FilterAnimations(animationSet.availableAnimations, new[] { "eating", "eat" }),
-            _ => new[] { "idle" }
-        };
+            for (int level = currentEvolutionLevel - 1; level >= 0; level--)
+            {
+                animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
+                    set => set.evolutionLevel == level);
+            
+                if (animationSet?.availableAnimations != null && animationSet.availableAnimations.Length > 0)
+                    break;
+            }
+        }
+    
+        // If still no valid set found, use first available set
+        if (animationSet?.availableAnimations == null || animationSet.availableAnimations.Length == 0)
+        {
+            animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
+                set => set.availableAnimations != null && set.availableAnimations.Length > 0);
+        }
+    
+        // Complete fallback to default patterns
+        if (animationSet?.availableAnimations == null)
+        {
+            Debug.LogWarning($"[Animation] No valid animation sets for {_controller.monsterID} evolution level {currentEvolutionLevel}, using defaults");
+            return GetDefaultAnimations(state);
+        }
+    
+        return FilterAnimationsByState(state, animationSet.availableAnimations);
     }
 
-    private string[] FilterAnimations(string[] availableAnimations, string[] preferredNames)
+    private string[] FilterAnimationsByState(MonsterState state, string[] availableAnimations)
     {
-        var filtered = new System.Collections.Generic.List<string>();
+        string[] patterns = GetStatePatterns(state);
         
-        foreach (string preferred in preferredNames)
+        List<string> matchingAnimations = new List<string>();
+        
+        foreach (string pattern in patterns)
         {
-            if (System.Array.Exists(availableAnimations, anim => anim.Equals(preferred, System.StringComparison.OrdinalIgnoreCase)))
+            foreach (string animation in availableAnimations)
             {
-                filtered.Add(preferred);
+                if (animation.ToLower().Contains(pattern.ToLower()))
+                {
+                    matchingAnimations.Add(animation);
+                }
             }
         }
         
-        return filtered.ToArray();
+        // If no matches found, return all available animations as fallback
+        return matchingAnimations.Count > 0 ? matchingAnimations.ToArray() : availableAnimations;
+    }
+
+    private string[] GetStatePatterns(MonsterState state)
+    {
+        return state switch
+        {
+            MonsterState.Idle => new[] { "idle", "rest", "stand", "sleep", "roar", "breathe" },
+            MonsterState.Walking => new[] { "walk", "walking", "move" },
+            MonsterState.Running => new[] { "run", "running", "sprint", "hunt" },
+            MonsterState.Flying => new[] { "fly", "flying", "hover", "float" },
+            MonsterState.Jumping => new[] { "jump", "jumping", "leap", "pounce" },
+            MonsterState.Itching => new[] { "itch", "itching", "scratch" },
+            MonsterState.Eating => new[] { "eat", "eating", "feed", "consume" },
+            _ => new[] { "idle" }
+        };
     }
 
     private string[] GetDefaultAnimations(MonsterState state)

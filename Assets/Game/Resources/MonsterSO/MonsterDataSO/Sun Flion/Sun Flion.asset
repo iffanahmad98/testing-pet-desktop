@@ -47,5 +47,28 @@ MonoBehaviour:
   evolveSound: {fileID: 0}
   deathSound: {fileID: 0}
   interactionSound: {fileID: 0}
-  evolutionAnimationSets: []
+  evolutionAnimationSets:
+  - evolutionLevel: 0
+    availableAnimations:
+    - idle
+    - eating
+    - jumping
+    - walking
+    - itching
+  - evolutionLevel: 1
+    availableAnimations:
+    - idle
+    - eating
+    - jumping
+    - walking
+    - itching
+    - running
+  - evolutionLevel: 2
+    availableAnimations:
+    - idle
+    - eating
+    - jumping
+    - walking
+    - itching
+    - running
   evolutionBehaviors: []

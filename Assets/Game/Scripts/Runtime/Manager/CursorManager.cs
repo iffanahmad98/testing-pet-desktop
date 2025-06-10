@@ -9,8 +9,16 @@ public class CursorManager : MonoBehaviour
 
     void Awake()
     {
+        hotspot = Vector2.zero;
         Reset();
         ServiceLocator.Register(this);
+    }
+
+    private Vector2 SetHotspot(CursorType t)
+    {
+        var cursorTexture = map.Get(t);
+        hotspot = new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
+        return hotspot;
     }
 
     public void Set(CursorType t) => Cursor.SetCursor(map.Get(t), hotspot, CursorMode.Auto);

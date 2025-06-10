@@ -51,6 +51,7 @@ public class TransparentWindow : MonoBehaviour
     private bool wasOverUI = false;
     private IntPtr windowHandle = IntPtr.Zero;
     private Camera mainCamera;
+    private bool isMinimizing = false;
     #endregion
 
     #region Unity Lifecycle
@@ -70,6 +71,14 @@ public class TransparentWindow : MonoBehaviour
             enabled = false;
             return;
         }
+        
+        // Register in ServiceLocator
+        ServiceLocator.Register(this);
+    }
+
+    void OnDestroy()
+    {
+        ServiceLocator.Unregister<TransparentWindow>();
     }
 
     private void Start()
@@ -95,7 +104,19 @@ public class TransparentWindow : MonoBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (!hasFocus && enableTopMost)
+        // Don't restore properties if we're in the process of minimizing
+        if (isMinimizing) return;
+        
+        if (hasFocus)
+        {
+            // Restore window settings when focus is regained
+            SetTransparentWindow();
+            if (enableTopMost)
+            {
+                SetTopMost();
+            }
+        }
+        else if (enableTopMost)
         {
             MaintainTopMostState();
         }
@@ -225,13 +246,58 @@ public class TransparentWindow : MonoBehaviour
     {
         if (windowHandle == IntPtr.Zero) return;
 
-        // Disable topmost temporarily
-        SetWindowPos(windowHandle, new IntPtr(-2), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+        try
+        {
+            isMinimizing = true;
+            
+            // Remove topmost flag - use HWND_NOTOPMOST (-2)
+            SetWindowPos(windowHandle, new IntPtr(-2), 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
 
-        // Minimize
-        ShowWindow(windowHandle, 6); // 6 = SW_MINIMIZE
+            // Remove transparent and layered styles temporarily
+            SetWindowLong(windowHandle, GWL_EXSTYLE, 0);
+
+            // Now minimize the window
+            ShowWindow(windowHandle, 6); // SW_MINIMIZE
+            
+            // Reset the flag after a delay
+            Invoke(nameof(ResetMinimizeFlag), 1f);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to minimize window: {ex.Message}");
+            isMinimizing = false;
+        }
     }
 
+    private void ResetMinimizeFlag()
+    {
+        isMinimizing = false;
+    }
+
+    public void RestoreWindow()
+    {
+        if (windowHandle == IntPtr.Zero) return;
+
+        try
+        {
+            // Restore the window
+            ShowWindow(windowHandle, SW_RESTORE);
+
+            // Re-apply transparent window settings
+            SetTransparentWindow();
+            SetTransparentMargins();
+
+            // Re-apply topmost if enabled
+            if (enableTopMost)
+            {
+                SetTopMost();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to restore window: {ex.Message}");
+        }
+    }
     #endregion
 }
 #endif
