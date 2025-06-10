@@ -6,34 +6,38 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 {
     public PoopType poopType;
     public int poopValue;
+    
+    private Animator animator;
 
-    private void Start()
+    private void Awake()
     {
-        //TEMP: randomize poop type
-        poopType = (PoopType)Random.Range(0, System.Enum.GetValues(typeof(PoopType)).Length);
+        animator = GetComponent<Animator>();
+    }
 
+    public void Initialize(PoopType type)
+    {
+        poopType = type;
         poopValue = (int)poopType;
 
-        //TEMP: different poop color depending on type
-        switch (poopType)
+        // Set animator trigger based on poop type
+        if (type == PoopType.Normal)
         {
-            case PoopType.Normal:
-                GetComponent<Image>().color = Color.black;
-                break;
-            case PoopType.Special:
-                GetComponent<Image>().color = Color.white;
-                break;
-            default:
-                break;
+            GetComponent<Image>().color = Color.black;
+            // animator.SetTrigger("Normal");
         }
-        
-
+        else if (type == PoopType.Special)
+        {
+            GetComponent<Image>().color = Color.white;
+            // animator.SetTrigger("Special");
+        }
     }
+
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        ServiceLocator.Get<GameManager>().poopCollected += poopValue;
-        ServiceLocator.Get<GameManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<GameManager>().poopCollected);
+        ServiceLocator.Get<GameManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<GameManager>().poopCollected += poopValue);
+        SaveSystem.SavePoop(ServiceLocator.Get<GameManager>().poopCollected);
+        SaveSystem.Flush();
         ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
     }
 

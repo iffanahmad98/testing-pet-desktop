@@ -365,7 +365,6 @@ public class GameManager : MonoBehaviour
     {
         var coin = GetPooledObject(_coinPool, coinPrefab);
         SetupPooledObject(coin, gameArea, anchoredPos);
-
         coin.GetComponent<CoinController>().Initialize(type);
         return coin;
     }
@@ -374,6 +373,7 @@ public class GameManager : MonoBehaviour
     {
         var poop = GetPooledObject(_poopPool, poopPrefab);
         SetupPooledObject(poop, gameArea, anchoredPos);
+        poop.GetComponent<PoopController>().Initialize(type);
         return poop;
     }
 
@@ -493,7 +493,7 @@ public class GameManager : MonoBehaviour
         // Update sibling indices, starting from index 1 to preserve background at index 0
         for (int i = 0; i < validMonsters.Count; i++)
         {
-            validMonsters[i].transform.SetSiblingIndex(i + 2); // +1 to skip background
+            validMonsters[i].transform.SetSiblingIndex(i + 1); // +1 to skip background
         }
     }
 }

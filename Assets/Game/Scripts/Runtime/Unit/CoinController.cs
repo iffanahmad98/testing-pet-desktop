@@ -18,22 +18,26 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
     [SerializeField] float rate;
     [SerializeField] int value;
 
+    private Animator animator;
+
+    void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+
     public void Initialize(CoinType coinType)
     {
         type = coinType;
-        value = CalculateValue(type);
-        Image image = GetComponent<Image>();
+        value = (int)type;
         if (coinType == CoinType.Gold)
         {
-            image.color = Color.yellow; // Gold color
+            animator.SetTrigger("Gold");
         }
         else if (coinType == CoinType.Silver)
         {
-            image.color = Color.gray; // Silver color
+            animator.SetTrigger("Silver");
         }
     }
-
-    public int CalculateValue(CoinType type) => value = (int)type;
 
     public void OnPointerDown(PointerEventData eventData)
     {
