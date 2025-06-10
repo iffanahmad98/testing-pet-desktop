@@ -33,6 +33,9 @@ public class TransparentWindow : MonoBehaviour
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
     #endregion
 
     #region Structures
@@ -233,15 +236,6 @@ public class TransparentWindow : MonoBehaviour
         }
     }
 
-    public void SetClickThroughEnabled(bool enabled)
-    {
-        enableClickThrough = enabled;
-        if (windowHandle != IntPtr.Zero)
-        {
-            SetTransparentWindow();
-        }
-    }
-
     public void MinimizeWindow()
     {
         if (windowHandle == IntPtr.Zero) return;
@@ -287,11 +281,14 @@ public class TransparentWindow : MonoBehaviour
             SetTransparentWindow();
             SetTransparentMargins();
 
-            // Re-apply topmost if enabled
+            // Re-apply topmost if enabled (this also helps with focus)
             if (enableTopMost)
             {
                 SetTopMost();
             }
+            
+            // Force focus to the window
+            SetForegroundWindow(windowHandle);
         }
         catch (Exception ex)
         {

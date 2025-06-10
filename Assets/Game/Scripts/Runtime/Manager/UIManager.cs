@@ -12,7 +12,8 @@ public class UIManager : MonoBehaviour
     public CanvasGroup UINewMenuCanvasGroup;
     public Button groundButton;
     public Button doorButton;
-    public Button windowButton;
+    public Button windowButton; // Keep this for normal mode
+    public Button miniWindowButton; // Add this for mini window mode
     public Button shopButton;
     public Button settingsButton;
     [Header("Temporary UI Elements")]
@@ -29,13 +30,23 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AnimationCurve easeOutCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private AnimationCurve easeInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    [Header("Mini Window Mode")]
+    [SerializeField] private GameObject gameContentParent; // Assign your main game content container
+    [SerializeField] private float miniWindowScale = 3f;
+    [SerializeField] private float miniWindowOpacity = 0.15f;
+
     private bool _onMenuOpened = false;
     private bool _isAnimating = false;
+    private bool _isMiniWindowMode = false;
     private Vector3 _newMenuInitialPosition;
     private Vector3 _buttonInitialPosition;
+    private Vector3 _originalWindowButtonScale;
+    private Vector2 _originalWindowButtonPosition;
     private CanvasGroup _buttonCanvasGroup;
+    private CanvasGroup _windowButtonCanvasGroup;
     private RectTransform _newMenuPanelRect;
     private RectTransform _buttonRect;
+    private RectTransform _windowButtonRect;
 
     [System.Serializable]
     public class UIAnimationEvents
@@ -67,6 +78,33 @@ public class UIManager : MonoBehaviour
         
         _newMenuPanelRect = UINewMenuPanel?.GetComponent<RectTransform>();
         _buttonRect = UIMenuButton?.GetComponent<RectTransform>();
+        
+        // Initialize mini window components
+        InitializeMiniWindow();
+    }
+
+    private void InitializeMiniWindow()
+    {
+        // Use miniWindowButton instead of windowButton for mini mode
+        _windowButtonRect = miniWindowButton?.GetComponent<RectTransform>();
+        _windowButtonCanvasGroup = miniWindowButton?.GetComponent<CanvasGroup>();
+        
+        if (_windowButtonCanvasGroup == null && miniWindowButton != null)
+        {
+            _windowButtonCanvasGroup = miniWindowButton.gameObject.AddComponent<CanvasGroup>();
+        }
+        
+        if (_windowButtonRect != null)
+        {
+            _originalWindowButtonScale = _windowButtonRect.localScale;
+            _originalWindowButtonPosition = _windowButtonRect.anchoredPosition;
+        }
+        
+        // Initially hide mini window button
+        if (miniWindowButton != null)
+        {
+            miniWindowButton.gameObject.SetActive(false);
+        }
     }
     
     void Start()
@@ -74,6 +112,8 @@ public class UIManager : MonoBehaviour
         UIMenuButton?.onClick.AddListener(ShowMenu);
         groundButton?.onClick.AddListener(HideMenu);
         doorButton?.onClick.AddListener(MinimizeApplication);
+        windowButton?.onClick.AddListener(ToggleMiniWindowMode); // Normal window button
+        miniWindowButton?.onClick.AddListener(ToggleMiniWindowMode); // Mini window button
         
         var gameManager = ServiceLocator.Get<GameManager>();
         if (gameManager != null)
@@ -251,11 +291,104 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ToggleMiniWindowMode()
+    {
+        if (_isAnimating) return;
+        
+        _isMiniWindowMode = !_isMiniWindowMode;
+        
+        if (_isMiniWindowMode)
+        {
+            EnterMiniWindowMode();
+        }
+        else
+        {
+            ExitMiniWindowMode();
+        }
+    }
+
+    private void EnterMiniWindowMode()
+    {
+        // Hide game content
+        if (gameContentParent != null)
+            gameContentParent.SetActive(false);
+
+        // Hide the entire UI menu panel
+        if (UINewMenuPanel != null)
+            UINewMenuPanel.SetActive(false);
+
+        // Show and transform mini window button
+        if (miniWindowButton != null)
+        {
+            miniWindowButton.gameObject.SetActive(true);
+            
+            if (_windowButtonRect != null)
+            {
+                _windowButtonRect.localScale = _originalWindowButtonScale * miniWindowScale;
+            }
+
+            if (_windowButtonCanvasGroup != null)
+            {
+                _windowButtonCanvasGroup.alpha = miniWindowOpacity;
+                _windowButtonCanvasGroup.interactable = true;
+                _windowButtonCanvasGroup.blocksRaycasts = true;
+            }
+        }
+    }
+
+    private void ExitMiniWindowMode()
+    {
+        // Show game content
+        if (gameContentParent != null)
+            gameContentParent.SetActive(true);
+
+        // Hide mini window button and reset its properties for next time
+        if (miniWindowButton != null)
+        {
+            // Reset mini window button to original state before hiding
+            if (_windowButtonRect != null)
+            {
+                _windowButtonRect.localScale = _originalWindowButtonScale;
+                _windowButtonRect.anchoredPosition = _originalWindowButtonPosition;
+            }
+
+            if (_windowButtonCanvasGroup != null)
+            {
+                _windowButtonCanvasGroup.alpha = 1f;
+            }
+            
+            miniWindowButton.gameObject.SetActive(false);
+        }
+
+        // Always show UINewMenuPanel when exiting mini mode
+        if (UINewMenuPanel != null)
+        {
+            UINewMenuPanel.SetActive(true);
+        }
+
+        // Restore menu state using CanvasGroup based on previous state
+        if (_onMenuOpened && UINewMenuCanvasGroup != null)
+        {
+            UINewMenuCanvasGroup.alpha = 1f;
+            UINewMenuCanvasGroup.interactable = true;
+            UINewMenuCanvasGroup.blocksRaycasts = true;
+        }
+        else if (UINewMenuCanvasGroup != null)
+        {
+            // If menu wasn't open, make sure it's hidden properly
+            UINewMenuCanvasGroup.alpha = 0f;
+            UINewMenuCanvasGroup.interactable = false;
+            UINewMenuCanvasGroup.blocksRaycasts = false;
+        }
+    }
+
     void OnDestroy()
     {
         UIMenuButton?.onClick.RemoveAllListeners();
         groundButton?.onClick.RemoveAllListeners();
         doorButton?.onClick.RemoveAllListeners();
+        windowButton?.onClick.RemoveAllListeners(); 
+        miniWindowButton?.onClick.RemoveAllListeners();
         spawnPetButton?.onClick.RemoveAllListeners();
         spawnFoodButton?.onClick.RemoveAllListeners();
         gachaButton?.onClick.RemoveAllListeners();
