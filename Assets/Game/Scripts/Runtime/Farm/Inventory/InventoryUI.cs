@@ -1,0 +1,45 @@
+using UnityEngine;
+using System.Collections.Generic;
+using MagicalGarden.Farm;
+
+namespace MagicalGarden.Inventory
+{
+    public class InventoryUI : MonoBehaviour
+    {
+        public GameObject slotPrefab;
+        public Transform itemContainer;
+
+        private List<InventorySlot> slotList = new List<InventorySlot>();
+
+        private void OnEnable()
+        {
+
+        }
+
+        public void RefreshUI()
+        {
+            var items = InventoryManager.Instance.items;
+
+            // Expand slot jika perlu
+            while (slotList.Count < items.Count)
+            {
+                var slotGO = Instantiate(slotPrefab, itemContainer);
+                var slot = slotGO.GetComponent<InventorySlot>();
+                // slot.button.onClick.AddListener(slot.OnClick);
+                slotList.Add(slot);
+            }
+
+            for (int i = 0; i < slotList.Count; i++)
+            {
+                if (i < items.Count)
+                {
+                    slotList[i].SetSlot(items[i]);
+                }
+                else
+                {
+                    slotList[i].ClearSlot();
+                }
+            }
+        }
+    }
+}
