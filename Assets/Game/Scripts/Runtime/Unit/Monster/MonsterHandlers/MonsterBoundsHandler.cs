@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class MonsterMovementBounds
+public class MonsterBoundsHandler
 {
     private RectTransform _rectTransform;
     private GameManager _gameManager;
     private const float PADDING = 50f; // Match SettingsManager padding
     
-    public MonsterMovementBounds(RectTransform rectTransform, GameManager gameManager)
+    public MonsterBoundsHandler(RectTransform rectTransform, GameManager gameManager)
     {
         _rectTransform = rectTransform;
         _gameManager = gameManager;

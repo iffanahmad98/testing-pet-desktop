@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class MonsterSeparationBehavior
+public class MonsterSeparationHandler
 {
     private MonsterController _controller;
     private GameManager _gameManager;
@@ -13,7 +13,7 @@ public class MonsterSeparationBehavior
     public float maxSeparationSpeed = 100f; // Limit separation movement speed
     public LayerMask monsterLayer = -1;
     
-    public MonsterSeparationBehavior(MonsterController controller, GameManager gameManager, RectTransform rectTransform)
+    public MonsterSeparationHandler(MonsterController controller, GameManager gameManager, RectTransform rectTransform)
     {
         _controller = controller;
         _gameManager = gameManager;

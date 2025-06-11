@@ -67,15 +67,17 @@ public class MonsterFoodHandler
     public void HandleFoodLogic(ref Vector2 targetPosition)
     {
         if (NearestFood == null) return;
-
         if (_isEating) return;
 
-        if (_controller.GetComponent<MonsterStateMachine>()?.CurrentState == MonsterState.Eating)
+        // Use cached state machine reference instead of GetComponent
+        var stateMachine = _controller.GetComponent<MonsterStateMachine>();
+        if (stateMachine?.CurrentState == MonsterState.Eating)
         {
             return;
         }
 
-        if (!NearestFood.TryClaim(_controller))
+        // Validate food is still valid
+        if (NearestFood == null || !NearestFood.gameObject.activeInHierarchy)
         {
             NearestFood = null;
             _controller.SetRandomTarget();
@@ -83,7 +85,16 @@ public class MonsterFoodHandler
         }
 
         Vector2 currentPos = _rectTransform.anchoredPosition;
-        Vector2 foodPos = NearestFood.GetComponent<RectTransform>().anchoredPosition;
+        RectTransform foodRT = NearestFood.GetComponent<RectTransform>();
+        
+        if (foodRT == null)
+        {
+            NearestFood = null;
+            _controller.SetRandomTarget();
+            return;
+        }
+        
+        Vector2 foodPos = foodRT.anchoredPosition;
         float currentDistanceSqr = (foodPos - currentPos).sqrMagnitude;
         
         float adjustedEatDistanceSqr = _eatDistanceSqr * 3f;
