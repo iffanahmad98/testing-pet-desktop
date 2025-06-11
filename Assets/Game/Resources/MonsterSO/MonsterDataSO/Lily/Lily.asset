@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Sun Flion
+  m_Name: Lily
   m_EditorClassIdentifier: 
-  monsterName: Sun Flion
-  id: 004
+  monsterName: Lily
+  id: 005
   monPrice: 10
   monType: 0
   moveSpd: 100
@@ -33,12 +33,10 @@ MonoBehaviour:
   isEvolved: 0
   isFinalEvol: 0
   evolutionLevel: 0
-  startingEvolutionLevel: 1
   evolutionRequirements: {fileID: 11400000, guid: d3e14830d29dbef47bab7b4a75a30888, type: 2}
   monsterSpine:
-  - {fileID: 11400000, guid: f26daceca8dbb71478522fdfea9196f5, type: 2}
-  - {fileID: 11400000, guid: 386995bad8f1f5848bc4abf6f0705b9c, type: 2}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 7f020e0b978c0344ca2b540dffc3956a, type: 2}
+  - {fileID: 11400000, guid: 993477a849bcbd347a4bb389a2381cbe, type: 2}
   monsImgs: []
   idleSounds: []
   happySound: {fileID: 0}
@@ -53,22 +51,13 @@ MonoBehaviour:
     - idle
     - eating
     - jumping
-    - walking
-    - itching
+    - running
+    - waking
   - evolutionLevel: 1
     availableAnimations:
     - idle
     - eating
     - jumping
-    - walking
-    - itching
     - running
-  - evolutionLevel: 2
-    availableAnimations:
-    - idle
-    - eating
-    - jumping
-    - walking
-    - itching
-    - running
+    - waking
   evolutionBehaviors: []
