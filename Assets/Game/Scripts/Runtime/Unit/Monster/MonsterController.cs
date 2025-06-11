@@ -193,11 +193,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         OnHoverChanged -= _hoverChangedHandler;
     }
 
-    private void UpdateHappinessBasedOnArea()
-    {
-        _statsHandler?.UpdateHappinessBasedOnArea(monsterData, ServiceLocator.Get<GameManager>());  
-    }
-
     private void HandleMovement()
     {
         if (monsterData == null) return;
@@ -226,7 +221,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
 
         bool isMovementState = _stateMachine?.CurrentState == MonsterState.Walking ||
-                              _stateMachine?.CurrentState == MonsterState.Running;
+                              _stateMachine?.CurrentState == MonsterState.Running ||
+                              _stateMachine?.CurrentState == MonsterState.Flying;
 
         // Only find food once per frame for movement states
         if (isMovementState)
@@ -299,11 +295,18 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void UpdateVisuals() => _visualHandler?.UpdateMonsterVisuals();
 
-    public void Feed(float amount)
+    public void Feed(float amount, bool playAnimation = true)
     {
         if (_statsHandler?.Feed(amount) == true)
         {
+            // Successfully fed
             _evolutionHandler?.OnFoodConsumed();
+            
+            // Optionally play eating animation
+            if (playAnimation)
+            {
+                _stateMachine?.ForceState(MonsterState.Eating);
+            }
         }
         else
         {
