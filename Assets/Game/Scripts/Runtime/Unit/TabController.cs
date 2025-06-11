@@ -15,6 +15,8 @@ public class TabController : MonoBehaviour
     public List<Tab> tabs = new List<Tab>();
     public Color activeColor = Color.white;
     public Color inactiveColor = Color.gray;
+    public System.Action<int> OnTabChanged; // Add this at the top
+
 
     private int currentTabIndex = 0;
 
