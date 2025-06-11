@@ -14,13 +14,6 @@ public class CursorManager : MonoBehaviour
         ServiceLocator.Register(this);
     }
 
-    private Vector2 SetHotspot(CursorType t)
-    {
-        var cursorTexture = map.Get(t);
-        hotspot = new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
-        return hotspot;
-    }
-
     public void Set(CursorType t) => Cursor.SetCursor(map.Get(t), hotspot, CursorMode.Auto);
     public void Reset() => Cursor.SetCursor(map.defaultTex, hotspot, CursorMode.Auto);
     void OnDestroy() => ServiceLocator.Unregister<CursorManager>();

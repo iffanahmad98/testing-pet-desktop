@@ -22,13 +22,11 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         // Set animator trigger based on poop type
         if (type == PoopType.Normal)
         {
-            GetComponent<Image>().color = Color.black;
-            // animator.SetTrigger("Normal");
+            animator.SetTrigger("Normal");
         }
         else if (type == PoopType.Special)
         {
-            GetComponent<Image>().color = Color.white;
-            // animator.SetTrigger("Special");
+            animator.SetTrigger("Special");
         }
     }
 

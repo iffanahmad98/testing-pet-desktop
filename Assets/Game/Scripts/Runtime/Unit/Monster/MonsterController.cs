@@ -187,8 +187,10 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         float goldCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Gold).TotalSeconds;
         float silverCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Silver).TotalSeconds;
-        float poopInterval = (float)TimeSpan.FromMinutes(20).TotalSeconds;
-        // float poopInterval = 20f;
+        // float poopInterval = (float)TimeSpan.FromMinutes(20).TotalSeconds;
+        // float goldCoinInterval = 30f;
+        // float silverCoinInterval = 15f
+        float poopInterval = 20f;
 
         _hungerCoroutine = StartCoroutine(HungerRoutine(1f));
         _happinessCoroutine = StartCoroutine(HappinessRoutine(1f));
@@ -430,7 +432,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         _foodHandler?.ForceResetEating();
     }    // Add public methods to access evolution handler
     public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
-    public void ForceEvolution() => _evolutionHandler?.ForceEvolution();
 
     // Add these getter methods for save handler to access evolution data
     public float GetEvolutionTimeSinceCreation() 
@@ -517,7 +518,15 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         yield return new WaitForSeconds(interval);
         while (true)
         {
-            Poop();
+            if (monsterData.monType == MonsterType.Common ||
+                monsterData.monType == MonsterType.Uncommon)
+                Poop(PoopType.Normal);
+            else if (monsterData.monType == MonsterType.Rare ||
+                     monsterData.monType == MonsterType.Boss ||
+                     monsterData.monType == MonsterType.Mythic)
+                Poop(PoopType.Special);
+            else
+                Poop(); // Default to normal poop if type is unknown
             yield return new WaitForSeconds(interval);
         }
     }

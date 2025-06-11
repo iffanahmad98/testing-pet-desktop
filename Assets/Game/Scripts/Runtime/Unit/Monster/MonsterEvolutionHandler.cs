@@ -207,33 +207,20 @@ public class MonsterEvolutionHandler
         {
             Debug.LogWarning($"[Evolution] Could not update monster ID format for {_controller.monsterID}");
         }
-    }    private void OnEvolutionComplete(int oldLevel, int newLevel)
+    }
+
+    private void OnEvolutionComplete(int oldLevel, int newLevel)
     {
         ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {newLevel}!", 3f);
 
         _lastEvolutionTime = Time.time;
 
         // Reset progress counters
-        var oldFood = _foodConsumed;
-        var oldInteractions = _interactionCount;
         _foodConsumed = 0;
         _interactionCount = 0;
 
         // IMPORTANT: Save the evolved monster data immediately
         _controller.SaveMonData();
-    }
-
-    // Manual evolution for testing/admin
-    public void ForceEvolution()
-    {
-        if (CanEvolve)
-        {
-            TriggerEvolution();
-        }
-        else
-        {
-            Debug.LogWarning($"[Evolution] Force evolution failed - CanEvolve is false for {_controller?.monsterID}");
-        }
     }
 
     // Get evolution progress for UI
