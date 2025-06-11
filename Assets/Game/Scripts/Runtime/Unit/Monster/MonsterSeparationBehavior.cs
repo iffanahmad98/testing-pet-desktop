@@ -8,8 +8,9 @@ public class MonsterSeparationBehavior
     private RectTransform _rectTransform;
     
     [Header("Separation Settings")]
-    public float separationRadius = 100f;
-    public float separationForce = 2f;
+    public float separationRadius = 150f;  // Increased radius
+    public float separationForce = 200f;   // Much stronger force
+    public float maxSeparationSpeed = 100f; // Limit separation movement speed
     public LayerMask monsterLayer = -1;
     
     public MonsterSeparationBehavior(MonsterController controller, GameManager gameManager, RectTransform rectTransform)
@@ -25,7 +26,6 @@ public class MonsterSeparationBehavior
         int count = 0;
         Vector2 currentPosition = _rectTransform.anchoredPosition;
         
-        // Check all other active monsters
         foreach (var otherMonster in _gameManager.activeMonsters)
         {
             if (otherMonster == _controller || otherMonster == null) continue;
@@ -36,28 +36,28 @@ public class MonsterSeparationBehavior
             Vector2 otherPosition = otherTransform.anchoredPosition;
             float distance = Vector2.Distance(currentPosition, otherPosition);
             
-            // If within separation radius, calculate repulsion
             if (distance > 0 && distance < separationRadius)
             {
                 Vector2 diff = currentPosition - otherPosition;
                 diff.Normalize();
                 
-                // Weight by distance (closer = stronger repulsion)
-                diff /= distance;
+                // FIXED: Stronger repulsion for closer monsters
+                float strength = (separationRadius - distance) / separationRadius;
+                diff *= strength * separationForce;
+                
                 separationVector += diff;
                 count++;
             }
         }
         
-        // Average the separation vectors
         if (count > 0)
         {
             separationVector /= count;
-            separationVector.Normalize();
-            separationVector *= separationForce;
+            // Don't normalize here - we want to preserve the accumulated force
+            return separationVector;
         }
         
-        return separationVector;
+        return Vector2.zero;
     }
     
     public Vector2 ApplySeparationToTarget(Vector2 originalTarget)

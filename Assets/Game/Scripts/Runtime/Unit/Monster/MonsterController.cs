@@ -227,8 +227,22 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     private void HandleMovement()
     {
-        // Add null check at the beginning
         if (monsterData == null) return;
+        
+        // Apply separation force regardless of state
+        Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
+        if (separationForce.magnitude > 0.1f)
+        {
+            Vector2 _currentPos = _rectTransform.anchoredPosition;
+            Vector2 _newPos = _currentPos + separationForce * Time.deltaTime;
+            
+            // Ensure new position is within bounds
+            var bounds = _movementBounds.CalculateMovementBounds();
+            _newPos.x = Mathf.Clamp(_newPos.x, bounds.min.x, bounds.max.x);
+            _newPos.y = Mathf.Clamp(_newPos.y, bounds.min.y, bounds.max.y);
+            
+            _rectTransform.anchoredPosition = _newPos;
+        }
         
         if (_stateMachine?.CurrentState == MonsterState.Eating)
         {
