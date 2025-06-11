@@ -8,4 +8,5 @@ public class ItemDataSO : ScriptableObject
     public int price;
     public int fullness; //optional
     public string description;
+    public string category; // e.g., "Food", "Medicine", etc.
 }
