@@ -696,16 +696,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49101a1d19c02c14b8c57283a1c5f80d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ui:
-    hungerInfo: {fileID: 1890837207535386077}
-    happinessInfo: {fileID: 1225282339728586993}
-    sickStatusInfo: {fileID: 4231740121206559642}
-    hungerText: {fileID: 9072586404376867894}
-    happinessText: {fileID: 4933357510878399878}
-    sickStatusText: {fileID: 8450958298338143025}
   monsterID: 
   isFinalForm: 0
   evolutionLevel: 0
+  UI:
+    hungerInfo: {fileID: 1890837207535386077}
+    happinessInfo: {fileID: 1225282339728586993}
+    sickStatusInfo: {fileID: 4231740121206559642}
+    evolutionEffect: {fileID: 1620092001018365499, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
+    evolutionEffectCg: {fileID: 6369685058462042362}
 --- !u!114 &2708909758104116800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -718,7 +717,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87ca0fba2fc170c42a9b69bf424c56c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  behaviorConfig: {fileID: 11400000, guid: 0f41864180db05a4685e69bb21413adb, type: 2}
+  _currentState: 0
 --- !u!1 &7924278089243248320
 GameObject:
   m_ObjectHideFlags: 0
@@ -895,5 +894,10 @@ PrefabInstance:
 --- !u!224 &2875765366089359206 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6971774867210363625, guid: 663d032acce709e4b835c13a807d8471, type: 3}
+  m_PrefabInstance: {fileID: 5127485685870198159}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &6369685058462042362 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 2255696210592478581, guid: 663d032acce709e4b835c13a807d8471, type: 3}
   m_PrefabInstance: {fileID: 5127485685870198159}
   m_PrefabAsset: {fileID: 0}

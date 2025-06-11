@@ -185,18 +185,48 @@ public class MonsterAnimationHandler
     
     public bool HasValidAnimationForState(MonsterState state)
     {
-        string[] animations = GetEvolutionSpecificAnimations(state);
+        // First try evolution-specific animations
+        string[] evolutionAnimations = GetEvolutionSpecificAnimations(state);
         
-        foreach (string animName in animations)
+        foreach (string animName in evolutionAnimations)
         {
             if (HasAnimation(animName))
             {
+                Debug.Log($"[Animation] Found evolution animation '{animName}' for state {state}");
                 return true;
             }
         }
         
-        // If no specific animations, check if idle exists as absolute fallback
-        return state == MonsterState.Idle ? HasAnimation("idle") : false;
+        // Then try default fallback animations
+        string[] defaultAnimations = GetDefaultAnimations(state);
+        
+        foreach (string animName in defaultAnimations)
+        {
+            if (HasAnimation(animName))
+            {
+                Debug.Log($"[Animation] Found default animation '{animName}' for state {state}");
+                return true;
+            }
+        }
+        
+        // Final fallback - if it's a poke state, check if we have any basic animation
+        if (state == MonsterState.Jumping || state == MonsterState.Itching || state == MonsterState.Flapping)
+        {
+            // Check for any basic animations that could work
+            string[] basicFallbacks = { "jumping", "jump", "itching", "itch", "flapping", "flap", "idle" };
+            
+            foreach (string animName in basicFallbacks)
+            {
+                if (HasAnimation(animName))
+                {
+                    Debug.Log($"[Animation] Found basic fallback animation '{animName}' for poke state {state}");
+                    return true;
+                }
+            }
+        }
+        
+        Debug.LogWarning($"[Animation] No valid animation found for state {state}");
+        return false;
     }
 
     public float GetAnimationDuration(string animationName)
@@ -211,5 +241,28 @@ public class MonsterAnimationHandler
         if (animation == null) return 1f;
         
         return animation.Duration;
+    }
+
+    public void LogAvailableAnimations()
+    {
+        if (_skeletonGraphic == null || _skeletonGraphic.skeletonDataAsset == null)
+        {
+            Debug.LogWarning("[Animation] No skeleton data available");
+            return;
+        }
+            
+        var skeletonData = _skeletonGraphic.skeletonDataAsset.GetSkeletonData(false);
+        if (skeletonData == null)
+        {
+            Debug.LogWarning("[Animation] Skeleton data is null");
+            return;
+        }
+        
+        Debug.Log($"[Animation] Available animations for {_controller.monsterID}:");
+        for (int i = 0; i < skeletonData.Animations.Count; i++)
+        {
+            var anim = skeletonData.Animations.Items[i];
+            Debug.Log($"  - {anim.Name} (duration: {anim.Duration}s)");
+        }
     }
 }

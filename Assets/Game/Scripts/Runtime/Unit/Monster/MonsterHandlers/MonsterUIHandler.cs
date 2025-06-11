@@ -8,11 +8,13 @@ public class MonsterUIHandler
     public GameObject hungerInfo;
     public GameObject happinessInfo;
     public GameObject sickStatusInfo;
-    [SerializeField] private TextMeshProUGUI hungerText;
-    [SerializeField] private TextMeshProUGUI happinessText;
-    [SerializeField] private TextMeshProUGUI sickStatusText;
+    public ParticleSystem evolutionEffect;
+    public CanvasGroup evolutionEffectCg;
 
-    // Cached components
+    private TextMeshProUGUI hungerText;
+    private TextMeshProUGUI happinessText;
+    private TextMeshProUGUI sickStatusText;
+
     private CanvasGroup _hungerInfoCg;
     private CanvasGroup _happinessInfoCg;
     private CanvasGroup _sickStatusInfoCg;
@@ -23,11 +25,20 @@ public class MonsterUIHandler
         _happinessInfoCg = happinessInfo.GetComponent<CanvasGroup>();
         _sickStatusInfoCg = sickStatusInfo.GetComponent<CanvasGroup>();
 
+        hungerText = hungerInfo.GetComponentInChildren<TextMeshProUGUI>();
+        happinessText = happinessInfo.GetComponentInChildren<TextMeshProUGUI>();
+        sickStatusText = sickStatusInfo.GetComponentInChildren<TextMeshProUGUI>();
 
         // Start hidden
         _hungerInfoCg.alpha = 0f;
         _happinessInfoCg.alpha = 0f;
         _sickStatusInfoCg.alpha = 0f;
+        
+        // Initialize evolution effects as hidden
+        if (evolutionEffectCg != null)
+        {
+            evolutionEffectCg.alpha = 0f;
+        }
     }
 
     public void UpdateHungerDisplay(float hunger, bool showUI)

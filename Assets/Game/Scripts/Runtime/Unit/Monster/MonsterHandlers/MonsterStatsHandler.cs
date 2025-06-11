@@ -74,17 +74,6 @@ public class MonsterStatsHandler
         }
     }
     
-    public bool Feed(float amount)
-    {
-        if (!_isSick)
-        {
-            SetHunger(Mathf.Clamp(_currentHunger + amount, 0f, 100f));
-            SetHappiness(Mathf.Clamp(_currentHappiness + amount, 0f, 100f));
-            return true; // Successfully fed
-        }
-        return false; // Too sick to eat
-    }
-    
     public void IncreaseHappiness(float amount)
     {
         SetHappiness(Mathf.Clamp(_currentHappiness + amount, 0f, 100f));
