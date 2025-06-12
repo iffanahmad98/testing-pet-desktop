@@ -80,5 +80,34 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
             return true;
         }
         return claimedBy == monster;
+    }    public void ReleaseClaim(MonsterController monster)
+    {
+        // Only release if the monster releasing is the one who claimed it
+        if (claimedBy == monster)
+        {
+            claimedBy = null;
+        }
+        else if (claimedBy != null)
+        {
+            Debug.LogWarning($"[FoodController] Attempted to release claim on {gameObject.name} by {monster.name}, but claimed by {claimedBy.name}");
+        }
     }
+
+    // Optional: Add a force release for cleanup scenarios
+    public void ForceReleaseClaim()
+    {
+        if (claimedBy != null)
+        {
+            claimedBy = null;
+        }
+    }
+
+    // Optional: Check if claimed by specific monster
+    public bool IsClaimedBy(MonsterController monster)
+    {
+        return claimedBy == monster;
+    }
+
+    // Optional: Check if claimed at all
+    public bool IsClaimed => claimedBy != null;
 }

@@ -22,13 +22,11 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         // Set animator trigger based on poop type
         if (type == PoopType.Normal)
         {
-            GetComponent<Image>().color = Color.black;
-            // animator.SetTrigger("Normal");
+            animator.SetTrigger("Normal");
         }
         else if (type == PoopType.Special)
         {
-            GetComponent<Image>().color = Color.white;
-            // animator.SetTrigger("Special");
+            animator.SetTrigger("Special");
         }
     }
 
@@ -39,6 +37,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SaveSystem.SavePoop(ServiceLocator.Get<GameManager>().poopCollected);
         SaveSystem.Flush();
         ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
+        ServiceLocator.Get<CursorManager>().Set(CursorType.Default);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -48,6 +47,6 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        ServiceLocator.Get<CursorManager>().Reset();
+        ServiceLocator.Get<CursorManager>().Set(CursorType.Default);
     }
 }

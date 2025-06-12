@@ -212,7 +212,7 @@ public class GameManager : MonoBehaviour
         // Get proper movement bounds that account for monster size
         var monsterController = monster.GetComponent<MonsterController>();
         var rectTransform = monster.GetComponent<RectTransform>();
-        var movementBounds = new MonsterMovementBounds(rectTransform, this);
+        var movementBounds = new MonsterBoundsHandler(rectTransform, this);
         
         // Use the same bounds calculation as movement
         Vector2 spawnPosition = movementBounds.GetRandomTarget();
@@ -263,6 +263,7 @@ public class GameManager : MonoBehaviour
 
     public void RemoveSavedMonsterID(string monsterID)
     {
+        activeMonsters.RemoveAll(m => m.monsterID == monsterID);
         savedMonIDs.Remove(monsterID);
         SaveSystem.SaveMonIDs(savedMonIDs);
     }
