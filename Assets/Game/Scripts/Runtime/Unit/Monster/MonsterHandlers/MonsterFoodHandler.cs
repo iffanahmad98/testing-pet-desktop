@@ -238,7 +238,7 @@ public class MonsterFoodHandler
         // Let state machine handle transition
         if (_stateMachine?.CurrentState == MonsterState.Eating)
         {
-            _stateMachine.ForceState(MonsterState.Idle);
+            _stateMachine.ChangeState(MonsterState.Idle);
         }
         
         _controller.SetRandomTarget();

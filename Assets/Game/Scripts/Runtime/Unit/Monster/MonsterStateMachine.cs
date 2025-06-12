@@ -17,8 +17,7 @@ public class MonsterStateMachine : MonoBehaviour
     public MonsterState CurrentState => _currentState;
     public MonsterState PreviousState => _previousState;
     public event Action<MonsterState> OnStateChanged;
-    public MonsterAnimationHandler AnimationHandler => _animationHandler;
-
+    public MonsterAnimationHandler AnimationHandler => _animationHandler;     
     private void Start()
     {
         _controller = GetComponent<MonsterController>();
@@ -45,7 +44,7 @@ public class MonsterStateMachine : MonoBehaviour
                 bool isStillEating = foodHandler?.IsCurrentlyEating ?? false;
                 if (!isStillEating)
                 {
-                    ForceState(MonsterState.Idle);
+                    ChangeState(MonsterState.Idle);
                     return;
                 }
                 else
@@ -63,7 +62,7 @@ public class MonsterStateMachine : MonoBehaviour
         }
     }
 
-    private void ChangeState(MonsterState newState)
+    public void ChangeState(MonsterState newState)
     {
         // Validate state has animations before changing
         if (!_animationHandler.HasValidAnimationForState(newState))
@@ -78,12 +77,6 @@ public class MonsterStateMachine : MonoBehaviour
         _animationHandler.PlayStateAnimation(newState);
         OnStateChanged?.Invoke(_currentState);
         _currentStateDuration = _behaviorHandler.GetStateDuration(newState, _animationHandler);
-    }
-
-    public void ForceState(MonsterState newState)
-    {
-        _stateTimer = 0f;
-        ChangeState(newState);
     }
 
     public float GetCurrentStateDuration() => _currentStateDuration;

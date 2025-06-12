@@ -1,5 +1,6 @@
 using UnityEngine;
 using Spine.Unity;
+using Unity.VisualScripting;
 
 
 public class MonsterMovementHandler
@@ -14,7 +15,7 @@ public class MonsterMovementHandler
     {
         _transform = transform;
         _stateMachine = stateMachine;
-        _controller = controller; // NEW
+        _controller = controller;
         _gameManager = gameManager;
         _spineGraphic = spineGraphic;
     }
@@ -98,9 +99,9 @@ public class MonsterMovementHandler
     private void HandleStateSpecificBehavior(Vector2 pos, Vector2 target)
     {
         if (_spineGraphic == null || _stateMachine == null) return;
-        
-        var state = _stateMachine.CurrentState; 
-        UpdateAnimation(state);
+
+        MonsterState state = _stateMachine.CurrentState;
+        UpdateAnimation(state); 
         HandleDirectionalFlipping(pos, target);
     }
     

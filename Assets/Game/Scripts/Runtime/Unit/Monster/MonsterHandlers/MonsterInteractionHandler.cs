@@ -68,7 +68,7 @@ public class MonsterInteractionHandler
         
         _pendingSilverCoinDrop = true;
         MonsterState pokeState = GetRandomPokeState();
-        _stateMachine?.ForceState(pokeState);
+        _stateMachine?.ChangeState(pokeState);
     }
 
     private MonsterState GetRandomPokeState()
@@ -91,8 +91,6 @@ public class MonsterInteractionHandler
                 
             return MonsterState.Idle;
         }
-        
-        Debug.Log($"KONTOL: Available poke states: {string.Join(", ", availableStates)}");
 
         int randomIndex = Random.Range(0, availableStates.Count);
         MonsterState selectedState = availableStates[randomIndex];

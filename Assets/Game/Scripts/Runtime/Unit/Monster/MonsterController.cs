@@ -535,7 +535,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void TriggerEating()
     {
-        _stateMachine?.ForceState(MonsterState.Eating);
+        _stateMachine?.ChangeState(MonsterState.Eating);
     }
 
     public void SetRandomTarget()
@@ -575,24 +575,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void SaveMonData() => _saveHandler?.SaveData();
     public void LoadMonData() => _saveHandler?.LoadData();
-      public void ForceResetEating()
-    {
-        // Coordinate between food handler and state machine
-        _foodHandler?.ForceResetEating();
-
-        // Wait a frame to let food handler clean up, then reset state
-        StartCoroutine(DelayedStateReset());
-    }
-
-    private IEnumerator DelayedStateReset()
-    {
-        yield return null; // Wait one frame
-        
-        if (_stateMachine?.CurrentState == MonsterState.Eating)
-        {
-            _stateMachine.ForceState(MonsterState.Idle);
-        }
-    }
 
     // Add public methods to access evolution handler
     public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
