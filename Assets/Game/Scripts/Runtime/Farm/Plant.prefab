@@ -45,20 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3211461dab5882a4d926593294166ceb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageTiles:
-  - {fileID: 11400000, guid: f0e8352d48016c8418eca65fda7d01cc, type: 2}
-  - {fileID: 11400000, guid: f7c13b9a3e12e56428354f58190bafc8, type: 2}
-  - {fileID: 11400000, guid: 783acc6988afed64b8b66baa0d29a2c3, type: 2}
-  - {fileID: 11400000, guid: 6119cebd52995c547889184c970248dd, type: 2}
-  - {fileID: 11400000, guid: ba081fbbeb95c2e43a1e7d75bf53fae9, type: 2}
   seedName: 
   stage: 0
   timeInStage: 0
-  waterCountInStage: 0
   status: 0
   cellPosition: {x: 0, y: 0, z: 0}
-  hasBeenWateredThisStage: 0
-  monsterType: 
+  itemData: {fileID: 0}
+  nameMonster: 
   rarity: 0
 --- !u!114 &4915376643857378326
 MonoBehaviour:
@@ -69,7 +62,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5117841915966794639}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67f9a3a9b735d244cb7c1d402048af2e, type: 3}
+  m_Script: {fileID: 11500000, guid: a6b328a6509aa604b9f177c19c7ab913, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   seed: {fileID: 4896537510307024574}

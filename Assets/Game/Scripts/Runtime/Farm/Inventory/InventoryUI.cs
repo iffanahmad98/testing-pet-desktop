@@ -7,6 +7,7 @@ namespace MagicalGarden.Inventory
     public class InventoryUI : MonoBehaviour
     {
         public GameObject slotPrefab;
+        public GameObject dropFlyIcon;
         public Transform itemContainer;
 
         private List<InventorySlot> slotList = new List<InventorySlot>();
@@ -40,6 +41,16 @@ namespace MagicalGarden.Inventory
                     slotList[i].ClearSlot();
                 }
             }
+        }
+
+        public Transform GetSlotForItem(ItemData item)
+        {
+            foreach (var slot in slotList)
+            {
+                if (slot.HasItem(item))
+                    return slot.transform;
+            }
+            return null;
         }
     }
 }

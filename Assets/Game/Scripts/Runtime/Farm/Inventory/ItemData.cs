@@ -11,9 +11,10 @@ namespace MagicalGarden.Inventory
         public string displayName;
         public Sprite icon;
         public ItemType itemType;
+        public ItemRarity rarity;
         public bool isStackable = true;
         public string description;
         public List<TileBase> stageTiles;
-        public ItemData itemDrop;
+        public List<DropItem> dropItems;
     }
 }

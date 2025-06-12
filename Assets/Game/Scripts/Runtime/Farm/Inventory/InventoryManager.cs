@@ -1,20 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using MagicalGarden.Farm;
+using MagicalGarden.Manager;
 
 namespace MagicalGarden.Inventory
 {
-    public enum ItemType
-    {
-        Seed,
-        Crop,
-        Tool,
-        Fertilizer,
-        MonsterSeed,
-    }
+
     public class InventoryManager : MonoBehaviour
     {
         public static InventoryManager Instance;
+        public GameObject dropFlyIcon;
         public List<InventoryItem> items = new List<InventoryItem>();
         public InventoryUI inventoryUI;
 
@@ -26,6 +22,10 @@ namespace MagicalGarden.Inventory
 
         public void AddItem(ItemData itemData, int amount)
         {
+            if (itemData.itemType == ItemType.Crop)
+            {
+                PlantManager.Instance.AddAmountHarvest();
+            }
             if (itemData.isStackable)
             {
                 var existingItem = items.FirstOrDefault(i => i.itemData.itemId == itemData.itemId);
@@ -36,8 +36,9 @@ namespace MagicalGarden.Inventory
                 }
             }
 
+
             items.Add(new InventoryItem(itemData, amount));
-            inventoryUI.RefreshUI();
+
         }
 
         public bool RemoveItem(ItemData itemData, int amount)
@@ -60,6 +61,28 @@ namespace MagicalGarden.Inventory
             return item != null && item.quantity >= amount;
         }
 
+        public bool HasItems(List<ItemStack> requiredItems)
+        {
+            foreach (var stack in requiredItems)
+            {
+                if (!HasItem(stack.item, stack.quantity))
+                    return false;
+            }
+            return true;
+        }
+
+        public bool RemoveItems(List<ItemStack> requiredItems)
+        {
+            if (!HasItems(requiredItems))
+                return false;
+
+            foreach (var stack in requiredItems)
+            {
+                RemoveItem(stack.item, stack.quantity);
+            }
+            return true;
+        }
+
         public InventoryItem GetItem(string itemId)
         {
             return items.FirstOrDefault(i => i.itemData.itemId == itemId);
@@ -69,5 +92,20 @@ namespace MagicalGarden.Inventory
         {
             return items.Where(i => i.itemData.itemType == type).ToList();
         }
+    }
+    public enum ItemType
+    {
+        Seed,
+        Crop,
+        Tool,
+        Fertilizer,
+        MonsterSeed,
+    }
+    public enum ItemRarity
+    {
+        Normal,
+        Rare,
+        Epic,
+        Legendary
     }
 }

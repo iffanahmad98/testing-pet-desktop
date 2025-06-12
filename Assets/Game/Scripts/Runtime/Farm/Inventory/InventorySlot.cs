@@ -32,6 +32,10 @@ namespace MagicalGarden.Inventory
             quantityText.text = "";
             gameObject.SetActive(false);
         }
+        public bool HasItem(ItemData item)
+        {
+            return currentItem != null && currentItem.itemData.itemId == item.itemId;
+        }
 
         public void OnClick()
         {
