@@ -7,8 +7,8 @@ public class TabController : MonoBehaviour
     [System.Serializable]
     public class Tab
     {
+        public string nameTab;
         public Button tabButton;
-        public GameObject contentPanel;
     }
 
     [Header("Tab Configuration")]
@@ -39,7 +39,6 @@ public class TabController : MonoBehaviour
         for (int i = 0; i < tabs.Count; i++)
         {
             bool isActive = i == index;
-            tabs[i].contentPanel.SetActive(isActive);
 
             // Optional: Change button visuals
             var colors = tabs[i].tabButton.colors;
