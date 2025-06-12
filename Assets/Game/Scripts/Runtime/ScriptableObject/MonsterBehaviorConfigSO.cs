@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class StateTransition 
 {
+    public string name; // Optional name for debugging
     public MonsterState fromState;
     public MonsterState toState;
     public float probability;
