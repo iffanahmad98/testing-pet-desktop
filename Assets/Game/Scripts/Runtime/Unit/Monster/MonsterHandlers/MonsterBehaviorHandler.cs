@@ -47,28 +47,17 @@ public class MonsterBehaviorHandler
     // Simple fallback - only Idle and Walking
     private MonsterState GetSimpleDefaultNextState(MonsterState currentState)
     {
-        // Check if monster is currently in air
-        bool isInAir = IsMonsterCurrentlyInAir();
-        
         return currentState switch
         {
-            MonsterState.Idle => isInAir ? 
-                (Random.Range(0, 3) == 0 ? MonsterState.Flying : MonsterState.Idle) :
-                (Random.Range(0, 2) == 0 ? MonsterState.Walking : MonsterState.Idle),
-                
+            MonsterState.Idle => Random.Range(0, 2) == 0 ? MonsterState.Walking : MonsterState.Idle,
             MonsterState.Walking => Random.Range(0, 2) == 0 ? MonsterState.Idle : MonsterState.Walking,
             
-            // Flying states: prefer to stay flying if in air, transition to ground states if on ground
-            MonsterState.Flying => isInAir ? 
-                (Random.Range(0, 2) == 0 ? MonsterState.Flying : MonsterState.Idle) :
-                MonsterState.Walking,
-                
-            MonsterState.Flapping => isInAir ? MonsterState.Flying : MonsterState.Idle,
-            
-            // Special states return to appropriate states based on position
-            MonsterState.Jumping => isInAir ? MonsterState.Flying : MonsterState.Idle,
-            MonsterState.Itching => MonsterState.Idle,
-            MonsterState.Running => MonsterState.Walking,
+            // Special states return to basic states
+            MonsterState.Jumping => MonsterState.Idle,    // After poke interaction
+            MonsterState.Itching => MonsterState.Idle,   // After poke interaction  
+            MonsterState.Flapping => MonsterState.Idle,  // After poke interaction (flapping wings)
+            MonsterState.Flying => MonsterState.Walking, // Movement state fallback
+            MonsterState.Running => MonsterState.Walking, // Fallback to walking
             
             _ => MonsterState.Idle // Ultimate fallback
         };
@@ -142,15 +131,5 @@ public class MonsterBehaviorHandler
         float min = configMin > 0 ? configMin.Value : defaultMin;
         float max = configMax > 0 ? configMax.Value : defaultMax;
         return Random.Range(min, max);
-    }
-
-    // Add helper method
-    private bool IsMonsterCurrentlyInAir()
-    {
-        var rectTransform = _controller?.GetComponent<RectTransform>();
-        if (rectTransform == null) return false;
-        
-        Vector2 currentPos = rectTransform.anchoredPosition;
-        return currentPos.y > -200f; // Adjust threshold based on your game area
     }
 }

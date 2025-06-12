@@ -464,73 +464,71 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         if (monsterData == null) return;
         
-        // Prevent movement during evolution
+        // ADD: Prevent movement during evolution
         if (_evolutionHandler != null && _evolutionHandler.IsEvolving)
         {
-            return;
+            return; // Stop all movement during evolution
         }
 
         // Apply separation force regardless of state
         Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
-
         if (separationForce.magnitude > 0.1f)
         {
-            Vector2 _pos = _rectTransform.anchoredPosition;
-            Vector2 newPos = _pos + separationForce * Time.deltaTime;
+            Vector2 _currentPos = _rectTransform.anchoredPosition;
+            Vector2 _newPos = _currentPos + separationForce * Time.deltaTime;
 
-            // Clamp to appropriate bounds based on current state
-            MonsterState _state = _stateMachine?.CurrentState ?? MonsterState.Idle;
-            var bounds = _movementBounds.CalculateBoundsForState(_state);
-            newPos.x = Mathf.Clamp(newPos.x, bounds.min.x, bounds.max.x);
-            newPos.y = Mathf.Clamp(newPos.y, bounds.min.y, bounds.max.y);
+            // Ensure new position is within bounds
+            var bounds = _movementBounds.CalculateMovementBounds();
+            _newPos.x = Mathf.Clamp(_newPos.x, bounds.min.x, bounds.max.x);
+            _newPos.y = Mathf.Clamp(_newPos.y, bounds.min.y, bounds.max.y);
 
-            _rectTransform.anchoredPosition = newPos;
+            _rectTransform.anchoredPosition = _newPos;
         }
 
+        // Unified eating state check - use only one method
         bool isEating = _stateMachine?.CurrentState == MonsterState.Eating;
-        if (isEating) return;
+
+        if (isEating)
+        {
+            return;
+        }
 
         bool isMovementState = _stateMachine?.CurrentState == MonsterState.Walking ||
                               _stateMachine?.CurrentState == MonsterState.Running ||
-                              _stateMachine?.CurrentState == MonsterState.Flying ||
-                              _stateMachine?.CurrentState == MonsterState.Flapping;
+                              _stateMachine?.CurrentState == MonsterState.Flying;
 
+        // Only find food once per frame for movement states
         if (isMovementState)
         {
-            // Only find food for ground-based movement (not flying states)
-            bool isGroundMovement = _stateMachine?.CurrentState != MonsterState.Flying && 
-                                   _stateMachine?.CurrentState != MonsterState.Flapping;
-            
-            if (isGroundMovement && _foodHandler?.NearestFood == null)
+            if (_foodHandler?.NearestFood == null)
             {
                 _foodHandler?.FindNearestFood();
             }
 
-            // Handle food logic only for ground movement
-            if (isGroundMovement && _foodHandler?.NearestFood != null)
+            // Handle food logic without calling FindNearestFood again
+            if (_foodHandler?.NearestFood != null)
             {
                 _foodHandler?.HandleFoodLogic(ref _targetPosition);
             }
 
+            // Apply separation behavior to target position
             _targetPosition = _separationBehavior.ApplySeparationToTarget(_targetPosition);
         }
 
         _movementHandler.UpdateMovement(ref _targetPosition, monsterData);
 
-        // Enhanced bounds checking based on current state
+        // Add bounds checking after movement
         Vector2 currentPos = _rectTransform.anchoredPosition;
-        MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Idle;
-        
-        if (!_movementBounds.IsWithinBoundsForState(currentPos, currentState))
+        if (!_movementBounds.IsWithinBounds(currentPos))
         {
-            // Clamp position to appropriate bounds and set new target
-            var bounds = _movementBounds.CalculateBoundsForState(currentState);
+            // Clamp position to bounds and set new random target
+            var bounds = _movementBounds.CalculateMovementBounds();
             Vector2 clampedPos = new Vector2(
                 Mathf.Clamp(currentPos.x, bounds.min.x, bounds.max.x),
                 Mathf.Clamp(currentPos.y, bounds.min.y, bounds.max.y)
             );
             _rectTransform.anchoredPosition = clampedPos;
-            SetRandomTargetForCurrentState();
+            SetRandomTarget();
         }
 
         // Check if monster moved significantly and request immediate depth sort
@@ -545,21 +543,18 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         float distanceToTarget = Vector2.Distance(_rectTransform.anchoredPosition, _targetPosition);
         if (distanceToTarget < 10f && !isPursuingFood && isMovementState)
         {
-            SetRandomTargetForCurrentState();
+            SetRandomTarget();
         }
     }
 
-    // Add new method for state-aware target setting
-    private void SetRandomTargetForCurrentState()
+    public void TriggerEating()
     {
-        MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Walking;
-        _targetPosition = _movementBounds?.GetRandomTargetForState(currentState) ?? Vector2.zero;
+        _stateMachine?.ChangeState(MonsterState.Eating);
     }
 
-    // Update existing SetRandomTarget to use current state
     public void SetRandomTarget()
     {
-        SetRandomTargetForCurrentState();
+        _targetPosition = _movementBounds?.GetRandomTarget() ?? Vector2.zero;
     }
 
     public void SetHovered(bool value)
@@ -637,7 +632,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void SetLowHungerTime(float value) => _statsHandler?.SetLowHungerTime(value);
     public void IncreaseHappiness(float amount) => _statsHandler?.IncreaseHappiness(amount);
     public void TreatSickness() => _statsHandler?.TreatSickness();
-    public void TriggerEating() => _stateMachine?.ChangeState(MonsterState.Eating);
     public void TriggerFoodConsumption() => _evolutionHandler?.OnFoodConsumed();
     
     private IEnumerator InitializationTimeout()
@@ -645,17 +639,13 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         yield return new WaitForSeconds(10f); // 10 second timeout
         
         if (_initState != InitializationState.FullyInitialized)
-        {   
+        {
+            Debug.LogError($"[MonsterController] {monsterID} initialization timeout! Current state: {_initState}");
+            
             // Force basic initialization
             _initState = InitializationState.FullyInitialized;
             _isLoaded = true;
             _isInitializing = false;
         }
     }
-
-    // Add these public methods to expose needed data to StateMachine
-
-    public Vector2 GetTargetPosition() => _targetPosition;
-
-    public MonsterBoundsHandler GetBoundsHandler() => _movementBounds;
 }

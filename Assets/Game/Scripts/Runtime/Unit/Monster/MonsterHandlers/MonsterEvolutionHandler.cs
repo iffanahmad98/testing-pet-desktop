@@ -18,6 +18,8 @@ public class MonsterEvolutionSaveData
 public class MonsterEvolutionHandler
 {
     private bool _isEvolving = false;
+    private float _lastInteractionTime = -1f;  // ADD: Track last interaction time
+    private float _evolutionCooldownAfterInteraction = 3f;  // ADD: Cooldown duration
     
     // ADD: Public property to check evolution state
     public bool IsEvolving => _isEvolving;
