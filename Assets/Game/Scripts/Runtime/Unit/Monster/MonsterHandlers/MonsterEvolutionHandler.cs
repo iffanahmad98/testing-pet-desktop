@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using UnityEngine.UI;
+using Spine.Unity;
 
 [Serializable]
 public class MonsterEvolutionSaveData
@@ -16,6 +17,13 @@ public class MonsterEvolutionSaveData
 [Serializable]
 public class MonsterEvolutionHandler
 {
+    private bool _isEvolving = false;
+    private float _lastInteractionTime = -1f;  // ADD: Track last interaction time
+    private float _evolutionCooldownAfterInteraction = 3f;  // ADD: Cooldown duration
+    
+    // ADD: Public property to check evolution state
+    public bool IsEvolving => _isEvolving;
+    
     private EvolutionRequirementsSO _evolutionConfig;
     private MonsterController _controller;
 
@@ -118,10 +126,37 @@ public class MonsterEvolutionHandler
     public void OnInteraction()
     {
         _interactionCount++;
-        CheckEvolutionConditions();
+        
+        // ADD: Delay evolution check to allow animation to complete
+        _controller.StartCoroutine(DelayedEvolutionCheck());
+    }
+
+    private IEnumerator DelayedEvolutionCheck()
+    {
+        // Wait for poke animation to complete (usually 1-2 seconds)
+        yield return new WaitForSeconds(2.5f);
+        
+        // Only check if we're not already evolving and in a safe state
+        if (!_isEvolving)
+        {
+            var stateMachine = _controller.GetComponent<MonsterStateMachine>();
+            var currentState = stateMachine?.CurrentState ?? MonsterState.Idle;
+            
+            // Only evolve if back to normal states
+            if (currentState == MonsterState.Idle || currentState == MonsterState.Walking)
+            {
+                CheckEvolutionConditions();
+            }
+        }
     }    private void CheckEvolutionConditions()
     {
-        if (!CanEvolve) return;
+        if (!CanEvolve || _isEvolving) return;
+
+        // ADD: Only allow evolution during safe states
+        if (!IsInSafeStateForEvolution())
+        {
+            return;
+        }
 
         var nextEvolution = GetNextEvolutionRequirement();
         if (nextEvolution == null) return;
@@ -130,6 +165,28 @@ public class MonsterEvolutionHandler
         {
             TriggerEvolution();
         }
+    }
+
+    private bool IsInSafeStateForEvolution()
+    {
+        var stateMachine = _controller.GetComponent<MonsterStateMachine>();
+        if (stateMachine == null) return true; // Default to safe if no state machine
+        
+        var currentState = stateMachine.CurrentState;
+
+        // Safe states for evolution
+        bool isSafeState = currentState == MonsterState.Idle;
+        
+        // Unsafe states (animations should complete first)
+        bool isUnsafeState = currentState == MonsterState.Jumping ||
+                            currentState == MonsterState.Itching ||
+                            currentState == MonsterState.Flapping ||
+                            currentState == MonsterState.Walking ||
+                            currentState == MonsterState.Running ||
+                            currentState == MonsterState.Flying ||
+                            currentState == MonsterState.Eating;
+        
+        return isSafeState && !isUnsafeState;
     }    private EvolutionRequirement GetNextEvolutionRequirement()
     {
         int currentLevel = _controller.evolutionLevel;
@@ -165,23 +222,36 @@ public class MonsterEvolutionHandler
         bool customCheck = requirement.customCondition?.Invoke(_controller) ?? true;
 
         return customCheck;
-    }    public void TriggerEvolution()
+    }
+
+    public void TriggerEvolution()
     {
-        if (!CanEvolve) return;
+        if (!CanEvolve || _isEvolving) return;
+
+        _isEvolving = true;  // ← Lock evolution AND movement
         
         var oldLevel = _controller.evolutionLevel;
         var newLevel = oldLevel + 1;
 
         StartSimpleEvolutionEffect(oldLevel, newLevel);
-    }    private void StartSimpleEvolutionEffect(int oldLevel, int newLevel)
+    }
+
+    private void StartSimpleEvolutionEffect(int oldLevel, int newLevel)
     {
         _controller.StartCoroutine(EvolutionSequence(oldLevel, newLevel));
-    }    private IEnumerator EvolutionSequence(int oldLevel, int newLevel)
+    }
+
+    private IEnumerator EvolutionSequence(int oldLevel, int newLevel)
     {
         _monsterRectTransform = _controller.GetComponent<RectTransform>();
 
-        yield return _controller.StartCoroutine(PreEvolutionEffects());
+        // ADD: Force monster to idle state during evolution
+        var stateMachine = _controller.GetComponent<MonsterStateMachine>();
+        
+        // Force idle state for evolution
+        stateMachine?.ChangeState(MonsterState.Idle);
 
+        yield return _controller.StartCoroutine(PreEvolutionEffects());
         yield return _controller.StartCoroutine(ShowEvolutionParticles());
 
         _controller.evolutionLevel = newLevel;
@@ -190,85 +260,329 @@ public class MonsterEvolutionHandler
         yield return _controller.StartCoroutine(PostEvolutionEffects());
 
         _controller.UpdateVisuals();
+        
+        // ADD: Allow state machine to resume normal behavior
+        // The state machine will naturally transition from idle
+        
         OnEvolutionComplete(oldLevel, newLevel);
-    }    private IEnumerator PreEvolutionEffects()
+    }
+
+    private IEnumerator PreEvolutionEffects()
     {
         var originalScale = _monsterRectTransform.localScale;
 
-        for (int i = 0; i < 3; i++)
+        // Option 1: Get components from the Spine SkeletonGraphic
+        var skeletonGraphic = _controller.GetComponentInChildren<SkeletonGraphic>();
+        var image = skeletonGraphic?.GetComponent<Image>(); // Spine uses Image component for rendering
+        var canvasGroup = skeletonGraphic?.GetComponent<CanvasGroup>() ?? skeletonGraphic?.gameObject.AddComponent<CanvasGroup>();
+
+        // 1. ANTICIPATION BUILD-UP - Multiple quick pulses
+        yield return _controller.StartCoroutine(AnticipationPulses(originalScale, 5, 0.15f));
+
+        // 2. ENERGY CHARGE EFFECT - Color shifting and glow
+        yield return _controller.StartCoroutine(EnergyChargeEffect(image, 1.5f));
+
+        // 3. SCREEN FLASH for impact
+        yield return _controller.StartCoroutine(ScreenFlashEffect());
+
+        // 5. FINAL TENSION HOLD
+        yield return _controller.StartCoroutine(TensionHold(canvasGroup, 0.5f));
+    }
+
+    // Helper methods for enhanced effects
+    private IEnumerator AnticipationPulses(Vector3 baseScale, int pulseCount, float pulseSpeed)
+    {
+        for (int i = 0; i < pulseCount; i++)
         {
-            yield return new WaitForSeconds(0.1f);
+            float intensity = 1f + (i * 0.05f); // Each pulse slightly bigger
+            yield return _controller.StartCoroutine(SinglePulse(baseScale, baseScale * intensity, pulseSpeed));
             yield return new WaitForSeconds(0.1f);
         }
+    }
 
-        float scaleTime = 0.5f;
+    private IEnumerator SinglePulse(Vector3 fromScale, Vector3 toScale, float duration)
+    {
         float elapsed = 0f;
-        Vector3 targetScale = originalScale * 1.2f;
-
-        while (elapsed < scaleTime)
+        
+        // Scale up
+        while (elapsed < duration / 2)
         {
-            _monsterRectTransform.localScale = Vector3.Lerp(originalScale, targetScale, elapsed / scaleTime);
+            float t = elapsed / (duration / 2);
+            _monsterRectTransform.localScale = Vector3.Lerp(fromScale, toScale, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
-    }    private IEnumerator ShowEvolutionParticles()
+        
+        elapsed = 0f;
+        // Scale back
+        while (elapsed < duration / 2)
+        {
+            float t = elapsed / (duration / 2);
+            _monsterRectTransform.localScale = Vector3.Lerp(toScale, fromScale, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private IEnumerator EnergyChargeEffect(Image image, float duration)
+    {
+        if (image == null) yield break;
+        
+        Color originalColor = image.color;
+        Color energyColor = new Color(1f, 1f, 0.8f, 1f); // Bright yellowish
+        Color glowColor = new Color(0.8f, 0.9f, 1f, 1f);  // Blue-white glow
+        
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            
+            // Oscillating energy color
+            float wave = Mathf.Sin(t * Mathf.PI * 8) * 0.5f + 0.5f;
+            Color currentColor = Color.Lerp(originalColor, energyColor, wave * t);
+            
+            // Add glow effect by increasing brightness
+            if (t > 0.7f)
+            {
+                float glowIntensity = (t - 0.7f) / 0.3f;
+                currentColor = Color.Lerp(currentColor, glowColor, glowIntensity);
+            }
+            
+            image.color = currentColor;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        // Keep energized color for particle phase
+        image.color = energyColor;
+    }
+
+    private IEnumerator ScreenFlashEffect()
+    {
+        // Create temporary white overlay for screen flash
+        var canvas = _controller.GetComponentInParent<Canvas>();
+        if (canvas == null) yield break;
+        
+        GameObject flashOverlay = new GameObject("EvolutionFlash");
+        flashOverlay.transform.SetParent(canvas.transform, false);
+        
+        var flashImage = flashOverlay.AddComponent<Image>();
+        flashImage.color = new Color(1f, 1f, 1f, 0f);
+        flashImage.raycastTarget = false;
+        
+        var rectTransform = flashOverlay.GetComponent<RectTransform>();
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+        
+        // Flash effect
+        float flashDuration = 0.15f;
+        float elapsed = 0f;
+        
+        // Flash in
+        while (elapsed < flashDuration / 2)
+        {
+            float alpha = elapsed / (flashDuration / 2) * 0.8f;
+            flashImage.color = new Color(1f, 1f, 1f, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        elapsed = 0f;
+        // Flash out
+        while (elapsed < flashDuration / 2)
+        {
+            float alpha = (1f - elapsed / (flashDuration / 2)) * 0.8f;
+            flashImage.color = new Color(1f, 1f, 1f, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        UnityEngine.Object.Destroy(flashOverlay);
+    }
+
+    private IEnumerator TensionHold(CanvasGroup canvasGroup, float duration)
+    {
+        // Subtle opacity oscillation to show energy building up
+        float elapsed = 0f;
+        float originalAlpha = canvasGroup.alpha;
+        
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            float oscillation = Mathf.Sin(t * Mathf.PI * 12) * 0.1f; // Fast subtle flicker
+            canvasGroup.alpha = Mathf.Clamp01(originalAlpha + oscillation);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        canvasGroup.alpha = originalAlpha;
+    }
+
+    private IEnumerator ShowEvolutionParticles()
     {
         if (_evolutionParticleCanvasGroup == null) yield break;
 
-        _evolutionParticle = _evolutionParticle.GetComponent<ParticleSystem>();
+        // Force stop any existing particles
+        if (_evolutionParticle != null)
+        {
+            _evolutionParticle.Stop(true);
+            yield return new WaitForSeconds(0.1f); // Small delay to ensure cleanup
+        }
+
+        // Reset canvas group
+        _evolutionParticleCanvasGroup.alpha = 0f;
+
+        // Start the main particle system
         if (_evolutionParticle != null)
         {
             _evolutionParticle.Play();
         }
 
-        float fadeTime = 0.5f;
+        // Rest of your particle animation...
+        float fadeTime = 1.2f;
         float elapsed = 0f;
-
         while (elapsed < fadeTime)
         {
-            _evolutionParticleCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeTime);
+            float t = elapsed / fadeTime;
+            _evolutionParticleCanvasGroup.alpha = Mathf.SmoothStep(0f, 1f, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
+        // Add the hold time back
         yield return new WaitForSeconds(2f);
 
+        // Enhanced fade out
         elapsed = 0f;
         while (elapsed < fadeTime)
         {
-            _evolutionParticleCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeTime);
+            float t = elapsed / fadeTime;
+            _evolutionParticleCanvasGroup.alpha = Mathf.Lerp(1f, 0f, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
         if (_evolutionParticle != null)
         {
-            _evolutionParticle.Stop();
+            _evolutionParticle.Stop(true);
+            Debug.Log("[Evolution] Particle system stopped");
         }
-    }    private IEnumerator PostEvolutionEffects()
+    }
+
+    private IEnumerator PostEvolutionEffects()
     {
-        var originalScale = _monsterRectTransform.localScale;
-        var targetScale = Vector3.one;
+        var image = _controller.GetComponent<Image>();
 
-        float scaleTime = 0.8f;
+        // Reset monster to normal color
+        if (image != null) _controller.StartCoroutine(ResetMonsterColor(image));
+
+        // REVELATION EFFECT - Sparkle burst
+        yield return _controller.StartCoroutine(RevelationSparkles());
+    }
+
+    private IEnumerator ResetMonsterColor(Image image)
+    {
+        Color currentColor = image.color;
+        Color targetColor = Color.white;
+        float duration = 0.5f;
         float elapsed = 0f;
-
-        while (elapsed < scaleTime)
+        
+        while (elapsed < duration)
         {
-            float t = elapsed / scaleTime;
-            float bounceT = Mathf.Sin(t * Mathf.PI * 2) * 0.1f + t;
-            _monsterRectTransform.localScale = Vector3.Lerp(originalScale, targetScale, bounceT);
+            image.color = Color.Lerp(currentColor, targetColor, elapsed / duration);
             elapsed += Time.deltaTime;
             yield return null;
         }
+        
+        image.color = targetColor;
+    }
 
-        _monsterRectTransform.localScale = targetScale;
+    private IEnumerator RevelationSparkles()
+    {
+        var canvas = _controller.GetComponentInParent<Canvas>();
+        if (canvas == null) yield break;
+        
+        // Create sparkle burst effect around monster
+        for (int i = 0; i < 8; i++)
+        {
+            float angle = i * 45f * Mathf.Deg2Rad;
+            Vector3 direction = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * 50f;
+            _controller.StartCoroutine(CreateSparkle(canvas, _monsterRectTransform.position + direction));
+        }
+        
+        yield return new WaitForSeconds(0.3f);
+    }
 
-        yield return new WaitForSeconds(0.2f);
-    }    private void UpdateMonsterID(int newLevel)
+    private IEnumerator CreateSparkle(Canvas canvas, Vector3 startPosition)
+    {
+        GameObject sparkle = new GameObject("Sparkle");
+        sparkle.transform.SetParent(canvas.transform, false);
+        sparkle.transform.position = startPosition;
+        
+        var sparkleImage = sparkle.AddComponent<Image>();
+        sparkleImage.color = new Color(1f, 1f, 0.8f, 1f);
+        sparkleImage.raycastTarget = false;
+        
+        var sparkleRect = sparkle.GetComponent<RectTransform>();
+        sparkleRect.sizeDelta = new Vector2(10f, 10f);
+        
+        // Animate sparkle
+        float duration = 0.8f;
+        float elapsed = 0f;
+        Vector3 originalScale = sparkleRect.localScale;
+        
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            float scale = Mathf.Lerp(0f, 1f, t);
+            float alpha = Mathf.Lerp(1f, 0f, t);
+            
+            sparkleRect.localScale = originalScale * scale;
+            sparkleImage.color = new Color(1f, 1f, 0.8f, alpha);
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        UnityEngine.Object.Destroy(sparkle);
+    }
+
+    private IEnumerator MultiBounceScale(Vector3 targetScale, float bounceHeight)
+    {
+        float[] bounces = { bounceHeight, bounceHeight * 0.6f, bounceHeight * 0.3f };
+        
+        foreach (float bounce in bounces)
+        {
+            // Up
+            yield return _controller.StartCoroutine(ScaleTo(targetScale * bounce, 0.2f));
+            // Down
+            yield return _controller.StartCoroutine(ScaleTo(targetScale, 0.15f));
+        }
+    }
+
+    private IEnumerator ScaleTo(Vector3 target, float duration)
+    {
+        Vector3 start = _monsterRectTransform.localScale;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            _monsterRectTransform.localScale = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, t));
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        _monsterRectTransform.localScale = target;
+    }
+
+    private void UpdateMonsterID(int newLevel)
     {
         var oldID = _controller.monsterID;
-        var parts = _controller.monsterID.Split('_'); 
+        var parts = _controller.monsterID.Split('_');
         if (parts.Length >= 3)
         {
             _controller.monsterID = $"{parts[0]}_Lv{newLevel}_{parts[2]}";
@@ -294,15 +608,18 @@ public class MonsterEvolutionHandler
         {
             Debug.LogWarning($"[Evolution] Could not update monster ID format for {_controller.monsterID}");
         }
-    }    private void OnEvolutionComplete(int oldLevel, int newLevel)
+    }
+
+    private void OnEvolutionComplete(int oldLevel, int newLevel)
     {
         ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {newLevel}!", 3f);
 
         _lastEvolutionTime = Time.time;
-
         _foodConsumed = 0;
         _interactionCount = 0;
-
+        
+        _isEvolving = false;  // ← Unlock evolution AND movement
+        
         _controller.SaveMonData();
     }
 

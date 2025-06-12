@@ -38,6 +38,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public bool IsSick => _statsHandler?.IsSick ?? false;
     public bool isHovered => _isHovered;
     public bool IsLoaded => _isLoaded;
+    public bool IsEvolving => _evolutionHandler?.IsEvolving ?? false;
     public FoodController nearestFood => _foodHandler?.NearestFood;
     public event Action<float> OnHungerChanged;
     public event Action<bool> OnSickChanged;
@@ -338,6 +339,13 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         if (!IsFullyInitialized) return;
         
+        // ADD: Skip all updates during evolution except evolution tracking
+        if (IsEvolving)
+        {
+            _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
+            return; // Skip movement, interactions, etc.
+        }
+        
         _interactionHandler?.UpdateTimers(Time.deltaTime);
         _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
         HandleMovement();
@@ -455,6 +463,12 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private void HandleMovement()
     {
         if (monsterData == null) return;
+        
+        // ADD: Prevent movement during evolution
+        if (_evolutionHandler != null && _evolutionHandler.IsEvolving)
+        {
+            return; // Stop all movement during evolution
+        }
 
         // Apply separation force regardless of state
         Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
@@ -567,10 +581,18 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
 
     public void OnPointerEnter(PointerEventData e) => _interactionHandler?.OnPointerEnter(e);
-    public void OnPointerExit(PointerEventData e) => _interactionHandler?.OnPointerExit(e);    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerExit(PointerEventData e) => _interactionHandler?.OnPointerExit(e);
+    public void OnPointerClick(PointerEventData eventData)
     {
         _interactionHandler?.OnPointerClick(eventData);
-        _evolutionHandler?.OnInteraction();
+        // Don't call _evolutionHandler?.OnInteraction() immediately
+        // Let the interaction handler manage the timing
+    }
+
+    // ADD: Method for delayed evolution check
+    public void CheckEvolutionAfterInteraction()
+    {
+        _evolutionHandler?.OnInteraction(); // This will now be called at the right time
     }
 
     public void SaveMonData() => _saveHandler?.SaveData();

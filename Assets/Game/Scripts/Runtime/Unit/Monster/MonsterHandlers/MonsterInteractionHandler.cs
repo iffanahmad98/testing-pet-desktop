@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections;
 using System.Collections.Generic;
 
 public class MonsterInteractionHandler
@@ -9,6 +10,7 @@ public class MonsterInteractionHandler
     private MonsterAnimationHandler _animationHandler;
     private float _pokeCooldownTimer;
     private bool _pendingSilverCoinDrop;
+    private bool _pendingEvolutionCheck = false;  // ADD: Track pending evolution check
     
     public MonsterInteractionHandler(MonsterController controller, MonsterStateMachine stateMachine)
     {
@@ -23,6 +25,7 @@ public class MonsterInteractionHandler
     
     private void OnStateChanged(MonsterState newState)
     {
+        // Handle coin dropping
         if (_pendingSilverCoinDrop)
         {
             bool wasPokeState = 
@@ -38,10 +41,18 @@ public class MonsterInteractionHandler
             {
                 _controller.DropCoinAfterPoke();
                 _pendingSilverCoinDrop = false;
+                
+                // ADD: Trigger evolution check after state returns to normal
+                if (_pendingEvolutionCheck)
+                {
+                    _pendingEvolutionCheck = false;
+                    // Delay slightly to ensure state is fully settled
+                    _controller.StartCoroutine(DelayedEvolutionTrigger());
+                }
             }
         }
     }
-    
+
     public void SetAnimationHandler(MonsterAnimationHandler animationHandler)
     {
         _animationHandler = animationHandler;
@@ -67,6 +78,8 @@ public class MonsterInteractionHandler
         _controller.IncreaseHappiness(_controller.MonsterData.pokeHappinessValue);
         
         _pendingSilverCoinDrop = true;
+        _pendingEvolutionCheck = true;  // ADD: Mark that we need to check evolution later
+        
         MonsterState pokeState = GetRandomPokeState();
         _stateMachine?.ChangeState(pokeState);
     }
@@ -122,5 +135,14 @@ public class MonsterInteractionHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_controller.isHovered) HandlePoke();
+    }
+
+    // ADD: Delayed evolution trigger
+    private IEnumerator DelayedEvolutionTrigger()
+    {
+        yield return new WaitForSeconds(0.5f); // Small delay to ensure state is settled
+        
+        // Trigger the evolution check through the controller
+        _controller.CheckEvolutionAfterInteraction();
     }
 }

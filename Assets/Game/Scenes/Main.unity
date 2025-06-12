@@ -7394,7 +7394,7 @@ Transform:
   m_GameObject: {fileID: 394915531}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -530, y: 480, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8883,7 +8883,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &464278275
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8900,8 +8900,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000061035156, y: 74.72821}
-  m_SizeDelta: {x: 1920, y: 574.7281}
+  m_AnchoredPosition: {x: -0.000061035156, y: 63.41638}
+  m_SizeDelta: {x: 1920, y: 563.4162}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &464278276
 MonoBehaviour:
@@ -8916,7 +8916,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.82641506, g: 0.4578677, b: 0, a: 1}
+  m_Color: {r: 0.82641506, g: 0.4578677, b: 0, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10303,12 +10303,12 @@ GameObject:
   - component: {fileID: 558308738}
   - component: {fileID: 558308737}
   m_Layer: 5
-  m_Name: SkyArea
+  m_Name: FlyArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &558308736
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10325,8 +10325,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 567}
-  m_SizeDelta: {x: 1920, y: 464.8264}
+  m_AnchoredPosition: {x: -0.000061035, y: 500}
+  m_SizeDelta: {x: 1920, y: 1000}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &558308737
 MonoBehaviour:
@@ -10341,7 +10341,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.7876234, a: 1}
+  m_Color: {r: 0, g: 1, b: 0.7876234, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -32038,7 +32038,7 @@ Transform:
   m_GameObject: {fileID: 1851037286}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1039.9481, y: 587.11414, z: -128.23334}
+  m_LocalPosition: {x: 1025, y: 580, z: -128.23334}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -36731,7 +36731,7 @@ Transform:
   m_GameObject: {fileID: 2131045376}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1625, y: 0, z: -1}
+  m_LocalPosition: {x: -1565, y: 0, z: -150}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -37274,7 +37274,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1620092001018365499, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: playOnAwake
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1620092001018365499, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
@@ -37286,7 +37286,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1620092001033215832, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: clearBehavior
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1620092001033215832, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: cameraShake.enabled
@@ -37326,15 +37326,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1620092001033215835, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1620092001033569147, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -525
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1620092001033569147, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 491
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1620092001033569147, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -37374,7 +37374,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4253495747725623122, guid: 11de6b4130e440549a0dce75018a4b8a, type: 3}
       propertyPath: playOnAwake
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -33,6 +33,12 @@ public class MonsterStateMachine : MonoBehaviour
     {
         _stateTimer += Time.deltaTime;
 
+        // Prevent state changes during evolution
+        if (_controller != null && _controller.IsEvolving)
+        {
+            return; // Don't process state changes while evolving
+        }
+
         // Better coordination with food handler
         if (_currentState == MonsterState.Eating)
         {
@@ -64,6 +70,12 @@ public class MonsterStateMachine : MonoBehaviour
 
     public void ChangeState(MonsterState newState)
     {
+        // Prevent state changes during evolution
+        if (_controller != null && _controller.IsEvolving)
+        {
+            return;
+        }
+
         // Validate state has animations before changing
         if (!_animationHandler.HasValidAnimationForState(newState))
         {
