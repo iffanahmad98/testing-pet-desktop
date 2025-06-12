@@ -18,7 +18,6 @@ public class MonsterEvolutionHandler
 {
     private EvolutionRequirementsSO _evolutionConfig;
     private MonsterController _controller;
-    private MonsterUIHandler _uiHandler;
 
     // Evolution tracking
     private float _lastUpdateTime;
@@ -70,12 +69,15 @@ public class MonsterEvolutionHandler
         {
             InitializeEvolutionRequirements();
         }
-    }    public void InitUIParticles(MonsterUIHandler uiHandler)
+    }
+
+    public void InitUIParticles(MonsterUIHandler uiHandler)
     {
-        _uiHandler = uiHandler;
         _evolutionParticle = uiHandler.evolutionEffect;
         _evolutionParticleCanvasGroup = uiHandler.evolutionEffectCg;
-    }    private EvolutionRequirement[] GetAvailableEvolutions()
+    }
+
+    private EvolutionRequirement[] GetAvailableEvolutions()
     {
         if (_evolutionConfig == null || _evolutionConfig.requirements == null)
         {
