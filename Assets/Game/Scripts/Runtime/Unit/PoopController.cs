@@ -37,6 +37,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SaveSystem.SavePoop(ServiceLocator.Get<GameManager>().poopCollected);
         SaveSystem.Flush();
         ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
+        ServiceLocator.Get<CursorManager>().Set(CursorType.Default);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

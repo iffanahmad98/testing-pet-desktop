@@ -4,6 +4,7 @@ using System.Collections;
 public class MonsterFoodHandler
 {
     private MonsterController _controller;
+    private MonsterStateMachine _stateMachine;
     private GameManager _gameManager;
     private RectTransform _rectTransform;
     private float _foodDetectionRangeSqr;
@@ -11,16 +12,12 @@ public class MonsterFoodHandler
     private float _cachedFoodDistanceSqr = float.MaxValue;
     private float _lastEatingTime = 0f;
     private const float EATING_COOLDOWN = 3f;
-    
-    // FIXED: Track eating coroutine AND eating state internally
     private Coroutine _eatingCoroutine;
-    private bool _isInternallyEating = false; // Internal state to prevent race conditions
+    private bool _isInternallyEating = false; 
     
     public FoodController NearestFood { get; private set; }
     public bool IsNearFood { get; private set; }
-    
-    // FIXED: Single source of truth - use cached reference
-    private MonsterStateMachine _stateMachine;
+
     
     public MonsterFoodHandler(MonsterController controller, GameManager gameManager, RectTransform rectTransform)
     {
@@ -105,9 +102,9 @@ public class MonsterFoodHandler
         else
         {
             targetPosition = foodPos;
-        }    }
-    
-    // Atomic eating start
+        }
+    }
+
     private void StartEatingSequence()
     {
         if (!ValidateEatingConditions()) return;
@@ -123,36 +120,10 @@ public class MonsterFoodHandler
         _eatingCoroutine = _controller.StartCoroutine(ConsumeAfterEating());
     }
     
-    // FIXED: Improved force reset with better coordination
-    public void ForceResetEating()
-    {
-        Debug.Log($"[FoodHandler] Force reset eating for {_controller.name}");
-        
-        // Stop coroutine first
-        if (_eatingCoroutine != null)
-        {
-            _controller.StopCoroutine(_eatingCoroutine);
-            _eatingCoroutine = null;
-        }
-        
-        // Reset internal state
-        _isInternallyEating = false;
-        
-        // Clear food reference and release claim
-        ClearFood();
-        
-        // Set cooldown to prevent immediate re-eating
-        _lastEatingTime = Time.time;
-        
-        // Let controller handle state reset
-        _controller.SetRandomTarget();
-    }
-    
     private void ClearFood()
     {
         if (NearestFood != null)
         {
-            Debug.Log($"[FoodHandler] Clearing food: {NearestFood.name}");
             NearestFood.ReleaseClaim(_controller); // ADDED: Release claim
             NearestFood = null;
         }
@@ -171,33 +142,12 @@ public class MonsterFoodHandler
     
     private IEnumerator ConsumeAfterEating()
     {
-        Debug.Log($"[FoodHandler] Starting eating coroutine for {_controller.name}");
-        
         float eatingDuration = _stateMachine?.GetCurrentStateDuration() ?? 2f;
-        Debug.Log($"[FoodHandler] Eating duration: {eatingDuration}");
         yield return new WaitForSeconds(eatingDuration);
-        
-        // FIXED: Check internal state first, then external state
-        if (!_isInternallyEating)
-        {
-            Debug.LogWarning($"[FoodHandler] Eating was cancelled internally for {_controller.name}");
-            ClearFood(); // ADDED: Properly release claim
-            yield break;
-        }
-        
-        if (_stateMachine?.CurrentState != MonsterState.Eating)
-        {
-            Debug.LogWarning($"[FoodHandler] Eating was cancelled externally for {_controller.name}");
-            _isInternallyEating = false;
-            ClearFood(); // ADDED: Properly release claim
-            yield break;
-        }
         
         // FIXED: Use ValidateEatingConditions for complete validation
         if (NearestFood != null && ValidateEatingConditions())
         {
-            Debug.Log($"[FoodHandler] Consuming food: {NearestFood.name} with nutrition: {NearestFood.nutritionValue}");
-            
             bool feedSuccess = TryFeedMonster(NearestFood.nutritionValue);
             
             if (feedSuccess)
@@ -205,8 +155,6 @@ public class MonsterFoodHandler
                 // Remove and despawn food
                 _gameManager.activeFoods.Remove(NearestFood);
                 _gameManager.DespawnToPool(NearestFood.gameObject);
-                Debug.Log($"[FoodHandler] Successfully consumed and despawned food");
-                
                 _controller.TriggerFoodConsumption();
             }
             else
@@ -220,20 +168,17 @@ public class MonsterFoodHandler
         else
         {
             Debug.LogWarning($"[FoodHandler] Food became invalid during eating");
-            ClearFood(); // ADDED: Clean up invalid food
+            ClearFood(); 
         }
         
         CompleteEatingSequence();
     }
     
-    // FIXED: Atomic completion of eating sequence
     private void CompleteEatingSequence()
     {
         _lastEatingTime = Time.time;
         _eatingCoroutine = null;
         _isInternallyEating = false;
-        
-        Debug.Log($"[FoodHandler] Finished eating, returning to idle");
         
         // Let state machine handle transition
         if (_stateMachine?.CurrentState == MonsterState.Eating)
@@ -244,46 +189,30 @@ public class MonsterFoodHandler
         _controller.SetRandomTarget();
     }
     
-    // FIXED: Direct stat modification without circular dependencies
     private bool TryFeedMonster(float nutritionValue)
     {
-        Debug.Log($"[FoodHandler] Attempting to feed {_controller.name} with {nutritionValue} nutrition");
-        
         // Check if monster is sick
-        if (_controller.IsSick)
-        {
-            Debug.LogWarning($"[FoodHandler] Monster {_controller.name} is too sick to eat regular food!");
-            return false;
-        }
-        
-        // FIXED: Use controller's stat methods directly (no circular calls)
+        if (_controller.IsSick) return false;
+
+        // FIXED: Use controller's stat methods directly
         float newHunger = Mathf.Clamp(_controller.currentHunger + nutritionValue, 0f, 100f);
         float newHappiness = Mathf.Clamp(_controller.currentHappiness + (nutritionValue * 0.5f), 0f, 100f);
         
         _controller.SetHunger(newHunger);
         _controller.SetHappiness(newHappiness);
-        
-        Debug.Log($"[FoodHandler] Successfully fed {nutritionValue} to {_controller.name}");
+
         return true;
-    }
-    
-    private bool CanEat()
-    {
-        return !_controller.IsSick && 
-               Time.time - _lastEatingTime >= EATING_COOLDOWN &&
-               NearestFood != null && 
-               NearestFood.gameObject.activeInHierarchy &&
-               !_isInternallyEating; // ADDED: Check internal state
     }
     
     // FIXED: Public getter using internal state
     public bool IsCurrentlyEating => _isInternallyEating || (_stateMachine?.CurrentState == MonsterState.Eating);
-      // Better validation chain
+
+    // Better validation chain
     private bool ValidateEatingConditions()
     {
-        return NearestFood != null && 
-               IsValidFood(NearestFood) && 
-               NearestFood.IsClaimedBy(_controller) && 
+        return NearestFood != null &&
+               IsValidFood(NearestFood) &&
+               NearestFood.IsClaimedBy(_controller) &&
                !_controller.IsSick &&
                Time.time - _lastEatingTime >= EATING_COOLDOWN;
     }
