@@ -23,7 +23,7 @@ public class MonsterCoroutineHandler
     {
         float goldCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Gold).TotalSeconds;
         float silverCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Silver).TotalSeconds;
-        float poopInterval = 20f;
+        float poopInterval = (float)TimeSpan.FromMinutes(20f).TotalSeconds;
 
         _hungerCoroutine = _controller.StartCoroutine(HungerRoutine(1f));
         _happinessCoroutine = _controller.StartCoroutine(HappinessRoutine(1f));
