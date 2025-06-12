@@ -105,10 +105,9 @@ public class MonsterFoodHandler
         else
         {
             targetPosition = foodPos;
-        }
-    }
+        }    }
     
-    // IMPROVED: Atomic eating start
+    // Atomic eating start
     private void StartEatingSequence()
     {
         if (!ValidateEatingConditions()) return;
@@ -279,8 +278,7 @@ public class MonsterFoodHandler
     
     // FIXED: Public getter using internal state
     public bool IsCurrentlyEating => _isInternallyEating || (_stateMachine?.CurrentState == MonsterState.Eating);
-    
-    // IMPROVED: Better validation chain
+      // Better validation chain
     private bool ValidateEatingConditions()
     {
         return NearestFood != null && 

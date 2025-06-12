@@ -3,10 +3,10 @@ using UnityEngine;
 public class MonsterStatsHandler
 {
     private MonsterController _controller;
-    private float _currentHunger = 100f;
-    private float _currentHappiness = 100f;
-    private bool _isSick = false;
-    private float _lowHungerTime = 0f;
+    private float _currentHunger;
+    private float _currentHappiness;
+    private bool _isSick;
+    private float _lowHungerTime;
     
     private const float SICK_HUNGER_THRESHOLD = 30f;
     private const float SICK_THRESHOLD_TIME = 1f;
@@ -25,6 +25,27 @@ public class MonsterStatsHandler
     public MonsterStatsHandler(MonsterController controller)
     {
         _controller = controller;
+        
+        // Set initial values from monster data
+        if (_controller.MonsterData != null)
+        {
+            _currentHunger = _controller.MonsterData.baseHunger;        // 50f from SO
+            _currentHappiness = _controller.MonsterData.baseHappiness;  // 0f from SO
+        }
+        else
+        {
+            // Fallback values that match the controller's fallbacks
+            _currentHunger = 50f;
+            _currentHappiness = 0f;  // Match the controller fallback
+        }
+        
+        _isSick = false;
+        _lowHungerTime = 0f;
+        
+        // ADD: Trigger initial UI update
+        OnHungerChanged?.Invoke(_currentHunger);
+        OnHappinessChanged?.Invoke(_currentHappiness);
+        OnSickChanged?.Invoke(_isSick);
     }
     
     public void Initialize(float initialHunger, float initialHappiness, bool initialSick, float initialLowHungerTime)

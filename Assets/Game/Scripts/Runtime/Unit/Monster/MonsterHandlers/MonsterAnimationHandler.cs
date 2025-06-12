@@ -7,7 +7,18 @@ public class MonsterAnimationHandler
 {
     private MonsterController _controller;
     private SkeletonGraphic _skeletonGraphic;
-    
+    private static readonly Dictionary<MonsterState, string[]> StateAnimationMap = new()
+    {
+        [MonsterState.Idle] = new[] { "idle" },
+        [MonsterState.Walking] = new[] { "walking" },
+        [MonsterState.Running] = new[] { "running" },
+        [MonsterState.Flying] = new[] { "flying" },
+        [MonsterState.Flapping] = new[] { "flapping" },
+        [MonsterState.Jumping] = new[] { "jumping" },
+        [MonsterState.Itching] = new[] { "itching" },
+        [MonsterState.Eating] = new[] { "eating" }
+    };
+
     public MonsterAnimationHandler(MonsterController controller, SkeletonGraphic skeletonGraphic)
     {
         _controller = controller;
@@ -16,39 +27,62 @@ public class MonsterAnimationHandler
     
     public void PlayStateAnimation(MonsterState state)
     {
-        if (_skeletonGraphic == null) return;
+        // Start delayed animation playback to handle initialization timing
+        _controller.StartCoroutine(TryPlayStateAnimation(state));
+    }
+
+    private IEnumerator TryPlayStateAnimation(MonsterState state)
+    {
+        // Wait for skeleton initialization - multiple strategies
+        int maxRetries = 5;
+        int retryCount = 0;
         
-        // Ensure skeleton data is available before trying to use AnimationState
-        if (_skeletonGraphic.skeletonDataAsset == null) return;
+        while (retryCount < maxRetries)
+        {
+            // Check if skeleton components are ready
+            if (_skeletonGraphic != null && _skeletonGraphic.skeletonDataAsset != null)
+            {
+                // Try to initialize if AnimationState is null
+                if (_skeletonGraphic.AnimationState == null)
+                {
+                    _skeletonGraphic.Initialize(true);
+                }
+                
+                // If we have AnimationState, we're ready
+                if (_skeletonGraphic.AnimationState != null)
+                {
+                    break;
+                }
+            }
+            
+            retryCount++;
+
+            // Wait with increasing delay
+            float waitTime = retryCount * 0.1f; // 0.1s, 0.2s, 0.3s, etc.
+            yield return new WaitForSeconds(waitTime);
+        }
         
+        // Now execute the original PlayStateAnimation logic
+        InitializeAnimation(state);
+    }
+
+    private void InitializeAnimation(MonsterState state)
+    {
+        // Original PlayStateAnimation logic goes here
+        if (_skeletonGraphic == null || _skeletonGraphic.skeletonDataAsset == null)
+        {
+            Debug.LogError($"[Animation] ❌ No skeleton components for {_controller.monsterID} after waiting");
+            return;
+        }
+
         if (_skeletonGraphic.AnimationState == null)
         {
             _skeletonGraphic.Initialize(true);
             
-            // Wait for initialization to complete
-            _controller.StartCoroutine(PlayAnimationAfterInitialization(state));
-            return;
-        }
-
-        // Get animation name and play it
-        string animationName = GetAvailableAnimation(state);
-        if (!string.IsNullOrEmpty(animationName) && HasAnimation(animationName))
-        {
-            _skeletonGraphic.AnimationState.SetAnimation(0, animationName, true);
-        }
-    }
-    
-    private IEnumerator PlayAnimationAfterInitialization(MonsterState state)
-    {
-        // Wait one frame for initialization to complete
-        yield return null;
-        
-        if (_skeletonGraphic.AnimationState != null)
-        {
-            string animationName = GetAvailableAnimation(state);
-            if (!string.IsNullOrEmpty(animationName) && HasAnimation(animationName))
+            if (_skeletonGraphic.AnimationState == null)
             {
-                _skeletonGraphic.AnimationState.SetAnimation(0, animationName, true);
+                Debug.LogError($"[Animation] ❌ Failed to initialize AnimationState for {_controller.monsterID}");
+                return;
             }
         }
     }
@@ -74,41 +108,35 @@ public class MonsterAnimationHandler
         }
 
         // Fallback to idle if nothing else works
+        Debug.LogWarning($"[Animation] No valid animations found for {state} in {_controller.monsterID}, using idle");
         return "idle";
     }
 
     private string[] GetEvolutionSpecificAnimations(MonsterState state)
     {
-        if (_controller?.MonsterData?.evolutionAnimationSets == null)
-            return GetDefaultAnimations(state);
+        if (_controller?.MonsterData?.evolutionAnimationSets == null) return GetDefaultAnimations(state);
     
         int currentEvolutionLevel = _controller.evolutionLevel;
-    
-        // Try current evolution level first
-        var animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
+        var animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets,
             set => set.evolutionLevel == currentEvolutionLevel);
-    
-        // Fallback strategy: Try lower evolution levels in descending order
+            
         if (animationSet?.availableAnimations == null || animationSet.availableAnimations.Length == 0)
         {
             for (int level = currentEvolutionLevel - 1; level >= 0; level--)
             {
-                animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
+                animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets,
                     set => set.evolutionLevel == level);
-            
                 if (animationSet?.availableAnimations != null && animationSet.availableAnimations.Length > 0)
                     break;
             }
         }
     
-        // If still no valid set found, use first available set
         if (animationSet?.availableAnimations == null || animationSet.availableAnimations.Length == 0)
         {
             animationSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
                 set => set.availableAnimations != null && set.availableAnimations.Length > 0);
         }
     
-        // Complete fallback to default patterns
         if (animationSet?.availableAnimations == null)
         {
             Debug.LogWarning($"[Animation] No valid animation sets for {_controller.monsterID} evolution level {currentEvolutionLevel}, using defaults");
@@ -120,7 +148,7 @@ public class MonsterAnimationHandler
 
     private string[] FilterAnimationsByState(MonsterState state, string[] availableAnimations)
     {
-        string[] patterns = GetStatePatterns(state);
+        string[] patterns = GetDefaultAnimations(state);
         
         List<string> matchingAnimations = new List<string>();
         
@@ -139,95 +167,62 @@ public class MonsterAnimationHandler
         return matchingAnimations.Count > 0 ? matchingAnimations.ToArray() : availableAnimations;
     }
 
-    private string[] GetStatePatterns(MonsterState state)
-    {
-        return state switch
-        {
-            MonsterState.Idle => new[] { "idle", "rest", "stand", "sleep", "roar", "breathe" },
-            MonsterState.Walking => new[] { "walk", "walking", "move" },
-            MonsterState.Running => new[] { "run", "running", "sprint", "hunt" },
-            MonsterState.Flying => new[] { "fly", "flying", "hover", "float" },
-            MonsterState.Flapping => new[] { "flap", "flapping", "wing", "wings", "wingbeat" }, // NEW: Separate Flapping patterns
-            MonsterState.Jumping => new[] { "jump", "jumping", "leap", "pounce" },
-            MonsterState.Itching => new[] { "itch", "itching", "scratch" },
-            MonsterState.Eating => new[] { "eat", "eating", "feed", "consume" },
-            _ => new[] { "idle" }
-        };
-    }
-
-    private string[] GetDefaultAnimations(MonsterState state)
-    {
-        return state switch
-        {
-            MonsterState.Idle => new[] { "idle" },
-            MonsterState.Walking => new[] { "walking", "walk" },
-            MonsterState.Running => new[] { "running", "run", "walking", "walk" },
-            MonsterState.Flying => new[] { "flying", "fly", "running", "run", "walking", "walk" },
-            MonsterState.Flapping => new[] { "flapping", "flap", "jumping", "jump" }, // NEW: Separate Flapping fallbacks
-            MonsterState.Jumping => new[] { "jumping", "jump" },
-            MonsterState.Itching => new[] { "itching", "itch" },
-            MonsterState.Eating => new[] { "eating", "eat" },
-            _ => new[] { "idle" }
-        };
-    }
-
-    public bool HasAnimation(string animationName)
+    private bool HasAnimation(string animationName)
     {
         if (_skeletonGraphic == null || _skeletonGraphic.skeletonDataAsset == null)
+        {
+            Debug.LogWarning($"[Animation] Cannot check animation '{animationName}' - skeleton components missing");
             return false;
+        }
+        
+        // Force initialize if needed
+        if (_skeletonGraphic.AnimationState == null)
+        {
+            _skeletonGraphic.Initialize(true);
+        }
             
         var skeletonData = _skeletonGraphic.skeletonDataAsset.GetSkeletonData(false);
-        if (skeletonData == null) return false;
+        if (skeletonData == null) 
+        {
+            Debug.LogWarning($"[Animation] Cannot get skeleton data to check animation '{animationName}'");
+            return false;
+        }
         
         var animation = skeletonData.FindAnimation(animationName);
-        return animation != null;
+        bool found = animation != null;
+        
+        return found;
     }
     
     public bool HasValidAnimationForState(MonsterState state)
     {
-        // First try evolution-specific animations
-        string[] evolutionAnimations = GetEvolutionSpecificAnimations(state);
-        
-        foreach (string animName in evolutionAnimations)
+        if (_skeletonGraphic == null || _skeletonGraphic.skeletonDataAsset == null)
         {
-            if (HasAnimation(animName))
-            {
-                Debug.Log($"[Animation] Found evolution animation '{animName}' for state {state}");
-                return true;
-            }
+            return false;
         }
-        
-        // Then try default fallback animations
+
+        // Check if monster has ANY of the default animations for this state
         string[] defaultAnimations = GetDefaultAnimations(state);
         
         foreach (string animName in defaultAnimations)
         {
             if (HasAnimation(animName))
             {
-                Debug.Log($"[Animation] Found default animation '{animName}' for state {state}");
-                return true;
+                return true; // Found at least one valid animation
             }
         }
-        
-        // Final fallback - if it's a poke state, check if we have any basic animation
-        if (state == MonsterState.Jumping || state == MonsterState.Itching || state == MonsterState.Flapping)
-        {
-            // Check for any basic animations that could work
-            string[] basicFallbacks = { "jumping", "jump", "itching", "itch", "flapping", "flap", "idle" };
-            
-            foreach (string animName in basicFallbacks)
-            {
-                if (HasAnimation(animName))
-                {
-                    Debug.Log($"[Animation] Found basic fallback animation '{animName}' for poke state {state}");
-                    return true;
-                }
-            }
-        }
-        
-        Debug.LogWarning($"[Animation] No valid animation found for state {state}");
+
         return false;
     }
+
+    // Your existing interface - now powered by the dictionary
+    private string[] GetDefaultAnimations(MonsterState state)
+    {
+        return StateAnimationMap.TryGetValue(state, out var animations) 
+            ? animations 
+            : new[] { "idle" };
+    }
+
 
     public float GetAnimationDuration(string animationName)
     {
@@ -241,28 +236,5 @@ public class MonsterAnimationHandler
         if (animation == null) return 1f;
         
         return animation.Duration;
-    }
-
-    public void LogAvailableAnimations()
-    {
-        if (_skeletonGraphic == null || _skeletonGraphic.skeletonDataAsset == null)
-        {
-            Debug.LogWarning("[Animation] No skeleton data available");
-            return;
-        }
-            
-        var skeletonData = _skeletonGraphic.skeletonDataAsset.GetSkeletonData(false);
-        if (skeletonData == null)
-        {
-            Debug.LogWarning("[Animation] Skeleton data is null");
-            return;
-        }
-        
-        Debug.Log($"[Animation] Available animations for {_controller.monsterID}:");
-        for (int i = 0; i < skeletonData.Animations.Count; i++)
-        {
-            var anim = skeletonData.Animations.Items[i];
-            Debug.Log($"  - {anim.Name} (duration: {anim.Duration}s)");
-        }
     }
 }

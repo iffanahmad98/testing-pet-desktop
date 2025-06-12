@@ -263,6 +263,7 @@ public class GameManager : MonoBehaviour
 
     public void RemoveSavedMonsterID(string monsterID)
     {
+        activeMonsters.RemoveAll(m => m.monsterID == monsterID);
         savedMonIDs.Remove(monsterID);
         SaveSystem.SaveMonIDs(savedMonIDs);
     }

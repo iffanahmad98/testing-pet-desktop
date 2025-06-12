@@ -70,24 +70,15 @@ public class MonsterEvolutionHandler
         {
             InitializeEvolutionRequirements();
         }
-    }
-
-    public void InitUIParticles(MonsterUIHandler uiHandler)
+    }    public void InitUIParticles(MonsterUIHandler uiHandler)
     {
         _uiHandler = uiHandler;
         _evolutionParticle = uiHandler.evolutionEffect;
         _evolutionParticleCanvasGroup = uiHandler.evolutionEffectCg;
-
-        Debug.Log($"[Evolution] Initialized from UI Handler for {_controller.monsterID}: " +
-                 $"ParticleSystem={_evolutionParticle != null}, " +
-                 $"CanvasGroup={_evolutionParticleCanvasGroup != null}");
-    }
-
-    private EvolutionRequirement[] GetAvailableEvolutions()
+    }    private EvolutionRequirement[] GetAvailableEvolutions()
     {
         if (_evolutionConfig == null || _evolutionConfig.requirements == null)
         {
-            Debug.LogWarning($"[Evolution] No evolution config available for {_controller?.monsterID}");
             return new EvolutionRequirement[0];
         }
         var available = _evolutionConfig.requirements
@@ -126,36 +117,18 @@ public class MonsterEvolutionHandler
     {
         _interactionCount++;
         CheckEvolutionConditions();
-    }
-
-    private void CheckEvolutionConditions()
+    }    private void CheckEvolutionConditions()
     {
-        if (!CanEvolve)
-        {
-            Debug.Log($"[Evolution] Cannot evolve {_controller?.monsterID}: CanEvolve = false");
-            return;
-        }
+        if (!CanEvolve) return;
 
         var nextEvolution = GetNextEvolutionRequirement();
-        if (nextEvolution == null)
-        {
-            Debug.LogWarning($"[Evolution] No next evolution requirement found for {_controller?.monsterID} at level {_controller?.evolutionLevel}");
-            return;
-        }
-
-        Debug.Log($"[Evolution] Checking conditions for {_controller?.monsterID}: " +
-                $"Time: {_timeSinceCreation}/{nextEvolution.minTimeAlive}, " +
-                $"Food: {_foodConsumed}/{nextEvolution.minFoodConsumed}, " +
-                $"Interactions: {_interactionCount}/{nextEvolution.minInteractions}");
+        if (nextEvolution == null) return;
 
         if (MeetsEvolutionRequirements(nextEvolution))
         {
-            Debug.Log($"[Evolution] Triggering evolution for {_controller?.monsterID}!");
             TriggerEvolution();
         }
-    }
-
-    private EvolutionRequirement GetNextEvolutionRequirement()
+    }    private EvolutionRequirement GetNextEvolutionRequirement()
     {
         int currentLevel = _controller.evolutionLevel;
 
@@ -167,7 +140,6 @@ public class MonsterEvolutionHandler
             }
         }
 
-        Debug.LogWarning($"[Evolution] No evolution requirement found for level {currentLevel + 1}");
         return null;
     }
 
@@ -191,66 +163,42 @@ public class MonsterEvolutionHandler
         bool customCheck = requirement.customCondition?.Invoke(_controller) ?? true;
 
         return customCheck;
-    }
-
-    public void TriggerEvolution()
+    }    public void TriggerEvolution()
     {
-        if (!CanEvolve)
-        {
-            Debug.LogWarning($"[Evolution] Cannot trigger evolution for {_controller?.monsterID} - CanEvolve is false");
-            return;
-        }
+        if (!CanEvolve) return;
+        
         var oldLevel = _controller.evolutionLevel;
         var newLevel = oldLevel + 1;
 
-        // Start simple evolution effect
         StartSimpleEvolutionEffect(oldLevel, newLevel);
-    }
-
-    private void StartSimpleEvolutionEffect(int oldLevel, int newLevel)
+    }    private void StartSimpleEvolutionEffect(int oldLevel, int newLevel)
     {
-        // Start the full evolution sequence
         _controller.StartCoroutine(EvolutionSequence(oldLevel, newLevel));
-    }
-
-    private IEnumerator EvolutionSequence(int oldLevel, int newLevel)
+    }    private IEnumerator EvolutionSequence(int oldLevel, int newLevel)
     {
-        // Get references
         _monsterRectTransform = _controller.GetComponent<RectTransform>();
 
-        // Phase 1: Pre-evolution effects (flash + scale up)
         yield return _controller.StartCoroutine(PreEvolutionEffects());
 
-        // Phase 2: Show particle evolution animation
         yield return _controller.StartCoroutine(ShowEvolutionParticles());
 
-        // Phase 3: Apply evolution changes
         _controller.evolutionLevel = newLevel;
         UpdateMonsterID(newLevel);
 
-        // Phase 4: Post-evolution effects (reveal new form)
         yield return _controller.StartCoroutine(PostEvolutionEffects());
 
-        // Phase 5: Complete evolution
         _controller.UpdateVisuals();
         OnEvolutionComplete(oldLevel, newLevel);
-    }
-
-    private IEnumerator PreEvolutionEffects()
+    }    private IEnumerator PreEvolutionEffects()
     {
         var originalScale = _monsterRectTransform.localScale;
 
-        // Flash effect (quick brightness changes)
         for (int i = 0; i < 3; i++)
         {
-            // You can use a SpriteRenderer or Image component flash here
-            // FlashMonster(true);
             yield return new WaitForSeconds(0.1f);
-            // FlashMonster(false);
             yield return new WaitForSeconds(0.1f);
         }
 
-        // Scale up slightly
         float scaleTime = 0.5f;
         float elapsed = 0f;
         Vector3 targetScale = originalScale * 1.2f;
@@ -261,20 +209,16 @@ public class MonsterEvolutionHandler
             elapsed += Time.deltaTime;
             yield return null;
         }
-    }
-
-    private IEnumerator ShowEvolutionParticles()
+    }    private IEnumerator ShowEvolutionParticles()
     {
         if (_evolutionParticleCanvasGroup == null) yield break;
 
-        // Start particle system (make sure it's looping)
         _evolutionParticle = _evolutionParticle.GetComponent<ParticleSystem>();
         if (_evolutionParticle != null)
         {
             _evolutionParticle.Play();
         }
 
-        // Fade in particles
         float fadeTime = 0.5f;
         float elapsed = 0f;
 
@@ -285,10 +229,8 @@ public class MonsterEvolutionHandler
             yield return null;
         }
 
-        // Keep particles visible for evolution duration
         yield return new WaitForSeconds(2f);
 
-        // Fade out particles
         elapsed = 0f;
         while (elapsed < fadeTime)
         {
@@ -297,26 +239,21 @@ public class MonsterEvolutionHandler
             yield return null;
         }
 
-        // Stop particle system
         if (_evolutionParticle != null)
         {
             _evolutionParticle.Stop();
         }
-    }
-
-    private IEnumerator PostEvolutionEffects()
+    }    private IEnumerator PostEvolutionEffects()
     {
         var originalScale = _monsterRectTransform.localScale;
-        var targetScale = Vector3.one; // Reset to normal scale
+        var targetScale = Vector3.one;
 
-        // Scale back to normal with a slight bounce
         float scaleTime = 0.8f;
         float elapsed = 0f;
 
         while (elapsed < scaleTime)
         {
             float t = elapsed / scaleTime;
-            // Add a bounce effect using animation curve or easing
             float bounceT = Mathf.Sin(t * Mathf.PI * 2) * 0.1f + t;
             _monsterRectTransform.localScale = Vector3.Lerp(originalScale, targetScale, bounceT);
             elapsed += Time.deltaTime;
@@ -325,25 +262,18 @@ public class MonsterEvolutionHandler
 
         _monsterRectTransform.localScale = targetScale;
 
-        // Final flash to reveal new form
-        // FlashMonster(true);
         yield return new WaitForSeconds(0.2f);
-        // FlashMonster(false);
-    }
-
-    private void UpdateMonsterID(int newLevel)
+    }    private void UpdateMonsterID(int newLevel)
     {
         var oldID = _controller.monsterID;
-        var parts = _controller.monsterID.Split('_'); if (parts.Length >= 3)
+        var parts = _controller.monsterID.Split('_'); 
+        if (parts.Length >= 3)
         {
-            // Update the existing ID format
             _controller.monsterID = $"{parts[0]}_Lv{newLevel}_{parts[2]}";
 
-            // IMPORTANT: Update the save system's monster ID list
             var gameManager = ServiceLocator.Get<GameManager>();
             if (gameManager != null)
             {
-                // Remove old ID and add new ID to the saved list
                 var savedIDs = SaveSystem.LoadSavedMonIDs();
                 if (savedIDs.Contains(oldID))
                 {
@@ -351,32 +281,26 @@ public class MonsterEvolutionHandler
                     savedIDs.Add(_controller.monsterID);
                     SaveSystem.SaveMonIDs(savedIDs);
 
-                    // Also update the GameManager's active list
                     gameManager.RemoveSavedMonsterID(oldID);
                     gameManager.AddSavedMonsterID(_controller.monsterID);
                 }
             }
 
-            // Delete the old save data
             SaveSystem.DeleteMon(oldID);
         }
         else
         {
             Debug.LogWarning($"[Evolution] Could not update monster ID format for {_controller.monsterID}");
         }
-    }
-
-    private void OnEvolutionComplete(int oldLevel, int newLevel)
+    }    private void OnEvolutionComplete(int oldLevel, int newLevel)
     {
         ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {newLevel}!", 3f);
 
         _lastEvolutionTime = Time.time;
 
-        // Reset progress counters
         _foodConsumed = 0;
         _interactionCount = 0;
 
-        // IMPORTANT: Save the evolved monster data immediately
         _controller.SaveMonData();
     }
 
@@ -414,13 +338,12 @@ public class MonsterEvolutionHandler
         {
             progress += Mathf.Clamp01(_controller.currentHappiness / nextRequirement.minCurrentHappiness);
             conditions++;
-        }
-
-        if (nextRequirement.minCurrentHunger > 0)
+        }        if (nextRequirement.minCurrentHunger > 0)
         {
             progress += Mathf.Clamp01(_controller.currentHunger / nextRequirement.minCurrentHunger);
             conditions++;
         }
+        
         float finalProgress = conditions > 0 ? progress / conditions : 1f;
 
         return finalProgress;

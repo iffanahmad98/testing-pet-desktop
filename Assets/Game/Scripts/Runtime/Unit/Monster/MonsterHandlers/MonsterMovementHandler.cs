@@ -99,7 +99,7 @@ public class MonsterMovementHandler
     {
         if (_spineGraphic == null || _stateMachine == null) return;
         
-        var state = _stateMachine.CurrentState;
+        var state = _stateMachine.CurrentState; 
         UpdateAnimation(state);
         HandleDirectionalFlipping(pos, target);
     }

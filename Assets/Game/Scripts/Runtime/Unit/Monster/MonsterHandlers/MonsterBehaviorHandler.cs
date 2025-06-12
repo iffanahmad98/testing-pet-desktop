@@ -42,10 +42,9 @@ public class MonsterBehaviorHandler
             }
         }
         
-        return GetSimpleDefaultNextState(currentState);
-    }
+        return GetSimpleDefaultNextState(currentState);    }
     
-    // NEW: Simple fallback - only Idle and Walking
+    // Simple fallback - only Idle and Walking
     private MonsterState GetSimpleDefaultNextState(MonsterState currentState)
     {
         return currentState switch
@@ -56,7 +55,7 @@ public class MonsterBehaviorHandler
             // Special states return to basic states
             MonsterState.Jumping => MonsterState.Idle,    // After poke interaction
             MonsterState.Itching => MonsterState.Idle,   // After poke interaction  
-            MonsterState.Flapping => MonsterState.Idle,  // NEW: After poke interaction (flapping wings)
+            MonsterState.Flapping => MonsterState.Idle,  // After poke interaction (flapping wings)
             MonsterState.Flying => MonsterState.Walking, // Movement state fallback
             MonsterState.Running => MonsterState.Walking, // Fallback to walking
             
@@ -118,9 +117,9 @@ public class MonsterBehaviorHandler
             
             // Non-movement states: Use animation duration from Spine (with safe fallbacks)
             MonsterState.Idle => Mathf.Max(animationHandler?.GetAnimationDuration("idle") ?? 2f, 2f),
-            MonsterState.Jumping => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Jumping)) ?? 1f, 1f),
-            MonsterState.Itching => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Itching)) ?? 1.5f, 1.5f),
-            MonsterState.Flapping => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Flapping)) ?? 1.5f, 1.5f),
+            MonsterState.Jumping => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Jumping)) ?? 1f, 0.8f), // Min 0.8s
+            MonsterState.Itching => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Itching)) ?? 1.5f, 1.0f), // Min 1.0s  
+            MonsterState.Flapping => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Flapping)) ?? 1.5f, 1.0f), // Min 1.0s
             MonsterState.Eating => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Eating)) ?? 2f, 2f),
             
             _ => 3f // Default duration

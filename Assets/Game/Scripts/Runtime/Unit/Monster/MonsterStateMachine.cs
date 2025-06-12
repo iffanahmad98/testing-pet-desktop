@@ -17,22 +17,16 @@ public class MonsterStateMachine : MonoBehaviour
     public MonsterState CurrentState => _currentState;
     public MonsterState PreviousState => _previousState;
     public event Action<MonsterState> OnStateChanged;
-    public MonsterAnimationHandler AnimationHandler => _animationHandler; 
+    public MonsterAnimationHandler AnimationHandler => _animationHandler;
 
     private void Start()
     {
         _controller = GetComponent<MonsterController>();
         var skeletonGraphic = GetComponentInChildren<SkeletonGraphic>();
-        
+
         _animationHandler = new MonsterAnimationHandler(_controller, skeletonGraphic);
         _behaviorHandler = new MonsterBehaviorHandler(_controller);
-        
-        // DEBUG: Log available animations right after creating the handler
-        if (_animationHandler != null)
-        {
-            _animationHandler.LogAvailableAnimations();
-        }
-        
+
         ChangeState(MonsterState.Idle);
     }
 
@@ -40,24 +34,23 @@ public class MonsterStateMachine : MonoBehaviour
     {
         _stateTimer += Time.deltaTime;
 
-        // FIXED: Better coordination with food handler
+        // Better coordination with food handler
         if (_currentState == MonsterState.Eating)
         {
             var foodHandler = _controller.FoodHandler;
-            
+
             // Only timeout if food handler confirms eating should end
             if (_stateTimer > _defaultEatingStateDuration * 4f) // Even more lenient
             {
                 bool isStillEating = foodHandler?.IsCurrentlyEating ?? false;
                 if (!isStillEating)
                 {
-                    Debug.LogWarning($"[StateMachine] Eating confirmed complete for {gameObject.name} after {_stateTimer}s");
                     ForceState(MonsterState.Idle);
                     return;
                 }
                 else
                 {
-                    Debug.Log($"[StateMachine] Waiting for food handler to complete eating for {gameObject.name}");
+                    // Continue waiting
                 }
             }
         }
@@ -75,7 +68,6 @@ public class MonsterStateMachine : MonoBehaviour
         // Validate state has animations before changing
         if (!_animationHandler.HasValidAnimationForState(newState))
         {
-            Debug.LogWarning($"Skipping transition to {newState} - no valid animations found");
             newState = MonsterState.Idle; // Fallback to idle
         }
         
@@ -90,22 +82,10 @@ public class MonsterStateMachine : MonoBehaviour
 
     public void ForceState(MonsterState newState)
     {
-        Debug.Log($"[StateMachine] Force changing state from {_currentState} to {newState} for {gameObject.name}");
-        
-        // CHANGED: Ensure timer is reset when forcing state
         _stateTimer = 0f;
-        
         ChangeState(newState);
     }
 
-    public float GetCurrentStateDuration()
-    {
-        return _currentStateDuration;
-    }
-    
-    // Public method for other classes to get animations
-    public string GetAvailableAnimation(MonsterState state)
-    {
-        return _animationHandler?.GetAvailableAnimation(state) ?? "idle";
-    }
+    public float GetCurrentStateDuration() => _currentStateDuration;
+    public string GetAvailableAnimation(MonsterState state) => _animationHandler?.GetAvailableAnimation(state) ?? "idle";
 }

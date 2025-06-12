@@ -46,6 +46,6 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        ServiceLocator.Get<CursorManager>().Reset();
+        ServiceLocator.Get<CursorManager>().Set(CursorType.Default);
     }
 }

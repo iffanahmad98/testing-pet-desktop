@@ -80,15 +80,12 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
             return true;
         }
         return claimedBy == monster;
-    }
-
-    public void ReleaseClaim(MonsterController monster)
+    }    public void ReleaseClaim(MonsterController monster)
     {
         // Only release if the monster releasing is the one who claimed it
         if (claimedBy == monster)
         {
             claimedBy = null;
-            Debug.Log($"[FoodController] Released claim on {gameObject.name} by {monster.name}");
         }
         else if (claimedBy != null)
         {
@@ -101,7 +98,6 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
     {
         if (claimedBy != null)
         {
-            Debug.Log($"[FoodController] Force releasing claim on {gameObject.name} from {claimedBy.name}");
             claimedBy = null;
         }
     }
