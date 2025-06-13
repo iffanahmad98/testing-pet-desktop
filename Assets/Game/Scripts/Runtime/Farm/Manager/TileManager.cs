@@ -84,7 +84,7 @@ namespace MagicalGarden.Farm
 
                 if (tilemapHighlight.HasTile(cellPos))
                 {
-                    TileBase clickedTile = tilemapHighlight.GetTile(cellPos);
+                    Debug.LogError(cellPos);
                     UIManager.Instance.TogglefertizerUI();
                 }
             }
