@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using MagicalGarden.Inventory;
+using TMPro;
 
 namespace MagicalGarden.Farm
 {
@@ -9,6 +10,15 @@ namespace MagicalGarden.Farm
 
         public float simulateHour = 1f;
         public float simulateDay = 24f;
+        public TextMeshProUGUI timeText;
+
+        private void Update()
+        {
+            if (PlantManager.Instance == null) return;
+
+            DateTime current = PlantManager.Instance.simulatedNow;
+            timeText.text = $"🕒 {current:dd MMM yyyy - HH:mm:ss}";
+        }
 
         public void SimulateNextHour()
         {
@@ -24,13 +34,17 @@ namespace MagicalGarden.Farm
         {
             if (PlantManager.Instance == null) return;
 
-            PlantManager.Instance.simulatedNow = PlantManager.Instance.simulatedNow.AddHours(hours);
+
 
             foreach (var plant in PlantManager.Instance.GetAllSeeds())
             {
-                plant.seed.Update(hours);
-                plant.seed.lastUpdateTime = PlantManager.Instance.simulatedNow;
+                float boost = plant.Fertilize?.boost ?? 0;
+                plant.seed.Update(hours, boost);
+                // plant.seed.lastUpdateTime = PlantManager.Instance.simulatedNow;
             }
+            
+            var oldTime = PlantManager.Instance.simulatedNow;
+            PlantManager.Instance.simulatedNow = oldTime.AddHours(hours);
         }
         void Start()
         {

@@ -16,5 +16,10 @@ namespace MagicalGarden.Inventory
         public string description;
         public List<TileBase> stageTiles;
         public List<DropItem> dropItems;
+
+        //for fertilizer
+        [Header("Fertilizer")]
+        [Range(1, 100)]
+        public int boost = 0;
     }
 }

@@ -75,19 +75,23 @@ namespace MagicalGarden.Farm
             currentItemdata = itemData;
         }
 
+        public void SetActionFertilizer(ItemData itemData)
+        {
+            currentAction = TileAction.Fertilizer;
+            currentItemdata = itemData;
+        }
         void Update()
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Vector3Int cellPos = tilemapHighlight.WorldToCell(mouseWorldPos);
+            // if (Input.GetMouseButtonDown(0))
+            // {
+            //     Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //     Vector3Int cellPos = tilemapHighlight.WorldToCell(mouseWorldPos);
 
-                if (tilemapHighlight.HasTile(cellPos))
-                {
-                    Debug.LogError(cellPos);
-                    UIManager.Instance.TogglefertizerUI();
-                }
-            }
+            //     if (tilemapHighlight.HasTile(cellPos))
+            //     {
+            //         UIManager.Instance.TogglefertizerUI();
+            //     }
+            // }
             HighlightHoverTiles();
             ActionToTile();
         }
@@ -114,12 +118,16 @@ namespace MagicalGarden.Farm
                     tilemapHighlight.SetTile(cellPos, highlightTile);
                     previousCellPos = cellPos;
                     hasPreviousTile = true;
-                    ShowPlantInfoAtHoveredTile(cellPos);
+                    // ShowPlantInfoAtHoveredTile(cellPos);
                 }
                 else
                 {
                     previousCellPos = cellPos; // tetap update pos agar tidak spam
                 }
+            }
+            if (tilemapSeed.HasTile(cellPos))
+            {
+                ShowPlantInfoAtHoveredTile(cellPos);
             }
         }
 
@@ -138,7 +146,6 @@ namespace MagicalGarden.Farm
                         {
                             if (PlantManager.Instance.CanPlantMonsterSeedAt(cellPos))
                             {
-                                //bisa ditanami monster
                                 PlantManager.Instance.PlantSeedAt(cellPos, currentItemdata);
                             }
                             else
@@ -157,7 +164,7 @@ namespace MagicalGarden.Farm
                         tilemapWater.SetTile(cellPos, tileWater);
                         break;
                     case TileAction.Fertilizer:
-                        tilemapFertilizer.SetTile(cellPos, tileFertilizer);
+                        PlantManager.Instance.PlantFertilizeAt(cellPos, currentItemdata);
                         break;
                     case TileAction.Harvest:
                         PlantManager.Instance.HarvestAt(cellPos);

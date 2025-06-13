@@ -29,43 +29,47 @@ namespace MagicalGarden.Farm
         public PlantStatus status = PlantStatus.Normal;
         public Vector3Int cellPosition;
         public ItemData itemData;
-
         public abstract List<GrowthStage> GetGrowthRequirements();
         public abstract Monster GetMonster();
 
-        public virtual void Update(float deltaHours)
+        public virtual void Update(float deltaHours, float fertilizerBoost = 0)
         {
-            if (status == PlantStatus.Mati || IsReadyToHarvest())
-                return;
             if (deltaHours < 0f)
             {
-                Debug.LogWarning($"[SeedBase] Negative deltaHours ({deltaHours}) prevented for seed {seedName}");
+                Debug.LogWarning($"[SeedBase] deltaHours negatif ({deltaHours}) dicegah untuk {seedName}");
                 return;
             }
 
-            DateTime now = PlantManager.Instance != null ? PlantManager.Instance.simulatedNow : DateTime.Now;
+            if (status == PlantStatus.Mati || IsReadyToHarvest())
+                return;
 
+            DateTime now = PlantManager.Instance?.simulatedNow ?? DateTime.Now;
             double hoursSinceWatered = (now - lastWateredTime).TotalHours;
-            // Jika lebih dari 1 jam, hilangkan tile water
+
+            // Hilangkan tile air jika tanaman tidak disiram > 1 jam
             if (hoursSinceWatered >= 1)
             {
                 TileManager.Instance.tilemapWater.SetTile(cellPosition, null);
             }
 
-            bool WateringCurrently = hoursSinceWatered <= 1;
-
-            if (!WateringCurrently)
+            bool isWatered = hoursSinceWatered <= 1;
+            if (!isWatered)
             {
                 CheckHealth();
                 return;
             }
+            float boostedHours = deltaHours * (1f + fertilizerBoost / 100f);
+            timeInStage += boostedHours;
 
-            timeInStage += deltaHours;
             var growthRequirements = GetGrowthRequirements();
             if (stage >= growthRequirements.Count)
                 return;
 
             var currentStage = growthRequirements[stage];
+
+            Debug.Log($"[{seedName}] Update: +{boostedHours:F2}h (base: {deltaHours:F2}h, boost: {fertilizerBoost}%) | Total timeInStage: {timeInStage:F2}/{currentStage.requiredHours}h");
+
+            // Naik ke tahap berikutnya jika cukup waktu
             if (timeInStage >= currentStage.requiredHours)
             {
                 stage++;

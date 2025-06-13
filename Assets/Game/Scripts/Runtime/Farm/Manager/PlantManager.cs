@@ -14,8 +14,17 @@ namespace MagicalGarden.Farm
         public Transform poolPlant;
         private Dictionary<Vector3Int, PlantController> plants = new Dictionary<Vector3Int, PlantController>();
         private int totalHarvest = 0;
+        public float updateIntervalSeconds = 60f;
         public event Action OnHarvestChanged;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
+        [Header("Simulated Time")]
+        public float timeMultiplier = 60f; // 1 detik real = 1 menit in-game
+
+        private void Update()
+        {
+            // Tambahkan waktu simulasi setiap frame
+            simulatedNow = simulatedNow.AddSeconds(Time.deltaTime * timeMultiplier);
+        }
         private void Awake()
         {
             Instance = this;
@@ -39,16 +48,29 @@ namespace MagicalGarden.Farm
 
         public void PlantSeedAt(Vector3Int cellPosition, ItemData itemdata)
         {
+            if (plants.ContainsKey(cellPosition))
+            {
+                Debug.Log("Tile sudah ada tanaman.");
+                return;
+            }
+            if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
+            bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
+            if (!removed) return;
             var plantObj = Instantiate(plantPrefab, cellPosition, Quaternion.identity);
             plantObj.transform.parent = poolPlant;
+
             var plant = plantObj.GetComponent<PlantController>();
             plant.seed.lastUpdateTime = simulatedNow;
             plant.seed.plantedTime = simulatedNow;
             plant.seed.cellPosition = cellPosition;
             plant.seed.itemData = itemdata;
+
             TileManager.Instance.tilemapSeed.SetTile(cellPosition, itemdata.stageTiles[0]);
-            InventoryManager.Instance.RemoveItem(itemdata, 1);
             plants[cellPosition] = plant;
+            if (!InventoryManager.Instance.HasItem(itemdata, 1))
+            {
+                CursorIconManager.Instance.HideSeedIcon();
+            }
         }
 
         public void PlantWaterAt(Vector3Int cellPosition)
@@ -63,9 +85,31 @@ namespace MagicalGarden.Farm
             }
         }
 
-        public void PlantFertilizeAt(Vector3Int cellPosition)
+        public void PlantFertilizeAt(Vector3Int cellPosition, ItemData itemdata)
         {
+            if (plants.TryGetValue(cellPosition, out PlantController plant))
+            {
+                if (plant.Fertilize != null)
+                {
+                    Debug.Log("Sudah dipupuk.");
+                    return;
+                } 
+                plant.Fertilize = itemdata;
+            }
+            else
+            {
+                Debug.Log("tidak ada tanaman");
+                return;
+            }
+            if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
+            bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
+            if (!removed) return;
 
+            TileManager.Instance.tilemapFertilizer.SetTile(cellPosition, TileManager.Instance.tileFertilizer);
+            if (!InventoryManager.Instance.HasItem(itemdata, 1))
+            {
+                CursorIconManager.Instance.HideSeedIcon();
+            }
         }
         //bisa harvert kalau sudah siap
         public void HarvestAt(Vector3Int cellPosition)

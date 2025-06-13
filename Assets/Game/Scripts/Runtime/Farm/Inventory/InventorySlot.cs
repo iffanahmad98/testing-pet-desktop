@@ -40,20 +40,23 @@ namespace MagicalGarden.Inventory
         public void OnClick()
         {
             if (currentItem == null) return;
-            Debug.Log($"Clicked on item: {currentItem.itemData.displayName}");
-
-            // Contoh: tanam jika seed
-            if (currentItem.itemData.itemType == ItemType.Seed)
+            // Debug.Log($"Clicked on item: {currentItem.itemData.displayName}");
+            switch (currentItem.itemData.itemType)
             {
-                // InventoryManager.Instance.RemoveItem(currentItem.itemData, 1);
-                TileManager.Instance.SetActionSeed(currentItem.itemData);
-                CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
-            }
-            if (currentItem.itemData.itemType == ItemType.MonsterSeed)
-            {
-                // InventoryManager.Instance.RemoveItem(currentItem.itemData, 1);
-                TileManager.Instance.SetActionSeed(currentItem.itemData);
-                CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                case ItemType.Seed:
+                    TileManager.Instance.SetActionSeed(currentItem.itemData);
+                    CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                    break;
+                case ItemType.MonsterSeed:
+                    TileManager.Instance.SetActionSeed(currentItem.itemData);
+                    CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                    break;
+                case ItemType.Fertilizer:
+                    TileManager.Instance.SetActionFertilizer(currentItem.itemData);
+                    CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                    break;
+                default:
+                    break;
             }
         }
     }

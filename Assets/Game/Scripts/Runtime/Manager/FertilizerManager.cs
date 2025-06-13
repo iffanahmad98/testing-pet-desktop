@@ -10,22 +10,37 @@ namespace MagicalGarden.Manager
     {
         public static FertilizerManager Instance;
 
-        private List<FertilizerTask> activeTasks = new();
+        // private List<FertilizerTask> activeTasks = new();
+        private FertilizerTask activeTasks = null;
 
         private void Awake()
         {
             Instance = this;
         }
 
+        public bool IsHasActiveTask()
+        {
+            return activeTasks != null;
+        }
+
         private void Update()
         {
-            for (int i = activeTasks.Count - 1; i >= 0; i--)
+            // for (int i = activeTasks.Count - 1; i >= 0; i--)
+            // {
+            //     if (activeTasks[i].IsComplete())
+            //     {
+            //         CompleteTask(activeTasks[i]);
+            //         activeTasks.RemoveAt(i);
+            //     }
+            // }
+            if (activeTasks==null)
             {
-                if (activeTasks[i].IsComplete())
-                {
-                    CompleteTask(activeTasks[i]);
-                    activeTasks.RemoveAt(i);
-                }
+                return;
+            }
+            if (activeTasks.IsComplete())
+            {
+                CompleteTask(activeTasks);
+                activeTasks = null;
             }
         }
 
@@ -42,7 +57,7 @@ namespace MagicalGarden.Manager
                     duration = recipe.craftDuration
                 };
 
-                activeTasks.Add(task);
+                activeTasks = task;
             }
         }
 

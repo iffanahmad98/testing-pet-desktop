@@ -53,6 +53,10 @@ namespace MagicalGarden.Farm.UI
         {
             int index = recipeDropdown.value;
             var selectedRecipe = allRecipes[index];
+            if (FertilizerManager.Instance.IsHasActiveTask())
+            {
+                return;
+            }
 
             if (InventoryManager.Instance.HasItems(selectedRecipe.ingredients))
             {
