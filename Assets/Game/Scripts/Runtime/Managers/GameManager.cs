@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -369,6 +370,75 @@ public class GameManager : MonoBehaviour
         coin.GetComponent<CoinController>().Initialize(type);
         return coin;
     }
+
+    public void SpawnCoinWithArc(Vector2 startPos, Vector2 endPos, CoinType type)
+    {
+        // Create coin at start position
+        var coin = SpawnCoinAt(startPos, type);
+        if (coin != null)
+        {
+            // Start arc animation coroutine
+            StartCoroutine(AnimateCoinArc(coin.transform, startPos, endPos));
+        }
+    }
+
+    private IEnumerator AnimateCoinArc(Transform coinTransform, Vector2 startPos, Vector2 endPos)
+    {
+        float duration = 0.8f; // Arc animation duration
+        float arcHeight = 100f; // How high the coin goes
+        float elapsedTime = 0f;
+        
+        RectTransform coinRect = coinTransform.GetComponent<RectTransform>();
+        if (coinRect == null) yield break;
+        
+        while (elapsedTime < duration)
+        {
+            float t = elapsedTime / duration;
+            
+            // Ease out curve for natural falling motion
+            float easedT = 1f - (1f - t) * (1f - t);
+            
+            // Calculate arc position
+            Vector2 currentPos = Vector2.Lerp(startPos, endPos, easedT);
+            
+            // Add vertical arc (parabolic motion)
+            float arcProgress = 4f * t * (1f - t); // Peaks at t=0.5
+            currentPos.y += arcHeight * arcProgress;
+            
+            coinRect.anchoredPosition = currentPos;
+            
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        // Ensure final position
+        coinRect.anchoredPosition = endPos;
+        
+        // Optional: Add a small bounce effect on landing
+        StartCoroutine(CoinBounceEffect(coinRect));
+    }
+
+    private IEnumerator CoinBounceEffect(RectTransform coinRect)
+    {
+        Vector2 finalPos = coinRect.anchoredPosition;
+        float bounceHeight = 15f;
+        float bounceDuration = 0.3f;
+        float elapsedTime = 0f;
+        
+        while (elapsedTime < bounceDuration)
+        {
+            float t = elapsedTime / bounceDuration;
+            float bounce = bounceHeight * (1f - t) * Mathf.Sin(t * Mathf.PI * 3f); // 3 small bounces
+            
+            coinRect.anchoredPosition = finalPos + Vector2.up * bounce;
+            
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        coinRect.anchoredPosition = finalPos;
+    }
+
 
     public GameObject SpawnPoopAt(Vector2 anchoredPos, PoopType type)
     {

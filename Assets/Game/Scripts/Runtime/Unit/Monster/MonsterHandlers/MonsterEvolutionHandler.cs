@@ -466,7 +466,6 @@ public class MonsterEvolutionHandler
         if (_evolutionParticle != null)
         {
             _evolutionParticle.Stop(true);
-            Debug.Log("[Evolution] Particle system stopped");
         }
     }
 

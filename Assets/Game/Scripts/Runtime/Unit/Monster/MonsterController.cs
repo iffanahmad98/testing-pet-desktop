@@ -573,8 +573,47 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void UpdateVisuals() => _visualHandler?.UpdateMonsterVisuals();
 
-    public void Poop(PoopType type = PoopType.Normal) => ServiceLocator.Get<GameManager>().SpawnPoopAt(_rectTransform.anchoredPosition, type);
-    public void DropCoin(CoinType type) => ServiceLocator.Get<GameManager>().SpawnCoinAt(_rectTransform.anchoredPosition, type);
+    public void Poop(PoopType type = PoopType.Normal) 
+    {
+        Vector2 spawnPosition = _visualHandler?.GetBackPosition() ?? _rectTransform.anchoredPosition;
+        ServiceLocator.Get<GameManager>().SpawnPoopAt(spawnPosition, type);
+    }
+
+    public void DropCoin(CoinType type) 
+    {
+        Vector2 launchPosition = _visualHandler?.GetCoinLaunchPosition() ?? _rectTransform.anchoredPosition;
+        Vector2 targetPosition = _visualHandler?.GetRandomPositionOutsideBounds() ?? GetRandomPositionAroundMonster();
+        
+        // Create coin with arc animation
+        ServiceLocator.Get<GameManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
+    }
+
+    // Update fallback method to also respect bounds
+    private Vector2 GetRandomPositionAroundMonster()
+    {
+        Vector2 basePos = _rectTransform.anchoredPosition;
+        
+        // Create a safe drop position below the monster
+        Vector2 dropPosition = new Vector2(
+            basePos.x + UnityEngine.Random.Range(-50f, 50f),
+            basePos.y - 60f // Drop below monster
+        );
+        
+        // Ensure it stays within game bounds if possible
+        if (_gameManager?.gameArea != null)
+        {
+            var gameAreaSize = _gameManager.gameArea.sizeDelta;
+            float padding = 30f;
+            
+            dropPosition.x = Mathf.Clamp(dropPosition.x, 
+                -gameAreaSize.x / 2 + padding, 
+                gameAreaSize.x / 2 - padding);
+            dropPosition.y = Mathf.Max(dropPosition.y, 
+                -gameAreaSize.y / 2 + padding);
+        }
+        
+        return dropPosition;
+    }
 
     public void GiveMedicine()
     {
