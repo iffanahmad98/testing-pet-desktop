@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,22 +30,27 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AnimationCurve easeInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Mini Window Mode")]
-    [SerializeField] private GameObject gameContentParent; // Assign your main game content container
-    [SerializeField] private float miniWindowScale = 3f;
-    [SerializeField] private float miniWindowOpacity = 0.15f;
+[SerializeField] private GameObject gameContentParent; // Assign your main game content container
+[SerializeField] private float miniWindowScale = 3f;
+[SerializeField] private float miniWindowOpacity = 0.15f;
+[SerializeField] private float gameAreaOpacity = 0.15f; // New field for game area opacity
+[SerializeField] private float scaleAnimDuration = 0.3f; // New field for scale animation duration
+[SerializeField] private AnimationCurve scaleAnimCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // New curve for scale animation
 
-    private bool _onMenuOpened = false;
-    private bool _isAnimating = false;
-    private bool _isMiniWindowMode = false;
-    private Vector3 _newMenuInitialPosition;
-    private Vector3 _buttonInitialPosition;
-    private Vector3 _originalWindowButtonScale;
-    private Vector2 _originalWindowButtonPosition;
-    private CanvasGroup _buttonCanvasGroup;
-    private CanvasGroup _windowButtonCanvasGroup;
-    private RectTransform _newMenuPanelRect;
-    private RectTransform _buttonRect;
-    private RectTransform _windowButtonRect;
+private bool _onMenuOpened = false;
+private bool _isAnimating = false;
+private bool _isMiniWindowMode = false;
+private Vector3 _newMenuInitialPosition;
+private Vector3 _buttonInitialPosition;
+private Vector3 _originalWindowButtonScale;
+private Vector2 _originalWindowButtonPosition;
+private CanvasGroup _buttonCanvasGroup;
+private CanvasGroup _windowButtonCanvasGroup;
+private CanvasGroup _gameContentCanvasGroup; // New field for game content canvas group
+private RectTransform _newMenuPanelRect;
+private RectTransform _buttonRect;
+private RectTransform _windowButtonRect;
+
 
     [System.Serializable]
     public class UIAnimationEvents
@@ -98,6 +102,16 @@ public class UIManager : MonoBehaviour
         {
             _originalWindowButtonScale = _windowButtonRect.localScale;
             _originalWindowButtonPosition = _windowButtonRect.anchoredPosition;
+        }
+        
+        // Initialize game content canvas group
+        if (gameContentParent != null)
+        {
+            _gameContentCanvasGroup = gameContentParent.GetComponent<CanvasGroup>();
+            if (_gameContentCanvasGroup == null)
+            {
+                _gameContentCanvasGroup = gameContentParent.AddComponent<CanvasGroup>();
+            }
         }
         
         // Initially hide mini window button
@@ -309,54 +323,55 @@ public class UIManager : MonoBehaviour
 
     private void EnterMiniWindowMode()
     {
-        // Hide game content
-        if (gameContentParent != null)
-            gameContentParent.SetActive(false);
+        // Make game content semi-transparent and non-interactable instead of hiding
+        if (_gameContentCanvasGroup != null)
+        {
+            _gameContentCanvasGroup.alpha = gameAreaOpacity;
+            _gameContentCanvasGroup.interactable = false;
+            _gameContentCanvasGroup.blocksRaycasts = false;
+        }
 
         // Hide the entire UI menu panel
         if (UINewMenuPanel != null)
             UINewMenuPanel.SetActive(false);
 
-        // Show and transform mini window button
+        // Show mini window button with full opacity and scale animation
         if (miniWindowButton != null)
         {
             miniWindowButton.gameObject.SetActive(true);
             
-            if (_windowButtonRect != null)
-            {
-                _windowButtonRect.localScale = _originalWindowButtonScale * miniWindowScale;
-            }
-
             if (_windowButtonCanvasGroup != null)
             {
-                _windowButtonCanvasGroup.alpha = miniWindowOpacity;
+                _windowButtonCanvasGroup.alpha = 1f; // Full opacity
                 _windowButtonCanvasGroup.interactable = true;
                 _windowButtonCanvasGroup.blocksRaycasts = true;
+            }
+
+            // Start scale animation
+            if (_windowButtonRect != null)
+            {
+                StartCoroutine(AnimateButtonScale(_originalWindowButtonScale, _originalWindowButtonScale * miniWindowScale));
             }
         }
     }
 
     private void ExitMiniWindowMode()
     {
-        // Show game content
-        if (gameContentParent != null)
-            gameContentParent.SetActive(true);
-
-        // Hide mini window button and reset its properties for next time
-        if (miniWindowButton != null)
+        // Restore game content to full opacity and make it interactable
+        if (_gameContentCanvasGroup != null)
         {
-            // Reset mini window button to original state before hiding
-            if (_windowButtonRect != null)
-            {
-                _windowButtonRect.localScale = _originalWindowButtonScale;
-                _windowButtonRect.anchoredPosition = _originalWindowButtonPosition;
-            }
+            _gameContentCanvasGroup.alpha = 1f;
+            _gameContentCanvasGroup.interactable = true;
+            _gameContentCanvasGroup.blocksRaycasts = true;
+        }
 
-            if (_windowButtonCanvasGroup != null)
-            {
-                _windowButtonCanvasGroup.alpha = 1f;
-            }
-            
+        // Hide mini window button with scale animation
+        if (miniWindowButton != null && _windowButtonRect != null)
+        {
+            StartCoroutine(AnimateButtonScaleAndHide());
+        }
+        else if (miniWindowButton != null)
+        {
             miniWindowButton.gameObject.SetActive(false);
         }
 
@@ -380,6 +395,47 @@ public class UIManager : MonoBehaviour
             UINewMenuCanvasGroup.interactable = false;
             UINewMenuCanvasGroup.blocksRaycasts = false;
         }
+    }
+
+    private IEnumerator AnimateButtonScale(Vector3 fromScale, Vector3 toScale)
+    {
+        float elapsed = 0f;
+        
+        while (elapsed < scaleAnimDuration)
+        {
+            float t = elapsed / scaleAnimDuration;
+            float easedT = scaleAnimCurve.Evaluate(t);
+            
+            _windowButtonRect.localScale = Vector3.Lerp(fromScale, toScale, easedT);
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        _windowButtonRect.localScale = toScale;
+    }
+
+    private IEnumerator AnimateButtonScaleAndHide()
+    {
+        Vector3 fromScale = _windowButtonRect.localScale;
+        Vector3 toScale = _originalWindowButtonScale;
+        
+        float elapsed = 0f;
+        
+        while (elapsed < scaleAnimDuration)
+        {
+            float t = elapsed / scaleAnimDuration;
+            float easedT = scaleAnimCurve.Evaluate(t);
+            
+            _windowButtonRect.localScale = Vector3.Lerp(fromScale, toScale, easedT);
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        _windowButtonRect.localScale = toScale;
+        _windowButtonRect.anchoredPosition = _originalWindowButtonPosition;
+        miniWindowButton.gameObject.SetActive(false);
     }
 
     void OnDestroy()

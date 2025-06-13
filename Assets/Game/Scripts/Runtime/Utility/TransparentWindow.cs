@@ -47,8 +47,8 @@ public class TransparentWindow : MonoBehaviour
     #endregion
 
     #region Private Fields
-    [SerializeField] private bool enableTopMost = true;
-    [SerializeField] private bool enableClickThrough = true;
+    [SerializeField] private bool enableTopMost = false; // Change this to false
+    [SerializeField] private bool enableClickThrough = true; // Keep this true
 
     private EventSystem eventSystem;
     private bool wasOverUI = false;
@@ -293,6 +293,23 @@ public class TransparentWindow : MonoBehaviour
         catch (Exception ex)
         {
             Debug.LogError($"Failed to restore window: {ex.Message}");
+        }
+    }
+
+    public void SetTopMostMode(bool enable)
+    {
+        enableTopMost = enable;
+        
+        if (windowHandle == IntPtr.Zero) return;
+        
+        try
+        {
+            IntPtr insertAfter = enable ? HWND_TOPMOST : new IntPtr(-2); // -2 is HWND_NOTOPMOST
+            SetWindowPos(windowHandle, insertAfter, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to set topmost mode: {ex.Message}");
         }
     }
     #endregion
