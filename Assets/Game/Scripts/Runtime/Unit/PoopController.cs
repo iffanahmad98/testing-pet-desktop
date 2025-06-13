@@ -30,7 +30,6 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         }
     }
 
-
     public void OnPointerDown(PointerEventData eventData)
     {
         ServiceLocator.Get<GameManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<GameManager>().poopCollected += poopValue);

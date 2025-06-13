@@ -575,8 +575,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void Poop(PoopType type = PoopType.Normal) 
     {
-        Vector2 spawnPosition = _visualHandler?.GetBackPosition() ?? _rectTransform.anchoredPosition;
-        ServiceLocator.Get<GameManager>().SpawnPoopAt(spawnPosition, type);
+        // Use visual handler to spawn poop with animation, just like coins
+        _visualHandler?.SpawnPoopWithAnimation(type);
     }
 
     public void DropCoin(CoinType type) 
@@ -693,8 +693,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
 
     // Add these public methods to expose needed data to StateMachine
-
     public Vector2 GetTargetPosition() => _targetPosition;
-
     public MonsterBoundsHandler GetBoundsHandler() => _movementBounds;
 }

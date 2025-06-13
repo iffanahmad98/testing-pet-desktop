@@ -37,6 +37,10 @@ public class GameManager : MonoBehaviour
     private Queue<GameObject> _poopPool = new Queue<GameObject>();
     private Queue<GameObject> _coinPool = new Queue<GameObject>();
 
+    // Add these lists to track active objects
+    private List<GameObject> _activeCoins = new List<GameObject>();
+    private List<GameObject> _activePoops = new List<GameObject>();
+    
     [HideInInspector] public int poopCollected;
     [HideInInspector] public int coinCollected;
     [HideInInspector] public List<MonsterController> activeMonsters = new List<MonsterController>();
@@ -365,21 +369,28 @@ public class GameManager : MonoBehaviour
 
     public GameObject SpawnCoinAt(Vector2 anchoredPos, CoinType type)
     {
+        // Find a non-overlapping position
+        Vector2 finalPos = FindNonOverlappingPosition(anchoredPos, 50f); // 50f = minimum distance
+        
         var coin = GetPooledObject(_coinPool, coinPrefab);
-        SetupPooledObject(coin, gameArea, anchoredPos);
+        SetupPooledObject(coin, gameArea, finalPos);
         coin.GetComponent<CoinController>().Initialize(type);
         return coin;
     }
 
-    public void SpawnCoinWithArc(Vector2 startPos, Vector2 endPos, CoinType type)
+    public GameObject SpawnCoinWithArc(Vector2 startPosition, Vector2 targetPosition, CoinType type)
     {
-        // Create coin at start position
-        var coin = SpawnCoinAt(startPos, type);
+        var coin = GetPooledObject(_coinPool, coinPrefab);
         if (coin != null)
         {
+            _activeCoins.Add(coin);
+            SetupPooledObject(coin, gameArea, startPosition);
+            coin.GetComponent<CoinController>().Initialize(type);
+
             // Start arc animation coroutine
-            StartCoroutine(AnimateCoinArc(coin.transform, startPos, endPos));
+            StartCoroutine(AnimateCoinArc(coin.transform, startPosition, targetPosition));
         }
+        return coin;
     }
 
     private IEnumerator AnimateCoinArc(Transform coinTransform, Vector2 startPos, Vector2 endPos)
@@ -442,10 +453,53 @@ public class GameManager : MonoBehaviour
 
     public GameObject SpawnPoopAt(Vector2 anchoredPos, PoopType type)
     {
+        // Find a non-overlapping position
+        Vector2 finalPos = FindNonOverlappingPosition(anchoredPos, 50f);
+        
         var poop = GetPooledObject(_poopPool, poopPrefab);
-        SetupPooledObject(poop, gameArea, anchoredPos);
+        SetupPooledObject(poop, gameArea, finalPos);
         poop.GetComponent<PoopController>().Initialize(type);
         return poop;
+    }
+    
+    private Vector2 FindNonOverlappingPosition(Vector2 preferredPos, float minDistance)
+    {
+        Vector2 testPos = preferredPos;
+        int maxAttempts = 10;
+        
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            bool hasOverlap = false;
+            
+            // Check against active coins and poop
+            foreach (Transform child in gameArea)
+            {
+                if (child.gameObject.activeInHierarchy && 
+                    (child.GetComponent<CoinController>() != null || child.GetComponent<PoopController>() != null))
+                {
+                    float distance = Vector2.Distance(testPos, child.GetComponent<RectTransform>().anchoredPosition);
+                    if (distance < minDistance)
+                    {
+                        hasOverlap = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!hasOverlap)
+                return testPos;
+            
+            // Try a random nearby position
+            Vector2 randomOffset = Random.insideUnitCircle * (minDistance * 2f);
+            testPos = preferredPos + randomOffset;
+            
+            // Keep within game area bounds
+            var rect = gameArea.rect;
+            testPos.x = Mathf.Clamp(testPos.x, rect.xMin + 25f, rect.xMax - 25f);
+            testPos.y = Mathf.Clamp(testPos.y, rect.yMin + 25f, rect.yMax - 25f);
+        }
+        
+        return testPos; // Return last attempt if all fail
     }
 
     private GameObject GetPooledObject(Queue<GameObject> pool, GameObject prefab)
@@ -482,11 +536,15 @@ public class GameManager : MonoBehaviour
             activeFoods.Remove(food);
         }
         else if (obj.TryGetComponent<CoinController>(out _))
+        {
             _coinPool.Enqueue(obj);
+            _activeCoins.Remove(obj);
+        }
         else if (obj.name.Contains("Poop"))
         {
             _poopPool.Enqueue(obj);
             CollectPoop();
+            _activePoops.Remove(obj);
         } 
     }
 
@@ -566,5 +624,39 @@ public class GameManager : MonoBehaviour
         {
             validMonsters[i].transform.SetSiblingIndex(i + 1); // +1 to skip background
         }
+    }
+
+    // Add method for overlap checking
+    public bool IsPositionClearOfObjects(Vector2 position, float radius = 40f)
+    {
+        // Check coins
+        foreach (var coin in _activeCoins)
+        {
+            if (coin != null && coin.activeInHierarchy)
+            {
+                var coinRect = coin.GetComponent<RectTransform>();
+                if (coinRect != null)
+                {
+                    float distance = Vector2.Distance(position, coinRect.anchoredPosition);
+                    if (distance < radius) return false;
+                }
+            }
+        }
+        
+        // Check poop
+        foreach (var poop in _activePoops)
+        {
+            if (poop != null && poop.activeInHierarchy)
+            {
+                var poopRect = poop.GetComponent<RectTransform>();
+                if (poopRect != null)
+                {
+                    float distance = Vector2.Distance(position, poopRect.anchoredPosition);
+                    if (distance < radius) return false;
+                }
+            }
+        }
+        
+        return true;
     }
 }
