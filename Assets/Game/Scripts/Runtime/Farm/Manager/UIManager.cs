@@ -17,6 +17,7 @@ namespace MagicalGarden.Farm
         public TextMeshProUGUI coinText;
         public TextMeshProUGUI harvestText;
         public GameObject fertizerUI;
+        public GameObject shopUI;
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -34,6 +35,14 @@ namespace MagicalGarden.Farm
             UpdateUI();
         }
 
+        public void FertilizeUIToogle()
+        {
+            fertizerUI.SetActive(!fertizerUI.activeSelf);
+        }
+        public void ShopUIToogle()
+        {
+            shopUI.SetActive(!shopUI.activeSelf);
+        }
         private void OnDestroy()
         {
             if (PlantManager.Instance != null)

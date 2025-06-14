@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28832358e961e1540a202f2fe401c103, type: 3}
   m_Name: TomatoSeed
   m_EditorClassIdentifier: 
-  itemId: tomato_seed
+  itemId: tomato
   displayName: Tomato Seed
   icon: {fileID: 5274051764960176267, guid: ef4c5b92d18aef3459a05e0334987978, type: 3}
   itemType: 0
+  rarity: 0
   isStackable: 1
   description: 
   stageTiles:
@@ -37,3 +38,4 @@ MonoBehaviour:
     dropChance: 0.3
     minAmount: 1
     maxAmount: 1
+  boost: 1

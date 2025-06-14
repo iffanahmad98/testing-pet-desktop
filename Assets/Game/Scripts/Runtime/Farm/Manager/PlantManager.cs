@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using JetBrains.Annotations;
 using MagicalGarden.Inventory;
+using System.Linq;
 
 namespace MagicalGarden.Farm
 {
@@ -28,6 +29,11 @@ namespace MagicalGarden.Farm
         private void Awake()
         {
             Instance = this;
+        }
+
+        void Start()
+        {
+            LoadAllItems();
         }
 
         public void AddAmountHarvest()
@@ -93,7 +99,7 @@ namespace MagicalGarden.Farm
                 {
                     Debug.Log("Sudah dipupuk.");
                     return;
-                } 
+                }
                 plant.Fertilize = itemdata;
             }
             else
@@ -221,6 +227,21 @@ namespace MagicalGarden.Farm
         // IsCellOccupied(Vector3Int pos)
         // GetNeighbors(Vector3Int pos)
         // GetSeedTypeAt(Vector3Int pos)
+        public List<ItemData> allItems;
+        public ItemData GetItemById(string id)
+        {
+            Debug.LogError(id);
+            return allItems.Find(item => item.itemId == id);
+        }
+        public void LoadAllItems()
+        {
+            allItems = Resources.LoadAll<ItemData>("Items/Seeds").ToList();
+        }
+        [ContextMenu("MyHopeful - CallToSomething")]
+        public void Test()
+        { 
+            Debug.LogError(GetItemById("grapes"));
+        }
     }
 }
 

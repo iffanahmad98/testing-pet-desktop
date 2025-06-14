@@ -48,11 +48,7 @@ namespace MagicalGarden.Farm
                 }
             }
         }
-        [ContextMenu("MyHopeful - CallToSomething")]
-        public void Test()
-        { 
-            seed.Update(1.00128f, 0);
-        }
+        
         public ItemData Fertilize
         {
             get => fertilizer;

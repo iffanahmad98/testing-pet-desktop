@@ -92,6 +92,11 @@ namespace MagicalGarden.Inventory
         {
             return items.Where(i => i.itemData.itemType == type).ToList();
         }
+
+        public void InventoryToogle()
+        {
+            inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
+        }
     }
     public enum ItemType
     {
