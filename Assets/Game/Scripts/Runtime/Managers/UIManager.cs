@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     public Button miniWindowButton; // Add this for mini window mode
     public Button shopButton;
     public Button settingsButton;
+
     [Header("Temporary UI Elements")]
     public TextMeshProUGUI poopCounterText;
     public TextMeshProUGUI coinCounterText;
@@ -30,26 +31,27 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AnimationCurve easeInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Mini Window Mode")]
-[SerializeField] private GameObject gameContentParent; // Assign your main game content container
-[SerializeField] private float miniWindowScale = 3f;
-[SerializeField] private float miniWindowOpacity = 0.15f;
-[SerializeField] private float gameAreaOpacity = 0.15f; // New field for game area opacity
-[SerializeField] private float scaleAnimDuration = 0.3f; // New field for scale animation duration
-[SerializeField] private AnimationCurve scaleAnimCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // New curve for scale animation
+    [SerializeField] private GameObject gameContentParent; // Assign your main game content container
+    [SerializeField] private float miniWindowScale = 3f;
+    [SerializeField] private float gameAreaOpacity = 0.15f; // New field for game area opacity
+    [SerializeField] private float scaleAnimDuration = 0.3f; // New field for scale animation duration
+    [SerializeField] private AnimationCurve scaleAnimCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // New curve for scale animation
 
-private bool _onMenuOpened = false;
-private bool _isAnimating = false;
-private bool _isMiniWindowMode = false;
-private Vector3 _newMenuInitialPosition;
-private Vector3 _buttonInitialPosition;
-private Vector3 _originalWindowButtonScale;
-private Vector2 _originalWindowButtonPosition;
-private CanvasGroup _buttonCanvasGroup;
-private CanvasGroup _windowButtonCanvasGroup;
-private CanvasGroup _gameContentCanvasGroup; // New field for game content canvas group
-private RectTransform _newMenuPanelRect;
-private RectTransform _buttonRect;
-private RectTransform _windowButtonRect;
+    private bool _onMenuOpened = false;
+    private bool _isAnimating = false;
+    private bool _isMiniWindowMode = false;
+    private Vector3 _newMenuInitialPosition;
+    private Vector3 _buttonInitialPosition;
+    private Vector3 _originalWindowButtonScale;
+    private Vector2 _originalWindowButtonPosition;
+    private CanvasGroup _buttonCanvasGroup;
+    private CanvasGroup _windowButtonCanvasGroup;
+    private CanvasGroup _gameContentCanvasGroup; // New field for game content canvas group
+    private RectTransform _newMenuPanelRect;
+    private RectTransform _buttonRect;
+    private RectTransform _windowButtonRect;
+
+    private TransparentWindow transparentWindow;
 
 
     [System.Serializable]
@@ -69,6 +71,7 @@ private RectTransform _windowButtonRect;
     private void Awake()
     {
         ServiceLocator.Register(this);
+        transparentWindow = ServiceLocator.Get<TransparentWindow>();
         _onMenuOpened = false;
         UINewMenuPanel.SetActive(false);
         
@@ -339,7 +342,7 @@ private RectTransform _windowButtonRect;
         if (miniWindowButton != null)
         {
             miniWindowButton.gameObject.SetActive(true);
-            
+
             if (_windowButtonCanvasGroup != null)
             {
                 _windowButtonCanvasGroup.alpha = 1f; // Full opacity
@@ -353,6 +356,9 @@ private RectTransform _windowButtonRect;
                 StartCoroutine(AnimateButtonScale(_originalWindowButtonScale, _originalWindowButtonScale * miniWindowScale));
             }
         }
+        
+        // In UIManager or wherever you want to control this
+        transparentWindow?.SetTopMostMode(false); // Disable topmost
     }
 
     private void ExitMiniWindowMode()
@@ -395,6 +401,9 @@ private RectTransform _windowButtonRect;
             UINewMenuCanvasGroup.interactable = false;
             UINewMenuCanvasGroup.blocksRaycasts = false;
         }
+
+        // In UIManager or wherever you want to control this
+        transparentWindow?.SetTopMostMode(true); // Disable topmost
     }
 
     private IEnumerator AnimateButtonScale(Vector3 fromScale, Vector3 toScale)
