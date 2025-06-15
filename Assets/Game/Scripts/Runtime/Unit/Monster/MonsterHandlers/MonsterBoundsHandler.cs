@@ -4,7 +4,6 @@ public class MonsterBoundsHandler
 {
     private RectTransform _rectTransform;
     private GameManager _gameManager;
-    private GameAreaImageAnalyzer _imageAnalyzer;
     private const float PADDING = 50f;
     private const float GROUND_OFFSET = 10f; // Extra offset from detected ground edge
     
@@ -12,7 +11,6 @@ public class MonsterBoundsHandler
     {
         _rectTransform = rectTransform;
         _gameManager = gameManager;
-        _imageAnalyzer = new GameAreaImageAnalyzer(gameManager.gameArea);
     }
     
     public Vector2 GetRandomTarget()
@@ -66,11 +64,10 @@ public class MonsterBoundsHandler
         return state switch
         {
             MonsterState.Flying => CalculateFlyingBounds(),
-            MonsterState.Flapping => CalculateFlyingBounds(),
             // Keep flying monsters in air for non-movement states
-            MonsterState.Idle => IsCurrentlyFlying() ? CalculateAirIdleBounds() : CalculateGroundBounds(),
-            MonsterState.Jumping => IsCurrentlyFlying() ? CalculateAirIdleBounds() : CalculateGroundBounds(),
-            MonsterState.Itching => IsCurrentlyFlying() ? CalculateAirIdleBounds() : CalculateGroundBounds(),
+            MonsterState.Idle => CalculateGroundBounds(),
+            MonsterState.Jumping => CalculateGroundBounds(),
+            MonsterState.Itching => CalculateGroundBounds(),
             _ => CalculateGroundBounds()
         };
     }
@@ -83,38 +80,15 @@ public class MonsterBoundsHandler
         float halfWidth = _rectTransform.rect.width / 2;
         float halfHeight = _rectTransform.rect.height / 2;
         
-        // Try to get bounds from image analysis first
-        var imageBounds = _imageAnalyzer?.GetGroundBounds();
+        // Fallback to bottom portion of game area if image analysis fails
+        float groundHeight = size.y * 0.4f;
         
-        if (imageBounds.HasValue)
-        {
-            var bounds = imageBounds.Value;
-            
-            // Add padding and monster size offsets
-            Vector2 min = new Vector2(
-                bounds.min.x + halfWidth + PADDING,
-                bounds.min.y + halfHeight + GROUND_OFFSET
-            );
-            
-            Vector2 max = new Vector2(
-                bounds.max.x - halfWidth - PADDING,
-                bounds.max.y - halfHeight
-            );
-            
-            return (min, max);
-        }
-        else
-        {
-            // Fallback to bottom portion of game area if image analysis fails
-            float groundHeight = size.y * 0.4f;
-            
-            return (
-                new Vector2(-size.x / 2 + halfWidth + PADDING, -size.y / 2 + halfHeight + PADDING),
-                new Vector2(size.x / 2 - halfWidth - PADDING, -size.y / 2 + groundHeight - halfHeight)
-            );
-        }
+        return (
+            new Vector2(-size.x / 2 + halfWidth + PADDING, -size.y / 2 + halfHeight + PADDING),
+            new Vector2(size.x / 2 - halfWidth - PADDING, -size.y / 2 + groundHeight - halfHeight)
+        );
     }
-    
+
     private (Vector2 min, Vector2 max) CalculateFlyingBounds()
     {
         var gameAreaRect = _gameManager.gameArea;
@@ -128,30 +102,6 @@ public class MonsterBoundsHandler
             new Vector2(-size.x / 2 + halfWidth + PADDING, -size.y / 2 + halfHeight + PADDING),
             new Vector2(size.x / 2 - halfWidth - PADDING, size.y / 2 - halfHeight - PADDING)
         );
-    }
-    
-    // Add bounds for air idle states
-    private (Vector2 min, Vector2 max) CalculateAirIdleBounds()
-    {
-        var flyingBounds = CalculateFlyingBounds();
-        var groundBounds = CalculateGroundBounds();
-        
-        // Create bounds that keep monster in air
-        Vector2 min = new Vector2(
-            flyingBounds.min.x,
-            groundBounds.max.y + 50f // Stay above ground
-        );
-        
-        Vector2 max = flyingBounds.max;
-        
-        return (min, max);
-    }
-    
-    public bool IsWithinBounds(Vector2 position)
-    {
-        var bounds = CalculateMovementBounds();
-        return position.x >= bounds.min.x && position.x <= bounds.max.x &&
-               position.y >= bounds.min.y && position.y <= bounds.max.y;
     }
     
     public bool IsWithinBoundsForState(Vector2 position, MonsterState state)

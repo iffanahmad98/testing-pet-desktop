@@ -85,7 +85,7 @@ public class MonsterCoroutineHandler
 
     private IEnumerator PoopRoutine(float interval)
     {
-        interval = 10f;
+        // interval = 10f;
 
         yield return new WaitForSeconds(interval);
         while (true)
@@ -109,7 +109,7 @@ public class MonsterCoroutineHandler
 
     private IEnumerator CoinCoroutine(float delay, CoinType type)
     {
-        delay = 20f;
+        // delay = 20f;
         
         yield return new WaitForSeconds(delay);
         while (true)
