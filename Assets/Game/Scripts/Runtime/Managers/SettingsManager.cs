@@ -48,7 +48,7 @@ public class SettingsManager : MonoBehaviour
         SystemLanguage.Spanish
     };
 
-    private const float MIN_SIZE = 500f;
+    private const float MIN_SIZE = 120f;
     private const float DEFAULT_MONSTER_SCALE = 1f;
     private const float MONSTER_BOUNDS_PADDING = 50f; 
     private const string DECIMAL_FORMAT = "F0";

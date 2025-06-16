@@ -70,6 +70,9 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private bool _isHovered;
     private Vector2 _lastSortPosition;
     private float _depthSortThreshold = 20f;
+    private float _lastTargetChangeTime = 0f;
+    private const float TARGET_CHANGE_COOLDOWN = 1f;
+
     private void Awake()
     {
         if (_isInitializing) return;
@@ -470,19 +473,45 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             return;
         }
 
+        // NEW: Check if we should use relaxed bounds for very small areas
+        bool useRelaxedBounds = _movementBounds?.IsMovementAreaTooSmall() ?? false;
+        
+        // NEW: For very small areas, drastically reduce movement updates
+        if (useRelaxedBounds)
+        {
+            // Only update movement every 3rd frame for tiny areas
+            if (Time.frameCount % 3 != 0) return;
+        }
+
         // Apply separation force regardless of state
         Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
+
+        // NEW: Reduce separation force for small areas
+        if (useRelaxedBounds)
+        {
+            separationForce *= 0.1f; // Much weaker separation
+        }
 
         if (separationForce.magnitude > 0.1f)
         {
             Vector2 _pos = _rectTransform.anchoredPosition;
             Vector2 newPos = _pos + separationForce * Time.deltaTime;
 
-            // Clamp to appropriate bounds based on current state
-            MonsterState _state = _stateMachine?.CurrentState ?? MonsterState.Idle;
-            var bounds = _movementBounds.CalculateBoundsForState(_state);
-            newPos.x = Mathf.Clamp(newPos.x, bounds.min.x, bounds.max.x);
-            newPos.y = Mathf.Clamp(newPos.y, bounds.min.y, bounds.max.y);
+            if (!useRelaxedBounds)
+            {
+                MonsterState _state = _stateMachine?.CurrentState ?? MonsterState.Idle;
+                var bounds = _movementBounds.CalculateBoundsForState(_state);
+                newPos.x = Mathf.Clamp(newPos.x, bounds.min.x, bounds.max.x);
+                newPos.y = Mathf.Clamp(newPos.y, bounds.min.y, bounds.max.y);
+            }
+            else
+            {
+                // For small areas, only prevent moving completely outside game area
+                var gameAreaSize = _gameManager.gameArea.sizeDelta;
+                float padding = 20f;
+                newPos.x = Mathf.Clamp(newPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding);
+                newPos.y = Mathf.Clamp(newPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding);
+            }
 
             _rectTransform.anchoredPosition = newPos;
         }
@@ -497,7 +526,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
         if (isMovementState)
         {
-            // Only find food for ground-based movement (not flying states)
             bool isGroundMovement = _stateMachine?.CurrentState != MonsterState.Flying && 
                                    _stateMachine?.CurrentState != MonsterState.Flapping;
             
@@ -517,20 +545,53 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
         _movementHandler.UpdateMovement(ref _targetPosition, monsterData);
 
-        // Enhanced bounds checking based on current state
+        // Enhanced bounds checking - only for normal sized areas
         Vector2 currentPos = _rectTransform.anchoredPosition;
         MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Idle;
         
-        if (!_movementBounds.IsWithinBoundsForState(currentPos, currentState))
+        if (!useRelaxedBounds && !_movementBounds.IsWithinBoundsForState(currentPos, currentState))
         {
-            // Clamp position to appropriate bounds and set new target
+            // Clamp position
             var bounds = _movementBounds.CalculateBoundsForState(currentState);
             Vector2 clampedPos = new Vector2(
                 Mathf.Clamp(currentPos.x, bounds.min.x, bounds.max.x),
                 Mathf.Clamp(currentPos.y, bounds.min.y, bounds.max.y)
             );
             _rectTransform.anchoredPosition = clampedPos;
-            SetRandomTargetForCurrentState();
+            
+            // NEW: For very small movement areas, don't set new targets at all
+            bool areaIsTiny = (bounds.max.y - bounds.min.y) < 50f; // Less than 50 pixels height
+            if (!areaIsTiny && Time.time - _lastTargetChangeTime > TARGET_CHANGE_COOLDOWN)
+            {
+                SetRandomTargetForCurrentState();
+                _lastTargetChangeTime = Time.time;
+            }
+        }
+        else if (useRelaxedBounds)
+        {
+            // For small areas, only check if completely outside game area
+            var gameAreaSize = _gameManager.gameArea.sizeDelta;
+            float padding = 20f;
+            bool outsideGameArea = currentPos.x < -gameAreaSize.x / 2 + padding ||
+                                  currentPos.x > gameAreaSize.x / 2 - padding ||
+                                  currentPos.y < -gameAreaSize.y / 2 + padding ||
+                                  currentPos.y > gameAreaSize.y / 2 - padding;
+            
+            if (outsideGameArea)
+            {
+                Vector2 clampedPos = new Vector2(
+                    Mathf.Clamp(currentPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding),
+                    Mathf.Clamp(currentPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding)
+                );
+                _rectTransform.anchoredPosition = clampedPos;
+                
+                // NEW: Much longer cooldown for relaxed bounds
+                if (Time.time - _lastTargetChangeTime > TARGET_CHANGE_COOLDOWN * 3f)
+                {
+                    SetRandomTargetForCurrentState();
+                    _lastTargetChangeTime = Time.time;
+                }
+            }
         }
 
         // Check if monster moved significantly and request immediate depth sort
@@ -545,7 +606,13 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         float distanceToTarget = Vector2.Distance(_rectTransform.anchoredPosition, _targetPosition);
         if (distanceToTarget < 10f && !isPursuingFood && isMovementState)
         {
-            SetRandomTargetForCurrentState();
+            // NEW: Longer cooldown for reaching targets too
+            float targetReachCooldown = useRelaxedBounds ? TARGET_CHANGE_COOLDOWN * 2f : TARGET_CHANGE_COOLDOWN;
+            if (Time.time - _lastTargetChangeTime > targetReachCooldown)
+            {
+                SetRandomTargetForCurrentState();
+                _lastTargetChangeTime = Time.time;
+            }
         }
     }
 
