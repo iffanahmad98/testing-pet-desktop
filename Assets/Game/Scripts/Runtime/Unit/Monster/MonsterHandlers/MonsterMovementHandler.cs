@@ -38,8 +38,11 @@ public class MonsterMovementHandler
             MonsterState.Walking => GetWalkSpeed(data),
             MonsterState.Running => GetRunSpeed(data),
             MonsterState.Flying => GetFlySpeed(data),
+            MonsterState.Flapping => GetFlySpeed(data) * 0.5f, // Slower flapping movement
             MonsterState.Jumping => 0f,
             MonsterState.Eating => 0f,
+            MonsterState.Idle => IsInAir() ? GetFlySpeed(data) * 0.3f : 0f, // Gentle floating for air idle
+            MonsterState.Itching => IsInAir() ? GetFlySpeed(data) * 0.2f : 0f, // Very slow air movement
             _ => 0f
         };
     }
@@ -135,6 +138,15 @@ public class MonsterMovementHandler
             scale.x = direction > 0 ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
             targetTransform.localScale = scale;
         }
+    }
+
+    // Add helper method to check if monster is in air
+    private bool IsInAir()
+    {
+        Vector2 currentPos = _transform.anchoredPosition;
+        // You can access the bounds handler through the controller if needed
+        // Or use a simple Y threshold
+        return currentPos.y > -200f; // Adjust threshold based on your game area
     }
 }
 
