@@ -25,6 +25,13 @@ public class MonsterMovementHandler
         Vector2 pos = _transform.anchoredPosition;
         float currentSpeed = GetCurrentMoveSpeed(data);
         
+        // NEW: Reduce speed in very small areas to prevent jittery movement
+        // TODO: Implement bounds checking when boundsHandler is available
+        // if (_controller.boundsHandler.IsMovementAreaTooSmall())
+        // {
+        //     currentSpeed *= 0.3f; // Slow down significantly
+        // }
+        
         _transform.anchoredPosition = Vector2.MoveTowards(pos, targetPosition, currentSpeed * Time.deltaTime);
         HandleStateSpecificBehavior(pos, targetPosition);
     }
@@ -129,15 +136,41 @@ public class MonsterMovementHandler
     {
         float direction = target.x - pos.x;
         
-        if (Mathf.Abs(direction) > 0.1f)
+        // NEW: Different thresholds and cooldowns based on area size
+        if (_controller.GetBoundsHandler()?.IsMovementAreaTooSmall() == true)
         {
-            Transform parentTransform = _spineGraphic.transform.parent;
-            Transform targetTransform = parentTransform ?? _spineGraphic.transform;
+            // Small areas: Higher threshold + longer cooldown
+            float flipThreshold = 50f; // Much higher threshold
+            float flipCooldown = 2f;   // 2 second cooldown
             
-            Vector3 scale = targetTransform.localScale;
-            scale.x = direction > 0 ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
-            targetTransform.localScale = scale;
+            if (Mathf.Abs(direction) > flipThreshold && Time.time - _lastFlipTime > flipCooldown)
+            {
+                PerformFlip(direction);
+                _lastFlipTime = Time.time;
+            }
         }
+        else
+        {
+            // Normal areas: Standard flipping
+            float flipThreshold = 0.1f;
+            if (Mathf.Abs(direction) > flipThreshold)
+            {
+                PerformFlip(direction);
+            }
+        }
+    }
+
+    // ADD: Flip cooldown tracking
+    private float _lastFlipTime = 0f;
+    
+    private void PerformFlip(float direction)
+    {
+        Transform parentTransform = _spineGraphic.transform.parent;
+        Transform targetTransform = parentTransform ?? _spineGraphic.transform;
+        
+        Vector3 scale = targetTransform.localScale;
+        scale.x = direction > 0 ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
+        targetTransform.localScale = scale;
     }
 
     // Add helper method to check if monster is in air

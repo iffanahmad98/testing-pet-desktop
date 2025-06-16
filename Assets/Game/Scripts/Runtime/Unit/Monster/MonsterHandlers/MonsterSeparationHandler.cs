@@ -8,8 +8,8 @@ public class MonsterSeparationHandler
     private RectTransform _rectTransform;
     
     [Header("Separation Settings")]
-    public float separationRadius = 150f;  // Increased radius
-    public float separationForce = 200f;   // Much stronger force
+    public float separationRadius = 100f;  // Increased radius
+    public float separationForce = 100f;   // Much stronger force
     public float maxSeparationSpeed = 100f; // Limit separation movement speed
     public LayerMask monsterLayer = -1;
     

@@ -32,13 +32,16 @@ public class BiomeManager : MonoBehaviour
     [Header("Cloud System - Simple Version")]
     public RectTransform skyBG;
     public GameObject cloudPrefab;
-    public Sprite[] cloudSprites; // Just the sprites
+    public Sprite[] cloudSprites;
     public int maxClouds = 6;
     public float cloudSpawnInterval = 3f;
     public float baseCloudSpeed = 20f;
-    public Vector2 speedRange = new Vector2(0.5f, 1.5f); // Random speed multiplier
-    public Vector2 scaleRange = new Vector2(0.8f, 1.2f); // Random scale
-    public Vector2 opacityRange = new Vector2(0.4f, 0.8f); // Random opacity
+    public Vector2 speedRange = new Vector2(0.5f, 1.5f);
+    public Vector2 scaleRange = new Vector2(0.6f, 1.0f); // Smaller clouds to reduce overlap
+    public Vector2 opacityRange = new Vector2(0.4f, 0.8f);
+    public int cloudLanes = 4; // Increased from 3 to 4 lanes
+    public float minCloudSpacing = 100f; // Increased from 50f
+    public float baseWaitTime = 5f; // Reduced since we have better spacing
 
     [Header("Testing Controls")]
     public KeyCode toggleSkyKey = KeyCode.Alpha1;
@@ -49,6 +52,9 @@ public class BiomeManager : MonoBehaviour
     private Coroutine cloudSpawner;
     private bool cloudsEnabled = true;
     private RectTransform gameAreaRect;
+
+    private Dictionary<int, float> lastCloudSpawnTime = new Dictionary<int, float>(); // Track last spawn time per lane
+    private Dictionary<int, float> lastCloudSpeed = new Dictionary<int, float>(); // Track last cloud speed per lane
 
     private void Awake()
     {
@@ -64,6 +70,8 @@ public class BiomeManager : MonoBehaviour
             gameAreaRect = transform.parent.GetComponent<RectTransform>();
         }
 
+        // Initialize lane tracking
+        InitializeLanes();
         StartCloudSystem();
     }
 
@@ -121,6 +129,18 @@ public class BiomeManager : MonoBehaviour
                 pos.x = Mathf.Sin(timeOffset * skyLayer.parallaxSpeed) * 10f;
                 rectTransform.anchoredPosition = pos;
             }
+        }
+    }
+
+    private void InitializeLanes()
+    {
+        lastCloudSpawnTime.Clear();
+        lastCloudSpeed.Clear();
+        
+        for (int i = 0; i < cloudLanes; i++)
+        {
+            lastCloudSpawnTime[i] = -999f; // Long ago
+            lastCloudSpeed[i] = 0f;
         }
     }
 
@@ -198,6 +218,10 @@ public class BiomeManager : MonoBehaviour
         if (cloudSprites == null || cloudSprites.Length == 0 || cloudPrefab == null || skyBG == null)
             return;
 
+        int availableLane = GetAvailableLane();
+        if (availableLane == -1) // No available lanes
+            return;
+
         GameObject cloud = Instantiate(cloudPrefab, skyBG);
         var cloudRect = cloud.GetComponent<RectTransform>();
         var cloudImage = cloud.GetComponent<Image>();
@@ -222,17 +246,79 @@ public class BiomeManager : MonoBehaviour
         // Random speed for this cloud
         float speedMultiplier = Random.Range(speedRange.x, speedRange.y);
         
-        // Set starting position using SkyBG dimensions
+        // Calculate lane position
         Rect skyRect = skyBG.rect;
-        float startX = -skyRect.width * 0.6f; // Start off-screen left
-        float randomY = Random.Range(-skyRect.height * 0.4f, skyRect.height * 0.4f); // Use 80% of sky height
+        float startX = -skyRect.width * 0.6f;
+        float laneY = CalculateLaneY(availableLane);
         
-        cloudRect.anchoredPosition = new Vector2(startX, randomY);
+        cloudRect.anchoredPosition = new Vector2(startX, laneY);
         
-        // Start movement with random speed
+        // Update lane tracking
+        lastCloudSpawnTime[availableLane] = Time.time;
+        lastCloudSpeed[availableLane] = baseCloudSpeed * speedMultiplier;
+        
+        // Start movement
         StartCoroutine(MoveCloudSimple(cloud, speedMultiplier));
         
         activeClouds.Add(cloud);
+    }
+
+    private int GetAvailableLane()
+    {
+        List<int> availableLanes = new List<int>();
+        
+        for (int i = 0; i < cloudLanes; i++)
+        {
+            if (IsLaneAvailable(i))
+            {
+                availableLanes.Add(i);
+            }
+        }
+        
+        if (availableLanes.Count == 0)
+            return -1;
+        
+        // Return random available lane
+        return availableLanes[Random.Range(0, availableLanes.Count)];
+    }
+
+    private bool IsLaneAvailable(int laneIndex)
+    {
+        // Check if this lane has ever been used
+        if (!lastCloudSpawnTime.ContainsKey(laneIndex))
+            return true;
+        
+        float timeSinceLastSpawn = Time.time - lastCloudSpawnTime[laneIndex];
+        
+        // Base wait time (5 seconds) + spacing-based wait time
+        float baseWait = baseWaitTime;
+        
+        // Additional wait based on spacing and speed
+        float spacingWait = 0f;
+        if (lastCloudSpeed.ContainsKey(laneIndex) && lastCloudSpeed[laneIndex] > 0)
+        {
+            spacingWait = minCloudSpacing / lastCloudSpeed[laneIndex];
+        }
+        
+        float totalWaitTime = baseWait + spacingWait;
+        
+        // Optional: Add some debug logging
+        if (timeSinceLastSpawn < totalWaitTime)
+        {
+            Debug.Log($"Lane {laneIndex}: Waiting {totalWaitTime - timeSinceLastSpawn:F1}s more (Base: {baseWait}s + Spacing: {spacingWait:F1}s)");
+        }
+        
+        return timeSinceLastSpawn >= totalWaitTime;
+    }
+
+    private float CalculateLaneY(int laneIndex)
+    {
+        Rect skyRect = skyBG.rect;
+        float laneHeight = skyRect.height * 0.8f; // Use 80% of sky height
+        float laneSpacing = laneHeight / (cloudLanes + 1); // +1 for even spacing
+        
+        float startY = -laneHeight * 0.5f;
+        return startY + ((laneIndex + 1) * laneSpacing);
     }
 
     private IEnumerator MoveCloudSimple(GameObject cloud, float speedMultiplier)
@@ -289,6 +375,9 @@ public class BiomeManager : MonoBehaviour
                 Destroy(cloud);
         }
         activeClouds.Clear();
+        
+        // Reset lane tracking
+        InitializeLanes();
     }
     #endregion
 
