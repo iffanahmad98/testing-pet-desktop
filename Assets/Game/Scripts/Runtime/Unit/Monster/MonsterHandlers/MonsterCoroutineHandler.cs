@@ -21,9 +21,9 @@ public class MonsterCoroutineHandler
     
     public void StartAllCoroutines()
     {
-        float goldCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Gold).TotalSeconds;
-        float silverCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Silver).TotalSeconds;
-        float poopInterval = (float)TimeSpan.FromMinutes(20f).TotalSeconds;
+        float goldCoinInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.goldCoinDropRate).TotalSeconds;
+        float silverCoinInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.silverCoinDropRate).TotalSeconds;
+        float poopInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.poopRate).TotalSeconds;
 
 
         _hungerCoroutine = _controller.StartCoroutine(HungerRoutine(1f));
@@ -99,7 +99,7 @@ public class MonsterCoroutineHandler
                 else if (monsterData.monType == MonsterType.Rare ||
                          monsterData.monType == MonsterType.Boss ||
                          monsterData.monType == MonsterType.Mythic)
-                    _controller.DropPoop(PoopType.Special);
+                    _controller.DropPoop(PoopType.Sparkle);
                 else
                     _controller.DropPoop(); // Default to normal poop if type is unknown
             }

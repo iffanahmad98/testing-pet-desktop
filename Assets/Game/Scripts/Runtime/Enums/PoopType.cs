@@ -1,5 +1,5 @@
 public enum PoopType
 {
     Normal = 1,
-    Special = 10
+    Sparkle = 10
 }
