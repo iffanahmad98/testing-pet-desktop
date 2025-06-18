@@ -16,8 +16,10 @@ namespace MagicalGarden.Farm
         [Header("UI")]
         public TextMeshProUGUI coinText;
         public TextMeshProUGUI harvestText;
+        [Header("Pop Up")]
         public GameObject fertizerUI;
         public GameObject shopUI;
+        public GameObject guestUI;
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -42,6 +44,10 @@ namespace MagicalGarden.Farm
         public void ShopUIToogle()
         {
             shopUI.SetActive(!shopUI.activeSelf);
+        }
+        public void GuestUIToogle()
+        {
+            guestUI.SetActive(!guestUI.activeSelf);
         }
         private void OnDestroy()
         {
@@ -73,11 +79,7 @@ namespace MagicalGarden.Farm
         {
             plantInfoPanel.SetActive(false);
         }
-        #endregion
-        public void TogglefertizerUI()
-        {
-            fertizerUI.SetActive(!fertizerUI.activeSelf);
-        }
+#endregion
     }
 
 }

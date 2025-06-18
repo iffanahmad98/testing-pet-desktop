@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Tilemaps;
+using MagicalGarden.Manager;
 namespace MagicalGarden.Farm
 {
     public class FieldManager : MonoBehaviour
@@ -54,7 +55,7 @@ namespace MagicalGarden.Farm
         }
         public void UpdateOverlayVisual(Vector2Int center, bool unlocked)
         {
-            var tilemap = TileManager.Instance.tilemapLocked;
+            var tilemap = TileManager.Instance.tilemapSoil;
             if (tilemap == null)
             {
                 Debug.LogWarning("Tilemap Locked belum diset di TileManager.");

@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Inventory;
+using MagicalGarden.Manager;
 using Unity.Mathematics;
 
 namespace MagicalGarden.Farm

@@ -14,7 +14,7 @@ namespace MagicalGarden.Manager
 
         [Header("Google Sheet Settings")]
         [Tooltip("URL dari Web App Google Script")]
-        public string sheetUrl = "https://script.google.com/macros/s/AKfycbxxxxxxx/exec";
+        public string sheetUrl = "";
 
         // [HideInInspector]
         public List<SheetData> itemList = new();
@@ -35,6 +35,11 @@ namespace MagicalGarden.Manager
 
         private void Start()
         {
+            ResfreshData();
+        }
+
+        public void ResfreshData()
+        { 
             StartCoroutine(FetchSheetData());
         }
 
@@ -47,17 +52,17 @@ namespace MagicalGarden.Manager
             {
                 Debug.Log("✅ Berhasil ambil data dari GSheet");
                 string rawJson = www.downloadHandler.text;
-                itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
+                
+                try
+                {
+                    itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
                     Debug.Log($"📦 Jumlah item: {itemList.Count}");
                     OnDataLoaded?.Invoke();
-                // try
-                // {
-
-                // }
-                // catch (Exception e)
-                // {
-                //     Debug.LogError("❌ Gagal parsing JSON: " + e.Message);
-                // }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("❌ Gagal parsing JSON: " + e.Message);
+                }
             }
             else
             {

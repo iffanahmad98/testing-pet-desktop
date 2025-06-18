@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 using UnityEditor;
 #endif
 
-namespace MagicalGarden.Farm
+namespace MagicalGarden.Manager
 {
     public enum TileAction
     {
@@ -29,6 +29,7 @@ namespace MagicalGarden.Farm
         public Tilemap tilemapFertilizer;
         public Tilemap tilemapHighlight;
         public Tilemap tilemapLocked;
+        public Tilemap tilemapHotel;
         [Header("Tiles")]
         public TileBase tileSeed;
         public TileBase tileWater;
@@ -100,7 +101,11 @@ namespace MagicalGarden.Farm
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int cellPos = tilemapSoil.WorldToCell(mouseWorldPos);
-            if (IsTileLocked(cellPos)) return;
+            if (!IsPlantable(cellPos))
+            { 
+                tilemapHighlight.SetTile(previousCellPos, null);
+                return;
+            }
             // Kalau tile baru berbeda dengan sebelumnya
             if (cellPos != previousCellPos)
             {
@@ -109,7 +114,7 @@ namespace MagicalGarden.Farm
                 {
                     tilemapHighlight.SetTile(previousCellPos, null);
                     hasPreviousTile = false;
-                    UIManager.Instance.HidePlantInfo();
+                    Farm.UIManager.Instance.HidePlantInfo();
                 }
 
                 // Kalau mouse di atas tile tanah (soil)
@@ -138,7 +143,7 @@ namespace MagicalGarden.Farm
                 Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector3Int cellPos = tilemapSeed.WorldToCell(mouseWorldPos); // semua tilemap share grid yang sama
                 if (!tilemapSoil.HasTile(cellPos)) return;
-                if (IsTileLocked(cellPos)) return;
+                if (!IsPlantable(cellPos)) return;
                 switch (currentAction)
                 {
                     case TileAction.Seed:
@@ -184,10 +189,34 @@ namespace MagicalGarden.Farm
         {
             currentAction = TileAction.None;
         }
-        
+
         public bool IsTileLocked(Vector3Int position)
         {
-            return tilemapLocked.HasTile(position);
+            // return tilemapLocked.HasTile(position);
+            TileBase tile = tilemapSoil.GetTile(position);
+
+            if (tile is CustomTile customTile)
+            {
+                if (!(customTile.tileType == TileType.Plantable))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        private bool IsPlantable(Vector3Int position)
+        {
+            TileBase tile = tilemapSoil.GetTile(position);
+
+            if (tile is CustomTile customTile)
+            {
+                if (customTile.tileType == TileType.Plantable)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void ShowPlantInfoAtHoveredTile(Vector3Int cellPos)
@@ -195,8 +224,8 @@ namespace MagicalGarden.Farm
             var plant = PlantManager.Instance.GetPlantAt(cellPos);
             if (plant != null)
             {
-                UIManager.Instance.ShowPlantInfo(plant.GetPlantStatusText(), cellPos);
-                
+                Farm.UIManager.Instance.ShowPlantInfo(plant.GetPlantStatusText(), cellPos);
+
             }
         }
 
@@ -216,7 +245,7 @@ namespace MagicalGarden.Farm
             {
                 if (tilemapSoil.HasTile(pos))
                 {
-                    Vector3 world = tilemapSoil.CellToWorld(pos) + new Vector3(0.5f, 0.5f, 0);
+                    Vector3 world = tilemapSoil.CellToWorld(pos) + new Vector3(0f, 0.5f, 0);
                     Handles.color = Color.black;
                     Handles.Label(world, $"({pos.x},{pos.y})");
                 }

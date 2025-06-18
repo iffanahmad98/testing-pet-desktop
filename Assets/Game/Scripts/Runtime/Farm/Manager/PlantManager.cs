@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using JetBrains.Annotations;
 using MagicalGarden.Inventory;
+using MagicalGarden.Manager;
 using System.Linq;
 
 namespace MagicalGarden.Farm
@@ -230,7 +231,6 @@ namespace MagicalGarden.Farm
         public List<ItemData> allItems;
         public ItemData GetItemById(string id)
         {
-            Debug.LogError(id);
             return allItems.Find(item => item.itemId == id);
         }
         public void LoadAllItems()

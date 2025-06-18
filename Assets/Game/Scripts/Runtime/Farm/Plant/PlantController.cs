@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Inventory;
+using MagicalGarden.Manager;
 
 #if UNITY_EDITOR
 using UnityEditor;

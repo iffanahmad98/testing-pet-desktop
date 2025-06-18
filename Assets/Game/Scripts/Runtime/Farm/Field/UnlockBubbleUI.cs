@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MagicalGarden.Farm;
+using MagicalGarden.Manager;
 
 namespace MagicalGarden.Farm
 {
