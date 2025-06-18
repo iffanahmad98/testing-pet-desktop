@@ -137,7 +137,7 @@ public class MonsterMovementHandler
         float direction = target.x - pos.x;
         
         // NEW: Different thresholds and cooldowns based on area size
-        if (_controller.GetBoundsHandler()?.IsMovementAreaTooSmall() == true)
+        if (_controller.MovementBounds?.IsMovementAreaTooSmall() == true)
         {
             // Small areas: Higher threshold + longer cooldown
             float flipThreshold = 50f; // Much higher threshold
@@ -181,5 +181,14 @@ public class MonsterMovementHandler
         // Or use a simple Y threshold
         return currentPos.y > -200f; // Adjust threshold based on your game area
     }
+
+    // Add helper method to check if monster is in air
+    // private bool IsInAir()
+    // {
+    //     Vector2 currentPos = _transform.anchoredPosition;
+    //     // You can access the bounds handler through the controller if needed
+    //     // Or use a simple Y threshold
+    //     return currentPos.y > -200f; // Adjust threshold based on your game area
+    // }
 }
 

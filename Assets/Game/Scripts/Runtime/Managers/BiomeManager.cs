@@ -4,16 +4,6 @@ using System.Collections.Generic;
 using System.Collections;
 
 [System.Serializable]
-public class CloudData
-{
-    public Sprite cloudSprite;
-    public float speed = 1f;
-    public float minScale = 0.8f;
-    public float maxScale = 1.2f;
-    public float opacity = 0.8f;
-}
-
-[System.Serializable]
 public class BiomeLayer
 {
     public GameObject layerObject;
@@ -24,47 +14,98 @@ public class BiomeLayer
 
 public class BiomeManager : MonoBehaviour
 {
+    #region Constants
+    private const float PARALLAX_TIME_MULTIPLIER = 0.1f;
+    private const float PARALLAX_AMPLITUDE = 10f;
+    private const float SKY_USAGE_PERCENTAGE = 0.8f;
+    private const float CLOUD_START_X_OFFSET = 0.6f;
+    private const float CLOUD_END_X_OFFSET = 0.6f;
+    private const float LANE_HEIGHT_PERCENTAGE = 0.8f;
+    #endregion
+
     [Header("Biome Layers")]
     public BiomeLayer skyLayer;
     public BiomeLayer ambientLayer;
     public BiomeLayer groundLayer;
 
-    [Header("Cloud System - Simple Version")]
+    [Header("Cloud System")]
     public RectTransform skyBG;
     public GameObject cloudPrefab;
     public Sprite[] cloudSprites;
-    public int maxClouds = 6;
-    public float cloudSpawnInterval = 3f;
-    public float baseCloudSpeed = 20f;
-    public Vector2 speedRange = new Vector2(0.5f, 1.5f);
-    public Vector2 scaleRange = new Vector2(0.6f, 1.0f); // Smaller clouds to reduce overlap
+    public int maxClouds = 3;
+    public float cloudSpawnInterval = 5f;
+    public float baseCloudSpeed = 50f;
+    public Vector2 speedRange = new Vector2(1.0f, 2.0f);
+    public Vector2 scaleRange = new Vector2(0.2f, 0.5f); // Smaller clouds to reduce overlap
     public Vector2 opacityRange = new Vector2(0.4f, 0.8f);
-    public int cloudLanes = 4; // Increased from 3 to 4 lanes
+    public int cloudLanes = 2; // Increased from 3 to 4 lanes
     public float minCloudSpacing = 100f; // Increased from 50f
     public float baseWaitTime = 5f; // Reduced since we have better spacing
+    private Vector2 lastSkyPosition;
+    private Vector2 lastSkySize;
+    private bool skyAreaChanged = false;
 
     [Header("Testing Controls")]
     public KeyCode toggleSkyKey = KeyCode.Alpha1;
     public KeyCode toggleAmbientKey = KeyCode.Alpha2;
     public KeyCode toggleCloudsKey = KeyCode.Alpha3;
 
+    [Header("Events")]
+    public UnityEngine.Events.UnityEvent<string, bool> OnLayerToggled;
+    public UnityEngine.Events.UnityEvent<bool> OnCloudsToggled;
+
+    [Header("Object Pooling")]
+    public bool useCloudPooling = true;
+    private Queue<GameObject> cloudPool = new Queue<GameObject>();
+
     private List<GameObject> activeClouds = new List<GameObject>();
     private Coroutine cloudSpawner;
     private bool cloudsEnabled = true;
-    private RectTransform gameAreaRect;
+    [SerializeField] private RectTransform gameAreaRect;
 
     private Dictionary<int, float> lastCloudSpawnTime = new Dictionary<int, float>(); // Track last spawn time per lane
     private Dictionary<int, float> lastCloudSpeed = new Dictionary<int, float>(); // Track last cloud speed per lane
+
+    private float initialAreaHeight;
+    private float skyStartPos;
+    private float ambientStartPos;
+
+    // ───────── tuning knobs ─────────
+    [SerializeField] float ambientRatio = 0.50f;   // 0 = horizon locked, 1 = same speed as sky
+    [SerializeField] float minSkyPixels = 120f;    // keep at least this many sky pixels
+    
+    private RectTransform skyRectTransform;
+    private RectTransform ambientRectTransform;
+    private RectTransform groundRectTransform;
 
     private void Awake()
     {
         ServiceLocator.Register(this);
         InitializeBiome();
+
+        SettingsManager settings = ServiceLocator.Get<SettingsManager>();
+        if (settings != null)
+        {
+            settings.OnGameAreaChanged.AddListener(OnGameAreaResized);
+        }
+    }
+
+    public void OnGameAreaResized()
+    {
+        // Clear current clouds and restart system
+        ClearAllClouds();
+        InitializeLanes();
+        
+        // Update cached values
+        if (skyBG != null)
+        {
+            lastSkyPosition = skyBG.anchoredPosition;
+            lastSkySize = skyBG.sizeDelta;
+        }
     }
 
     private void Start()
     {
-        gameAreaRect = GetComponentInParent<RectTransform>();
         if (gameAreaRect == null)
         {
             gameAreaRect = transform.parent.GetComponent<RectTransform>();
@@ -73,28 +114,50 @@ public class BiomeManager : MonoBehaviour
         // Initialize lane tracking
         InitializeLanes();
         StartCloudSystem();
+
+        // NEW – record baseline numbers
+        initialAreaHeight = gameAreaRect.sizeDelta.y;
+
+        if (skyLayer.layerObject != null)
+            skyStartPos = skyLayer.layerObject.GetComponent<RectTransform>().anchoredPosition.y;
+
+        if (ambientLayer.layerObject != null)
+            ambientStartPos = ambientLayer.layerObject.GetComponent<RectTransform>().anchoredPosition.y;
+
     }
 
     private void Update()
     {
         HandleTestingInput();
+    }
+
+    private void LateUpdate() {
         UpdateParallax();
+        UpdateVerticalCompress();
     }
 
     private void InitializeBiome()
     {
         // Initialize layers if not set in inspector
         if (skyLayer.layerObject == null)
-            skyLayer.layerObject = transform.Find("SkyBG")?.gameObject;
+            Debug.LogWarning("Sky layer object is not set! Please assign it in the inspector.");
         if (ambientLayer.layerObject == null)
-            ambientLayer.layerObject = transform.Find("AmbientBG")?.gameObject;
+            Debug.LogWarning("Ambient layer object is not set! Please assign it in the inspector.");
         if (groundLayer.layerObject == null)
-            groundLayer.layerObject = transform.Find("GroundBG")?.gameObject;
+            Debug.LogWarning("Ground layer object is not set! Please assign it in the inspector.");
 
         // Set initial states
         SetLayerActive(skyLayer, skyLayer.isActive);
         SetLayerActive(ambientLayer, ambientLayer.isActive);
         SetLayerActive(groundLayer, groundLayer.isActive);
+
+        // Cache RectTransform components
+        if (skyLayer.layerObject != null)
+            skyRectTransform = skyLayer.layerObject.GetComponent<RectTransform>();
+        if (ambientLayer.layerObject != null)
+            ambientRectTransform = ambientLayer.layerObject.GetComponent<RectTransform>();
+        if (groundLayer.layerObject != null)
+            groundRectTransform = groundLayer.layerObject.GetComponent<RectTransform>();
     }
 
     private void HandleTestingInput()
@@ -117,26 +180,60 @@ public class BiomeManager : MonoBehaviour
 
     private void UpdateParallax()
     {
-        // Simple parallax based on time (you can later make this based on camera movement)
-        float timeOffset = Time.time * 0.1f;
+        float timeOffset = Time.time * PARALLAX_TIME_MULTIPLIER;
         
-        if (skyLayer.layerObject != null && skyLayer.parallaxSpeed > 0)
+        if (skyLayer.layerObject != null && skyLayer.parallaxSpeed > 0 && skyRectTransform != null)
         {
-            var rectTransform = skyLayer.layerObject.GetComponent<RectTransform>();
-            if (rectTransform != null)
-            {
-                Vector2 pos = rectTransform.anchoredPosition;
-                pos.x = Mathf.Sin(timeOffset * skyLayer.parallaxSpeed) * 10f;
-                rectTransform.anchoredPosition = pos;
-            }
+            Vector2 pos = skyRectTransform.anchoredPosition;
+            pos.x = Mathf.Sin(timeOffset * skyLayer.parallaxSpeed) * PARALLAX_AMPLITUDE;
+            skyRectTransform.anchoredPosition = pos;
         }
+    }
+    
+    private void UpdateVerticalCompress()
+    {
+        if (gameAreaRect == null) return;
+
+        float lost = initialAreaHeight - gameAreaRect.rect.height;
+        if (lost < 0f) lost = 0f;
+
+        // Add null checks before accessing components
+        if (skyLayer.layerObject != null)
+        {
+            var skyRect = skyRectTransform ?? skyLayer.layerObject.GetComponent<RectTransform>();
+            float skyCrop = Mathf.Min(lost, skyRect.rect.height - minSkyPixels);
+            SlideBandY(skyLayer.layerObject, skyStartPos, skyCrop);
+        }
+
+        if (ambientLayer.layerObject != null)
+        {
+            float ambientCrop = lost * ambientRatio;
+            SlideBandY(ambientLayer.layerObject, ambientStartPos, ambientCrop);
+        }
+    }
+
+    private void SlideBandY(GameObject go, float startY, float downBy)
+    {
+        if (go == null) return;
+
+        RectTransform rt = null;
+        if (go == skyLayer.layerObject) rt = skyRectTransform;
+        else if (go == ambientLayer.layerObject) rt = ambientRectTransform;
+        else if (go == groundLayer.layerObject) rt = groundRectTransform;
+        else rt = go.GetComponent<RectTransform>(); // Fallback
+
+        if (rt == null) return;
+
+        Vector2 p = rt.anchoredPosition;
+        p.y = startY - downBy;
+        rt.anchoredPosition = p;
     }
 
     private void InitializeLanes()
     {
         lastCloudSpawnTime.Clear();
         lastCloudSpeed.Clear();
-        
+
         for (int i = 0; i < cloudLanes; i++)
         {
             lastCloudSpawnTime[i] = -999f; // Long ago
@@ -149,7 +246,8 @@ public class BiomeManager : MonoBehaviour
     {
         layer.isActive = !layer.isActive;
         SetLayerActive(layer, layer.isActive);
-    
+        
+        OnLayerToggled?.Invoke(layer.layerName, layer.isActive);
         
         // Show message if UIManager is available
         var uiManager = ServiceLocator.Get<UIManager>();
@@ -177,6 +275,27 @@ public class BiomeManager : MonoBehaviour
     {
         ambientLayer.isActive = active;
         SetLayerActive(ambientLayer, active);
+    }
+
+    public void SetLayerActive(string layerName, bool active)
+    {
+        var layer = GetLayerByName(layerName);
+        if (layer != null)
+        {
+            layer.isActive = active;
+            SetLayerActive(layer, active);
+        }
+    }
+
+    private BiomeLayer GetLayerByName(string name)
+    {
+        return name.ToLower() switch
+        {
+            "sky" => skyLayer,
+            "ambient" => ambientLayer,
+            "ground" => groundLayer,
+            _ => null
+        };
     }
     #endregion
 
@@ -215,14 +334,13 @@ public class BiomeManager : MonoBehaviour
 
     private void SpawnCloud()
     {
-        if (cloudSprites == null || cloudSprites.Length == 0 || cloudPrefab == null || skyBG == null)
-            return;
+        if (!ValidateCloudSpawning()) return;
 
         int availableLane = GetAvailableLane();
         if (availableLane == -1) // No available lanes
             return;
 
-        GameObject cloud = Instantiate(cloudPrefab, skyBG);
+        GameObject cloud = GetPooledCloud();
         var cloudRect = cloud.GetComponent<RectTransform>();
         var cloudImage = cloud.GetComponent<Image>();
         
@@ -258,9 +376,32 @@ public class BiomeManager : MonoBehaviour
         lastCloudSpeed[availableLane] = baseCloudSpeed * speedMultiplier;
         
         // Start movement
-        StartCoroutine(MoveCloudSimple(cloud, speedMultiplier));
+        StartCoroutine(MoveCloud(cloud, speedMultiplier));
         
         activeClouds.Add(cloud);
+    }
+
+    private bool ValidateCloudSpawning()
+    {
+        if (cloudSprites == null || cloudSprites.Length == 0)
+        {
+            Debug.LogWarning("BiomeManager: No cloud sprites assigned!");
+            return false;
+        }
+        
+        if (cloudPrefab == null)
+        {
+            Debug.LogWarning("BiomeManager: No cloud prefab assigned!");
+            return false;
+        }
+        
+        if (skyBG == null)
+        {
+            Debug.LogWarning("BiomeManager: No sky background assigned!");
+            return false;
+        }
+        
+        return true;
     }
 
     private int GetAvailableLane()
@@ -303,25 +444,47 @@ public class BiomeManager : MonoBehaviour
         float totalWaitTime = baseWait + spacingWait;
         
         // Optional: Add some debug logging
+        #if UNITY_EDITOR && DEBUG_CLOUDS
         if (timeSinceLastSpawn < totalWaitTime)
         {
             Debug.Log($"Lane {laneIndex}: Waiting {totalWaitTime - timeSinceLastSpawn:F1}s more (Base: {baseWait}s + Spacing: {spacingWait:F1}s)");
         }
+        #endif
         
         return timeSinceLastSpawn >= totalWaitTime;
     }
 
     private float CalculateLaneY(int laneIndex)
     {
-        Rect skyRect = skyBG.rect;
-        float laneHeight = skyRect.height * 0.8f; // Use 80% of sky height
-        float laneSpacing = laneHeight / (cloudLanes + 1); // +1 for even spacing
+        if (skyBG == null) return 0f;
         
-        float startY = -laneHeight * 0.5f;
-        return startY + ((laneIndex + 1) * laneSpacing);
+        Rect skyRect = skyBG.rect;
+        
+        // Work in local coordinates where (0,0) is center of skyBG
+        // Sky top = +height/2, Sky bottom = -height/2
+        
+        float usableHeight = skyRect.height * 0.6f; // Use 60% of sky height
+        float laneSpacing = usableHeight / cloudLanes;
+        
+        // Start from a reasonable position within sky bounds
+        float startFromTop = skyRect.height * 0.2f; // 20% down from top
+        float actualStartY = (skyRect.height * 0.5f) - startFromTop; // Top edge minus offset
+        
+        // Calculate lane position
+        float laneY = actualStartY - (laneIndex * laneSpacing);
+        
+        // Ensure we're within sky bounds
+        float minY = -skyRect.height * 0.4f; // Don't go too low
+        float maxY = skyRect.height * 0.4f;  // Don't go too high
+        
+        laneY = Mathf.Clamp(laneY, minY, maxY);
+        
+        Debug.Log($"Lane {laneIndex}: Y={laneY:F1} (Sky bounds: {-skyRect.height*0.5f:F1} to {skyRect.height*0.5f:F1})");
+        
+        return laneY;
     }
 
-    private IEnumerator MoveCloudSimple(GameObject cloud, float speedMultiplier)
+    private IEnumerator MoveCloud(GameObject cloud, float speedMultiplier)
     {
         var cloudRect = cloud.GetComponent<RectTransform>();
         if (cloudRect == null) yield break;
@@ -342,6 +505,46 @@ public class BiomeManager : MonoBehaviour
         if (cloud != null)
         {
             activeClouds.Remove(cloud);
+            ReturnCloudToPool(cloud);
+        }
+    }
+
+    private GameObject GetPooledCloud()
+    {
+        GameObject cloud;
+        
+        if (useCloudPooling && cloudPool.Count > 0)
+        {
+            cloud = cloudPool.Dequeue();
+            cloud.SetActive(true); // Reactivate
+            
+            // Reset transform to avoid issues
+            cloud.transform.localScale = Vector3.one;
+            
+            // Reset image properties
+            var cloudImage = cloud.GetComponent<Image>();
+            if (cloudImage != null)
+            {
+                cloudImage.color = Color.white; // Reset color/alpha
+            }
+        }
+        else
+        {
+            cloud = Instantiate(cloudPrefab, skyBG);
+        }
+        
+        return cloud;
+    }
+
+    private void ReturnCloudToPool(GameObject cloud)
+    {
+        if (useCloudPooling)
+        {
+            cloud.SetActive(false);
+            cloudPool.Enqueue(cloud);
+        }
+        else
+        {
             Destroy(cloud);
         }
     }
@@ -372,7 +575,7 @@ public class BiomeManager : MonoBehaviour
         foreach (var cloud in activeClouds)
         {
             if (cloud != null)
-                Destroy(cloud);
+                ReturnCloudToPool(cloud);
         }
         activeClouds.Clear();
         
@@ -406,10 +609,56 @@ public class BiomeManager : MonoBehaviour
     // Gizmos for debugging
     private void OnDrawGizmosSelected()
     {
-        if (skyBG != null)
+        if (skyBG == null) return;
+
+        Rect skyRect = skyBG.rect;
+
+        // Draw sky area boundary (WORLD coordinates)
+        Gizmos.color = Color.cyan;
+        Vector3 skyWorldPos = skyBG.TransformPoint(Vector3.zero); // Convert to world
+        Gizmos.DrawWireCube(skyWorldPos, new Vector3(skyBG.rect.width, skyBG.rect.height, 0));
+
+        // Draw cloud lanes (CORRECTED coordinates)
+        Gizmos.color = Color.yellow;
+        
+        for (int i = 0; i < cloudLanes; i++)
         {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireCube(skyBG.position, new Vector3(skyBG.rect.width, skyBG.rect.height, 0));
+            float laneYLocal = CalculateLaneY(i); // Local coordinate
+            Vector3 laneWorldPos = skyBG.TransformPoint(new Vector3(0, laneYLocal, 0)); // Convert to world
+            
+            Vector3 laneStart = new Vector3(
+                skyWorldPos.x - skyBG.rect.width * 0.5f, 
+                laneWorldPos.y, // Use converted world position
+                0
+            );
+            Vector3 laneEnd = new Vector3(
+                skyWorldPos.x + skyBG.rect.width * 0.5f, 
+                laneWorldPos.y, // Use converted world position
+                0
+            );
+            
+            Gizmos.DrawLine(laneStart, laneEnd);
+            
+            #if UNITY_EDITOR
+            UnityEditor.Handles.Label(laneStart, $"Lane {i}");
+            #endif
         }
+
+        // Draw spawn and exit zones
+        Gizmos.color = Color.green; // Spawn zone
+        Vector3 spawnZone = new Vector3(
+            skyBG.position.x - skyRect.width * CLOUD_START_X_OFFSET,
+            skyBG.position.y,
+            0
+        );
+        Gizmos.DrawWireCube(spawnZone, new Vector3(20f, skyRect.height, 0));
+        
+        Gizmos.color = Color.red; // Exit zone
+        Vector3 exitZone = new Vector3(
+            skyBG.position.x + skyRect.width * CLOUD_END_X_OFFSET,
+            skyBG.position.y,
+            0
+        );
+        Gizmos.DrawWireCube(exitZone, new Vector3(20f, skyRect.height, 0));
     }
 }
