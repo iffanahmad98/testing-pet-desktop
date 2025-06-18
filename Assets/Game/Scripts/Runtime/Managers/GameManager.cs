@@ -367,17 +367,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public GameObject SpawnCoinAt(Vector2 anchoredPos, CoinType type)
-    {
-        // Find a non-overlapping position
-        Vector2 finalPos = FindNonOverlappingPosition(anchoredPos, 50f); // 50f = minimum distance
-        
-        var coin = GetPooledObject(_coinPool, coinPrefab);
-        SetupPooledObject(coin, gameArea, finalPos);
-        coin.GetComponent<CoinController>().Initialize(type);
-        return coin;
-    }
-
     public GameObject SpawnCoinWithArc(Vector2 startPosition, Vector2 targetPosition, CoinType type)
     {
         var coin = GetPooledObject(_coinPool, coinPrefab);

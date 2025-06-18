@@ -39,7 +39,7 @@ public class MonsterInteractionHandler
                 
             if (wasPokeState && isNowNormalState)
             {
-                _controller.DropCoinAfterPoke();
+                _controller.DropCoin(CoinType.Silver);
                 _pendingSilverCoinDrop = false;
                 
                 // ADD: Trigger evolution check after state returns to normal

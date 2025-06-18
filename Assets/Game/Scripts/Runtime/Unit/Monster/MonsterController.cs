@@ -1,13 +1,11 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using System;
 using Spine.Unity;
 using System.Collections;
 
 public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    // Add initialization state tracking
     private enum InitializationState
     {
         NotStarted,
@@ -20,12 +18,11 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private InitializationState _initState = InitializationState.NotStarted;
     private bool _isInitializing = false;
     
-    // Add these delegate fields at the top of the class
-    private System.Action<float> _hungerChangedHandler;
-    private System.Action<float> _happinessChangedHandler;
-    private System.Action<bool> _sickChangedHandler;
-    private System.Action<bool> _hoverChangedHandler;
-    
+    private Action<float> _hungerChangedHandler;
+    private Action<float> _happinessChangedHandler;
+    private Action<bool> _sickChangedHandler;
+    private Action<bool> _hoverChangedHandler;
+
     private MonsterDataSO monsterData;
     public string monsterID;
     public MonsterDataSO MonsterData => monsterData;
@@ -55,7 +52,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private MonsterSeparationHandler _separationBehavior;
     
     public MonsterUIHandler UI = new MonsterUIHandler();
-    public MonsterFoodHandler FoodHandler => _foodHandler; 
+    public MonsterFoodHandler FoodHandler => _foodHandler;
+    public MonsterBoundsHandler MovementBounds => _movementBounds; 
 
     private SkeletonGraphic _monsterSpineGraphic;
     private RectTransform _rectTransform;
@@ -636,11 +634,9 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         OnHoverChanged?.Invoke(_isHovered);
     }
 
-    public void DropCoinAfterPoke() => DropCoin(CoinType.Silver);
-
     public void UpdateVisuals() => _visualHandler?.UpdateMonsterVisuals();
 
-    public void Poop(PoopType type = PoopType.Normal) 
+    public void DropPoop(PoopType type = PoopType.Normal) 
     {
         // Use visual handler to spawn poop with animation, just like coins
         _visualHandler?.SpawnPoopWithAnimation(type);
@@ -752,14 +748,11 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         
         if (_initState != InitializationState.FullyInitialized)
         {   
-            // Force basic initialization
             _initState = InitializationState.FullyInitialized;
             _isLoaded = true;
             _isInitializing = false;
         }
     }
 
-    // Add these public methods to expose needed data to StateMachine
     public Vector2 GetTargetPosition() => _targetPosition;
-    public MonsterBoundsHandler GetBoundsHandler() => _movementBounds;
 }

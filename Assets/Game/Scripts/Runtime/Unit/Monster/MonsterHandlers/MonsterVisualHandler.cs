@@ -201,7 +201,7 @@ public class MonsterVisualHandler
         Vector2 backPosition = GetBackPosition();
 
         // Use the existing bounds handler from the controller
-        var boundsHandler = _controller.GetBoundsHandler();
+        var boundsHandler = _controller.MovementBounds;
         if (boundsHandler == null)
         {
             // Fallback to monster position if no bounds handler
@@ -281,7 +281,7 @@ public class MonsterVisualHandler
     private Vector2 CalculateSafeSlideDirection(Vector2 startPosition)
     {
         // Use the existing bounds handler from the controller
-        var boundsHandler = _controller.GetBoundsHandler();
+        var boundsHandler = _controller.MovementBounds;
         if (boundsHandler == null)
         {
             // Fallback to slide down

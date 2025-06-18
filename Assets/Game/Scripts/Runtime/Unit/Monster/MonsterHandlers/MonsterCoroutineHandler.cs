@@ -95,13 +95,13 @@ public class MonsterCoroutineHandler
             {
                 if (monsterData.monType == MonsterType.Common ||
                     monsterData.monType == MonsterType.Uncommon)
-                    _controller.Poop(PoopType.Normal);
+                    _controller.DropPoop(PoopType.Normal);
                 else if (monsterData.monType == MonsterType.Rare ||
                          monsterData.monType == MonsterType.Boss ||
                          monsterData.monType == MonsterType.Mythic)
-                    _controller.Poop(PoopType.Special);
+                    _controller.DropPoop(PoopType.Special);
                 else
-                    _controller.Poop(); // Default to normal poop if type is unknown
+                    _controller.DropPoop(); // Default to normal poop if type is unknown
             }
             yield return new WaitForSeconds(interval);
         }

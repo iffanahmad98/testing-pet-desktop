@@ -176,11 +176,11 @@ public class MonsterStateMachine : MonoBehaviour
         return true; // Allow other transitions
     }
 
-    // ADD: Helper method to check if monster is in air
+        // ADD: Helper method to check if monster is in air
     private bool IsMonsterInAir(Vector2 position)
     {
         // You can access the bounds handler through the controller
-        var boundsHandler = _controller.GetComponent<MonsterController>().GetBoundsHandler(); // You'll need to expose this
+        var boundsHandler = _controller.MovementBounds; // You'll need to expose this
         if (boundsHandler != null)
         {
             var groundBounds = boundsHandler.CalculateGroundBounds(); // You'll need to make this public
