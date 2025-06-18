@@ -33,7 +33,6 @@ MonoBehaviour:
   isEvolved: 0
   isFinalEvol: 0
   evolutionLevel: 0
-  startingEvolutionLevel: 1
   evolutionRequirements: {fileID: 11400000, guid: d3e14830d29dbef47bab7b4a75a30888, type: 2}
   monsterSpine:
   - {fileID: 11400000, guid: 844e7ddc6f21e0a408193025ff42062a, type: 2}
@@ -71,4 +70,10 @@ MonoBehaviour:
     - eating
     - walking
     - flying
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 0
+    behaviorConfig: {fileID: 11400000, guid: c9e0e5a6d58c2c442b63e7a40f62080c, type: 2}
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: 6599e5efe0a16a340a1a2bb4442c12f3, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: e07fe674522962847936b017f2f366c7, type: 2}
