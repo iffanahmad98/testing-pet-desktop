@@ -17,14 +17,8 @@ public class MonsterEvolutionSaveData
 [Serializable]
 public class MonsterEvolutionHandler
 {
-    private bool _isEvolving = false;
-    private float _lastInteractionTime = -1f;  // ADD: Track last interaction time
-    private float _evolutionCooldownAfterInteraction = 3f;  // ADD: Cooldown duration
-    
-    // ADD: Public property to check evolution state
     public bool IsEvolving => _isEvolving;
-    
-    private EvolutionRequirementsSO _evolutionConfig;
+    private bool _isEvolving = false;
     private MonsterController _controller;
 
     // Evolution tracking
@@ -48,35 +42,18 @@ public class MonsterEvolutionHandler
         _controller = controller;
     }
 
+    // UPDATED: Simplified initialization
     private void InitializeEvolutionRequirements()
     {
-        if (_controller == null)
+        if (_controller?.MonsterData?.evolutionRequirements == null)
         {
-            Debug.LogWarning("[Evolution] Controller is null, cannot initialize evolution requirements");
-            return;
+            Debug.LogWarning($"[Evolution] No evolution requirements found for {_controller?.MonsterData?.monsterName}");
         }
-
-        if (_controller.MonsterData == null)
-        {
-            Debug.LogWarning($"[Evolution] MonsterData is null for {_controller.monsterID}, cannot initialize evolution requirements");
-            return;
-        }
-
-        if (_controller.MonsterData.evolutionRequirements == null)
-        {
-            Debug.LogWarning($"[Evolution] No evolution requirements found for {_controller.MonsterData.monsterName} ({_controller.monsterID})");
-            return;
-        }
-        
-        _evolutionConfig = _controller.MonsterData.evolutionRequirements;
     }
 
     public void InitializeWithMonsterData()
     {
-        if (_evolutionConfig == null)
-        {
-            InitializeEvolutionRequirements();
-        }
+        InitializeEvolutionRequirements();
     }
 
     public void InitUIParticles(MonsterUIHandler uiHandler)
@@ -85,15 +62,18 @@ public class MonsterEvolutionHandler
         _evolutionParticleCanvasGroup = uiHandler.evolutionEffectCg;
     }
 
+    // UPDATED: Get evolution requirements directly from MonsterData
     private EvolutionRequirement[] GetAvailableEvolutions()
     {
-        if (_evolutionConfig == null || _evolutionConfig.requirements == null)
+        if (_controller?.MonsterData?.evolutionRequirements == null)
         {
             return new EvolutionRequirement[0];
         }
-        var available = _evolutionConfig.requirements
-          .Where(req => req.targetEvolutionLevel == _controller.evolutionLevel + 1)
-          .ToArray();
+        
+        // Look for next level evolution (e.g., if current level is 1, look for target level 2)
+        var available = _controller.MonsterData.evolutionRequirements
+            .Where(req => req.targetEvolutionLevel == _controller.evolutionLevel + 1)
+            .ToArray();
 
         return available;
     }
@@ -189,16 +169,16 @@ public class MonsterEvolutionHandler
         return isSafeState && !isUnsafeState;
     }    private EvolutionRequirement GetNextEvolutionRequirement()
     {
-        int currentLevel = _controller.evolutionLevel;
-
+        int currentLevel = _controller.evolutionLevel; // e.g., 1
+        
         foreach (var requirement in GetAvailableEvolutions())
         {
-            if (requirement.targetEvolutionLevel == currentLevel + 1)
+            if (requirement.targetEvolutionLevel == currentLevel + 1) // e.g., looking for level 2
             {
                 return requirement;
             }
         }
-
+        
         return null;
     }
 
@@ -584,7 +564,7 @@ public class MonsterEvolutionHandler
         var parts = _controller.monsterID.Split('_');
         if (parts.Length >= 3)
         {
-            _controller.monsterID = $"{parts[0]}_Lv{newLevel}_{parts[2]}";
+            _controller.monsterID = $"{parts[0]}_Lv{newLevel}_{parts[2]}"; // Will be Lv2, Lv3, etc.
 
             var gameManager = ServiceLocator.Get<GameManager>();
             if (gameManager != null)

@@ -97,7 +97,7 @@ public class MonsterCoroutineHandler
                     monsterData.monType == MonsterType.Uncommon)
                     _controller.DropPoop(PoopType.Normal);
                 else if (monsterData.monType == MonsterType.Rare ||
-                         monsterData.monType == MonsterType.Boss ||
+                         monsterData.monType == MonsterType.Legend ||
                          monsterData.monType == MonsterType.Mythic)
                     _controller.DropPoop(PoopType.Sparkle);
                 else

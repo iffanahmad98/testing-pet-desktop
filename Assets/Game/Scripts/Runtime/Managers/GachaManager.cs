@@ -22,7 +22,7 @@ public class GachaManager : MonoBehaviour
     {
         MonsterType.Rare,
         MonsterType.Mythic,
-        MonsterType.Boss
+        MonsterType.Legend
     };
 
     private void Awake()
