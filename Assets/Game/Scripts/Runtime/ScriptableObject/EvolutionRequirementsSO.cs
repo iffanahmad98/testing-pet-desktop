@@ -6,10 +6,6 @@ public class EvolutionRequirementsSO : ScriptableObject
 {
     [Header("Evolution Chain")]
     public EvolutionRequirement[] requirements;
-
-    [Header("Evolution Settings")]
-    public bool allowBranching = false;
-    public float evolutionCooldown = 5f;
 }
 
 [Serializable]

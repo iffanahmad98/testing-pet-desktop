@@ -50,6 +50,7 @@ public class MonsterDataSOEditor : Editor
         if (!showStats) return;
 
         EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealth"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("moveSpd"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("foodDetectionRange"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("eatDistance"));
@@ -71,8 +72,8 @@ public class MonsterDataSOEditor : Editor
         
         // Hunger & Happiness
         EditorGUILayout.LabelField("Hunger & Happiness", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHunger"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerDepleteRate"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("pokeCooldownDuration"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("areaHappinessRate"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("pokeHappinessValue"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerHappinessThreshold"));
@@ -82,8 +83,8 @@ public class MonsterDataSOEditor : Editor
         
         // Poop Behavior
         EditorGUILayout.LabelField("Poop Behavior", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("poopType"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("poopRate"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("clickToCollectPoop"));
         
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
@@ -142,6 +143,7 @@ public class MonsterDataSOEditor : Editor
 
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsImgs"), true);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("monIcons"), true);
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }

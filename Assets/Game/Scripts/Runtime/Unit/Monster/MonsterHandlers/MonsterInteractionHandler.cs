@@ -8,7 +8,7 @@ public class MonsterInteractionHandler
     private MonsterController _controller;
     private MonsterStateMachine _stateMachine;
     private MonsterAnimationHandler _animationHandler;
-    private float _pokeCooldownTimer;
+    private float _pokeCooldownTimer = 60f;
     private bool _pendingSilverCoinDrop;
     private bool _pendingEvolutionCheck = false;  // ADD: Track pending evolution check
     
@@ -74,7 +74,6 @@ public class MonsterInteractionHandler
             return;
         }
 
-        _pokeCooldownTimer = _controller.MonsterData.pokeCooldownDuration;
         _controller.IncreaseHappiness(_controller.MonsterData.pokeHappinessValue);
         
         _pendingSilverCoinDrop = true;

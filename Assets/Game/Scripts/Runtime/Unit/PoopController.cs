@@ -24,7 +24,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         {
             animator.SetTrigger("Normal");
         }
-        else if (type == PoopType.Special)
+        else if (type == PoopType.Sparkle)
         {
             animator.SetTrigger("Special");
         }

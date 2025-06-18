@@ -5,38 +5,40 @@ using Spine.Unity;
 public class MonsterDataSO : ScriptableObject
 {
     [Header("Basic Info")]
-    public string monsterName;              // Display name
-    public string id;               // Unique ID (for save/load)
-    public int monPrice = 10;      // Price to buy this monster
+    public string monsterName;              
+    public string id;               
+    public int monPrice = 10;      
 
     [Header("Classification")]
-    public MonsterType monType = MonsterType.Common;
+    public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)
+    public PoopType poopType = PoopType.Normal; // Type of poop this monster produces
 
     [Header("Stats")]
+    public float maxHealth = 100f;        // Maximum health
     public float moveSpd = 100f;       // Move speed
     public float hungerDepleteRate = 0.05f;  // How fast hunger depletes
     public float poopRate = 20f;     // Default: 20 minutes
+    public float goldCoinDropRate = 60f;    // Default: 60 minutes for gold coins
+    public float silverCoinDropRate = 30f;  // Default: 30 minutes for silver coins
+    public float maxHunger = 200f;      // Maximum hunger
     public float baseHunger = 50f;     // Add base hunger
     public float baseHappiness = 0f;   // Add base happiness
-    public float foodDetectionRange = 200f;
+    public float foodDetectionRange = 200f; // Range to detect food
     public float eatDistance = 5f;      // Distance to eat food
     
 
     [Header("Happiness Settings")]
-    public float pokeCooldownDuration = 10f;
     public float areaHappinessRate = 0.2f;
     public float pokeHappinessValue = 2f;
-    public float hungerHappinessThreshold = 30f; // New field - threshold below which hunger affects happiness
+    public float hungerHappinessThreshold = 20f; // New field - threshold below which hunger affects happiness
     public float hungerHappinessDrainRate = 2f; // New field - how much happiness drains when hungry
-
-    [Header("Poop Behavior")]
-    public bool clickToCollectPoop = true;
 
     [Header("Evolution")]
     public bool canEvolve = true;
     public bool isEvolved = false;
     public bool isFinalEvol = false;
     public int evolutionLevel = 0;
+
     [Header("Evolution Requirements")]
     [Tooltip("Required: Each monster must have its own evolution requirements")]
     public EvolutionRequirementsSO evolutionRequirements;
@@ -46,8 +48,9 @@ public class MonsterDataSO : ScriptableObject
 
     [Header("Images")]
     public Sprite[] monsImgs;           // [0] base, [1+] evolved forms
-    [Header("Sound Effects")]
+    public Sprite[] monIcons;          // [0] base, [1+] evolved forms
 
+    [Header("Sound Effects")]
     public AudioClip[] idleSounds;      // Randomly played during idle state
     public AudioClip happySound;       // Played when happiness increases
     public AudioClip eatSound;         // Played when eating
