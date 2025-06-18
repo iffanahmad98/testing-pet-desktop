@@ -26,6 +26,11 @@ public class MonsterDataSO : ScriptableObject
     public float foodDetectionRange = 200f; // Range to detect food
     public float eatDistance = 5f;      // Distance to eat food
 
+    [Header("Gacha Settings")]
+    public float gachaChancePercent = 0f;  // e.g., 0.10 for 0.10%
+    public string gachaChanceDisplay = ""; // e.g., "0.10%" for display
+    public bool isGachaOnly = false;       // True if buy price is 0
+
 
     [Header("Happiness Settings")]
     public float areaHappinessRate = 0.2f;

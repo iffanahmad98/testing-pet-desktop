@@ -41,14 +41,20 @@ public class MonsterDataSOEditor : Editor
         
         // Pricing Section
         EditorGUILayout.Space(3);
-        EditorGUILayout.LabelField("Pricing", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Pricing & Gacha", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterPrice"), new GUIContent("Buy Price"));
         
-        // NEW: Show sell prices for each evolution stage
+        // Sell prices
         EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage1"), new GUIContent("Sell Price (Stage 1)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage2"), new GUIContent("Sell Price (Stage 2)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage3"), new GUIContent("Sell Price (Stage 3)"));
-    
+        
+        // NEW: Gacha data
+        EditorGUILayout.Space(2);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChancePercent"), new GUIContent("Gacha Chance (Decimal)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChanceDisplay"), new GUIContent("Gacha Chance (Display)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("isGachaOnly"), new GUIContent("Gacha Only"));
+        
         EditorGUILayout.Space(3);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));
         EditorGUI.indentLevel--;

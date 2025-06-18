@@ -261,7 +261,12 @@ public class MonsterDataGenerator
         asset.silverCoinDropRate = csvData.stage1.silverCoinHour * 60f;
         asset.monsterPrice = (int)csvData.stage1.priceBuy;
         
-        // NEW: Map sell prices for each stage
+        // NEW: Map gacha data
+        asset.gachaChancePercent = csvData.stage1.gachaChanceDecimal; // 0.001f for 0.10%
+        asset.gachaChanceDisplay = csvData.stage1.gachaChance;        // "0.10%"
+        asset.isGachaOnly = csvData.stage1.priceBuy <= 0;            // True if can't be bought
+        
+        // Map sell prices for each stage
         asset.sellPriceStage1 = (int)csvData.stage1.priceSell;
         asset.sellPriceStage2 = csvData.stage2 != null ? (int)csvData.stage2.priceSell : 0;
         asset.sellPriceStage3 = csvData.stage3 != null ? (int)csvData.stage3.priceSell : 0;
