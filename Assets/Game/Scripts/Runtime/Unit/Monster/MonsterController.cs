@@ -44,24 +44,34 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public event Action<MonsterController> OnMonsterFullyInitialized;
 
     private MonsterSaveHandler _saveHandler;
+    public MonsterSaveHandler SaveHandler => _saveHandler;
     private MonsterVisualHandler _visualHandler;
+    public MonsterVisualHandler VisualHandler => _visualHandler;
     private MonsterFoodHandler _foodHandler;
+    public MonsterFoodHandler FoodHandler => _foodHandler;
     private MonsterInteractionHandler _interactionHandler;
-    private MonsterBoundsHandler _movementBounds;
+    public MonsterInteractionHandler InteractionHandler => _interactionHandler;
+    private MonsterBoundsHandler _boundHandler;
+    public MonsterBoundsHandler BoundHandler => _boundHandler;
     private MonsterEvolutionHandler _evolutionHandler;
+    public MonsterEvolutionHandler EvolutionHandler => _evolutionHandler;
     private MonsterSeparationHandler _separationBehavior;
+    public MonsterSeparationHandler SeparationBehavior => _separationBehavior;
     
     public MonsterUIHandler UI = new MonsterUIHandler();
-    public MonsterFoodHandler FoodHandler => _foodHandler;
-    public MonsterBoundsHandler MovementBounds => _movementBounds; 
 
     private SkeletonGraphic _monsterSpineGraphic;
     private RectTransform _rectTransform;
-    private MonsterManager _gameManager;
+    private MonsterManager _monsterManager;
+    public MonsterManager MonsterManager => _monsterManager;
     private MonsterStateMachine _stateMachine;
+    public MonsterStateMachine StateMachine => _stateMachine;
     private MonsterMovementHandler _movementHandler;
+    public MonsterMovementHandler MovementHandler => _movementHandler;
     private MonsterStatsHandler _statsHandler;
+    public MonsterStatsHandler StatsHandler => _statsHandler;
     private MonsterCoroutineHandler _coroutineHandler; 
+    public MonsterCoroutineHandler CoroutineHandler => _coroutineHandler;
 
     private Vector2 _targetPosition;
     private bool _isLoaded = false;
@@ -93,8 +103,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private void InitializeComponents()
     {
         _rectTransform = GetComponent<RectTransform>();
+        _monsterSpineGraphic = GetComponentInChildren<SkeletonGraphic>();
 
-        _monsterSpineGraphic = FindSkeletonGraphicInHierarchy();
         if (_monsterSpineGraphic != null)
         {
             // Force initialization if skeleton data exists but AnimationState doesn't
@@ -106,7 +116,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         else
         {
             Debug.LogError($"[MonsterController] No SkeletonGraphic found for {monsterID}!");
-            LogChildComponents();
         }
 
         if (_rectTransform == null)
@@ -115,69 +124,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
     }
 
-    private SkeletonGraphic FindSkeletonGraphicInHierarchy()
-    {
-        // Method 1: Standard GetComponentInChildren (includes nested children)
-        var skeletonGraphic = GetComponentInChildren<SkeletonGraphic>(false);
-        if (skeletonGraphic != null)
-        {
-            return skeletonGraphic;
-        }
-
-        // Method 2: Include inactive objects
-        skeletonGraphic = GetComponentInChildren<SkeletonGraphic>(true);
-        if (skeletonGraphic != null)
-        {
-            skeletonGraphic.gameObject.SetActive(true);
-            return skeletonGraphic;
-        }
-
-        // Method 3: Manual recursive search
-        return FindSkeletonGraphicRecursive(transform);
-    }
-
-    private SkeletonGraphic FindSkeletonGraphicRecursive(Transform parent)
-    {
-        // Check current transform
-        var skeletonGraphic = parent.GetComponent<SkeletonGraphic>();
-        if (skeletonGraphic != null)
-        {
-            return skeletonGraphic;
-        }
-
-        // Check all children recursively
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            Transform child = parent.GetChild(i);
-            skeletonGraphic = FindSkeletonGraphicRecursive(child);
-            if (skeletonGraphic != null)
-            {
-                return skeletonGraphic;
-            }
-        }
-
-        return null;
-    }
-    private void LogChildComponents()
-    {
-        LogHierarchyRecursive(transform, 0);
-    }
-
-    private void LogHierarchyRecursive(Transform parent, int depth)
-    {
-        string indent = new string(' ', depth * 2);
-        var components = parent.GetComponents<Component>();
-        string componentList = string.Join(", ", System.Array.ConvertAll(components, c => c.GetType().Name));
-
-        Debug.Log($"{indent}- {parent.name}: [{componentList}] (active: {parent.gameObject.activeInHierarchy})");
-
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            LogHierarchyRecursive(parent.GetChild(i), depth + 1);
-        }
-    }
-
-    // Phase 2: Handler creation (Start)
     private void Start()
     {
         if (_initState != InitializationState.ComponentsReady) return;
@@ -199,10 +145,10 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         _statsHandler = new MonsterStatsHandler(this);
         
         // 2. Create handlers that depend on core handlers
-        _coroutineHandler = new MonsterCoroutineHandler(this, _statsHandler);
-        _saveHandler = new MonsterSaveHandler(this, _statsHandler);
+        _coroutineHandler = new MonsterCoroutineHandler(this);
+        _saveHandler = new MonsterSaveHandler(this);
         _evolutionHandler = new MonsterEvolutionHandler(this);
-          // Create handlers that need components (but not external services)
+        // Create handlers that need components (but not external services)
         if (_monsterSpineGraphic != null)
         {
             _visualHandler = new MonsterVisualHandler(this, _monsterSpineGraphic);
@@ -211,8 +157,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             Debug.LogWarning($"[MonsterController] Cannot create VisualHandler - no SkeletonGraphic found on {gameObject.name}");
         }
-        
-        // Don't create StateMachine-dependent handlers yet
     }
     private IEnumerator ContinueInitializationWhenReady()
     {
@@ -223,7 +167,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
         // Now create StateMachine-dependent handlers
         _stateMachine = GetComponent<MonsterStateMachine>();
-        _gameManager = ServiceLocator.Get<MonsterManager>();
+        _monsterManager = ServiceLocator.Get<MonsterManager>();
 
         // Wait one more frame for StateMachine to complete its Start()
         yield return null;
@@ -234,7 +178,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         // Final initialization phase
         yield return StartCoroutine(FinalizeInitialization());
     }
-      private void CreateDependentHandlers()
+
+    private void CreateDependentHandlers()
     {
         // Create handlers that need StateMachine
         if (_stateMachine != null)
@@ -245,57 +190,24 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             Debug.LogError($"[MonsterController] {monsterID} cannot create interaction handler - StateMachine is null");
         }
-        
+
         // Create handlers that need components
-        if (_rectTransform != null && _gameManager != null && _monsterSpineGraphic != null)
+        if (_rectTransform != null && _monsterManager != null && _monsterSpineGraphic != null)
         {
-            _movementHandler = new MonsterMovementHandler(_rectTransform, _stateMachine, this, _gameManager, _monsterSpineGraphic);
-            _movementBounds = new MonsterBoundsHandler(_rectTransform, _gameManager);
-            _separationBehavior = new MonsterSeparationHandler(this, _gameManager, _rectTransform);
+            _boundHandler = new MonsterBoundsHandler(_monsterManager, _rectTransform);
+            _movementHandler = new MonsterMovementHandler(this, _rectTransform, _monsterSpineGraphic);
+            _separationBehavior = new MonsterSeparationHandler(this, _rectTransform);
+            _foodHandler = new MonsterFoodHandler(this, _rectTransform);
         }
         else
         {
-            Debug.LogError($"[MonsterController] {monsterID} cannot create movement handlers - rectTransform: {_rectTransform != null}, gameManager: {_gameManager != null}, spineGraphic: {_monsterSpineGraphic != null}");
-        }
-        
-        // Create handlers that need GameManager
-        if (_gameManager != null && _rectTransform != null)
-        {
-            _foodHandler = new MonsterFoodHandler(this, _gameManager, _rectTransform);
-        }
-        
-        // Connect cross-dependencies safely
-        if (_stateMachine?.AnimationHandler != null && _interactionHandler != null)
-        {
-            _interactionHandler.SetAnimationHandler(_stateMachine.AnimationHandler);
-        }
-        else
-        {
-            Debug.LogError($"[MonsterController] {monsterID} failed to connect animation handler - StateMachine.AnimationHandler: {_stateMachine?.AnimationHandler != null}, InteractionHandler: {_interactionHandler != null}");
-            
-            // Add retry mechanism
-            if (_interactionHandler != null)
-            {
-                StartCoroutine(RetryAnimationHandlerConnection());
-            }
-        }
-    }
-      private IEnumerator RetryAnimationHandlerConnection()
-    {
-        yield return new WaitForSeconds(0.5f);
-        
-        if (_stateMachine?.AnimationHandler != null && _interactionHandler != null)
-        {
-            _interactionHandler.SetAnimationHandler(_stateMachine.AnimationHandler);
-        }
-        else
-        {
-            Debug.LogError($"[MonsterController] {monsterID} RETRY failed - animation handler still not available");
+            Debug.LogError($"[MonsterController] {monsterID} cannot create movement handlers - rectTransform: {_rectTransform != null}, gameManager: {_monsterManager != null}, spineGraphic: {_monsterSpineGraphic != null}");
         }
     }
     
     private IEnumerator FinalizeInitialization()
-    {        // Initialize UI
+    {
+        // Initialize UI
         UI.Init();
         
         // Only call if handler exists
@@ -319,7 +231,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         SubscribeToEvents();
         
         // Register with GameManager last
-        _gameManager?.RegisterActiveMonster(this);
+        _monsterManager?.RegisterActiveMonster(this);
         
         // Start coroutines
         _coroutineHandler?.StartAllCoroutines();
@@ -431,7 +343,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             if (evolutionLevel <= 0)
             {
                 evolutionLevel = 1; // Always start at 1 for new monsters
-                Debug.Log($"[Evolution] Initialized new monster {monsterID} to level 1");
             }
         }
         else
@@ -510,7 +421,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         
         // Clean up any other resources
         _coroutineHandler?.StopAllCoroutines();
-        // _gameManager?.RemoveSavedMonsterID(monsterID);
     }
 
     private void HandleMovement()
@@ -524,7 +434,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
 
         // NEW: Check if we should use relaxed bounds for very small areas
-        bool useRelaxedBounds = _movementBounds?.IsMovementAreaTooSmall() ?? false;
+        bool useRelaxedBounds = _boundHandler?.IsMovementAreaTooSmall() ?? false;
         
         // NEW: For very small areas, drastically reduce movement updates
         if (useRelaxedBounds)
@@ -550,14 +460,14 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             if (!useRelaxedBounds)
             {
                 MonsterState _state = _stateMachine?.CurrentState ?? MonsterState.Idle;
-                var bounds = _movementBounds.CalculateBoundsForState(_state);
+                var bounds = _boundHandler.CalculateBoundsForState(_state);
                 newPos.x = Mathf.Clamp(newPos.x, bounds.min.x, bounds.max.x);
                 newPos.y = Mathf.Clamp(newPos.y, bounds.min.y, bounds.max.y);
             }
             else
             {
                 // For small areas, only prevent moving completely outside game area
-                var gameAreaSize = _gameManager.gameArea.sizeDelta;
+                var gameAreaSize = _monsterManager.gameArea.sizeDelta;
                 float padding = 20f;
                 newPos.x = Mathf.Clamp(newPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding);
                 newPos.y = Mathf.Clamp(newPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding);
@@ -576,8 +486,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
         if (isMovementState)
         {
-            bool isGroundMovement = _stateMachine?.CurrentState != MonsterState.Flying && 
-                                   _stateMachine?.CurrentState != MonsterState.Flapping;
+            bool isGroundMovement = _stateMachine?.CurrentState != MonsterState.Flying;
             
             if (isGroundMovement && _foodHandler?.NearestFood == null)
             {
@@ -599,10 +508,10 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         Vector2 currentPos = _rectTransform.anchoredPosition;
         MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Idle;
         
-        if (!useRelaxedBounds && !_movementBounds.IsWithinBoundsForState(currentPos, currentState))
+        if (!useRelaxedBounds && !_boundHandler.IsWithinBoundsForState(currentPos, currentState))
         {
             // Clamp position
-            var bounds = _movementBounds.CalculateBoundsForState(currentState);
+            var bounds = _boundHandler.CalculateBoundsForState(currentState);
             Vector2 clampedPos = new Vector2(
                 Mathf.Clamp(currentPos.x, bounds.min.x, bounds.max.x),
                 Mathf.Clamp(currentPos.y, bounds.min.y, bounds.max.y)
@@ -620,7 +529,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         else if (useRelaxedBounds)
         {
             // For small areas, only check if completely outside game area
-            var gameAreaSize = _gameManager.gameArea.sizeDelta;
+            var gameAreaSize = _monsterManager.gameArea.sizeDelta;
             float padding = 20f;
             bool outsideGameArea = currentPos.x < -gameAreaSize.x / 2 + padding ||
                                   currentPos.x > gameAreaSize.x / 2 - padding ||
@@ -666,14 +575,12 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
     }
 
-    // Add new method for state-aware target setting
     private void SetRandomTargetForCurrentState()
     {
-        MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Walking;
-        _targetPosition = _movementBounds?.GetRandomTargetForState(currentState) ?? Vector2.zero;
+        MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Idle;
+        _targetPosition = _boundHandler?.GetRandomTargetForState(currentState) ?? Vector2.zero;
     }
 
-    // Update existing SetRandomTarget to use current state
     public void SetRandomTarget()
     {
         SetRandomTargetForCurrentState();
@@ -715,9 +622,9 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         );
         
         // Ensure it stays within game bounds if possible
-        if (_gameManager?.gameArea != null)
+        if (_monsterManager?.gameArea != null)
         {
-            var gameAreaSize = _gameManager.gameArea.sizeDelta;
+            var gameAreaSize = _monsterManager.gameArea.sizeDelta;
             float padding = 30f;
             
             dropPosition.x = Mathf.Clamp(dropPosition.x, 
@@ -741,26 +648,13 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void OnPointerEnter(PointerEventData e) => _interactionHandler?.OnPointerEnter(e);
     public void OnPointerExit(PointerEventData e) => _interactionHandler?.OnPointerExit(e);
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        _interactionHandler?.OnPointerClick(eventData);
-        // Don't call _evolutionHandler?.OnInteraction() immediately
-        // Let the interaction handler manage the timing
-    }
+    public void OnPointerClick(PointerEventData eventData) => _interactionHandler?.OnPointerClick(eventData);
 
-    // ADD: Method for delayed evolution check
-    public void CheckEvolutionAfterInteraction()
-    {
-        _evolutionHandler?.OnInteraction(); // This will now be called at the right time
-    }
-
+    public void CheckEvolutionAfterInteraction() => _evolutionHandler?.OnInteraction();
+    public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
     public void SaveMonData() => _saveHandler?.SaveData();
     public void LoadMonData() => _saveHandler?.LoadData();
 
-    // Add public methods to access evolution handler
-    public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
-
-    // Add these getter methods for save handler to access evolution data
     public float GetEvolutionTimeSinceCreation()
     {
         float time = _evolutionHandler?.TimeSinceCreation ?? 0f;

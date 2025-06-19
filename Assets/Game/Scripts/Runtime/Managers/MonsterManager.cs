@@ -139,7 +139,7 @@ public class MonsterManager : MonoBehaviour
         
         var monsterController = monster.GetComponent<MonsterController>();
         var rectTransform = monster.GetComponent<RectTransform>();
-        var movementBounds = new MonsterBoundsHandler(rectTransform, this);
+        var movementBounds = new MonsterBoundsHandler(this, rectTransform);
         Vector2 spawnPosition = movementBounds.GetRandomSpawnTarget();
         monster.transform.localPosition = spawnPosition;
 

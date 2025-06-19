@@ -12,12 +12,13 @@ public class MonsterStateMachine : MonoBehaviour
     
     private MonsterController _controller;
     private MonsterAnimationHandler _animationHandler;
+    public MonsterAnimationHandler AnimationHandler => _animationHandler;
     private MonsterBehaviorHandler _behaviorHandler;
+    public MonsterBehaviorHandler BehaviorHandler => _behaviorHandler;
 
     public MonsterState CurrentState => _currentState;
     public MonsterState PreviousState => _previousState;
     public event Action<MonsterState> OnStateChanged;
-    public MonsterAnimationHandler AnimationHandler => _animationHandler;     
     private void Start()
     {
         _controller = GetComponent<MonsterController>();
@@ -180,7 +181,7 @@ public class MonsterStateMachine : MonoBehaviour
     private bool IsMonsterInAir(Vector2 position)
     {
         // You can access the bounds handler through the controller
-        var boundsHandler = _controller.MovementBounds; // You'll need to expose this
+        var boundsHandler = _controller.BoundHandler; // You'll need to expose this
         if (boundsHandler != null)
         {
             var groundBounds = boundsHandler.CalculateGroundBounds(); // You'll need to make this public

@@ -40,8 +40,6 @@ public class MonsterVisualHandler
         // FIXED: Use current evolution level from monster instance, not SO
         int currentLevel = _controller.evolutionLevel; // NOT _controller.MonsterData.evolutionLevel
         
-        Debug.Log($"[Visual] Applying visuals for {_controller.monsterID} at evolution level {currentLevel}");
-        
         UpdateSpineAsset(currentLevel);
         UpdateIconImage(currentLevel);
         UpdateAnimationSet(currentLevel);
@@ -59,9 +57,7 @@ public class MonsterVisualHandler
             var targetSpineAsset = _controller.MonsterData.monsterSpine[spineIndex];
             
             if (targetSpineAsset != null && _skeletonGraphic.skeletonDataAsset != targetSpineAsset)
-            {
-                Debug.Log($"[Visual] Updating spine asset for level {evolutionLevel} (index {spineIndex})");
-                
+            {   
                 _skeletonGraphic.skeletonDataAsset = targetSpineAsset;
                 _skeletonGraphic.Initialize(true);
             }
@@ -85,7 +81,6 @@ public class MonsterVisualHandler
         if (iconIndex >= 0 && iconIndex < _controller.MonsterData.monsIconImg.Length)
         {
             var targetIcon = _controller.MonsterData.monsIconImg[iconIndex];
-            Debug.Log($"[Visual] Updated icon for evolution level {evolutionLevel}");
             // Apply icon where needed (UI, inventory, etc.)
         }
     }
@@ -93,16 +88,8 @@ public class MonsterVisualHandler
     private void UpdateAnimationSet(int evolutionLevel)
     {
         if (_controller?.MonsterData?.evolutionAnimationSets == null) return;
-
         var animSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
             set => set.evolutionLevel == evolutionLevel);
-            
-        if (animSet != null)
-        {
-            Debug.Log($"[Visual] Updated animation set for evolution level {evolutionLevel}");
-            // Store available animations for this level
-            // _currentAnimationSet = animSet.availableAnimations;
-        }
     }
 
     private IEnumerator SetAnimationAfterFrame()
@@ -268,7 +255,7 @@ public class MonsterVisualHandler
         Vector2 backPosition = GetBackPosition();
 
         // Use the existing bounds handler from the controller
-        var boundsHandler = _controller.MovementBounds;
+        var boundsHandler = _controller.BoundHandler;
         if (boundsHandler == null)
         {
             // Fallback to monster position if no bounds handler
@@ -348,7 +335,7 @@ public class MonsterVisualHandler
     private Vector2 CalculateSafeSlideDirection(Vector2 startPosition)
     {
         // Use the existing bounds handler from the controller
-        var boundsHandler = _controller.MovementBounds;
+        var boundsHandler = _controller.BoundHandler;
         if (boundsHandler == null)
         {
             // Fallback to slide down
