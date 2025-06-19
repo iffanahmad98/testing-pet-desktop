@@ -14,11 +14,11 @@ public class MonsterStateMachine : MonoBehaviour
     private MonsterAnimationHandler _animationHandler;
     public MonsterAnimationHandler AnimationHandler => _animationHandler;
     private MonsterBehaviorHandler _behaviorHandler;
-    public MonsterBehaviorHandler BehaviorHandler => _behaviorHandler;
 
     public MonsterState CurrentState => _currentState;
     public MonsterState PreviousState => _previousState;
     public event Action<MonsterState> OnStateChanged;
+
     private void Start()
     {
         _controller = GetComponent<MonsterController>();
@@ -34,19 +34,14 @@ public class MonsterStateMachine : MonoBehaviour
     {
         _stateTimer += Time.deltaTime;
 
-        // Prevent state changes during evolution
-        if (_controller != null && _controller.IsEvolving)
-        {
-            return; // Don't process state changes while evolving
-        }
+        if (_controller != null && _controller.IsEvolving) return; 
 
-        // Better coordination with food handler
+
         if (_currentState == MonsterState.Eating)
         {
             var foodHandler = _controller.FoodHandler;
 
-            // Only timeout if food handler confirms eating should end
-            if (_stateTimer > _defaultEatingStateDuration * 4f) // Even more lenient
+            if (_stateTimer > _defaultEatingStateDuration * 4f) 
             {
                 bool isStillEating = foodHandler?.IsCurrentlyEating ?? false;
                 if (!isStillEating)
@@ -61,7 +56,7 @@ public class MonsterStateMachine : MonoBehaviour
             }
         }
 
-        // ADD: Check if monster should continue current movement state
+        //Check if monster should continue current movement state
         if (ShouldContinueCurrentMovement())
         {
             return; // Don't change state while traveling to target

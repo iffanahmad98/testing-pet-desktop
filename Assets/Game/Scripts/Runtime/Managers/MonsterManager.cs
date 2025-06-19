@@ -649,15 +649,5 @@ public class MonsterManager : MonoBehaviour
 #endif
 
     void OnDestroy() => ServiceLocator.Unregister<MonsterManager>();
-
-    void OnDrawGizmosSelected()
-    {
-        if (gameArea != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(gameArea.anchoredPosition,
-                new Vector3(gameArea.rect.width, gameArea.rect.height, 0));
-        }
-    }
     #endregion
 }
