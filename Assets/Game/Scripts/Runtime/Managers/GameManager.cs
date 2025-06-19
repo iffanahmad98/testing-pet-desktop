@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public GameObject poopPrefab;
     public GameObject coinPrefab;
     public RectTransform poolContainer;
-    public int initialPoolSize = 20;
+    public int initialPoolSize = 50;
 
     [Header("Game Settings")]
     public RectTransform gameArea;
@@ -27,8 +27,6 @@ public class GameManager : MonoBehaviour
     public bool enableDepthSorting = true;
     private float lastSortTime = 0f;
     private float sortInterval = 0.1f;
-    
-    // Cache frequently accessed components
     private Camera _mainCamera;
     private RectTransform _foodIndicatorRT;
     private Image _foodIndicatorImage;
@@ -37,13 +35,11 @@ public class GameManager : MonoBehaviour
     private Queue<GameObject> _poopPool = new Queue<GameObject>();
     private Queue<GameObject> _coinPool = new Queue<GameObject>();
 
-    // Add these lists to track active objects
     private List<GameObject> _activeCoins = new List<GameObject>();
     private List<GameObject> _activePoops = new List<GameObject>();
-    
+    [HideInInspector] public List<MonsterController> activeMonsters = new List<MonsterController>();
     [HideInInspector] public int poopCollected;
     [HideInInspector] public int coinCollected;
-    [HideInInspector] public List<MonsterController> activeMonsters = new List<MonsterController>();
     public List<FoodController> activeFoods = new List<FoodController>();
     private List<string> savedMonIDs = new List<string>();
 
@@ -99,7 +95,6 @@ public class GameManager : MonoBehaviour
         pool.Enqueue(obj);
     }
 
-    // Simplify LoadGame method
     private void LoadGame()
     {
         coinCollected = SaveSystem.LoadCoin();
@@ -108,10 +103,13 @@ public class GameManager : MonoBehaviour
 
         foreach (var id in savedMonIDs)
         {
-            if (SaveSystem.LoadMon(id, out _)) // Don't need the data variable
+            if (SaveSystem.LoadMon(id, out _))
             {
-                var (monsterData, _) = GetMonsterDataAndLevelFromID(id);
-                SpawnMonster(monsterData, id); // Direct call instead of wrapper
+                var (monsterData, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
+                if (monsterData != null)
+                {
+                    SpawnMonster(monsterData, id); 
+                }
             }
         }
     }
@@ -125,7 +123,8 @@ public class GameManager : MonoBehaviour
                 monsterId = monster.monsterID,
                 lastHunger = monster.currentHunger,
                 lastHappiness = monster.currentHappiness,
-                isFinalForm = monster.isFinalForm,
+                lastLowHungerTime = monster.GetLowHungerTime(),
+                isSick = monster.IsSick,
                 evolutionLevel = monster.evolutionLevel,
                 timeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
                 foodConsumed = monster.GetEvolutionFoodConsumed(),
@@ -133,7 +132,6 @@ public class GameManager : MonoBehaviour
             };
             SaveSystem.SaveMon(saveData);
         }
-
         SaveSystem.SaveMonIDs(savedMonIDs);
         SaveSystem.Flush();
     }

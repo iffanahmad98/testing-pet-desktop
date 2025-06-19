@@ -256,15 +256,37 @@ public class MonsterDataGenerator
         asset.monsterName = csvData.name;
         asset.monType = csvData.type;
         asset.maxHealth = csvData.stage1.hp;
-        asset.maxHunger = csvData.stage1.fullness;
-        asset.goldCoinDropRate = csvData.stage1.goldCoinHour * 60f;
-        asset.silverCoinDropRate = csvData.stage1.silverCoinHour * 60f;
+        asset.maxHungerStage1 = csvData.stage1.fullness;
+        
+        // NEW: Map stage-specific hunger values
+        if (csvData.stage2 != null)
+            asset.maxHungerStage2 = csvData.stage2.fullness;
+        
+        if (csvData.stage3 != null)
+            asset.maxHungerStage3 = csvData.stage3.fullness;
+        
+        // Map coin drop rates for all stages
+        asset.goldCoinDropRateStage1 = csvData.stage1.goldCoinHour;
+        asset.silverCoinDropRateStage1 = csvData.stage1.silverCoinHour;
+        
+        if (csvData.stage2 != null)
+        {
+            asset.goldCoinDropRateStage2 = csvData.stage2.goldCoinHour;
+            asset.silverCoinDropRateStage2 = csvData.stage2.silverCoinHour;
+        }
+        
+        if (csvData.stage3 != null)
+        {
+            asset.goldCoinDropRateStage3 = csvData.stage3.goldCoinHour;
+            asset.silverCoinDropRateStage3 = csvData.stage3.silverCoinHour;
+        }
+        
         asset.monsterPrice = (int)csvData.stage1.priceBuy;
         
         // NEW: Map gacha data
-        asset.gachaChancePercent = csvData.stage1.gachaChanceDecimal; // 0.001f for 0.10%
-        asset.gachaChanceDisplay = csvData.stage1.gachaChance;        // "0.10%"
-        asset.isGachaOnly = csvData.stage1.priceBuy <= 0;            // True if can't be bought
+        asset.gachaChancePercent = csvData.stage1.gachaChanceDecimal;
+        asset.gachaChanceDisplay = csvData.stage1.gachaChance;
+        asset.isGachaOnly = csvData.stage1.priceBuy <= 0;
         
         // Map sell prices for each stage
         asset.sellPriceStage1 = (int)csvData.stage1.priceSell;

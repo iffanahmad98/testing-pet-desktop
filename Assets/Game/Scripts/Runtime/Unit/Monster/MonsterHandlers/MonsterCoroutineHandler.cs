@@ -21,8 +21,8 @@ public class MonsterCoroutineHandler
     
     public void StartAllCoroutines()
     {
-        float goldCoinInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.goldCoinDropRate).TotalSeconds;
-        float silverCoinInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.silverCoinDropRate).TotalSeconds;
+        float goldCoinInterval = (float)TimeSpan.FromHours(_controller.MonsterData.goldCoinDropRateStage1).TotalSeconds;
+        float silverCoinInterval = (float)TimeSpan.FromHours(_controller.MonsterData.silverCoinDropRateStage1).TotalSeconds;
         float poopInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.poopRate).TotalSeconds;
 
 

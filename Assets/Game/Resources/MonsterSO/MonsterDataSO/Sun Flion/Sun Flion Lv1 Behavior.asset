@@ -59,9 +59,9 @@ MonoBehaviour:
     hungerThreshold: 0
     happinessThreshold: 0
   - name: walk - jump
-    fromState: 0
+    fromState: 1
     toState: 5
-    probability: 0.5
+    probability: 0.3
     minDuration: 0
     maxDuration: 0
     requiresFood: 0
@@ -69,8 +69,8 @@ MonoBehaviour:
     happinessThreshold: 0
   - name: jump - idle
     fromState: 5
-    toState: 5
-    probability: 0.5
+    toState: 0
+    probability: 0.8
     minDuration: 0
     maxDuration: 0
     requiresFood: 0

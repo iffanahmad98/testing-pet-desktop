@@ -427,20 +427,18 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         if (monsterData != null)
         {
-            // FIXED: Always initialize from SO if monster level is 0 or unset
+            // For new monsters, always start at level 1 regardless of SO
             if (evolutionLevel <= 0)
             {
-                evolutionLevel = monsterData.evolutionLevel;
-                Debug.Log($"[Evolution] Initialized {monsterID} to level {evolutionLevel} from SO");
+                evolutionLevel = 1; // Always start at 1 for new monsters
+                Debug.Log($"[Evolution] Initialized new monster {monsterID} to level 1");
             }
         }
         else
         {
-            // Fallback to level 1 if no monster data
             if (evolutionLevel <= 0)
             {
                 evolutionLevel = 1;
-                Debug.Log($"[Evolution] Fallback: Set {monsterID} to level 1 (no monster data)");
             }
         }
     }
