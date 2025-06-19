@@ -21,11 +21,31 @@ namespace MagicalGarden.Hotel
         {
             guest = newGuest;
             roomRequests.Clear();
+            int multiplier = 1;
+            if (guest.rarity == GuestRarity.Rare || guest.rarity == GuestRarity.Mythic || guest.rarity == GuestRarity.Legend)
+            {
+                multiplier = 2;
+            }
+
+            int totalRequest = Mathf.Clamp(guest.stayDurationDays * multiplier, 1, 6);
+            for (int i = 0; i < totalRequest; i++)
+            {
+                var type = (GuestRequestType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(GuestRequestType)).Length);
+                AddRequest(new HotelRoomRequest(type, guest.stayDurationDays));
+            }
+            guest.checkInDate = DateTime.Now.Date;
+            
+            HotelManager.Instance.SaveGuestRequests();
+        }
+        public void AssignGuestLoad(GuestController newGuest)
+        {
+            guest = newGuest;
+            roomRequests.Clear();
             int totalRequest = Mathf.Clamp(guest.stayDurationDays, 1, 3); // max 3
             for (int i = 0; i < totalRequest; i++)
             {
                 var type = (GuestRequestType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(GuestRequestType)).Length);
-                AddRequest(new HotelRoomRequest (type, guest.stayDurationDays));
+                AddRequest(new HotelRoomRequest(type, guest.stayDurationDays));
             }
         }
 

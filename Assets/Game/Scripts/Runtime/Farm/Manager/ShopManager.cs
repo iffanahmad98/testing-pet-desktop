@@ -19,7 +19,7 @@ namespace MagicalGarden.Manager
                 // Debug.Log($"{item.seedName} - Harga: {item.seedPrice}");
                 var prefabItem = Instantiate(itemShop);
                 prefabItem.GetComponent<ItemShop>().Setup(item, null);
-                prefabItem.transform.parent = content;
+                prefabItem.transform.SetParent(content, false);
             }
         }
     }

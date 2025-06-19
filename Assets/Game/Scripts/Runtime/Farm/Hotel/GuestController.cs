@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using System.Linq;
+using MagicalGarden.Manager;
 using System.Collections.Generic;
+using TMPro;
 
 namespace MagicalGarden.Hotel
 {
@@ -10,14 +11,18 @@ namespace MagicalGarden.Hotel
     {
         [Header("Guest Info")]
         public string guestName;
+        public string type;
+        public GuestRarity rarity = GuestRarity.Normal;
         [Range(0, 100)]
         public int happiness = 100;
+        public DateTime checkInDate;
 
         [Header("Request Timing")]
         public float requestInterval = 60f;
         private float requestTimer = 0f;
         [Header("Room Reference")]
         public HotelRoom currentRoom;
+        public TextMeshProUGUI dayRemaining;
         [Header("Happiness")]
         public Image fillHappiness;
         public Image fillExpired;
@@ -26,6 +31,9 @@ namespace MagicalGarden.Hotel
         public GameObject giftBtn;
         public GameObject roomServiceBtn;
         public GameObject foodBtn;
+
+        [Header("Debug Data Guest")]
+        public TextMeshProUGUI descGuest;
         private bool hasRequest = false;
         void Start()
         {
@@ -39,13 +47,28 @@ namespace MagicalGarden.Hotel
             }
         }
 
+        [ContextMenu("cek checkin date")]
+        private void CheckInDate()
+        { 
+            Debug.LogError(checkInDate.ToString("yyyy-MM-dd"));
+        }
+
         public void SetupFromRequest(GuestRequest request)
         {
             guestName = request.guestName;
-            // guestType = request.guestType;
+            type = request.type;
             stayDurationDays = request.stayDurationDays;
+            rarity = request.rarity;
+            dayRemaining.text = "Day " + stayDurationDays;
             happiness = 0;
             SetHappiness(happiness);
+            string rarityText = request.rarity.ToString().ToUpper(); // Tambahan
+            string desc = $"Nama: {request.guestName}\nTipe: {request.type}\nDurasi: {request.stayDurationDays} hari\nRarity: {rarityText}";
+            descGuest.text = desc;
+            if (checkInDate == DateTime.MinValue)
+            {
+                checkInDate = TimeManager.Instance.currentTime.Date;
+            }
         }
 
         void Update()
@@ -74,6 +97,10 @@ namespace MagicalGarden.Hotel
 
             Debug.Log($"📦 {guestName} meminta: {randomType}");
             // Farm.UIManager.Instance?.ShowGuestRequest(this, newRequest);
+        }
+        public GuestRequest ToRequest()
+        {
+            return new GuestRequest(guestName, type, stayDurationDays, rarity);
         }
         void ResetBtn()
         {
@@ -173,7 +200,7 @@ namespace MagicalGarden.Hotel
                 Debug.LogWarning("Invalid request type: " + typeStr);
             }
         }
-        private void SetHappiness(float value)
+        public void SetHappiness(float value)
         {
             float percent = Mathf.Clamp01(value / 100f);
             fillHappiness.fillAmount = percent;

@@ -11,14 +11,18 @@ namespace MagicalGarden.Farm
 
         public float simulateHour = 1f;
         public float simulateDay = 24f;
+        public int addDays = 0;
         public TextMeshProUGUI timeText;
+        private void Awake() {
+            DebugSetLastDateToYesterday();
+        }
 
         private void Update()
         {
             if (PlantManager.Instance == null) return;
 
             DateTime current = PlantManager.Instance.simulatedNow;
-            timeText.text = $"🕒 {current:dd MMM yyyy - HH:mm:ss}";
+            // timeText.text = $"🕒 {current:dd MMM yyyy - HH:mm:ss}";
         }
 
         public void SimulateNextHour()
@@ -43,7 +47,7 @@ namespace MagicalGarden.Farm
                 plant.seed.Update(hours, boost);
                 // plant.seed.lastUpdateTime = PlantManager.Instance.simulatedNow;
             }
-            
+
             var oldTime = PlantManager.Instance.simulatedNow;
             PlantManager.Instance.simulatedNow = oldTime.AddHours(hours);
         }
@@ -68,10 +72,17 @@ namespace MagicalGarden.Farm
             InventoryManager.Instance.AddItem(pupNormal, 10);
             InventoryManager.Instance.AddItem(pupRare, 10);
             CoinManager.Instance.AddCoins(1000);
-            HotelManager.Instance.GenerateGuestRequestsForToday();
             InventoryManager.Instance.inventoryUI.RefreshUI();
             // DebugPlantReadyHarvest(new Vector2Int(0, 0), tomatoSeed);
 
+        }
+        [ContextMenu("Debug: Set Last Date To Yesterday")]
+        public void DebugSetLastDateToYesterday()
+        {
+            TimeManager.Instance.currentTime.Date.AddDays(addDays);
+            HotelManager.Instance.lastGeneratedDate = TimeManager.Instance.currentTime;
+            HotelManager.Instance.SaveLastDate();
+            Debug.Log("📅 Simulasi hari baru. Guest request akan dibuat ulang saat start.");
         }
         
         // private void DebugPlantReadyHarvest(Vector2Int cellPosition, ItemData seedData)
