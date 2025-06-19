@@ -10,69 +10,51 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d13ea62b0bc2c842be03fee1a76eafc, type: 3}
-  m_Name: Maple Dragoon Lv0 Behavior
+  m_Name: Lily Lv2 Behavior
   m_EditorClassIdentifier: 
   transitions:
-  - name: idle - walk
+  - name: idle - walking
     fromState: 0
     toState: 1
     probability: 0.5
-    minDuration: 1
-    maxDuration: 3
+    minDuration: 0
+    maxDuration: 0
+    requiresFood: 0
+    hungerThreshold: 0
+    happinessThreshold: 0
+  - name: idle - jump
+    fromState: 0
+    toState: 1
+    probability: 0.2
+    minDuration: 0
+    maxDuration: 0
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
   - name: walk - run
     fromState: 1
     toState: 2
-    probability: 0.5
-    minDuration: 1
-    maxDuration: 3
+    probability: 0.8
+    minDuration: 0
+    maxDuration: 0
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
   - name: run - walk
     fromState: 2
     toState: 1
-    probability: 0.8
-    minDuration: 1
-    maxDuration: 3
+    probability: 0.6
+    minDuration: 0
+    maxDuration: 0
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
   - name: walk - idle
     fromState: 1
     toState: 0
-    probability: 0.5
-    minDuration: 1
-    maxDuration: 3
-    requiresFood: 0
-    hungerThreshold: 0
-    happinessThreshold: 0
-  - name: walk - itch
-    fromState: 1
-    toState: 6
-    probability: 0.5
-    minDuration: 1
-    maxDuration: 3
-    requiresFood: 0
-    hungerThreshold: 0
-    happinessThreshold: 0
-  - name: itch - idle
-    fromState: 6
-    toState: 0
-    probability: 0.8
-    minDuration: 1
-    maxDuration: 3
-    requiresFood: 0
-    hungerThreshold: 0
-    happinessThreshold: 0
-  - name: idle - itch
-    fromState: 0
-    toState: 6
-    probability: 0.2
-    minDuration: 1
-    maxDuration: 3
+    probability: 0.6
+    minDuration: 0
+    maxDuration: 0
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0

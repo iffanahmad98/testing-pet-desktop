@@ -8,9 +8,9 @@ public class MonsterInteractionHandler
     private MonsterController _controller;
     private MonsterStateMachine _stateMachine;
     private MonsterAnimationHandler _animationHandler;
-    private float _pokeCooldownTimer = 60f;
-    private bool _pendingSilverCoinDrop;
-    private bool _pendingEvolutionCheck = false;  // ADD: Track pending evolution check
+    private float _pokeCooldownTimer = 0f;
+    private bool _hasBeenInteractedWith = false; 
+    private bool _pendingEvolutionCheck = false;
     
     public MonsterInteractionHandler(MonsterController controller, MonsterStateMachine stateMachine)
     {
@@ -25,30 +25,19 @@ public class MonsterInteractionHandler
     
     private void OnStateChanged(MonsterState newState)
     {
-        // Handle coin dropping
-        if (_pendingSilverCoinDrop)
+        if (_pendingEvolutionCheck)
         {
             bool wasPokeState = 
                 _stateMachine.PreviousState == MonsterState.Jumping ||
                 _stateMachine.PreviousState == MonsterState.Itching ||
                 _stateMachine.PreviousState == MonsterState.Flapping;
-                
-            bool isNowNormalState = 
-                newState == MonsterState.Idle ||
-                newState == MonsterState.Walking;
+
+            bool isNowNormalState = newState == MonsterState.Idle;
                 
             if (wasPokeState && isNowNormalState)
             {
-                _controller.DropCoin(CoinType.Silver);
-                _pendingSilverCoinDrop = false;
-                
-                // ADD: Trigger evolution check after state returns to normal
-                if (_pendingEvolutionCheck)
-                {
-                    _pendingEvolutionCheck = false;
-                    // Delay slightly to ensure state is fully settled
-                    _controller.StartCoroutine(DelayedEvolutionTrigger());
-                }
+                _pendingEvolutionCheck = false;
+                _controller.StartCoroutine(DelayedEvolutionTrigger());
             }
         }
     }
@@ -58,29 +47,30 @@ public class MonsterInteractionHandler
         _animationHandler = animationHandler;
     }
     
-    public void UpdateTimers(float deltaTime)
-    {
-        if (_pokeCooldownTimer > 0f)
-            _pokeCooldownTimer -= deltaTime;
-    }
-    
     public void HandlePoke()
     {
         if (_pokeCooldownTimer > 0f) return;
-
-        if (_controller?.MonsterData == null)
-        {
-            Debug.LogError("[Interaction] Monster data is null!");
-            return;
-        }
-
-        _controller.IncreaseHappiness(_controller.MonsterData.pokeHappinessValue);
         
-        _pendingSilverCoinDrop = true;
-        _pendingEvolutionCheck = true;  // ADD: Mark that we need to check evolution later
+        if (_controller?.MonsterData == null) return;
+
+        Debug.Log("✅ Poke executed successfully!");
+        
+        _controller.IncreaseHappiness(_controller.MonsterData.pokeHappinessValue);
+        _controller.DropCoin(CoinType.Gold);
+        _pendingEvolutionCheck = true; 
         
         MonsterState pokeState = GetRandomPokeState();
         _stateMachine?.ChangeState(pokeState);
+
+        if (_hasBeenInteractedWith)
+        {
+            _pokeCooldownTimer = 60f;
+        }
+        else
+        {
+            _hasBeenInteractedWith = true;
+            _pokeCooldownTimer = 60f;
+        }
     }
 
     private MonsterState GetRandomPokeState()
@@ -107,7 +97,6 @@ public class MonsterInteractionHandler
         int randomIndex = Random.Range(0, availableStates.Count);
         MonsterState selectedState = availableStates[randomIndex];
         
-        // Double-check validation (in case initialization state changed)
         if (!_animationHandler.HasValidAnimationForState(selectedState))
         {
             Debug.LogWarning($"[Interaction] Selected state {selectedState} failed re-validation, falling back to Idle");
@@ -136,12 +125,21 @@ public class MonsterInteractionHandler
         if (_controller.isHovered) HandlePoke();
     }
 
-    // ADD: Delayed evolution trigger
     private IEnumerator DelayedEvolutionTrigger()
     {
-        yield return new WaitForSeconds(0.5f); // Small delay to ensure state is settled
-        
-        // Trigger the evolution check through the controller
+        yield return new WaitForSeconds(0.5f); 
         _controller.CheckEvolutionAfterInteraction();
+    }
+
+    public void UpdateTimers(float deltaTime)
+    {
+        if (_pokeCooldownTimer > 0f) 
+        {
+            _pokeCooldownTimer -= deltaTime;
+            if (_pokeCooldownTimer <= 0f)
+            {
+                Debug.Log("⏱️ Cooldown finished - monster ready for interaction!");
+            }
+        }
     }
 }

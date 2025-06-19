@@ -35,14 +35,73 @@ public class MonsterVisualHandler
 
     public void ApplyMonsterVisuals()
     {
-        if (_controller.MonsterData == null || _skeletonGraphic == null) return;
+        if (_controller?.MonsterData == null) return;
 
-        SetSpineDataBasedOnEvolution();
+        // FIXED: Use current evolution level from monster instance, not SO
+        int currentLevel = _controller.evolutionLevel; // NOT _controller.MonsterData.evolutionLevel
+        
+        Debug.Log($"[Visual] Applying visuals for {_controller.monsterID} at evolution level {currentLevel}");
+        
+        UpdateSpineAsset(currentLevel);
+        UpdateIconImage(currentLevel);
+        UpdateAnimationSet(currentLevel);
+    }
 
-        // Ensure animation starts after spine data is set
-        if (_skeletonGraphic.skeletonDataAsset != null && _skeletonGraphic.AnimationState != null)
+    private void UpdateSpineAsset(int evolutionLevel)
+    {
+        if (_controller?.MonsterData?.monsterSpine == null) return;
+
+        // Array index = evolution level - 1 (level 1 = index 0, level 2 = index 1, etc.)
+        int spineIndex = evolutionLevel - 1;
+        
+        if (spineIndex >= 0 && spineIndex < _controller.MonsterData.monsterSpine.Length)
         {
-            _skeletonGraphic.AnimationState.SetAnimation(0, "idle", true);
+            var targetSpineAsset = _controller.MonsterData.monsterSpine[spineIndex];
+            
+            if (targetSpineAsset != null && _skeletonGraphic.skeletonDataAsset != targetSpineAsset)
+            {
+                Debug.Log($"[Visual] Updating spine asset for level {evolutionLevel} (index {spineIndex})");
+                
+                _skeletonGraphic.skeletonDataAsset = targetSpineAsset;
+                _skeletonGraphic.Initialize(true);
+            }
+            else if (targetSpineAsset == null)
+            {
+                Debug.LogWarning($"[Visual] Spine asset for evolution level {evolutionLevel} is null!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[Visual] Evolution level {evolutionLevel} out of range for spine assets (available: {_controller.MonsterData.monsterSpine.Length})");
+        }
+    }
+
+    private void UpdateIconImage(int evolutionLevel)
+    {
+        if (_controller?.MonsterData?.monsIconImg == null) return;
+
+        int iconIndex = evolutionLevel - 1;
+        
+        if (iconIndex >= 0 && iconIndex < _controller.MonsterData.monsIconImg.Length)
+        {
+            var targetIcon = _controller.MonsterData.monsIconImg[iconIndex];
+            Debug.Log($"[Visual] Updated icon for evolution level {evolutionLevel}");
+            // Apply icon where needed (UI, inventory, etc.)
+        }
+    }
+
+    private void UpdateAnimationSet(int evolutionLevel)
+    {
+        if (_controller?.MonsterData?.evolutionAnimationSets == null) return;
+
+        var animSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
+            set => set.evolutionLevel == evolutionLevel);
+            
+        if (animSet != null)
+        {
+            Debug.Log($"[Visual] Updated animation set for evolution level {evolutionLevel}");
+            // Store available animations for this level
+            // _currentAnimationSet = animSet.availableAnimations;
         }
     }
 
@@ -84,8 +143,16 @@ public class MonsterVisualHandler
         return spineAsset;
     }
 
+    // FIXED: Method to update visuals after evolution
     public void UpdateMonsterVisuals()
     {
+        ApplyMonsterVisuals(); // This will now use the current evolution level
+    }
+
+    // NEW: Method specifically for evolution visual updates
+    public void UpdateEvolutionVisuals(int newEvolutionLevel)
+    {
+        Debug.Log($"[Visual] Evolution visual update: {_controller.monsterID} to level {newEvolutionLevel}");
         ApplyMonsterVisuals();
     }
 

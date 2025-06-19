@@ -100,6 +100,7 @@ public class MonsterEvolutionHandler
     public void OnFoodConsumed()
     {
         _foodConsumed++;
+        // Check immediately after food consumption
         CheckEvolutionConditions();
     }
 
@@ -128,49 +129,69 @@ public class MonsterEvolutionHandler
                 CheckEvolutionConditions();
             }
         }
-    }    private void CheckEvolutionConditions()
+    }
+
+    private void CheckEvolutionConditions()
     {
         if (!CanEvolve || _isEvolving) return;
 
-        // ADD: Only allow evolution during safe states
+        // ADD: Debug current state
+        Debug.Log($"[Evolution] Checking evolution for {_controller.monsterID} - Level: {_controller.evolutionLevel}");
+
         if (!IsInSafeStateForEvolution())
         {
+            Debug.Log($"[Evolution] Not in safe state for evolution. Current state: {_controller.GetComponent<MonsterStateMachine>()?.CurrentState}");
             return;
         }
 
         var nextEvolution = GetNextEvolutionRequirement();
-        if (nextEvolution == null) return;
+        if (nextEvolution == null)
+        {
+            Debug.Log($"[Evolution] No evolution requirement found for level {_controller.evolutionLevel + 1}");
+            return;
+        }
+
+        // ADD: Debug requirement checking
+        Debug.Log($"[Evolution] Checking requirements - Time: {_timeSinceCreation}/{nextEvolution.minTimeAlive}, Food: {_foodConsumed}/{nextEvolution.minFoodConsumed}, Interactions: {_interactionCount}/{nextEvolution.minInteractions}");
+        Debug.Log($"[Evolution] Current stats - Happiness: {_controller.currentHappiness}/{nextEvolution.minCurrentHappiness}, Hunger: {_controller.currentHunger}/{nextEvolution.minCurrentHunger}");
 
         if (MeetsEvolutionRequirements(nextEvolution))
         {
+            Debug.Log($"[Evolution] All requirements met! Triggering evolution from level {_controller.evolutionLevel} to {nextEvolution.targetEvolutionLevel}");
             TriggerEvolution();
+        }
+        else
+        {
+            Debug.Log($"[Evolution] Requirements not met yet");
         }
     }
 
     private bool IsInSafeStateForEvolution()
     {
         var stateMachine = _controller.GetComponent<MonsterStateMachine>();
-        if (stateMachine == null) return true; // Default to safe if no state machine
+        if (stateMachine == null) return true;
         
         var currentState = stateMachine.CurrentState;
 
-        // Safe states for evolution
-        bool isSafeState = currentState == MonsterState.Idle;
+        // Allow evolution in more states
+        bool isSafeState = currentState == MonsterState.Idle ||
+                          currentState == MonsterState.Walking;
         
-        // Unsafe states (animations should complete first)
+        // Only block truly unsafe states
         bool isUnsafeState = currentState == MonsterState.Jumping ||
                             currentState == MonsterState.Itching ||
                             currentState == MonsterState.Flapping ||
-                            currentState == MonsterState.Walking ||
                             currentState == MonsterState.Running ||
                             currentState == MonsterState.Flying ||
                             currentState == MonsterState.Eating;
         
         return isSafeState && !isUnsafeState;
-    }    private EvolutionRequirement GetNextEvolutionRequirement()
+    }
+
+    private EvolutionRequirement GetNextEvolutionRequirement()
     {
         int currentLevel = _controller.evolutionLevel; // e.g., 1
-        
+
         foreach (var requirement in GetAvailableEvolutions())
         {
             if (requirement.targetEvolutionLevel == currentLevel + 1) // e.g., looking for level 2
@@ -178,7 +199,7 @@ public class MonsterEvolutionHandler
                 return requirement;
             }
         }
-        
+
         return null;
     }
 
@@ -591,14 +612,18 @@ public class MonsterEvolutionHandler
 
     private void OnEvolutionComplete(int oldLevel, int newLevel)
     {
+        Debug.Log($"[Evolution] {_controller.monsterID} evolved from level {oldLevel} to level {newLevel}");
+        
         ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {newLevel}!", 3f);
 
         _lastEvolutionTime = Time.time;
         _foodConsumed = 0;
         _interactionCount = 0;
         
-        _isEvolving = false;  // ← Unlock evolution AND movement
+        // CRITICAL: Update visuals with new evolution level
+        _controller.UpdateVisuals();
         
+        _isEvolving = false;
         _controller.SaveMonData();
     }
 

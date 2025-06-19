@@ -31,7 +31,6 @@ public class MonsterDataSO : ScriptableObject
     public string gachaChanceDisplay = ""; // e.g., "0.10%" for display
     public bool isGachaOnly = false;       // True if buy price is 0
 
-
     [Header("Happiness Settings")]
     public float areaHappinessRate = 0.2f;
     public float pokeHappinessValue = 2f;
@@ -74,11 +73,7 @@ public class MonsterDataSO : ScriptableObject
     public AudioClip deathSound;     // Played when monster dies
     public AudioClip interactionSound; // Played when player interacts
 
-    /// <summary>
-    /// Get the sell price based on current evolution level
-    /// </summary>
-    /// <param name="currentEvolutionLevel">Current evolution level (1, 2, or 3)</param>
-    /// <returns>Sell price for the current evolution stage</returns>
+
     public int GetSellPrice(int currentEvolutionLevel)
     {
         switch (currentEvolutionLevel)
@@ -86,19 +81,8 @@ public class MonsterDataSO : ScriptableObject
             case 1: return sellPriceStage1;
             case 2: return sellPriceStage2;
             case 3: return sellPriceStage3;
-            default: return sellPriceStage1; // Fallback to stage 1
+            default: return sellPriceStage1;
         }
-    }
-    
-    /// <summary>
-    /// Get the sell price for the highest available evolution stage
-    /// </summary>
-    /// <returns>Highest sell price available</returns>
-    public int GetMaxSellPrice()
-    {
-        if (sellPriceStage3 > 0) return sellPriceStage3;
-        if (sellPriceStage2 > 0) return sellPriceStage2;
-        return sellPriceStage1;
     }
 }
 
@@ -106,18 +90,18 @@ public class MonsterDataSO : ScriptableObject
 public class EvolutionRequirement
 {
     [Header("Target Evolution")]
-    public int targetEvolutionLevel = 1;
+    public int targetEvolutionLevel = 2;
     
     [Header("Time Requirements")]
-    public float minTimeAlive = 300f; 
+    public float minTimeAlive = 3f; 
     
     [Header("Current Status Requirements (Dynamic)")]
-    [Range(0f, 100f)] public float minCurrentHappiness = 80f;
-    [Range(0f, 100f)] public float minCurrentHunger = 70f;
+    [Range(0f, 100f)] public float minCurrentHappiness = 50f;
+    [Range(0f, 100f)] public float minCurrentHunger = 50f;
 
     [Header("Accumulated Progress Requirements")]
-    public int minFoodConsumed = 10;
-    public int minInteractions = 20;
+    public int minFoodConsumed = 1;
+    public int minInteractions = 1;
 
     [Header("Custom Conditions")]
     public Func<MonsterController, bool> customCondition;

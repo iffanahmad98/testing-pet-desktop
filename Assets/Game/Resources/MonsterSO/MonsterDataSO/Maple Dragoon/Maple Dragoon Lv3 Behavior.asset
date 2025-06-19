@@ -10,15 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d13ea62b0bc2c842be03fee1a76eafc, type: 3}
-  m_Name: Sun Flion Lv0 Behavior
+  m_Name: Maple Dragoon Lv3 Behavior
   m_EditorClassIdentifier: 
   transitions:
   - name: idle - walk
     fromState: 0
     toState: 1
     probability: 0.5
-    minDuration: 0
-    maxDuration: 0
+    minDuration: 1
+    maxDuration: 3
+    requiresFood: 0
+    hungerThreshold: 0
+    happinessThreshold: 0
+  - name: walk - flap
+    fromState: 1
+    toState: 4
+    probability: 0.5
+    minDuration: 1
+    maxDuration: 3
+    requiresFood: 0
+    hungerThreshold: 0
+    happinessThreshold: 0
+  - name: flap - idle
+    fromState: 4
+    toState: 0
+    probability: 0.8
+    minDuration: 1
+    maxDuration: 3
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
@@ -26,8 +44,8 @@ MonoBehaviour:
     fromState: 1
     toState: 0
     probability: 0.5
-    minDuration: 0
-    maxDuration: 0
+    minDuration: 1
+    maxDuration: 3
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
@@ -35,17 +53,26 @@ MonoBehaviour:
     fromState: 1
     toState: 6
     probability: 0.5
-    minDuration: 0
-    maxDuration: 0
+    minDuration: 1
+    maxDuration: 3
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
   - name: itch - idle
     fromState: 6
     toState: 0
-    probability: 0.5
-    minDuration: 0
-    maxDuration: 0
+    probability: 0.8
+    minDuration: 1
+    maxDuration: 3
+    requiresFood: 0
+    hungerThreshold: 0
+    happinessThreshold: 0
+  - name: idle - itch
+    fromState: 0
+    toState: 6
+    probability: 0.2
+    minDuration: 1
+    maxDuration: 3
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
@@ -53,17 +80,26 @@ MonoBehaviour:
     fromState: 0
     toState: 5
     probability: 0.5
-    minDuration: 0
-    maxDuration: 0
+    minDuration: 1
+    maxDuration: 3
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
-  - name: walk - jump
-    fromState: 0
-    toState: 5
+  - name: jump - fly
+    fromState: 5
+    toState: 3
+    probability: 0.9
+    minDuration: 1
+    maxDuration: 3
+    requiresFood: 0
+    hungerThreshold: 0
+    happinessThreshold: 0
+  - name: fly - walk
+    fromState: 3
+    toState: 1
     probability: 0.5
-    minDuration: 0
-    maxDuration: 0
+    minDuration: 3
+    maxDuration: 5
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0

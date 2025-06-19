@@ -393,8 +393,11 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (newMonsterData == null) return;
 
         monsterData = newMonsterData;
+        
+        // CRITICAL: Initialize evolution level BEFORE updating ID
+        InitializeEvolutionLevel();
 
-        // Update ID if needed
+        // Update ID if needed (now uses correct evolution level)
         if (monsterID.StartsWith("temp_") || string.IsNullOrEmpty(monsterID))
         {
             monsterID = $"{monsterData.id}_Lv{evolutionLevel}_{System.Guid.NewGuid().ToString("N")[..8]}";
@@ -414,6 +417,57 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             _saveHandler?.LoadData();
         }
+    }
+
+    // Add this property to safely get current evolution level
+    public int CurrentEvolutionLevel => evolutionLevel;
+
+    // Method to initialize evolution level from SO when monster is first created
+    private void InitializeEvolutionLevel()
+    {
+        if (monsterData != null)
+        {
+            // FIXED: Always initialize from SO if monster level is 0 or unset
+            if (evolutionLevel <= 0)
+            {
+                evolutionLevel = monsterData.evolutionLevel;
+                Debug.Log($"[Evolution] Initialized {monsterID} to level {evolutionLevel} from SO");
+            }
+        }
+        else
+        {
+            // Fallback to level 1 if no monster data
+            if (evolutionLevel <= 0)
+            {
+                evolutionLevel = 1;
+                Debug.Log($"[Evolution] Fallback: Set {monsterID} to level 1 (no monster data)");
+            }
+        }
+    }
+
+    // Method to evolve the monster (increases the instance level)
+    public void EvolveToNextLevel()
+    {
+        if (monsterData != null && evolutionLevel < 3) // Assuming max 3 levels
+        {
+            evolutionLevel++;
+            
+            // Update visuals for new evolution level
+            _visualHandler?.UpdateMonsterVisuals();
+            
+            // Update ID to reflect new level
+            string baseName = monsterData.monsterName;
+            gameObject.name = $"{baseName}_Lv{evolutionLevel}_{monsterID}";
+            
+            // Save the new evolution level
+            SaveMonData();
+        }
+    }
+
+    // Method to get sell price based on current evolution level
+    public int GetCurrentSellPrice()
+    {
+        return monsterData?.GetSellPrice(evolutionLevel) ?? 0;
     }
 
     private void OnEnable()

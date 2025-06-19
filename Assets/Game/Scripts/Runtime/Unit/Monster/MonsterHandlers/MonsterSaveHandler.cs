@@ -32,6 +32,11 @@ public class MonsterSaveHandler
         };
         
         SaveSystem.SaveMon(data);
+        
+        // Save current evolution level
+        PlayerPrefs.SetInt($"{_controller.monsterID}_evolutionLevel", _controller.evolutionLevel);
+        
+        Debug.Log($"[Save] Saved evolution level {_controller.evolutionLevel} for {_controller.monsterID}");
     }
     
     public void LoadData()
@@ -43,7 +48,12 @@ public class MonsterSaveHandler
             
             // Load other controller data
             _controller.isFinalForm = data.isFinalForm;
-            _controller.evolutionLevel = data.evolutionLevel;
+            
+            // Load evolution level (default to 1 if not found)
+            int savedLevel = PlayerPrefs.GetInt($"{_controller.monsterID}_evolutionLevel", 1);
+            _controller.evolutionLevel = savedLevel;
+            
+            Debug.Log($"[Load] Loaded evolution level {savedLevel} for {_controller.monsterID}");
             
             // Load evolution data
             _controller.LoadEvolutionData(data.timeSinceCreation, data.foodConsumed, data.interactionCount);
@@ -54,6 +64,9 @@ public class MonsterSaveHandler
         }
         
         ApplyMonsterDataStats();
+        
+        // Apply visuals after loading
+        _controller.UpdateVisuals();
     }
     
     private void InitNewMonster()

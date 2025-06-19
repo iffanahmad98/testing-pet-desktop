@@ -29,8 +29,8 @@ public class MonsterCoroutineHandler
         _hungerCoroutine = _controller.StartCoroutine(HungerRoutine(1f));
         _happinessCoroutine = _controller.StartCoroutine(HappinessRoutine(1f));
         _poopCoroutine = _controller.StartCoroutine(PoopRoutine(poopInterval));
-        _goldCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(goldCoinInterval, CoinType.Gold));
-        _silverCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(silverCoinInterval, CoinType.Silver));
+        _goldCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(goldCoinInterval, CoinType.Platinum));
+        _silverCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(silverCoinInterval, CoinType.Gold));
     }
     
     public void StopAllCoroutines()
