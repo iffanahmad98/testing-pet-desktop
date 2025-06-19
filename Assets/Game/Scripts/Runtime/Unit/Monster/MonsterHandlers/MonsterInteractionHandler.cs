@@ -50,13 +50,13 @@ public class MonsterInteractionHandler
         if (_hasBeenInteractedWith)
         {
             _pokeCooldownTimer = 60f;
-            // _pokeCooldownTimer = 3f;
+            _pokeCooldownTimer = 3f;
         }
         else
         {
             _hasBeenInteractedWith = true;
             _pokeCooldownTimer = 60f;
-            // _pokeCooldownTimer = 3f;
+            _pokeCooldownTimer = 3f;
         }
     }
 

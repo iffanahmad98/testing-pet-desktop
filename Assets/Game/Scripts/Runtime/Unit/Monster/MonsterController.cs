@@ -23,14 +23,13 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private Action<bool> _sickChangedHandler;
     private Action<bool> _hoverChangedHandler;
 
-    private MonsterDataSO monsterData;
     public string monsterID;
+    private MonsterDataSO monsterData;
     public MonsterDataSO MonsterData => monsterData;
-    [HideInInspector] public bool isFinalForm;
-    [HideInInspector] public int evolutionLevel;
+    public int evolutionLevel;
 
 
-    public float currentHunger => _statsHandler?.CurrentHunger ?? 50f;
+    public float currentHunger => _statsHandler?.CurrentHunger ?? 0f;
     public float currentHappiness => _statsHandler?.CurrentHappiness ?? 0f;
     public bool IsSick => _statsHandler?.IsSick ?? false;
     public bool isHovered => _isHovered;
@@ -209,7 +208,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         // Initialize UI
         UI.Init();
-        
         // Only call if handler exists
         if (_evolutionHandler != null)
         {
@@ -224,7 +222,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             _visualHandler?.ApplyMonsterVisuals();
             _foodHandler?.Initialize(monsterData);
-            _evolutionHandler?.InitializeWithMonsterData();
         }
         
         // Subscribe to events only after everything is ready
@@ -246,19 +243,31 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     
     // Safe property access with initialization checks
     public bool IsFullyInitialized => _initState == InitializationState.FullyInitialized;
+
+    private IEnumerator InitializationTimeout()
+    {
+        yield return new WaitForSeconds(10f); // 10 second timeout
+        
+        if (_initState != InitializationState.FullyInitialized)
+        {   
+            _initState = InitializationState.FullyInitialized;
+            _isLoaded = true;
+            _isInitializing = false;
+        }
+    }
     
     // Prevent operations before full initialization
     private void Update()
     {
         if (!IsFullyInitialized) return;
-        
+
         // ADD: Skip all updates during evolution except evolution tracking
         if (IsEvolving)
         {
             _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
             return; // Skip movement, interactions, etc.
         }
-        
+
         _interactionHandler?.UpdateTimers(Time.deltaTime);
         _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
         HandleMovement();
@@ -320,7 +329,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (_initState >= InitializationState.HandlersCreated)
         {
             _foodHandler?.Initialize(monsterData);
-            _evolutionHandler?.InitializeWithMonsterData();
             _visualHandler?.ApplyMonsterVisuals();
         }
 
@@ -687,18 +695,5 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void TreatSickness() => _statsHandler?.TreatSickness();
     public void TriggerEating() => _stateMachine?.ChangeState(MonsterState.Eating);
     public void TriggerFoodConsumption() => _evolutionHandler?.OnFoodConsumed();
-    
-    private IEnumerator InitializationTimeout()
-    {
-        yield return new WaitForSeconds(10f); // 10 second timeout
-        
-        if (_initState != InitializationState.FullyInitialized)
-        {   
-            _initState = InitializationState.FullyInitialized;
-            _isLoaded = true;
-            _isInitializing = false;
-        }
-    }
-
     public Vector2 GetTargetPosition() => _targetPosition;
 }
