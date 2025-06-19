@@ -12,7 +12,7 @@ public class SettingsManager : MonoBehaviour
     [Header("Game Area References")]
     public RectTransform gameArea;
     public CanvasScaler canvasScaler;
-    private GameManager gameManager;
+    private MonsterManager gameManager;
 
     [Header("Game Area Sliders")]
     public Slider widthSlider;
@@ -71,7 +71,7 @@ public class SettingsManager : MonoBehaviour
     }
     private void Start()
     {
-        gameManager = ServiceLocator.Get<GameManager>();
+        gameManager = ServiceLocator.Get<MonsterManager>();
         InitializeGameAreaSettings();
         InitializeLanguageSettings();
 

@@ -110,7 +110,7 @@ public class MonsterStatsHandler
         _lowHungerTime = 0f;
     }
     
-    public void UpdateHappinessBasedOnArea(MonsterDataSO monsterData, GameManager gameManager)
+    public void UpdateHappinessBasedOnArea(MonsterDataSO monsterData, MonsterManager gameManager)
     {
         if (monsterData == null || gameManager?.gameArea == null) return;
 

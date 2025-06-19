@@ -587,7 +587,7 @@ public class MonsterEvolutionHandler
         {
             _controller.monsterID = $"{parts[0]}_Lv{newLevel}_{parts[2]}"; // Will be Lv2, Lv3, etc.
 
-            var gameManager = ServiceLocator.Get<GameManager>();
+            var gameManager = ServiceLocator.Get<MonsterManager>();
             if (gameManager != null)
             {
                 var savedIDs = SaveSystem.LoadSavedMonIDs();

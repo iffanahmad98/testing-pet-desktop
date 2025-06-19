@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class MonsterSeparationHandler
 {
     private MonsterController _controller;
-    private GameManager _gameManager;
+    private MonsterManager _gameManager;
     private RectTransform _rectTransform;
     
     [Header("Separation Settings")]
@@ -13,7 +13,7 @@ public class MonsterSeparationHandler
     public float maxSeparationSpeed = 100f; // Limit separation movement speed
     public LayerMask monsterLayer = -1;
     
-    public MonsterSeparationHandler(MonsterController controller, GameManager gameManager, RectTransform rectTransform)
+    public MonsterSeparationHandler(MonsterController controller, MonsterManager gameManager, RectTransform rectTransform)
     {
         _controller = controller;
         _gameManager = gameManager;

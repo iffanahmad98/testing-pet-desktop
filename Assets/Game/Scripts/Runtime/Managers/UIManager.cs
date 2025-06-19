@@ -132,7 +132,7 @@ public class UIManager : MonoBehaviour
         windowButton?.onClick.AddListener(ToggleMiniWindowMode); // Normal window button
         miniWindowButton?.onClick.AddListener(ToggleMiniWindowMode); // Mini window button
         
-        var gameManager = ServiceLocator.Get<GameManager>();
+        var gameManager = ServiceLocator.Get<MonsterManager>();
         if (gameManager != null)
         {
             spawnPetButton?.onClick.AddListener(() => gameManager.BuyMons());
@@ -274,7 +274,7 @@ public class UIManager : MonoBehaviour
 
     public void StartFoodPlacement()
     {
-        ServiceLocator.Get<GameManager>().StartFoodPurchase(0);
+        ServiceLocator.Get<MonsterManager>().StartFoodPurchase(0);
     }
 
     public void ShowMessage(string message, float duration = 1f)
@@ -458,7 +458,7 @@ public class UIManager : MonoBehaviour
         spawnFoodButton?.onClick.RemoveAllListeners();
         gachaButton?.onClick.RemoveAllListeners();
         
-        var gameManager = ServiceLocator.Get<GameManager>();
+        var gameManager = ServiceLocator.Get<MonsterManager>();
         if (gameManager != null)
         {
             gameManager.OnCoinChanged -= UpdateCoinCounterValue;

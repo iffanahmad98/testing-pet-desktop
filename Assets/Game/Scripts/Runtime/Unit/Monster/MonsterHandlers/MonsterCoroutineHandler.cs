@@ -63,7 +63,7 @@ public class MonsterCoroutineHandler
             if (!_statsHandler.IsSick && _controller.MonsterData != null)
             {
                 // Update happiness based on area
-                _statsHandler.UpdateHappinessBasedOnArea(_controller.MonsterData, ServiceLocator.Get<GameManager>());
+                _statsHandler.UpdateHappinessBasedOnArea(_controller.MonsterData, ServiceLocator.Get<MonsterManager>());
                 
                 // Reduce happiness if hungry
                 if (_statsHandler.CurrentHunger < _controller.MonsterData.hungerHappinessThreshold)

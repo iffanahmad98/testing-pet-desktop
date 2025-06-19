@@ -57,7 +57,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     private SkeletonGraphic _monsterSpineGraphic;
     private RectTransform _rectTransform;
-    private GameManager _gameManager;
+    private MonsterManager _gameManager;
     private MonsterStateMachine _stateMachine;
     private MonsterMovementHandler _movementHandler;
     private MonsterStatsHandler _statsHandler;
@@ -218,12 +218,12 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         // Wait for external dependencies
         yield return new WaitUntil(() => 
-            ServiceLocator.Get<GameManager>() != null && 
+            ServiceLocator.Get<MonsterManager>() != null && 
             GetComponent<MonsterStateMachine>() != null);
 
         // Now create StateMachine-dependent handlers
         _stateMachine = GetComponent<MonsterStateMachine>();
-        _gameManager = ServiceLocator.Get<GameManager>();
+        _gameManager = ServiceLocator.Get<MonsterManager>();
 
         // Wait one more frame for StateMachine to complete its Start()
         yield return null;
@@ -649,7 +649,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (Vector2.Distance(newPosition, _lastSortPosition) >= _depthSortThreshold)
         {
             _lastSortPosition = newPosition;
-            ServiceLocator.Get<GameManager>().SortMonstersByDepth();
+            ServiceLocator.Get<MonsterManager>().SortMonstersByDepth();
         }
 
         bool isPursuingFood = _foodHandler?.NearestFood != null;
@@ -700,7 +700,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         Vector2 targetPosition = _visualHandler?.GetRandomPositionOutsideBounds() ?? GetRandomPositionAroundMonster();
         
         // Create coin with arc animation
-        ServiceLocator.Get<GameManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
+        ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
     }
 
     // Update fallback method to also respect bounds

@@ -3,17 +3,17 @@ using UnityEngine;
 public class MonsterBoundsHandler
 {
     private RectTransform _rectTransform;
-    private GameManager _gameManager;
+    private MonsterManager _gameManager;
     private const float PADDING = 50f;
-    private const float GROUND_OFFSET = 10f; // Extra offset from detected ground edge
+    private const float GROUND_OFFSET = 10f; 
     
-    public MonsterBoundsHandler(RectTransform rectTransform, GameManager gameManager)
+    public MonsterBoundsHandler(RectTransform rectTransform, MonsterManager gameManager)
     {
         _rectTransform = rectTransform;
         _gameManager = gameManager;
     }
     
-    public Vector2 GetRandomTarget()
+    public Vector2 GetRandomSpawnTarget()
     {
         // Default to ground target
         return GetGroundTarget();
@@ -21,7 +21,6 @@ public class MonsterBoundsHandler
     
     public Vector2 GetRandomTargetForState(MonsterState state)
     {
-        // NEW: For very small areas, use more generous targeting
         if (IsMovementAreaTooSmall())
         {
             return GetRelaxedTarget();
@@ -30,12 +29,11 @@ public class MonsterBoundsHandler
         return state switch
         {
             MonsterState.Flying => GetFlyingTarget(),
-            MonsterState.Flapping => GetFlyingTarget(), // Keep flapping in air
-            // Check if monster is currently in air before deciding target
+            MonsterState.Flapping => GetFlyingTarget(), 
             MonsterState.Idle => IsCurrentlyFlying() ? GetAirIdleTarget() : GetGroundTarget(),
             MonsterState.Jumping => IsCurrentlyFlying() ? GetAirIdleTarget() : GetGroundTarget(),
             MonsterState.Itching => IsCurrentlyFlying() ? GetAirIdleTarget() : GetGroundTarget(),
-            _ => GetGroundTarget() // Walking, Running, Eating stay on ground
+            _ => GetGroundTarget() 
         };
     }
     

@@ -8,10 +8,10 @@ public class MonsterMovementHandler
     private RectTransform _transform;
     private MonsterStateMachine _stateMachine;
     private MonsterController _controller; // NEW: Add controller reference
-    private GameManager _gameManager;
+    private MonsterManager _gameManager;
     private SkeletonGraphic _spineGraphic;
     
-    public MonsterMovementHandler(RectTransform transform, MonsterStateMachine stateMachine, MonsterController controller, GameManager gameManager, SkeletonGraphic spineGraphic)
+    public MonsterMovementHandler(RectTransform transform, MonsterStateMachine stateMachine, MonsterController controller, MonsterManager gameManager, SkeletonGraphic spineGraphic)
     {
         _transform = transform;
         _stateMachine = stateMachine;

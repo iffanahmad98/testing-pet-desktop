@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class MonsterManager : MonoBehaviour
 {
+    #region Fields and Variables
     [Header("Prefabs & Pool Settings")]
     public GameObject monsterPrefab;
     public GameObject foodPrefab;
@@ -46,6 +47,11 @@ public class GameManager : MonoBehaviour
     private bool isInPlacementMode = false;
     private int pendingFoodCost = 0;
 
+    public System.Action<int> OnCoinChanged;
+    public System.Action<int> OnPoopChanged;
+    #endregion
+
+    #region Initialization and Setup
     private void Awake()
     {
         ServiceLocator.Register(this);
@@ -58,24 +64,6 @@ public class GameManager : MonoBehaviour
         _mainCamera = mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCanvas.worldCamera;
         _foodIndicatorRT = foodPlacementIndicator.GetComponent<RectTransform>();
         _foodIndicatorImage = foodPlacementIndicator.GetComponent<Image>();
-    }
-
-    void Start() => LoadGame();
-
-    void Update()
-    {
-        if (isInPlacementMode)
-        {
-            IndicatorPlacementHandler();
-            FoodPlacementHandler();
-        }
-
-        // Add depth sorting for monsters
-        if (enableDepthSorting && Time.time - lastSortTime >= sortInterval)
-        {
-            SortMonstersByDepth();
-            lastSortTime = Time.time;
-        }
     }
 
     private void InitializePools()
@@ -94,56 +82,28 @@ public class GameManager : MonoBehaviour
         obj.SetActive(false);
         pool.Enqueue(obj);
     }
+    #endregion
 
-    private void LoadGame()
+    #region Game Loop
+    void Start() => LoadGame();
+
+    void Update()
     {
-        coinCollected = SaveSystem.LoadCoin();
-        poopCollected = SaveSystem.LoadPoop();
-        savedMonIDs = SaveSystem.LoadSavedMonIDs();
-
-        foreach (var id in savedMonIDs)
+        if (isInPlacementMode)
         {
-            if (SaveSystem.LoadMon(id, out _))
-            {
-                var (monsterData, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
-                if (monsterData != null)
-                {
-                    SpawnMonster(monsterData, id); 
-                }
-            }
+            IndicatorPlacementHandler();
+            FoodPlacementHandler();
+        }
+
+        if (enableDepthSorting && Time.time - lastSortTime >= sortInterval)
+        {
+            SortMonstersByDepth();
+            lastSortTime = Time.time;
         }
     }
+    #endregion
 
-    public void SaveAllMons()
-    {
-        foreach (var monster in activeMonsters)
-        {
-            var saveData = new MonsterSaveData
-            {
-                monsterId = monster.monsterID,
-                lastHunger = monster.currentHunger,
-                lastHappiness = monster.currentHappiness,
-                lastLowHungerTime = monster.GetLowHungerTime(),
-                isSick = monster.IsSick,
-                evolutionLevel = monster.evolutionLevel,
-                timeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
-                foodConsumed = monster.GetEvolutionFoodConsumed(),
-                interactionCount = monster.GetEvolutionInteractionCount()
-            };
-            SaveSystem.SaveMon(saveData);
-        }
-        SaveSystem.SaveMonIDs(savedMonIDs);
-        SaveSystem.Flush();
-    }
-
-    private void SaveGameData()
-    {
-        SaveAllMons();
-        SaveSystem.SavePoop(poopCollected);
-        SaveSystem.SaveCoin(coinCollected);
-        SaveSystem.Flush();
-    }
-
+    #region Monster Management
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
     {
         GameObject monster = CreateMonster(monsterData);
@@ -159,7 +119,7 @@ public class GameManager : MonoBehaviour
         else
         {
             var data = controller.MonsterData;
-            controller.monsterID = $"{data.id}_Lv{controller.evolutionLevel}_{System.Guid.NewGuid().ToString("N")[..8]}";
+            controller.monsterID = $"{data.id}_Stage{controller.evolutionLevel}_{System.Guid.NewGuid().ToString("N")[..8]}";
         }
 
         controller.LoadMonData();
@@ -173,52 +133,14 @@ public class GameManager : MonoBehaviour
             RegisterActiveMonster(controller);
     }
 
-    public void BuyMons(int cost = 10)
-    {
-        if (SpentCoin(cost)) SpawnMonster();
-    }
-
-
-    private (MonsterDataSO, int) GetMonsterDataAndLevelFromID(string monsterID)
-    {
-        var parts = monsterID.Split('_');
-        if (parts.Length >= 2)
-        {
-            string monsterTypeId = parts[0];
-            string levelPart = parts[1];
-            int evolutionLevel = 0;
-            
-            if (levelPart.StartsWith("Lv"))
-            {
-                if (!int.TryParse(levelPart.Substring(2), out evolutionLevel))
-                {
-                    evolutionLevel = 0;
-                }
-            }
-            
-            foreach (var data in monsterDatabase.monsters)
-            {
-                if (data.id == monsterTypeId)
-                {
-                    return (data, evolutionLevel);
-                }
-            }
-        }
-        
-        return (null, 0);
-    }
-
     private GameObject CreateMonster(MonsterDataSO monsterData = null)
     {
         var monster = Instantiate(monsterPrefab, gameArea);
         
-        // Get proper movement bounds that account for monster size
         var monsterController = monster.GetComponent<MonsterController>();
         var rectTransform = monster.GetComponent<RectTransform>();
         var movementBounds = new MonsterBoundsHandler(rectTransform, this);
-        
-        // Use the same bounds calculation as movement
-        Vector2 spawnPosition = movementBounds.GetRandomTarget();
+        Vector2 spawnPosition = movementBounds.GetRandomSpawnTarget();
         monster.transform.localPosition = spawnPosition;
 
         if (monsterController != null)
@@ -280,6 +202,74 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void BuyMons(int cost = 10)
+    {
+        if (SpentCoin(cost)) SpawnMonster();
+    }
+
+    private (MonsterDataSO, int) GetMonsterDataAndLevelFromID(string monsterID)
+    {
+        var parts = monsterID.Split('_');
+        if (parts.Length >= 2)
+        {
+            string monsterTypeId = parts[0];
+            string levelPart = parts[1];
+            int evolutionLevel = 0;
+            
+            if (levelPart.StartsWith("Stage"))
+            {
+                if (!int.TryParse(levelPart.Substring(5), out evolutionLevel))
+                {
+                    evolutionLevel = 0;
+                }
+            }
+            
+            foreach (var data in monsterDatabase.monsters)
+            {
+                if (data.id == monsterTypeId)
+                {
+                    return (data, evolutionLevel);
+                }
+            }
+        }
+        
+        return (null, 0);
+    }
+    
+    public void SortMonstersByDepth()
+    {
+        if (activeMonsters.Count <= 1) return;
+
+        // Use array for better performance with large lists
+        var validMonsters = new List<MonsterController>(activeMonsters.Count);
+        
+        // Filter out null/inactive monsters first
+        for (int i = activeMonsters.Count - 1; i >= 0; i--)
+        {
+            var monster = activeMonsters[i];
+            if (monster == null || !monster.gameObject.activeInHierarchy)
+            {
+                activeMonsters.RemoveAt(i); // Clean up invalid references
+            }
+            else
+            {
+                validMonsters.Add(monster);
+            }
+        }
+
+        // Sort by Y position (higher Y = lower sibling index)
+        validMonsters.Sort((a, b) => 
+            b.transform.position.y.CompareTo(a.transform.position.y));
+
+        // Update sibling indices, starting from index 1 to preserve background at index 0
+        for (int i = 0; i < validMonsters.Count; i++)
+        {
+            validMonsters[i].transform.SetSiblingIndex(i + 1); // +1 to skip background
+        }
+    }
+    #endregion
+
+    #region Food Management
     public void StartFoodPurchase(int cost)
     {
         if (coinCollected >= cost)
@@ -293,16 +283,6 @@ public class GameManager : MonoBehaviour
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins!", 1f);
         }
-    }
-
-    private Vector2 ScreenToGameAreaPosition()
-    {
-        var cam = mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCanvas.worldCamera;
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            gameArea, Input.mousePosition, cam, out Vector2 localPoint);
-        
-        return localPoint;
     }
 
     private void IndicatorPlacementHandler()
@@ -364,7 +344,9 @@ public class GameManager : MonoBehaviour
             activeFoods.Add(foodController);
         }
     }
+    #endregion
 
+    #region Item Management
     public GameObject SpawnCoinWithArc(Vector2 startPosition, Vector2 targetPosition, CoinType type)
     {
         var coin = GetPooledObject(_coinPool, coinPrefab);
@@ -437,7 +419,6 @@ public class GameManager : MonoBehaviour
         coinRect.anchoredPosition = finalPos;
     }
 
-
     public GameObject SpawnPoopAt(Vector2 anchoredPos, PoopType type)
     {
         // Find a non-overlapping position
@@ -486,9 +467,28 @@ public class GameManager : MonoBehaviour
             testPos.y = Mathf.Clamp(testPos.y, rect.yMin + 25f, rect.yMax - 25f);
         }
         
-        return testPos; // Return last attempt if all fail
+        return testPos; 
+    }
+    
+    public bool SpentCoin(int amount)
+    {
+        if (coinCollected < amount) return false;
+
+        coinCollected -= amount;
+        SaveSystem.SaveCoin(coinCollected);
+        OnCoinChanged?.Invoke(coinCollected); 
+        return true;
     }
 
+    public void CollectPoop(int amount = 1)
+    {
+        poopCollected += amount;
+        SaveSystem.SavePoop(poopCollected);
+        OnPoopChanged?.Invoke(poopCollected);
+    }
+    #endregion
+
+    #region Object Pooling
     private GameObject GetPooledObject(Queue<GameObject> pool, GameObject prefab)
     {
         return pool.Count > 0 ? pool.Dequeue() : Instantiate(prefab, poolContainer);
@@ -534,25 +534,69 @@ public class GameManager : MonoBehaviour
             _activePoops.Remove(obj);
         } 
     }
+    #endregion
 
-    public System.Action<int> OnCoinChanged;
-    public System.Action<int> OnPoopChanged;
-    
-    public bool SpentCoin(int amount)
+    #region Save and Load
+    private void LoadGame()
     {
-        if (coinCollected < amount) return false;
+        coinCollected = SaveSystem.LoadCoin();
+        poopCollected = SaveSystem.LoadPoop();
+        savedMonIDs = SaveSystem.LoadSavedMonIDs();
 
-        coinCollected -= amount;
-        SaveSystem.SaveCoin(coinCollected);
-        OnCoinChanged?.Invoke(coinCollected); 
-        return true;
+        foreach (var id in savedMonIDs)
+        {
+            if (SaveSystem.LoadMon(id, out _))
+            {
+                var (monsterData, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
+                if (monsterData != null)
+                {
+                    SpawnMonster(monsterData, id); 
+                }
+            }
+        }
     }
 
-    public void CollectPoop(int amount = 1)
+    public void SaveAllMons()
     {
-        poopCollected += amount;
+        foreach (var monster in activeMonsters)
+        {
+            var saveData = new MonsterSaveData
+            {
+                monsterId = monster.monsterID,
+                lastHunger = monster.currentHunger,
+                lastHappiness = monster.currentHappiness,
+                lastLowHungerTime = monster.GetLowHungerTime(),
+                isSick = monster.IsSick,
+                evolutionLevel = monster.evolutionLevel,
+                timeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
+                foodConsumed = monster.GetEvolutionFoodConsumed(),
+                interactionCount = monster.GetEvolutionInteractionCount()
+            };
+            SaveSystem.SaveMon(saveData);
+        }
+        SaveSystem.SaveMonIDs(savedMonIDs);
+        SaveSystem.Flush();
+    }
+
+    private void SaveGameData()
+    {
+        SaveAllMons();
+
         SaveSystem.SavePoop(poopCollected);
-        OnPoopChanged?.Invoke(poopCollected);
+        SaveSystem.SaveCoin(coinCollected);
+        SaveSystem.Flush();
+    }
+    #endregion
+
+    #region Utility Methods
+    private Vector2 ScreenToGameAreaPosition()
+    {
+        var cam = mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCanvas.worldCamera;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            gameArea, Input.mousePosition, cam, out Vector2 localPoint);
+        
+        return localPoint;
     }
 
     public bool IsPositionInGameArea(Vector2 localPosition)
@@ -562,58 +606,6 @@ public class GameManager : MonoBehaviour
                localPosition.y >= rect.yMin && localPosition.y <= rect.yMax;
     }
 
-    void OnApplicationQuit() => SaveGameData();
-    void OnApplicationPause(bool pauseStatus) { if (pauseStatus) SaveGameData(); }
-
-#if UNITY_EDITOR
-    void OnDisable() { if (Application.isPlaying) SaveGameData(); }
-#endif
-
-    void OnDestroy() => ServiceLocator.Unregister<GameManager>();
-
-    void OnDrawGizmosSelected()
-    {
-        if (gameArea != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(gameArea.anchoredPosition,
-                new Vector3(gameArea.rect.width, gameArea.rect.height, 0));
-        }
-    }
-
-    public void SortMonstersByDepth()
-    {
-        if (activeMonsters.Count <= 1) return;
-
-        // Use array for better performance with large lists
-        var validMonsters = new List<MonsterController>(activeMonsters.Count);
-        
-        // Filter out null/inactive monsters first
-        for (int i = activeMonsters.Count - 1; i >= 0; i--)
-        {
-            var monster = activeMonsters[i];
-            if (monster == null || !monster.gameObject.activeInHierarchy)
-            {
-                activeMonsters.RemoveAt(i); // Clean up invalid references
-            }
-            else
-            {
-                validMonsters.Add(monster);
-            }
-        }
-
-        // Sort by Y position (higher Y = lower sibling index)
-        validMonsters.Sort((a, b) => 
-            b.transform.position.y.CompareTo(a.transform.position.y));
-
-        // Update sibling indices, starting from index 1 to preserve background at index 0
-        for (int i = 0; i < validMonsters.Count; i++)
-        {
-            validMonsters[i].transform.SetSiblingIndex(i + 1); // +1 to skip background
-        }
-    }
-
-    // Add method for overlap checking
     public bool IsPositionClearOfObjects(Vector2 position, float radius = 40f)
     {
         // Check coins
@@ -646,4 +638,26 @@ public class GameManager : MonoBehaviour
         
         return true;
     }
+    #endregion
+
+    #region Lifecycle Events
+    void OnApplicationQuit() => SaveGameData();
+    void OnApplicationPause(bool pauseStatus) { if (pauseStatus) SaveGameData(); }
+
+#if UNITY_EDITOR
+    void OnDisable() { if (Application.isPlaying) SaveGameData(); }
+#endif
+
+    void OnDestroy() => ServiceLocator.Unregister<MonsterManager>();
+
+    void OnDrawGizmosSelected()
+    {
+        if (gameArea != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(gameArea.anchoredPosition,
+                new Vector3(gameArea.rect.width, gameArea.rect.height, 0));
+        }
+    }
+    #endregion
 }

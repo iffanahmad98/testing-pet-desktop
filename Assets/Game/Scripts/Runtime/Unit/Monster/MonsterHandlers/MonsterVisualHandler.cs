@@ -221,7 +221,7 @@ public class MonsterVisualHandler
 
     public Vector2 GetRandomPositionOutsideBounds()
     {
-        var gameManager = ServiceLocator.Get<GameManager>();
+        var gameManager = ServiceLocator.Get<MonsterManager>();
         if (gameManager != null && gameManager.gameArea != null)
         {
             var gameAreaRect = gameManager.gameArea;
@@ -300,7 +300,7 @@ public class MonsterVisualHandler
         spawnPosition = FindSafeSpawnPosition(spawnPosition);
         
         // Spawn poop at safe position
-        var poopGameObject = ServiceLocator.Get<GameManager>().SpawnPoopAt(spawnPosition, type);
+        var poopGameObject = ServiceLocator.Get<MonsterManager>().SpawnPoopAt(spawnPosition, type);
         
         if (poopGameObject != null)
         {
@@ -390,7 +390,7 @@ public class MonsterVisualHandler
     // NEW: Find safe spawn position that doesn't overlap
     private Vector2 FindSafeSpawnPosition(Vector2 preferredPosition, int maxAttempts = 5)
     {
-        var gameManager = ServiceLocator.Get<GameManager>();
+        var gameManager = ServiceLocator.Get<MonsterManager>();
         if (gameManager == null) return preferredPosition;
 
         for (int i = 0; i < maxAttempts; i++)

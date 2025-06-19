@@ -5,7 +5,7 @@ public class MonsterFoodHandler
 {
     private MonsterController _controller;
     private MonsterStateMachine _stateMachine;
-    private GameManager _gameManager;
+    private MonsterManager _gameManager;
     private RectTransform _rectTransform;
     private float _foodDetectionRangeSqr;
     private float _eatDistanceSqr;
@@ -19,7 +19,7 @@ public class MonsterFoodHandler
     public bool IsNearFood { get; private set; }
 
     
-    public MonsterFoodHandler(MonsterController controller, GameManager gameManager, RectTransform rectTransform)
+    public MonsterFoodHandler(MonsterController controller, MonsterManager gameManager, RectTransform rectTransform)
     {
         _controller = controller;
         _gameManager = gameManager;
