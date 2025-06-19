@@ -478,9 +478,7 @@ public class BiomeManager : MonoBehaviour
         float maxY = skyRect.height * 0.4f;  // Don't go too high
         
         laneY = Mathf.Clamp(laneY, minY, maxY);
-        
-        Debug.Log($"Lane {laneIndex}: Y={laneY:F1} (Sky bounds: {-skyRect.height*0.5f:F1} to {skyRect.height*0.5f:F1})");
-        
+         
         return laneY;
     }
 

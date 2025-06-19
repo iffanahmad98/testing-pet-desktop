@@ -27,8 +27,8 @@ public class MonsterDetailPanel : MonoBehaviour
         happinessSlider.value = data.baseHappiness / 100f;
         evolvingSlider.value = data.evolutionLevel / 3f; // Adjust max stage
         stageText.text = $"Stage {data.evolutionLevel + 1}";
-        monsterImage.sprite = data.monsImgs[data.isEvolved ? 1 : 0];
-        sellPriceText.text = $"{data.monPrice / 2} coins";
+        monsterImage.sprite = data.monsIconImg[data.isEvolved ? 1 : 0];
+        sellPriceText.text = $"{data.monsterPrice / 2} coins";
         earningRateText.text = $"{(data.baseHappiness * 0.01f):0.0} coin/min";
     }
 

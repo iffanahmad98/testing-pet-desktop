@@ -1,5 +1,5 @@
 public enum CoinType
 {
-    Silver = 1,
-    Gold = 10
+    Gold = 1,
+    Platinum = 10
 }

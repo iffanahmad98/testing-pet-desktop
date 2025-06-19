@@ -14,36 +14,73 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterName: Landak Pakis
   id: 003
-  monPrice: 10
   monType: 0
+  poopType: 1
+  maxHealth: 100
   moveSpd: 100
   hungerDepleteRate: 0.05
   poopRate: 20
+  goldCoinDropRate: 60
+  silverCoinDropRate: 30
+  maxHunger: 200
   baseHunger: 50
   baseHappiness: 0
   foodDetectionRange: 200
   eatDistance: 5
-  pokeCooldownDuration: 10
+  gachaChancePercent: 0
+  gachaChanceDisplay: 
+  isGachaOnly: 0
   areaHappinessRate: 0.2
   pokeHappinessValue: 2
   hungerHappinessThreshold: 30
   hungerHappinessDrainRate: 2
-  clickToCollectPoop: 1
   canEvolve: 0
   isEvolved: 0
   isFinalEvol: 0
-  evolutionLevel: 0
-  evolutionRequirements: {fileID: 11400000, guid: d3e14830d29dbef47bab7b4a75a30888, type: 2}
+  evolutionLevel: 1
+  evolutionRequirements:
+  - targetEvolutionLevel: 1
+    minTimeAlive: 300
+    minCurrentHappiness: 80
+    minCurrentHunger: 70
+    minFoodConsumed: 10
+    minInteractions: 20
+    evolutionName: Evolution
+    description: Evolution requirements
+    resetHappinessProgress: 1
+    resetHungerProgress: 1
+    resetFoodProgress: 1
+    resetInteractionProgress: 1
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 1
+    minTimeAlive: 300
+    minCurrentHappiness: 80
+    minCurrentHunger: 70
+    minFoodConsumed: 10
+    minInteractions: 20
+    evolutionName: Evolution
+    description: Evolution requirements
+    resetHappinessProgress: 1
+    resetHungerProgress: 1
+    resetFoodProgress: 1
+    resetInteractionProgress: 1
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 1
+    minTimeAlive: 300
+    minCurrentHappiness: 80
+    minCurrentHunger: 70
+    minFoodConsumed: 10
+    minInteractions: 20
+    evolutionName: Evolution
+    description: Evolution requirements
+    resetHappinessProgress: 1
+    resetHungerProgress: 1
+    resetFoodProgress: 1
+    resetInteractionProgress: 1
+    progressRetentionPercentage: 0
   monsterSpine:
   - {fileID: 11400000, guid: a71d729d6ee21fe4cba328438715435a, type: 2}
-  monsImgs: []
-  idleSounds: []
-  happySound: {fileID: 0}
-  eatSound: {fileID: 0}
-  hurtSound: {fileID: 0}
-  evolveSound: {fileID: 0}
-  deathSound: {fileID: 0}
-  interactionSound: {fileID: 0}
+  monsIconImg: []
   evolutionAnimationSets:
   - evolutionLevel: 0
     availableAnimations:
@@ -54,3 +91,14 @@ MonoBehaviour:
     - running
     - walking
   evolutionBehaviors: []
+  monsterPrice: 10
+  sellPriceStage1: 0
+  sellPriceStage2: 0
+  sellPriceStage3: 0
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

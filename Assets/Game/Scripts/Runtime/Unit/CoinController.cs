@@ -29,13 +29,15 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
     {
         type = coinType;
         value = (int)type;
+        if (coinType == CoinType.Platinum)
+        {
+            animator.SetTrigger("Silver");
+            transform.localScale = Vector3.one; // Scale down gold coins
+        }
         if (coinType == CoinType.Gold)
         {
             animator.SetTrigger("Gold");
-        }
-        else if (coinType == CoinType.Silver)
-        {
-            animator.SetTrigger("Silver");
+            transform.localScale = Vector3.one * 0.7f; // Scale up platinum coins
         }
     }
 

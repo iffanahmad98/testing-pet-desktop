@@ -38,7 +38,24 @@ public class MonsterDataSOEditor : Editor
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterName"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("id"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("monPrice"));
+        
+        // Pricing Section
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Pricing & Gacha", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterPrice"), new GUIContent("Buy Price"));
+        
+        // Sell prices
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage1"), new GUIContent("Sell Price (Stage 1)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage2"), new GUIContent("Sell Price (Stage 2)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage3"), new GUIContent("Sell Price (Stage 3)"));
+        
+        // NEW: Gacha data
+        EditorGUILayout.Space(2);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChancePercent"), new GUIContent("Gacha Chance (Decimal)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChanceDisplay"), new GUIContent("Gacha Chance (Display)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("isGachaOnly"), new GUIContent("Gacha Only"));
+        
+        EditorGUILayout.Space(3);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
@@ -142,8 +159,16 @@ public class MonsterDataSOEditor : Editor
         if (!showVisuals) return;
 
         EditorGUI.indentLevel++;
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("monsImgs"), true);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("monIcons"), true);
+        
+        // Use the CORRECT property name from MonsterDataSO
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("monsIconImg"), new GUIContent("Monster Icons"), true);
+        
+        // Add goldCoinDropRate and silverCoinDropRate since they're visual/economic settings
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Coin Drop Rates", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRate"), new GUIContent("Gold Coin Drop Rate (minutes)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRate"), new GUIContent("Silver Coin Drop Rate (minutes)"));
+        
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }

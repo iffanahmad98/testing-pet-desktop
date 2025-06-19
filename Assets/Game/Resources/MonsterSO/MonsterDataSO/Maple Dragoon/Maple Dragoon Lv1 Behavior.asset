@@ -22,18 +22,18 @@ MonoBehaviour:
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
-  - name: walk - flap
+  - name: walk - run
     fromState: 1
-    toState: 4
+    toState: 2
     probability: 0.5
     minDuration: 1
     maxDuration: 3
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
-  - name: flap - idle
-    fromState: 4
-    toState: 0
+  - name: run - walk
+    fromState: 2
+    toState: 1
     probability: 0.8
     minDuration: 1
     maxDuration: 3

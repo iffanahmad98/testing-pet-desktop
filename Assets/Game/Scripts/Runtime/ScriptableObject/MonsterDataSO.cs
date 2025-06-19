@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Spine.Unity;
 
@@ -5,9 +6,8 @@ using Spine.Unity;
 public class MonsterDataSO : ScriptableObject
 {
     [Header("Basic Info")]
-    public string monsterName;              
-    public string id;               
-    public int monPrice = 10;      
+    public string monsterName;
+    public string id;
 
     [Header("Classification")]
     public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)
@@ -25,7 +25,11 @@ public class MonsterDataSO : ScriptableObject
     public float baseHappiness = 0f;   // Add base happiness
     public float foodDetectionRange = 200f; // Range to detect food
     public float eatDistance = 5f;      // Distance to eat food
-    
+
+    [Header("Gacha Settings")]
+    public float gachaChancePercent = 0f;  // e.g., 0.10 for 0.10%
+    public string gachaChanceDisplay = ""; // e.g., "0.10%" for display
+    public bool isGachaOnly = false;       // True if buy price is 0
 
     [Header("Happiness Settings")]
     public float areaHappinessRate = 0.2f;
@@ -37,18 +41,28 @@ public class MonsterDataSO : ScriptableObject
     public bool canEvolve = true;
     public bool isEvolved = false;
     public bool isFinalEvol = false;
-    public int evolutionLevel = 0;
+    public int evolutionLevel = 1; 
 
-    [Header("Evolution Requirements")]
-    [Tooltip("Required: Each monster must have its own evolution requirements")]
-    public EvolutionRequirementsSO evolutionRequirements;
+    [Header("Evolution Requirements - Embedded")]
+    public EvolutionRequirement[] evolutionRequirements; 
 
     [Header("Spine Data")]
     public SkeletonDataAsset[] monsterSpine;
 
     [Header("Images")]
-    public Sprite[] monsImgs;           // [0] base, [1+] evolved forms
-    public Sprite[] monIcons;          // [0] base, [1+] evolved forms
+    public Sprite[] monsIconImg;        
+
+    [Header("Evolution Animations")]
+    public EvolutionAnimationSet[] evolutionAnimationSets;
+
+    [Header("Evolution Behaviors")]
+    public EvolutionBehaviorConfig[] evolutionBehaviors;
+
+    [Header("Pricing")]
+    public int monsterPrice = 10; // Buy price (Stage 1 only)
+    public int sellPriceStage1 = 0;  // Stage 1 sell price
+    public int sellPriceStage2 = 0;  // Stage 2 sell price  
+    public int sellPriceStage3 = 0;  // Stage 3 sell price
 
     [Header("Sound Effects")]
     public AudioClip[] idleSounds;      // Randomly played during idle state
@@ -59,21 +73,59 @@ public class MonsterDataSO : ScriptableObject
     public AudioClip deathSound;     // Played when monster dies
     public AudioClip interactionSound; // Played when player interacts
 
-    [Header("Evolution Animations")]
-    public EvolutionAnimationSet[] evolutionAnimationSets;
 
-    [Header("Evolution Behaviors")]
-    public EvolutionBehaviorConfig[] evolutionBehaviors;
+    public int GetSellPrice(int currentEvolutionLevel)
+    {
+        switch (currentEvolutionLevel)
+        {
+            case 1: return sellPriceStage1;
+            case 2: return sellPriceStage2;
+            case 3: return sellPriceStage3;
+            default: return sellPriceStage1;
+        }
+    }
 }
 
-[System.Serializable]
+[Serializable]
+public class EvolutionRequirement
+{
+    [Header("Target Evolution")]
+    public int targetEvolutionLevel = 2;
+    
+    [Header("Time Requirements")]
+    public float minTimeAlive = 3f; 
+    
+    [Header("Current Status Requirements (Dynamic)")]
+    [Range(0f, 100f)] public float minCurrentHappiness = 50f;
+    [Range(0f, 100f)] public float minCurrentHunger = 50f;
+
+    [Header("Accumulated Progress Requirements")]
+    public int minFoodConsumed = 1;
+    public int minInteractions = 1;
+
+    [Header("Custom Conditions")]
+    public Func<MonsterController, bool> customCondition;
+    
+    [Header("Evolution Info")]
+    public string evolutionName = "Evolution";
+    public string description = "Evolution requirements";
+
+    [Header("Reset Behavior")]
+    public bool resetHappinessProgress = true;
+    public bool resetHungerProgress = true;
+    public bool resetFoodProgress = true;
+    public bool resetInteractionProgress = true;
+    [Range(0f, 1f)] public float progressRetentionPercentage = 0f;
+}
+
+[Serializable]
 public class EvolutionBehaviorConfig
 {
     public int evolutionLevel;
     public MonsterBehaviorConfigSO behaviorConfig;
 }
 
-[System.Serializable]
+[Serializable]
 public class EvolutionAnimationSet
 {
     public int evolutionLevel;
