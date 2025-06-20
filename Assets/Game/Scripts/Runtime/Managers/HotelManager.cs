@@ -232,7 +232,6 @@ namespace MagicalGarden.Manager
 
                 DateTime checkInDate = DateTime.Parse(saved.checkInDate);
                 int stayedDays = (today - checkInDate).Days;
-                Debug.LogError(stayedDays);
                 if (stayedDays >= saved.guest.stayDurationDays)
                 {
                     int coinReward = 100;

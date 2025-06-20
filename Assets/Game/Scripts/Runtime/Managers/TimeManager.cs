@@ -2,17 +2,19 @@ using UnityEngine;
 using Unity.Collections;
 using System;
 using TMPro;
+using System.Collections.Generic;
 
 namespace MagicalGarden.Manager
 {
     public class TimeManager : MonoBehaviour
     {
         public static TimeManager Instance;
-
+        private List<TimedEvent> events = new List<TimedEvent>();
+        private float nextCheck = 0;
         public DateTime currentTime;
         public DateTime lastLoginTime;
         public DateTime lastDailyReset;
-        
+
         [Header("⏱ Real-Time Settings")]
         public bool useSystemTime = true; // true = pakai DateTime.UtcNow
         public TimeSpan utcOffset = TimeSpan.FromHours(7); // Default ke WIB
@@ -41,7 +43,31 @@ namespace MagicalGarden.Manager
             UpdateCurrentTime();
             UpdateDebugStrings();
             timeText.text = $"{currentTime:dd MMM yyyy - HH:mm:ss}";
+            if (Time.time >= nextCheck)
+            {
+                CheckEvents();
+                nextCheck = Time.time + 1f; // Cek setiap 1 detik
+            }
         }
+#region Handle Event
+        void CheckEvents()
+        {
+            DateTime now = DateTime.Now;
+
+            for (int i = events.Count - 1; i >= 0; i--)
+            {
+                if (now >= events[i].triggerTime)
+                {
+                    events[i].callback?.Invoke();
+                    events.RemoveAt(i);
+                }
+            }
+        }
+        public void AddEvent(DateTime triggerTime, Action callback)
+        {
+            events.Add(new TimedEvent(triggerTime, callback));
+        }
+#endregion
         public void UpdateCurrentTime()
         {
             currentTime = DateTime.UtcNow + utcOffset;
@@ -95,6 +121,17 @@ namespace MagicalGarden.Manager
             currentTimeStr = currentTime.ToString("yyyy-MM-dd HH:mm:ss");
             lastLoginTimeStr = lastLoginTime.ToString("yyyy-MM-dd HH:mm:ss");
             lastDailyResetStr = lastDailyReset.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+    }
+    public class TimedEvent
+    {
+        public DateTime triggerTime;
+        public Action callback;
+
+        public TimedEvent(DateTime time, Action action)
+        {
+            triggerTime = time;
+            callback = action;
         }
     }
 }

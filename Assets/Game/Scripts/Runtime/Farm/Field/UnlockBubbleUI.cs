@@ -16,7 +16,7 @@ namespace MagicalGarden.Farm
         public void Setup(FieldBlock fieldBlock, Vector3Int tilePos)
         {
             block = fieldBlock;
-            worldPos = TileManager.Instance.tilemapLocked.CellToWorld(tilePos) + new Vector3(0f, 0.5f, 0);
+            worldPos = TileManager.Instance.tilemapSoil.CellToWorld(tilePos) + new Vector3(0f, 0.5f, 0);
             transform.position = worldPos;
 
             descText.text = $"coin : {block.requiredCoins} | harvest : {block.requiredHarvest}";

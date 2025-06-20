@@ -12,7 +12,7 @@ namespace MagicalGarden.Farm
         public float simulateHour = 1f;
         public float simulateDay = 24f;
         public int addDays = 0;
-        public TextMeshProUGUI timeText;
+        // public TextMeshProUGUI timeText;
         private void Awake() {
             DebugSetLastDateToYesterday();
         }
