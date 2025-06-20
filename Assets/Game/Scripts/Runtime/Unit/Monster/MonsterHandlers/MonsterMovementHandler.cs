@@ -18,6 +18,9 @@ public class MonsterMovementHandler
     
     public void UpdateMovement(ref Vector2 targetPosition, MonsterDataSO data)
     {
+        if (_controller.EvolutionHandler != null && _controller.IsEvolving)
+            return;
+
         Vector2 pos = _transform.anchoredPosition;
         float currentSpeed = GetCurrentMoveSpeed(data);
         _transform.anchoredPosition = Vector2.MoveTowards(pos, targetPosition, currentSpeed * Time.deltaTime);

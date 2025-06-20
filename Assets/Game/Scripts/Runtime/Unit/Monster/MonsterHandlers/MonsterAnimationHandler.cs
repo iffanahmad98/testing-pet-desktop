@@ -1,4 +1,5 @@
 using UnityEngine;
+using Spine;
 using Spine.Unity;
 using System.Collections.Generic;
 using System.Collections;
@@ -7,6 +8,8 @@ public class MonsterAnimationHandler
 {
     private MonsterController _controller;
     private SkeletonGraphic _skeletonGraphic;
+    private SkeletonData _cachedSkeletonData;
+    private Dictionary<string, Spine.Animation> _animationCache = new Dictionary<string, Spine.Animation>();
     private static readonly Dictionary<MonsterState, string[]> StateAnimationMap = new()
     {
         [MonsterState.Idle] = new[] { "idle" },
@@ -108,7 +111,6 @@ public class MonsterAnimationHandler
         }
 
         // Fallback to idle if nothing else works
-        Debug.LogWarning($"[Animation] No valid animations found for {state} in {_controller.monsterID}, using idle");
         return "idle";
     }
 
@@ -150,48 +152,57 @@ public class MonsterAnimationHandler
     {
         string[] patterns = GetDefaultAnimations(state);
         
-        List<string> matchingAnimations = new List<string>();
+        List<string> matchingAnimations = new List<string>(availableAnimations.Length); 
         
         foreach (string pattern in patterns)
         {
             foreach (string animation in availableAnimations)
             {
-                if (animation.ToLower().Contains(pattern.ToLower()))
+                // Replace ToLower() calls with case-insensitive comparison
+                if (animation.IndexOf(pattern, System.StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     matchingAnimations.Add(animation);
                 }
             }
         }
         
-        // If no matches found, return all available animations as fallback
+        // Avoid allocation if empty
         return matchingAnimations.Count > 0 ? matchingAnimations.ToArray() : availableAnimations;
+    }
+
+    private Spine.Animation GetAnimation(string animationName)
+    {
+        // Use cached animation if available
+        if (_animationCache.TryGetValue(animationName, out var cachedAnim))
+            return cachedAnim;
+            
+        // Otherwise look it up and cache the result
+        var skeletonData = GetSkeletonData();
+        if (skeletonData == null) 
+            return null;
+            
+        var animation = skeletonData.FindAnimation(animationName);
+        
+        // Cache if found
+        if (animation != null)
+            _animationCache[animationName] = animation;
+            
+        return animation;
     }
 
     private bool HasAnimation(string animationName)
     {
         if (_skeletonGraphic == null || _skeletonGraphic.skeletonDataAsset == null)
         {
-            Debug.LogWarning($"[Animation] Cannot check animation '{animationName}' - skeleton components missing");
             return false;
         }
         
-        // Force initialize if needed
         if (_skeletonGraphic.AnimationState == null)
         {
             _skeletonGraphic.Initialize(true);
         }
-            
-        var skeletonData = _skeletonGraphic.skeletonDataAsset.GetSkeletonData(false);
-        if (skeletonData == null) 
-        {
-            Debug.LogWarning($"[Animation] Cannot get skeleton data to check animation '{animationName}'");
-            return false;
-        }
         
-        var animation = skeletonData.FindAnimation(animationName);
-        bool found = animation != null;
-        
-        return found;
+        return GetAnimation(animationName) != null;
     }
     
     public bool HasValidAnimationForState(MonsterState state)
@@ -215,7 +226,6 @@ public class MonsterAnimationHandler
         return false;
     }
 
-    // Your existing interface - now powered by the dictionary
     private string[] GetDefaultAnimations(MonsterState state)
     {
         return StateAnimationMap.TryGetValue(state, out var animations) 
@@ -223,18 +233,32 @@ public class MonsterAnimationHandler
             : new[] { "idle" };
     }
 
-
     public float GetAnimationDuration(string animationName)
     {
-        if (_skeletonGraphic == null || _skeletonGraphic.skeletonDataAsset == null)
-            return 1f;
-            
-        var skeletonData = _skeletonGraphic.skeletonDataAsset.GetSkeletonData(false);
-        if (skeletonData == null) return 1f;
-        
-        var animation = skeletonData.FindAnimation(animationName);
-        if (animation == null) return 1f;
-        
-        return animation.Duration;
+        var animation = GetAnimation(animationName);
+        return animation?.Duration ?? 1f;
+    }
+
+    private SkeletonData GetSkeletonData()
+    {
+        if (_cachedSkeletonData == null && _skeletonGraphic?.skeletonDataAsset != null)
+        {
+            _cachedSkeletonData = _skeletonGraphic.skeletonDataAsset.GetSkeletonData(false);
+        }
+        return _cachedSkeletonData;
+    }
+
+    // Call this when the controller is destroyed
+    public void Dispose()
+    {
+        _cachedSkeletonData = null;
+        _animationCache.Clear();
+    }
+
+    // Call this when skeleton data is updated
+    public void InvalidateCache()
+    {
+        _cachedSkeletonData = null;
+        _animationCache.Clear();
     }
 }

@@ -64,6 +64,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private MonsterBoundsHandler _boundHandler;
     public MonsterBoundsHandler BoundHandler => _boundHandler;
     private MonsterEvolutionHandler _evolutionHandler;
+    public MonsterEvolutionHandler EvolutionHandler => _evolutionHandler;
     private MonsterSeparationHandler _separationBehavior;
     public MonsterSeparationHandler SeparationBehavior => _separationBehavior;
     private MonsterStateMachine _stateMachine;

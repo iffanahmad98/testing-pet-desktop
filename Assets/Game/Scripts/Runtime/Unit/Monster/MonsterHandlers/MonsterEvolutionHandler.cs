@@ -151,6 +151,11 @@ public class MonsterEvolutionHandler
         _interactionCount = 0;
 
         _controller.UpdateVisuals();
+        
+        // Add a cooldown period where the monster stays idle
+        float postEvolutionIdleTime = 2.5f;
+        yield return new WaitForSeconds(postEvolutionIdleTime);
+        
         _isEvolving = false;
     }
 

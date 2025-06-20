@@ -5,6 +5,8 @@ public class MonsterBehaviorHandler
 {
     private MonsterController _controller;
     private List<StateTransition> _transitions = new List<StateTransition>();
+    private MonsterBehaviorConfigSO _cachedBehaviorConfig;
+    private int _lastEvolutionLevel = -1;
     
     public MonsterBehaviorHandler(MonsterController controller)
     {
@@ -13,32 +15,35 @@ public class MonsterBehaviorHandler
     
     public MonsterState SelectNextState(MonsterState currentState)
     {
+        // Fast path for eating state
         if (currentState == MonsterState.Eating)
         {
-            return Random.Range(0, 2) == 0 ? MonsterState.Idle : MonsterState.Walking;
+            return Random.value < 0.5f ? MonsterState.Idle : MonsterState.Walking;
         }
 
         var possibleTransitions = GetValidTransitions(currentState);
         
-        // CHANGED: Use simple default behavior when no config exists
         if (possibleTransitions.Count == 0) 
         {
             return GetSimpleDefaultNextState(currentState);
         }
 
+        // Optimize weighted random selection
         float totalWeight = 0f;
-        foreach (var transition in possibleTransitions)
-            totalWeight += transition.probability;
+        for (int i = 0; i < possibleTransitions.Count; i++)
+        {
+            totalWeight += possibleTransitions[i].probability;
+        }
 
-        float randomValue = Random.Range(0f, totalWeight);
+        float randomValue = Random.value * totalWeight;
         float currentWeight = 0f;
 
-        foreach (var transition in possibleTransitions)
+        for (int i = 0; i < possibleTransitions.Count; i++)
         {
-            currentWeight += transition.probability;
+            currentWeight += possibleTransitions[i].probability;
             if (randomValue <= currentWeight)
             {
-                return transition.toState;
+                return possibleTransitions[i].toState;
             }
         }
         
@@ -78,16 +83,22 @@ public class MonsterBehaviorHandler
     {
         _transitions.Clear();
         
-        var currentBehaviorConfig = GetCurrentBehaviorConfig();
+        MonsterBehaviorConfigSO currentBehaviorConfig = GetCurrentBehaviorConfig();
         if (currentBehaviorConfig == null || currentBehaviorConfig.transitions == null)
             return _transitions;
 
-        foreach (var transition in currentBehaviorConfig.transitions)
+        // Consider getting hunger and happiness once to avoid property access in loop
+        float currentHunger = _controller.currentHunger;
+        float currentHappiness = _controller.currentHappiness;
+        bool hasFoodNearby = _controller.nearestFood != null;
+
+        for (int i = 0; i < currentBehaviorConfig.transitions.Length; i++)
         {
+            var transition = currentBehaviorConfig.transitions[i];
             if (transition.fromState != currentState) continue;
-            if (transition.requiresFood && _controller.nearestFood == null) continue;
-            if (_controller.currentHunger < transition.hungerThreshold) continue;
-            if (_controller.currentHappiness < transition.happinessThreshold) continue;
+            if (transition.requiresFood && !hasFoodNearby) continue;
+            if (currentHunger < transition.hungerThreshold) continue;
+            if (currentHappiness < transition.happinessThreshold) continue;
 
             _transitions.Add(transition);
         }
@@ -97,60 +108,122 @@ public class MonsterBehaviorHandler
     
     private MonsterBehaviorConfigSO GetCurrentBehaviorConfig()
     {
+        // Cache behavior config based on evolution level
+        int currentEvolutionLevel = _controller.evolutionLevel;
+        
+        if (_cachedBehaviorConfig != null && _lastEvolutionLevel == currentEvolutionLevel)
+        {
+            return _cachedBehaviorConfig;
+        }
+        
+        _lastEvolutionLevel = currentEvolutionLevel;
+        _cachedBehaviorConfig = null;
+        
         if (_controller?.MonsterData?.evolutionBehaviors != null)
         {
             var evolutionBehavior = System.Array.Find(_controller.MonsterData.evolutionBehaviors,
-                config => config.evolutionLevel == _controller.evolutionLevel);
+                config => config.evolutionLevel == currentEvolutionLevel);
                 
             if (evolutionBehavior?.behaviorConfig != null)
             {
-                return evolutionBehavior.behaviorConfig;
+                _cachedBehaviorConfig = evolutionBehavior.behaviorConfig;
             }
         }
         
-        return null; // No config found - use simple default behavior
+        return _cachedBehaviorConfig;
     }
     
     public float GetStateDuration(MonsterState state, MonsterAnimationHandler animationHandler)
     {
-        // Get the config internally - we know better than the caller
-        var behaviorConfig = GetCurrentBehaviorConfig();
+        // Get base animation duration for potential cycle calculations
+        float baseAnimDuration = TryGetSpineDuration(state, animationHandler);
+        bool useExactDuration = baseAnimDuration > 0;
         
-        return state switch
+        // Cache behavior config to avoid multiple calls
+        MonsterBehaviorConfigSO behaviorConfig = GetCurrentBehaviorConfig();
+        
+        // Fast branching based on state type
+        switch (state)
         {
-            // Movement states: Keep random duration 3-5 seconds
-            MonsterState.Walking => GetRandomDuration(
-                behaviorConfig?.minWalkDuration, behaviorConfig?.maxWalkDuration, 3f, 5f),
-            MonsterState.Running => GetRandomDuration(
-                behaviorConfig?.minRunDuration, behaviorConfig?.maxRunDuration, 3f, 5f),
-            MonsterState.Flying => GetRandomDuration(
-                behaviorConfig?.minFlyDuration, behaviorConfig?.maxFlyDuration, 3f, 5f),
-            
-            // Non-movement states: Use animation duration from Spine (with safe fallbacks)
-            MonsterState.Idle => Mathf.Max(animationHandler?.GetAnimationDuration("idle") ?? 2f, 2f),
-            MonsterState.Jumping => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Jumping)) ?? 1f, 0.8f), // Min 0.8s
-            MonsterState.Itching => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Itching)) ?? 1.5f, 1.0f), // Min 1.0s  
-            MonsterState.Flapping => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Flapping)) ?? 1.5f, 1.0f), // Min 1.0s
-            MonsterState.Eating => Mathf.Max(animationHandler?.GetAnimationDuration(animationHandler.GetAvailableAnimation(MonsterState.Eating)) ?? 2f, 2f),
-            
-            _ => 3f // Default duration
-        };
+            // GROUP 1: Non-movement states - use exact animation duration
+            case MonsterState.Idle:
+                return useExactDuration ? baseAnimDuration : 
+                    GetRandomDuration(behaviorConfig?.minIdleDuration, behaviorConfig?.maxIdleDuration, 2f, 4f);
+                    
+            case MonsterState.Jumping:
+                return useExactDuration ? baseAnimDuration : 
+                    (behaviorConfig?.jumpDuration > 0 ? behaviorConfig.jumpDuration : 1f);
+                    
+            case MonsterState.Itching:
+                return useExactDuration ? baseAnimDuration : 
+                    GetRandomDuration(behaviorConfig?.minIdleDuration, behaviorConfig?.maxIdleDuration, 2f, 4f);
+                    
+            case MonsterState.Flapping:
+                return useExactDuration ? baseAnimDuration : 
+                    (behaviorConfig?.jumpDuration > 0 ? behaviorConfig.jumpDuration : 1.5f);
+                    
+            case MonsterState.Eating:
+                return useExactDuration ? baseAnimDuration : 2f;
+                
+            // GROUP 2: Movement states - use random durations rounded to animation cycles
+            case MonsterState.Walking:
+            case MonsterState.Running:
+            case MonsterState.Flying:
+                float randomDuration;
+                
+                if (state == MonsterState.Walking)
+                    randomDuration = GetRandomDuration(behaviorConfig?.minWalkDuration, behaviorConfig?.maxWalkDuration, 3f, 5f);
+                else if (state == MonsterState.Running)
+                    randomDuration = GetRandomDuration(behaviorConfig?.minRunDuration, behaviorConfig?.maxRunDuration, 3f, 5f);
+                else // Flying
+                    randomDuration = GetRandomDuration(behaviorConfig?.minFlyDuration, behaviorConfig?.maxFlyDuration, 3f, 5f);
+                    
+                // Round to complete animation cycles if we have a valid base duration
+                if (baseAnimDuration >= 0.5f)
+                {
+                    int cycles = Mathf.Max(1, Mathf.RoundToInt(randomDuration / baseAnimDuration));
+                    return cycles * baseAnimDuration;
+                }
+                
+                return randomDuration;
+                
+            default:
+                return 3f; // Default fallback
+        }
+    }
+
+    private float TryGetSpineDuration(MonsterState state, MonsterAnimationHandler animationHandler)
+    {
+        if (animationHandler == null) return 0f;
+        
+        // Get the specific animation name for this state
+        string animationName = animationHandler.GetAvailableAnimation(state);
+        if (string.IsNullOrEmpty(animationName)) return 0f;
+        
+        // Get the actual duration
+        float duration = animationHandler.GetAnimationDuration(animationName);
+        
+        // Validate the duration is reasonable (between 0.5s and 10s)
+        if (duration >= 0.5f && duration <= 10f)
+        {
+            return duration;
+        }
+        
+        return 0f; // Return 0 to indicate we should use fallbacks
     }
 
     private float GetRandomDuration(float? configMin, float? configMax, float defaultMin, float defaultMax)
     {
-        float min = configMin > 0 ? configMin.Value : defaultMin;
-        float max = configMax > 0 ? configMax.Value : defaultMax;
+        float min = configMin.GetValueOrDefault(defaultMin);
+        float max = configMax.GetValueOrDefault(defaultMax);
         return Random.Range(min, max);
     }
 
-    // Add helper method
     private bool IsMonsterCurrentlyInAir()
     {
         var rectTransform = _controller?.GetComponent<RectTransform>();
         if (rectTransform == null) return false;
         
-        Vector2 currentPos = rectTransform.anchoredPosition;
-        return currentPos.y > -200f; // Adjust threshold based on your game area
+        return rectTransform.anchoredPosition.y > -200f;
     }
 }
