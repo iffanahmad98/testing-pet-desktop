@@ -29,22 +29,24 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
     {
         type = coinType;
         value = (int)type;
+        if (coinType == CoinType.Platinum)
+        {
+            animator.SetTrigger("Silver");
+            transform.localScale = Vector3.one; // Scale down gold coins
+        }
         if (coinType == CoinType.Gold)
         {
             animator.SetTrigger("Gold");
-        }
-        else if (coinType == CoinType.Silver)
-        {
-            animator.SetTrigger("Silver");
+            transform.localScale = Vector3.one * 0.7f; // Scale up platinum coins
         }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        ServiceLocator.Get<GameManager>().OnCoinChanged?.Invoke(ServiceLocator.Get<GameManager>().coinCollected += value);
-        SaveSystem.SaveCoin(ServiceLocator.Get<GameManager>().coinCollected);
+        ServiceLocator.Get<MonsterManager>().OnCoinChanged?.Invoke(ServiceLocator.Get<MonsterManager>().coinCollected += value);
+        SaveSystem.SaveCoin(ServiceLocator.Get<MonsterManager>().coinCollected);
         SaveSystem.Flush();
-        ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
+        ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
     }
 }
 

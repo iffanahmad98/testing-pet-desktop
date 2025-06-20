@@ -5,32 +5,29 @@ using System;
 public class MonsterCoroutineHandler
 {
     private MonsterController _controller;
-    private MonsterStatsHandler _statsHandler;
-    
     private Coroutine _hungerCoroutine;
     private Coroutine _happinessCoroutine;
     private Coroutine _poopCoroutine;
     private Coroutine _goldCoinCoroutine;
     private Coroutine _silverCoinCoroutine;
     
-    public MonsterCoroutineHandler(MonsterController controller, MonsterStatsHandler statsHandler)
+    public MonsterCoroutineHandler(MonsterController controller)
     {
         _controller = controller;
-        _statsHandler = statsHandler;
     }
     
     public void StartAllCoroutines()
     {
-        float goldCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Gold).TotalSeconds;
-        float silverCoinInterval = (float)TimeSpan.FromMinutes((double)CoinType.Silver).TotalSeconds;
-        float poopInterval = (float)TimeSpan.FromMinutes(20f).TotalSeconds;
+        float goldCoinInterval = (float)TimeSpan.FromHours(_controller.MonsterData.goldCoinDropRateStage1).TotalSeconds;
+        float silverCoinInterval = (float)TimeSpan.FromHours(_controller.MonsterData.silverCoinDropRateStage1).TotalSeconds;
+        float poopInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.poopRate).TotalSeconds;
 
 
         _hungerCoroutine = _controller.StartCoroutine(HungerRoutine(1f));
         _happinessCoroutine = _controller.StartCoroutine(HappinessRoutine(1f));
         _poopCoroutine = _controller.StartCoroutine(PoopRoutine(poopInterval));
-        _goldCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(goldCoinInterval, CoinType.Gold));
-        _silverCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(silverCoinInterval, CoinType.Silver));
+        _goldCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(goldCoinInterval, CoinType.Platinum));
+        _silverCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(silverCoinInterval, CoinType.Gold));
     }
     
     public void StopAllCoroutines()
@@ -48,9 +45,9 @@ public class MonsterCoroutineHandler
         {
             if (_controller.MonsterData != null)
             {
-                float newHunger = Mathf.Clamp(_statsHandler.CurrentHunger - _controller.MonsterData.hungerDepleteRate, 0f, 100f);
-                _statsHandler.SetHunger(newHunger);
-                _statsHandler.UpdateSickStatus(interval);
+                float newHunger = Mathf.Clamp(_controller.StatsHandler.CurrentHunger - _controller.MonsterData.hungerDepleteRate, 0f, 100f);
+                _controller.StatsHandler.SetHunger(newHunger);
+                _controller.StatsHandler.UpdateSickStatus(interval);
             }
             yield return new WaitForSeconds(interval);
         }
@@ -60,23 +57,23 @@ public class MonsterCoroutineHandler
     {
         while (true)
         {
-            if (!_statsHandler.IsSick && _controller.MonsterData != null)
+            if (!_controller.StatsHandler.IsSick && _controller.MonsterData != null)
             {
                 // Update happiness based on area
-                _statsHandler.UpdateHappinessBasedOnArea(_controller.MonsterData, ServiceLocator.Get<GameManager>());
-                
+                _controller.StatsHandler.UpdateHappinessBasedOnArea(_controller.MonsterData, ServiceLocator.Get<MonsterManager>());
+
                 // Reduce happiness if hungry
-                if (_statsHandler.CurrentHunger < _controller.MonsterData.hungerHappinessThreshold)
+                if (_controller.StatsHandler.CurrentHunger < _controller.MonsterData.hungerHappinessThreshold)
                 {
-                    float newHappiness = Mathf.Clamp(_statsHandler.CurrentHappiness - _controller.MonsterData.hungerHappinessDrainRate, 0f, 100f);
-                    _statsHandler.SetHappiness(newHappiness);
+                    float newHappiness = Mathf.Clamp(_controller.StatsHandler.CurrentHappiness - _controller.MonsterData.hungerHappinessDrainRate, 0f, 100f);
+                    _controller.StatsHandler.SetHappiness(newHappiness);
                 }
             }
-            else if (_statsHandler.IsSick)
+            else if (_controller.StatsHandler.IsSick)
             {
                 // Reduce happiness when sick
-                float newHappiness = Mathf.Clamp(_statsHandler.CurrentHappiness - 2f, 0f, 100f);
-                _statsHandler.SetHappiness(newHappiness);
+                float newHappiness = Mathf.Clamp(_controller.StatsHandler.CurrentHappiness - 2f, 0f, 100f);
+                _controller.StatsHandler.SetHappiness(newHappiness);
             }
             
             yield return new WaitForSeconds(interval);
@@ -95,13 +92,13 @@ public class MonsterCoroutineHandler
             {
                 if (monsterData.monType == MonsterType.Common ||
                     monsterData.monType == MonsterType.Uncommon)
-                    _controller.Poop(PoopType.Normal);
+                    _controller.DropPoop(PoopType.Normal);
                 else if (monsterData.monType == MonsterType.Rare ||
-                         monsterData.monType == MonsterType.Boss ||
+                         monsterData.monType == MonsterType.Legend ||
                          monsterData.monType == MonsterType.Mythic)
-                    _controller.Poop(PoopType.Special);
+                    _controller.DropPoop(PoopType.Sparkle);
                 else
-                    _controller.Poop(); // Default to normal poop if type is unknown
+                    _controller.DropPoop(); // Default to normal poop if type is unknown
             }
             yield return new WaitForSeconds(interval);
         }

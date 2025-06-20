@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ public class SettingsManager : MonoBehaviour
     [Header("Game Area References")]
     public RectTransform gameArea;
     public CanvasScaler canvasScaler;
-    private GameManager gameManager;
+    private MonsterManager gameManager;
 
     [Header("Game Area Sliders")]
     public Slider widthSlider;
@@ -48,7 +49,7 @@ public class SettingsManager : MonoBehaviour
         SystemLanguage.Spanish
     };
 
-    private const float MIN_SIZE = 120f;
+    private const float MIN_SIZE = 270f;
     private const float DEFAULT_MONSTER_SCALE = 1f;
     private const float MONSTER_BOUNDS_PADDING = 50f; 
     private const string DECIMAL_FORMAT = "F0";
@@ -61,15 +62,20 @@ public class SettingsManager : MonoBehaviour
     private float maxScreenHeight;
     private float initialGameAreaHeight;
     private Vector2 cachedPosition;
+    [Header("Events")]
+    public UnityEvent OnGameAreaChanged;
+
     private void Awake()
     {
         ServiceLocator.Register(this);
     }
     private void Start()
     {
-        gameManager = ServiceLocator.Get<GameManager>();
+        gameManager = ServiceLocator.Get<MonsterManager>();
         InitializeGameAreaSettings();
         InitializeLanguageSettings();
+
+        
     }
 
     private void OnDestroy()
@@ -354,6 +360,8 @@ public class SettingsManager : MonoBehaviour
 
         UpdateValueText(widthValueText, value, DECIMAL_FORMAT);
         if (widthInputField != null) widthInputField.text = value.ToString(DECIMAL_FORMAT);
+
+        OnGameAreaChanged?.Invoke();
     }
 
     public void UpdateGameAreaHeight(float value)

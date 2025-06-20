@@ -12,12 +12,13 @@ public class MonsterStateMachine : MonoBehaviour
     
     private MonsterController _controller;
     private MonsterAnimationHandler _animationHandler;
+    public MonsterAnimationHandler AnimationHandler => _animationHandler;
     private MonsterBehaviorHandler _behaviorHandler;
 
     public MonsterState CurrentState => _currentState;
     public MonsterState PreviousState => _previousState;
     public event Action<MonsterState> OnStateChanged;
-    public MonsterAnimationHandler AnimationHandler => _animationHandler;     
+
     private void Start()
     {
         _controller = GetComponent<MonsterController>();
@@ -33,19 +34,14 @@ public class MonsterStateMachine : MonoBehaviour
     {
         _stateTimer += Time.deltaTime;
 
-        // Prevent state changes during evolution
-        if (_controller != null && _controller.IsEvolving)
-        {
-            return; // Don't process state changes while evolving
-        }
+        if (_controller != null && _controller.IsEvolving) return; 
 
-        // Better coordination with food handler
+
         if (_currentState == MonsterState.Eating)
         {
             var foodHandler = _controller.FoodHandler;
 
-            // Only timeout if food handler confirms eating should end
-            if (_stateTimer > _defaultEatingStateDuration * 4f) // Even more lenient
+            if (_stateTimer > _defaultEatingStateDuration * 4f) 
             {
                 bool isStillEating = foodHandler?.IsCurrentlyEating ?? false;
                 if (!isStillEating)
@@ -60,7 +56,7 @@ public class MonsterStateMachine : MonoBehaviour
             }
         }
 
-        // ADD: Check if monster should continue current movement state
+        //Check if monster should continue current movement state
         if (ShouldContinueCurrentMovement())
         {
             return; // Don't change state while traveling to target
@@ -176,11 +172,11 @@ public class MonsterStateMachine : MonoBehaviour
         return true; // Allow other transitions
     }
 
-    // ADD: Helper method to check if monster is in air
+        // ADD: Helper method to check if monster is in air
     private bool IsMonsterInAir(Vector2 position)
     {
         // You can access the bounds handler through the controller
-        var boundsHandler = _controller.GetComponent<MonsterController>().GetBoundsHandler(); // You'll need to expose this
+        var boundsHandler = _controller.BoundHandler; // You'll need to expose this
         if (boundsHandler != null)
         {
             var groundBounds = boundsHandler.CalculateGroundBounds(); // You'll need to make this public

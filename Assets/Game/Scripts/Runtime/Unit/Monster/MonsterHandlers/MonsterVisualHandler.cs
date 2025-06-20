@@ -35,15 +35,61 @@ public class MonsterVisualHandler
 
     public void ApplyMonsterVisuals()
     {
-        if (_controller.MonsterData == null || _skeletonGraphic == null) return;
+        if (_controller?.MonsterData == null) return;
 
-        SetSpineDataBasedOnEvolution();
+        // FIXED: Use current evolution level from monster instance, not SO
+        int currentLevel = _controller.evolutionLevel; // NOT _controller.MonsterData.evolutionLevel
+        
+        UpdateSpineAsset(currentLevel);
+        UpdateIconImage(currentLevel);
+        UpdateAnimationSet(currentLevel);
+    }
 
-        // Ensure animation starts after spine data is set
-        if (_skeletonGraphic.skeletonDataAsset != null && _skeletonGraphic.AnimationState != null)
+    private void UpdateSpineAsset(int evolutionLevel)
+    {
+        if (_controller?.MonsterData?.monsterSpine == null) return;
+
+        // Array index = evolution level - 1 (level 1 = index 0, level 2 = index 1, etc.)
+        int spineIndex = evolutionLevel - 1;
+        
+        if (spineIndex >= 0 && spineIndex < _controller.MonsterData.monsterSpine.Length)
         {
-            _skeletonGraphic.AnimationState.SetAnimation(0, "idle", true);
+            var targetSpineAsset = _controller.MonsterData.monsterSpine[spineIndex];
+            
+            if (targetSpineAsset != null && _skeletonGraphic.skeletonDataAsset != targetSpineAsset)
+            {   
+                _skeletonGraphic.skeletonDataAsset = targetSpineAsset;
+                _skeletonGraphic.Initialize(true);
+            }
+            else if (targetSpineAsset == null)
+            {
+                Debug.LogWarning($"[Visual] Spine asset for evolution level {evolutionLevel} is null!");
+            }
         }
+        else
+        {
+            Debug.LogWarning($"[Visual] Evolution level {evolutionLevel} out of range for spine assets (available: {_controller.MonsterData.monsterSpine.Length})");
+        }
+    }
+
+    private void UpdateIconImage(int evolutionLevel)
+    {
+        if (_controller?.MonsterData?.monsIconImg == null) return;
+
+        int iconIndex = evolutionLevel - 1;
+        
+        if (iconIndex >= 0 && iconIndex < _controller.MonsterData.monsIconImg.Length)
+        {
+            var targetIcon = _controller.MonsterData.monsIconImg[iconIndex];
+            // Apply icon where needed (UI, inventory, etc.)
+        }
+    }
+
+    private void UpdateAnimationSet(int evolutionLevel)
+    {
+        if (_controller?.MonsterData?.evolutionAnimationSets == null) return;
+        var animSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets, 
+            set => set.evolutionLevel == evolutionLevel);
     }
 
     private IEnumerator SetAnimationAfterFrame()
@@ -84,8 +130,16 @@ public class MonsterVisualHandler
         return spineAsset;
     }
 
+    // FIXED: Method to update visuals after evolution
     public void UpdateMonsterVisuals()
     {
+        ApplyMonsterVisuals(); // This will now use the current evolution level
+    }
+
+    // NEW: Method specifically for evolution visual updates
+    public void UpdateEvolutionVisuals(int newEvolutionLevel)
+    {
+        Debug.Log($"[Visual] Evolution visual update: {_controller.monsterID} to level {newEvolutionLevel}");
         ApplyMonsterVisuals();
     }
 
@@ -154,7 +208,7 @@ public class MonsterVisualHandler
 
     public Vector2 GetRandomPositionOutsideBounds()
     {
-        var gameManager = ServiceLocator.Get<GameManager>();
+        var gameManager = ServiceLocator.Get<MonsterManager>();
         if (gameManager != null && gameManager.gameArea != null)
         {
             var gameAreaRect = gameManager.gameArea;
@@ -201,7 +255,7 @@ public class MonsterVisualHandler
         Vector2 backPosition = GetBackPosition();
 
         // Use the existing bounds handler from the controller
-        var boundsHandler = _controller.GetBoundsHandler();
+        var boundsHandler = _controller.BoundHandler;
         if (boundsHandler == null)
         {
             // Fallback to monster position if no bounds handler
@@ -233,7 +287,7 @@ public class MonsterVisualHandler
         spawnPosition = FindSafeSpawnPosition(spawnPosition);
         
         // Spawn poop at safe position
-        var poopGameObject = ServiceLocator.Get<GameManager>().SpawnPoopAt(spawnPosition, type);
+        var poopGameObject = ServiceLocator.Get<MonsterManager>().SpawnPoopAt(spawnPosition, type);
         
         if (poopGameObject != null)
         {
@@ -281,7 +335,7 @@ public class MonsterVisualHandler
     private Vector2 CalculateSafeSlideDirection(Vector2 startPosition)
     {
         // Use the existing bounds handler from the controller
-        var boundsHandler = _controller.GetBoundsHandler();
+        var boundsHandler = _controller.BoundHandler;
         if (boundsHandler == null)
         {
             // Fallback to slide down
@@ -323,7 +377,7 @@ public class MonsterVisualHandler
     // NEW: Find safe spawn position that doesn't overlap
     private Vector2 FindSafeSpawnPosition(Vector2 preferredPosition, int maxAttempts = 5)
     {
-        var gameManager = ServiceLocator.Get<GameManager>();
+        var gameManager = ServiceLocator.Get<MonsterManager>();
         if (gameManager == null) return preferredPosition;
 
         for (int i = 0; i < maxAttempts; i++)

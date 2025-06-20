@@ -24,7 +24,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         {
             animator.SetTrigger("Normal");
         }
-        else if (type == PoopType.Special)
+        else if (type == PoopType.Sparkle)
         {
             animator.SetTrigger("Special");
         }
@@ -32,10 +32,10 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        ServiceLocator.Get<GameManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<GameManager>().poopCollected += poopValue);
-        SaveSystem.SavePoop(ServiceLocator.Get<GameManager>().poopCollected);
+        ServiceLocator.Get<MonsterManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<MonsterManager>().poopCollected += poopValue);
+        SaveSystem.SavePoop(ServiceLocator.Get<MonsterManager>().poopCollected);
         SaveSystem.Flush();
-        ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
+        ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
         ServiceLocator.Get<CursorManager>().Set(CursorType.Default);
     }
 

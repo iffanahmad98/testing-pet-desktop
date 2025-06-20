@@ -22,7 +22,7 @@ public class GachaManager : MonoBehaviour
     {
         MonsterType.Rare,
         MonsterType.Mythic,
-        MonsterType.Boss
+        MonsterType.Legend
     };
 
     private void Awake()
@@ -45,7 +45,7 @@ public class GachaManager : MonoBehaviour
         }
     }    public void RollGacha()
     {
-        if (ServiceLocator.Get<GameManager>().coinCollected < gachaCost)
+        if (ServiceLocator.Get<MonsterManager>().coinCollected < gachaCost)
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);
             return;
@@ -61,7 +61,7 @@ public class GachaManager : MonoBehaviour
         }
 
         // Only spend coins AFTER we confirm we can spawn a monster
-        if (ServiceLocator.Get<GameManager>().SpentCoin(gachaCost))
+        if (ServiceLocator.Get<MonsterManager>().SpentCoin(gachaCost))
         {
             SpawnMonster(selectedMonster);
             ShowGachaResult(selectedMonster);
@@ -104,7 +104,7 @@ public class GachaManager : MonoBehaviour
     private void SpawnMonster(MonsterDataSO monsterData)
     {
         // Pass the monster data instead of just ID
-        ServiceLocator.Get<GameManager>().SpawnMonster(monsterData);
+        ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
     }
 
     private void ShowGachaResult(MonsterDataSO monster)

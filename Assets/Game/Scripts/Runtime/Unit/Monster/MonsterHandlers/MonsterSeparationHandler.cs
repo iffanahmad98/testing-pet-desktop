@@ -4,7 +4,6 @@ using System.Collections.Generic;
 public class MonsterSeparationHandler
 {
     private MonsterController _controller;
-    private GameManager _gameManager;
     private RectTransform _rectTransform;
     
     [Header("Separation Settings")]
@@ -13,10 +12,9 @@ public class MonsterSeparationHandler
     public float maxSeparationSpeed = 100f; // Limit separation movement speed
     public LayerMask monsterLayer = -1;
     
-    public MonsterSeparationHandler(MonsterController controller, GameManager gameManager, RectTransform rectTransform)
+    public MonsterSeparationHandler(MonsterController controller, RectTransform rectTransform)
     {
         _controller = controller;
-        _gameManager = gameManager;
         _rectTransform = rectTransform;
     }
     
@@ -26,7 +24,7 @@ public class MonsterSeparationHandler
         int count = 0;
         Vector2 currentPosition = _rectTransform.anchoredPosition;
         
-        foreach (var otherMonster in _gameManager.activeMonsters)
+        foreach (var otherMonster in _controller.MonsterManager.activeMonsters)
         {
             if (otherMonster == _controller || otherMonster == null) continue;
             
@@ -41,7 +39,7 @@ public class MonsterSeparationHandler
                 Vector2 diff = currentPosition - otherPosition;
                 diff.Normalize();
                 
-                // FIXED: Stronger repulsion for closer monsters
+                // Stronger repulsion for closer monsters
                 float strength = (separationRadius - distance) / separationRadius;
                 diff *= strength * separationForce;
                 
@@ -53,7 +51,6 @@ public class MonsterSeparationHandler
         if (count > 0)
         {
             separationVector /= count;
-            // Don't normalize here - we want to preserve the accumulated force
             return separationVector;
         }
         

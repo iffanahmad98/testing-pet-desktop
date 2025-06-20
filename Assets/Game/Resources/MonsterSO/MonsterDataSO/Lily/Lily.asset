@@ -14,46 +14,63 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterName: Lily
   id: 005
-  monPrice: 10
   monType: 0
+  poopType: 1
+  maxHealth: 100
   moveSpd: 100
-  hungerDepleteRate: 0.05
-  poopRate: 20
-  baseHunger: 50
   baseHappiness: 0
   foodDetectionRange: 200
   eatDistance: 5
-  pokeCooldownDuration: 10
+  hungerDepleteRate: 0.05
+  baseHunger: 0
+  maxHungerStage1: 0
+  maxHungerStage2: 0
+  maxHungerStage3: 0
+  poopRate: 20
+  goldCoinDropRateStage1: 2
+  silverCoinDropRateStage1: 60
+  goldCoinDropRateStage2: 0
+  silverCoinDropRateStage2: 0
+  goldCoinDropRateStage3: 0
+  silverCoinDropRateStage3: 0
+  gachaChancePercent: 0
+  gachaChanceDisplay: 
+  isGachaOnly: 0
   areaHappinessRate: 0.2
   pokeHappinessValue: 2
   hungerHappinessThreshold: 30
   hungerHappinessDrainRate: 2
-  clickToCollectPoop: 1
   canEvolve: 1
   isEvolved: 0
   isFinalEvol: 0
-  evolutionLevel: 0
-  evolutionRequirements: {fileID: 11400000, guid: d3e14830d29dbef47bab7b4a75a30888, type: 2}
+  evolutionLevel: 1
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 3
+    minCurrentHappiness: 0
+    minCurrentHunger: 0
+    minFoodConsumed: 1
+    minInteractions: 1
+    evolutionName: Evolution
+    description: Evolution requirements
+    resetHappinessProgress: 1
+    resetHungerProgress: 1
+    resetFoodProgress: 1
+    resetInteractionProgress: 1
+    progressRetentionPercentage: 0
   monsterSpine:
   - {fileID: 11400000, guid: 7f020e0b978c0344ca2b540dffc3956a, type: 2}
   - {fileID: 11400000, guid: 993477a849bcbd347a4bb389a2381cbe, type: 2}
-  monsImgs: []
-  idleSounds: []
-  happySound: {fileID: 0}
-  eatSound: {fileID: 0}
-  hurtSound: {fileID: 0}
-  evolveSound: {fileID: 0}
-  deathSound: {fileID: 0}
-  interactionSound: {fileID: 0}
+  monsIconImg: []
   evolutionAnimationSets:
-  - evolutionLevel: 0
+  - evolutionLevel: 1
     availableAnimations:
     - idle
     - eating
     - jumping
     - running
     - walking
-  - evolutionLevel: 1
+  - evolutionLevel: 2
     availableAnimations:
     - idle
     - eating
@@ -61,7 +78,18 @@ MonoBehaviour:
     - running
     - walking
   evolutionBehaviors:
-  - evolutionLevel: 0
-    behaviorConfig: {fileID: 11400000, guid: 7dcf75493ffa68942a44898732172b8a, type: 2}
   - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: 7dcf75493ffa68942a44898732172b8a, type: 2}
+  - evolutionLevel: 2
     behaviorConfig: {fileID: 11400000, guid: 58177c3580604f741b08b43c296f186c, type: 2}
+  monsterPrice: 10
+  sellPriceStage1: 0
+  sellPriceStage2: 0
+  sellPriceStage3: 0
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}
