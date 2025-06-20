@@ -526,6 +526,13 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void SetRandomTarget()
     {
+        // Don't change target too frequently
+        if (Time.time - _lastTargetChangeTime < TARGET_CHANGE_COOLDOWN)
+            return;
+            
+        _targetPosition = BoundHandler.GetRandomTargetForState(StateMachine.CurrentState);
+        _lastTargetChangeTime = Time.time;
+
         SetRandomTargetForCurrentState();
     }
 

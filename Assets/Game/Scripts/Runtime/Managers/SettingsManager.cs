@@ -57,11 +57,14 @@ public class SettingsManager : MonoBehaviour
     private const string VOLUME_FORMAT = "F1";
     private const float MIN_VOLUME_DB = -80f;
     private const float MAX_VOLUME_DB = 0f;
-
     private float maxScreenWidth;
     private float maxScreenHeight;
     private float initialGameAreaHeight;
     private Vector2 cachedPosition;
+    private bool _isResizing = false;
+    private float _lastRepositionTime = 0f;
+    private const float REPOSITION_COOLDOWN = 0.2f;
+
     [Header("Events")]
     public UnityEvent OnGameAreaChanged;
 
@@ -355,11 +358,14 @@ public class SettingsManager : MonoBehaviour
         size.x = value;
         gameArea.sizeDelta = size;
 
-        // Add this line
-        RepositionMonstersAfterScaling();
-
         UpdateValueText(widthValueText, value, DECIMAL_FORMAT);
         if (widthInputField != null) widthInputField.text = value.ToString(DECIMAL_FORMAT);
+
+        if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
+        {
+            RepositionMonstersAfterScaling();
+            _lastRepositionTime = Time.time;
+        }
 
         OnGameAreaChanged?.Invoke();
     }
@@ -369,25 +375,31 @@ public class SettingsManager : MonoBehaviour
         if (gameArea == null) return;
 
         value = Mathf.Clamp(value, MIN_SIZE, initialGameAreaHeight);
-        
+
         // Store current bottom position before scaling
         float currentBottom = gameArea.anchoredPosition.y - (gameArea.sizeDelta.y * gameArea.pivot.y);
-        
+
         // Update size
         Vector2 size = gameArea.sizeDelta;
         size.y = value;
         gameArea.sizeDelta = size;
-        
+
         // Maintain bottom position by adjusting anchoredPosition
         Vector2 pos = gameArea.anchoredPosition;
         pos.y = currentBottom + (value * gameArea.pivot.y);
         gameArea.anchoredPosition = pos;
 
-        // Add this line
-        RepositionMonstersAfterScaling();
-
         UpdateValueText(heightValueText, value, DECIMAL_FORMAT);
         if (heightInputField != null) heightInputField.text = value.ToString(DECIMAL_FORMAT);
+
+        // Only reposition monsters occasionally during continuous resizing
+        if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
+        {
+            RepositionMonstersAfterScaling();
+            _lastRepositionTime = Time.time;
+        }
+        
+        OnGameAreaChanged?.Invoke();
     }
 
     public void UpdateGameAreaHorizontalPosition(float value)
