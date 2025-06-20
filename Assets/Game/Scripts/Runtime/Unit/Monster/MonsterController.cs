@@ -300,6 +300,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         UnsubscribeFromEvents();
         _coroutineHandler?.StopAllCoroutines();
+        // _evolutionHandler?.CleanupEvolutionEffects();
     }
     
     private void OnDestroy()
