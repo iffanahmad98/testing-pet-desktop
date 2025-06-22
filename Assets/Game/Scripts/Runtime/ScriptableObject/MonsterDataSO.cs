@@ -120,9 +120,9 @@ public class MonsterDataSO : ScriptableObject
     {
         switch (evolutionLevel)
         {
-            case 1: return maxHungerStage1;
-            case 2: return maxHungerStage2 > 0 ? maxHungerStage2 : maxHungerStage1 * 1.5f;
-            case 3: return maxHungerStage3 > 0 ? maxHungerStage3 : maxHungerStage2 * 1.2f;
+            case 1: return maxHungerStage1 > 0 ? maxHungerStage1 : 100f; // Default to 100 if not set
+            case 2: return maxHungerStage2 > 0 ? maxHungerStage2 : maxHungerStage1 * 2f;
+            case 3: return maxHungerStage3 > 0 ? maxHungerStage3 : maxHungerStage2 * 1.5f;
             default: return maxHungerStage1;
         }
     }

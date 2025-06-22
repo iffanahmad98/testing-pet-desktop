@@ -128,7 +128,9 @@ public class MonsterManager : MonoBehaviour
         monster.name = $"{finalData.monsterName}_{controller.monsterID}";
 
         if (string.IsNullOrEmpty(id))
+        {
             RegisterMonster(controller);
+        }
         else
             RegisterActiveMonster(controller);
     }

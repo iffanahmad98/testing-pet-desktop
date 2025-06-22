@@ -230,6 +230,7 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("deathSound"));
         
         EditorGUI.indentLevel--;
+        EditorGUILayout.Space(5);  // Add this line for consistency
     }
 }
 #endif

@@ -284,6 +284,12 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         _interactionHandler?.UpdateTimers(Time.deltaTime);
         _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
         HandleMovement();
+        
+        // Update emoji visibility if hovering
+        if (_isHovered)
+        {
+            UI.UpdateEmojiVisibility(IsSick);
+        }
     }
     
     private void OnEnable()
@@ -300,7 +306,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         UnsubscribeFromEvents();
         _coroutineHandler?.StopAllCoroutines();
-        // _evolutionHandler?.CleanupEvolutionEffects();
     }
     
     private void OnDestroy()
@@ -679,8 +684,22 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         OnHoverChanged?.Invoke(_isHovered);
     }
     
-    public void OnPointerEnter(PointerEventData e) => _interactionHandler?.OnPointerEnter(e);
-    public void OnPointerExit(PointerEventData e) => _interactionHandler?.OnPointerExit(e);
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        _isHovered = true;
+        OnHoverChanged?.Invoke(_isHovered);
+        UI.OnHoverEnter();
+        _interactionHandler?.OnPointerEnter(eventData);
+    }
+    
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _isHovered = false;
+        OnHoverChanged?.Invoke(_isHovered);
+        UI.OnHoverExit();
+        _interactionHandler?.OnPointerExit(eventData);
+    }
+    
     public void OnPointerClick(PointerEventData eventData) => _interactionHandler?.OnPointerClick(eventData);
     
     public void TriggerEating() => _stateMachine?.ChangeState(MonsterState.Eating);
