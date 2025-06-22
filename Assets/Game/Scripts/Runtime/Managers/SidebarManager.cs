@@ -9,14 +9,14 @@ public class SidebarManager : MonoBehaviour
     {
         public Button sidebarButton;
         public GameObject linkedPanel;
+        public Sprite activeSprite;
+        public Sprite inactiveSprite;
         [HideInInspector] public Image buttonImage;
     }
 
     public List<SidebarPanelLink> sidebarLinks;
     private GameObject currentPanel;
     private SidebarPanelLink currentLink;
-    public Sprite activeSprite;
-    public Sprite inactiveSprite;
 
     void Start()
     {
@@ -38,14 +38,14 @@ public class SidebarManager : MonoBehaviour
 
         // Set old button sprite to inactive
         if (currentLink != null && currentLink.buttonImage != null)
-            currentLink.buttonImage.sprite = inactiveSprite;
+            currentLink.buttonImage.sprite = currentLink.inactiveSprite;
         // Activate new panel
         linkToShow.linkedPanel.SetActive(true);
         currentPanel = linkToShow.linkedPanel;
 
         // Set new button sprite to active
         if (linkToShow.buttonImage != null)
-            linkToShow.buttonImage.sprite = activeSprite;
+            linkToShow.buttonImage.sprite = linkToShow.activeSprite;
 
         currentLink = linkToShow;
     }

@@ -16,14 +16,18 @@ public class GachaManager : MonoBehaviour
     public MonsterDatabaseSO monsterDatabase;
     public List<RarityWeight> rarityWeights;
     public int gachaCost = 10;
-    
+
     [Header("Allowed Rarities")]
-    [SerializeField] private List<MonsterType> allowedRarities = new List<MonsterType>
+    [SerializeField]
+    private List<MonsterType> allowedRarities = new List<MonsterType>
     {
         MonsterType.Rare,
         MonsterType.Mythic,
         MonsterType.Legend
     };
+    [Header("UI References")]
+    public GachaResultPanel gachaResultPanel;
+
 
     private void Awake()
     {
@@ -32,18 +36,20 @@ public class GachaManager : MonoBehaviour
     }
 
     private void ValidateConfiguration()
-    {        if (monsterDatabase == null)
+    {
+        if (monsterDatabase == null)
         {
             return;
         }
 
         var invalidWeights = rarityWeights.Where(w => !allowedRarities.Contains(w.type)).ToList();
-        
+
         foreach (var rarity in allowedRarities)
         {
             var monstersOfRarity = monsterDatabase.monsters.Where(m => m.monType == rarity).Count();
         }
-    }    public void RollGacha()
+    }
+    public void RollGacha()
     {
         if (ServiceLocator.Get<GameManager>().coinCollected < gachaCost)
         {
@@ -53,7 +59,7 @@ public class GachaManager : MonoBehaviour
 
         MonsterType chosenRarity = GetRandomRarity();
         MonsterDataSO selectedMonster = SelectRandomMonster(chosenRarity);
-        
+
         if (selectedMonster == null)
         {
             ServiceLocator.Get<UIManager>().ShowMessage("No monsters available!", 1f);
@@ -67,6 +73,7 @@ public class GachaManager : MonoBehaviour
             ShowGachaResult(selectedMonster);
         }
     }
+
 
     private MonsterDataSO SelectRandomMonster(MonsterType rarity)
     {
@@ -82,7 +89,7 @@ public class GachaManager : MonoBehaviour
     {
         // Filter weights to only include allowed rarities
         var validWeights = rarityWeights.Where(w => allowedRarities.Contains(w.type)).ToList();
-          if (validWeights.Count == 0)
+        if (validWeights.Count == 0)
         {
             return allowedRarities[0];
         }
@@ -109,8 +116,10 @@ public class GachaManager : MonoBehaviour
 
     private void ShowGachaResult(MonsterDataSO monster)
     {
-        ServiceLocator.Get<UIManager>().ShowMessage(
-            $"You got: {monster.monsterName} ({monster.monType})", 2f);
+        if (gachaResultPanel != null)
+        {
+            gachaResultPanel.Show(monster, RollGacha); // Attach roll again
+        }
     }
 
     // Public method to add new allowed rarities at runtime if needed
