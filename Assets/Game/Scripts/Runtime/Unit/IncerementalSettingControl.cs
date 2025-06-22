@@ -61,4 +61,12 @@ public class IncrementSettingControl : MonoBehaviour
     }
 
     public float GetValue() => currentValue;
+    public void SetValueWithoutNotify(float newValue)
+    {
+        currentValue = Mathf.Clamp(newValue, minValue, maxValue);
+        inputField.text = currentValue.ToString("F0");
+
+        // Don’t invoke onValueChanged
+    }
+
 }

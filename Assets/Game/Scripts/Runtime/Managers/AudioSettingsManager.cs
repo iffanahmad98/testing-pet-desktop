@@ -1,8 +1,9 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class AudioSettingsManager : MonoBehaviour
+public class AudioSettingsManager : MonoBehaviour, ISettingsSavable
 {
     [Header("Mixer References")]
     [SerializeField] private AudioMixer masterMixer;
@@ -14,64 +15,55 @@ public class AudioSettingsManager : MonoBehaviour
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider sfxSlider;
+    [SerializeField] private TextMeshProUGUI masterVolumeText;
+    [SerializeField] private TextMeshProUGUI bgmVolumeText;
+    [SerializeField] private TextMeshProUGUI sfxVolumeText;
 
     private const float MIN_VOLUME_DB = -80f;
     private const float MAX_VOLUME_DB = 0f;
     private const string VOLUME_PREFIX = "Volume_";
+    private float cachedMaster;
+    private float cachedBGM;
+    private float cachedSFX;
 
     private void Awake()
     {
         ServiceLocator.Register(this);
         InitializeSliders();
+
+    }
+    void Start()
+    {
+        LoadSettings();
     }
 
     private void InitializeSliders()
     {
-        float savedMaster = PlayerPrefs.GetFloat(VOLUME_PREFIX + masterVolumeParam, 1f);
-        float savedBGM = PlayerPrefs.GetFloat(VOLUME_PREFIX + bgmVolumeParam, 1f);
-        float savedSFX = PlayerPrefs.GetFloat(VOLUME_PREFIX + sfxVolumeParam, 1f);
 
-        if (masterSlider != null)
-        {
-            masterSlider.value = savedMaster;
-            masterSlider.onValueChanged.AddListener(SetMasterVolume);
-            SetMasterVolume(savedMaster);
-        }
-
-        if (bgmSlider != null)
-        {
-            bgmSlider.value = savedBGM;
-            bgmSlider.onValueChanged.AddListener(SetBGMVolume);
-            SetBGMVolume(savedBGM);
-        }
-
-        if (sfxSlider != null)
-        {
-            sfxSlider.value = savedSFX;
-            sfxSlider.onValueChanged.AddListener(SetSFXVolume);
-            SetSFXVolume(savedSFX);
-        }
+        masterSlider.onValueChanged.AddListener(SetMasterVolume);
+        bgmSlider.onValueChanged.AddListener(SetBGMVolume);
+        sfxSlider.onValueChanged.AddListener(SetSFXVolume);
     }
 
     public void SetMasterVolume(float linearValue)
     {
         float dbValue = ConvertToDecibel(linearValue);
         masterMixer.SetFloat(masterVolumeParam, dbValue);
-        PlayerPrefs.SetFloat(VOLUME_PREFIX + masterVolumeParam, linearValue);
+        masterVolumeText.text = masterSlider.value.ToString();
     }
 
     public void SetBGMVolume(float linearValue)
     {
         float dbValue = ConvertToDecibel(linearValue);
         masterMixer.SetFloat(bgmVolumeParam, dbValue);
-        PlayerPrefs.SetFloat(VOLUME_PREFIX + bgmVolumeParam, linearValue);
+        bgmVolumeText.text = bgmSlider.value.ToString();
     }
 
     public void SetSFXVolume(float linearValue)
     {
         float dbValue = ConvertToDecibel(linearValue);
         masterMixer.SetFloat(sfxVolumeParam, dbValue);
-        PlayerPrefs.SetFloat(VOLUME_PREFIX + sfxVolumeParam, linearValue);
+        sfxVolumeText.text = sfxSlider.value.ToString();
     }
 
     private float ConvertToDecibel(float linear)
@@ -87,5 +79,70 @@ public class AudioSettingsManager : MonoBehaviour
 
         ServiceLocator.Unregister<AudioSettingsManager>();
         PlayerPrefs.Save();
+    }
+    public void LoadSettings()
+    {
+        var settings = SaveSystem.GetPlayerConfig().settings;
+
+        cachedMaster = settings.masterVolume;
+        cachedBGM = settings.bgmVolume;
+        cachedSFX = settings.sfxVolume;
+        Debug.Log($"Loaded Audio Settings: Master={cachedMaster}, BGM={cachedBGM}, SFX={cachedSFX}");
+
+        if (masterSlider != null)
+        {
+            masterSlider.value = cachedMaster;
+            SetMasterVolume(cachedMaster);
+        }
+
+        if (bgmSlider != null)
+        {
+            bgmSlider.value = cachedBGM;
+            SetBGMVolume(cachedBGM);
+        }
+
+        if (sfxSlider != null)
+        {
+            sfxSlider.value = cachedSFX;
+            SetSFXVolume(cachedSFX);
+        }
+    }
+
+    public void SaveSettings()
+    {
+        var settings = SaveSystem.GetPlayerConfig().settings;
+
+        settings.masterVolume = masterSlider.value;
+        settings.bgmVolume = bgmSlider.value;
+        settings.sfxVolume = sfxSlider.value;
+
+        cachedMaster = settings.masterVolume;
+        cachedBGM = settings.bgmVolume;
+        cachedSFX = settings.sfxVolume;
+
+        Debug.Log("Audio Settings Saved");
+    }
+
+    public void RevertSettings()
+    {
+        if (masterSlider != null)
+        {
+            masterSlider.value = cachedMaster;
+            SetMasterVolume(cachedMaster);
+        }
+
+        if (bgmSlider != null)
+        {
+            bgmSlider.value = cachedBGM;
+            SetBGMVolume(cachedBGM);
+        }
+
+        if (sfxSlider != null)
+        {
+            sfxSlider.value = cachedSFX;
+            SetSFXVolume(cachedSFX);
+        }
+
+        Debug.Log("Audio Settings Reverted");
     }
 }

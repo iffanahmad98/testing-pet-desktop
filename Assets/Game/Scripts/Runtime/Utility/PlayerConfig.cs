@@ -15,10 +15,21 @@ public class PlayerConfig
     // Monster collection
     public List<string> monsterIDs = new List<string>();
     public Dictionary<string, MonsterSaveData> monsters = new Dictionary<string, MonsterSaveData>();
+    public SettingsData settings = new SettingsData();
 
-    // Settings
-    public float BGMVolume = 1f;
-    public float SFXVolume = 1f;
-    public float UIVolume = 1f;
     public bool notificationsEnabled = true;
+}
+[Serializable]
+public class SettingsData
+{
+    public float gameAreaWidth = 1920f;
+    public float gameAreaX = 0f;
+    public float gameAreaY = 0f;
+    public float uiScale = 1f;
+    public int languageIndex = 0;
+    public int screenState = 0;
+
+    public float masterVolume = 1f;
+    public float bgmVolume = 1f;
+    public float sfxVolume = 1f;
 }

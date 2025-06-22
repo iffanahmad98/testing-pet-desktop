@@ -7,6 +7,7 @@ public static class SaveSystem
 {
     private const string SaveFileName = "playerConfig.json";
     private static PlayerConfig _playerConfig;
+    public static PlayerConfig PlayerConfig => _playerConfig;
     private static DateTime _sessionStartTime;
 
     // Global game statss
@@ -39,6 +40,7 @@ public static class SaveSystem
         UpdatePlayTime();
         SavePlayerConfig();
     }
+
     // Pets
     public static void SaveMon(MonsterSaveData data)
     {
@@ -199,6 +201,7 @@ public static class SaveSystem
                 string json = File.ReadAllText(path);
                 _playerConfig = JsonUtility.FromJson<PlayerConfig>(json);
                 Debug.Log("Game data loaded successfully");
+                Debug.LogWarning(path);
             }
             catch (Exception e)
             {
@@ -249,7 +252,7 @@ public static class SaveSystem
         Debug.Log("All game data deleted");
     }
     #endregion
-    
+
     #region Farming System Integration
 
     public static void SavePlants(PlantListWrapper plants)
@@ -284,6 +287,17 @@ public static class SaveSystem
         return null;
     }
     #endregion
+    public static PlayerConfig GetPlayerConfig()
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig was null, creating new one.");
+            CreateNewPlayerConfig();
+        }
+        Debug.Log(_playerConfig.settings.bgmVolume);
+        return _playerConfig;
+    }
+
 }
 
 [Serializable]
