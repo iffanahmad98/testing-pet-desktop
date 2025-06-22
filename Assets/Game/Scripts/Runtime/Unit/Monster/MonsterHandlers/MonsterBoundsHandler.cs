@@ -3,17 +3,27 @@ using UnityEngine;
 public class MonsterBoundsHandler
 {
     private RectTransform _rectTransform;
-    private GameManager _gameManager;
-    private const float PADDING = 50f;
-    private const float GROUND_OFFSET = 10f; // Extra offset from detected ground edge
-    
-    public MonsterBoundsHandler(RectTransform rectTransform, GameManager gameManager)
+    private MonsterManager _manager;
+    private const float PADDING = 10f;
+    private const float FLYING_BUFFER_ZONE = 25f;
+    private const float AIR_IDLE_HEIGHT_BUFFER = 50f;
+    private const float MIN_MOVEMENT_AREA = 150f;
+    private const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
+    private const float MINIMAL_Y_MOVEMENT = 20f;
+    private const float TINY_Y_MOVEMENT = 5f;
+    private const float MINIMAL_X_SPACE = 50f;
+    private const float JITTER_RANGE = 10f;
+    private const float BOUNDS_SCALE_FACTOR = 0.3f;
+    private const float CONSTRAINED_PADDING = 20f;
+    private const float SMALL_Y_JITTER = 15f;
+
+    public MonsterBoundsHandler(MonsterManager manager, RectTransform rectTransform)
     {
+        _manager = manager;
         _rectTransform = rectTransform;
-        _gameManager = gameManager;
     }
     
-    public Vector2 GetRandomTarget()
+    public Vector2 GetRandomSpawnTarget()
     {
         // Default to ground target
         return GetGroundTarget();
@@ -21,32 +31,29 @@ public class MonsterBoundsHandler
     
     public Vector2 GetRandomTargetForState(MonsterState state)
     {
-        // NEW: For very small areas, use more generous targeting
         if (IsMovementAreaTooSmall())
         {
-            return GetRelaxedTarget();
+            return GetConstrainedSpaceTarget();
         }
         
         return state switch
         {
             MonsterState.Flying => GetFlyingTarget(),
-            MonsterState.Flapping => GetFlyingTarget(), // Keep flapping in air
-            // Check if monster is currently in air before deciding target
-            MonsterState.Idle => IsCurrentlyFlying() ? GetAirIdleTarget() : GetGroundTarget(),
-            MonsterState.Jumping => IsCurrentlyFlying() ? GetAirIdleTarget() : GetGroundTarget(),
-            MonsterState.Itching => IsCurrentlyFlying() ? GetAirIdleTarget() : GetGroundTarget(),
-            _ => GetGroundTarget() // Walking, Running, Eating stay on ground
+            _ => GetGroundTarget() 
         };
     }
     
+    private Vector2 GetRandomPositionInBounds((Vector2 min, Vector2 max) bounds)
+    {
+        return new Vector2(
+            Random.Range(bounds.min.x, bounds.max.x),
+            Random.Range(bounds.min.y, bounds.max.y)
+        );
+    }
+
     private Vector2 GetGroundTarget()
     {
-        var bounds = CalculateGroundBounds();
-        
-        return new Vector2(
-            UnityEngine.Random.Range(bounds.min.x, bounds.max.x),
-            UnityEngine.Random.Range(bounds.min.y, bounds.max.y)
-        );
+        return GetRandomPositionInBounds(CalculateGroundBounds());
     }
     
     private Vector2 GetFlyingTarget()
@@ -54,17 +61,12 @@ public class MonsterBoundsHandler
         var bounds = CalculateFlyingBounds();
         
         return new Vector2(
-            UnityEngine.Random.Range(bounds.min.x, bounds.max.x),
-            UnityEngine.Random.Range(bounds.min.y, bounds.max.y)
+            Random.Range(bounds.min.x, bounds.max.x),
+            Random.Range(bounds.min.y, bounds.max.y)
         );
     }
     
-    public (Vector2 min, Vector2 max) CalculateMovementBounds()
-    {
-        // Default to ground bounds
-        return CalculateGroundBounds();
-    }
-    
+
     public (Vector2 min, Vector2 max) CalculateBoundsForState(MonsterState state)
     {
         return state switch
@@ -78,61 +80,39 @@ public class MonsterBoundsHandler
         };
     }
     
-    // public (Vector2 min, Vector2 max) CalculateGroundBounds()
-    // {
-    //     var gameAreaRect = _gameManager.gameArea;
-    //     Vector2 size = gameAreaRect.sizeDelta;
-        
-    //     float halfWidth = _rectTransform.rect.width / 2;
-    //     float halfHeight = _rectTransform.rect.height / 2;
-        
-    //     // If game area is too small, return centered bounds
-    //     if (IsGameAreaTooSmallForMonster())
-    //     {
-    //         return GetCenteredBounds();
-    //     }
-        
-    //     // Calculate normal bounds
-    //     Vector2 boundsMin = new Vector2(-size.x / 2 + halfWidth + PADDING, -size.y / 2 + halfHeight + PADDING);
-    //     Vector2 boundsMax = new Vector2(size.x / 2 - halfWidth - PADDING, -size.y / 2 + (size.y * 0.4f) - halfHeight);
-        
-    //     // Ensure bounds are valid (min <= max)
-    //     if (boundsMin.x > boundsMax.x || boundsMin.y > boundsMax.y)
-    //     {
-    //         return GetCenteredBounds();
-    //     }
-        
-    //     // Try to ensure minimum movement area
-    //     const float MIN_MOVEMENT_AREA = 100f;
-        
-    //     if (boundsMax.y - boundsMin.y < MIN_MOVEMENT_AREA)
-    //     {
-    //         float center = (boundsMin.y + boundsMax.y) / 2;
-    //         boundsMin.y = center - MIN_MOVEMENT_AREA / 2;
-    //         boundsMax.y = center + MIN_MOVEMENT_AREA / 2;
-            
-    //         // Clamp to game area bounds
-    //         boundsMin.y = Mathf.Max(boundsMin.y, -size.y / 2 + halfHeight + PADDING);
-    //         boundsMax.y = Mathf.Min(boundsMax.y, size.y / 2 - halfHeight - PADDING);
-            
-    //         // Final validation - if still invalid, use centered bounds
-    //         if (boundsMin.y > boundsMax.y)
-    //         {
-    //             return GetCenteredBounds();
-    //         }
-    //     }
-        
-    //     return (boundsMin, boundsMax);
-    // }
-
-    private (Vector2 min, Vector2 max) CalculateFlyingBounds()
+    private Vector2 GetConstrainedSpaceTarget()
     {
-        var gameAreaRect = _gameManager.gameArea;
+        var gameAreaRect = _manager.gameArea;
         Vector2 size = gameAreaRect.sizeDelta;
         
         float halfWidth = _rectTransform.rect.width / 2;
-        float halfHeight = _rectTransform.rect.height / 2;
+        float availableWidth = size.x - (halfWidth * 2) - (CONSTRAINED_PADDING * 2);
         
+        if (availableWidth > MINIMAL_X_SPACE)
+        {
+            return new Vector2(
+                UnityEngine.Random.Range(-size.x / 2 + halfWidth + CONSTRAINED_PADDING, 
+                                        size.x / 2 - halfWidth - CONSTRAINED_PADDING),
+                UnityEngine.Random.Range(-SMALL_Y_JITTER, SMALL_Y_JITTER)
+            );
+        }
+        else
+        {
+            return new Vector2(
+                UnityEngine.Random.Range(-JITTER_RANGE, JITTER_RANGE),
+                UnityEngine.Random.Range(-JITTER_RANGE, JITTER_RANGE)
+            );
+        }
+    }
+    
+    private (Vector2 min, Vector2 max) CalculateFlyingBounds()
+    {
+        var gameAreaRect = _manager.gameArea;
+        Vector2 size = gameAreaRect.sizeDelta;
+
+        float halfWidth = _rectTransform.rect.width / 2;
+        float halfHeight = _rectTransform.rect.height / 2;
+
         // Flying can use the full game area
         return (
             new Vector2(-size.x / 2 + halfWidth + PADDING, -size.y / 2 + halfHeight + PADDING),
@@ -147,24 +127,22 @@ public class MonsterBoundsHandler
                position.y >= bounds.min.y && position.y <= bounds.max.y;
     }
     
-    // Add new method to check if monster is currently in flying area
-    private bool IsCurrentlyFlying()
+    private bool IsPositionedInAir()
     {
         Vector2 currentPos = _rectTransform.anchoredPosition;
         var groundBounds = CalculateGroundBounds();
         
         // If monster is above ground area, consider it flying
-        return currentPos.y > groundBounds.max.y + 50f; // 50f buffer zone
+        return currentPos.y > groundBounds.max.y + FLYING_BUFFER_ZONE; 
     }
     
-    // Add new method for air idle targets
     private Vector2 GetAirIdleTarget()
     {
         var flyingBounds = CalculateFlyingBounds();
         var groundBounds = CalculateGroundBounds();
         
         // Stay in the upper portion of flying area (above ground)
-        float minY = groundBounds.max.y + 100f; // Stay well above ground
+        float minY = groundBounds.max.y + AIR_IDLE_HEIGHT_BUFFER; 
         float maxY = flyingBounds.max.y;
         
         return new Vector2(
@@ -173,10 +151,10 @@ public class MonsterBoundsHandler
         );
     }
 
-    // NEW: Check if game area is physically too small for the monster
+    // Check if game area is physically too small for the monster
     public bool IsGameAreaTooSmallForMonster()
     {
-        var gameAreaRect = _gameManager.gameArea;
+        var gameAreaRect = _manager.gameArea;
         Vector2 gameAreaSize = gameAreaRect.sizeDelta;
         
         float monsterWidth = _rectTransform.rect.width;
@@ -189,7 +167,7 @@ public class MonsterBoundsHandler
         return gameAreaSize.x < minRequiredWidth || gameAreaSize.y < minRequiredHeight;
     }
 
-    // UPDATED: Better area checking that considers monster size
+    // Better area checking that considers monster size
     public bool IsMovementAreaTooSmall()
     {
         // First check if game area is physically too small
@@ -197,7 +175,6 @@ public class MonsterBoundsHandler
             return true;
         
         var bounds = CalculateGroundBounds();
-        const float MIN_MOVEMENT_AREA = 150f;
         
         float width = bounds.max.x - bounds.min.x;
         float height = bounds.max.y - bounds.min.y;
@@ -208,10 +185,10 @@ public class MonsterBoundsHandler
         return invalidBounds || width < MIN_MOVEMENT_AREA || height < MIN_MOVEMENT_AREA;
     }
 
-    // UPDATED: Safe bounds calculation that handles edge cases
+    // Safe bounds calculation that handles edge cases
     public (Vector2 min, Vector2 max) CalculateGroundBounds()
     {
-        var gameAreaRect = _gameManager.gameArea;
+        var gameAreaRect = _manager.gameArea;
         Vector2 size = gameAreaRect.sizeDelta;
         
         float halfWidth = _rectTransform.rect.width / 2;
@@ -219,14 +196,14 @@ public class MonsterBoundsHandler
         
         // Calculate X bounds (always use full width)
         Vector2 boundsMin = new Vector2(-size.x / 2 + halfWidth + PADDING, -size.y / 2 + halfHeight + PADDING);
-        Vector2 boundsMax = new Vector2(size.x / 2 - halfWidth - PADDING, -size.y / 2 + (size.y * 0.4f) - halfHeight);
+        Vector2 boundsMax = new Vector2(size.x / 2 - halfWidth - PADDING, -size.y / 2 + (size.y * GROUND_AREA_HEIGHT_RATIO) - halfHeight);
         
-        // NEW: Handle small Y area without affecting X bounds
+        // Handle small Y area without affecting X bounds
         if (boundsMax.y <= boundsMin.y) // Invalid Y bounds
         {
             // Keep full X movement, but create minimal Y movement
             float centerY = -size.y / 2 + size.y / 2; // Center of game area
-            float minYMovement = 20f; // Minimal Y movement area
+            float minYMovement = MINIMAL_Y_MOVEMENT; // Minimal Y movement area
             
             boundsMin.y = centerY - minYMovement / 2;
             boundsMax.y = centerY + minYMovement / 2;
@@ -239,8 +216,8 @@ public class MonsterBoundsHandler
             if (boundsMax.y <= boundsMin.y)
             {
                 float safeY = centerY;
-                boundsMin.y = safeY - 5f;  // Tiny Y movement
-                boundsMax.y = safeY + 5f;
+                boundsMin.y = safeY - TINY_Y_MOVEMENT;
+                boundsMax.y = safeY + TINY_Y_MOVEMENT;
             }
         }
         
@@ -254,10 +231,10 @@ public class MonsterBoundsHandler
         return (boundsMin, boundsMax);
     }
 
-    // UPDATED: Better centered bounds that preserves X when possible
+    // Better centered bounds that preserves X when possible
     private (Vector2 min, Vector2 max) GetCenteredBounds()
     {
-        var gameAreaRect = _gameManager.gameArea;
+        var gameAreaRect = _manager.gameArea;
         Vector2 size = gameAreaRect.sizeDelta;
         
         float halfWidth = _rectTransform.rect.width / 2;
@@ -267,7 +244,7 @@ public class MonsterBoundsHandler
         float availableWidth = size.x - (halfWidth * 2) - (PADDING * 2);
         float availableHeight = size.y - (halfHeight * 2) - (PADDING * 2);
         
-        if (availableWidth > 50f) // If we have reasonable X space
+        if (availableWidth > MINIMAL_X_SPACE) // If we have reasonable X space
         {
             // Preserve X movement, minimize Y movement
             return (
@@ -278,40 +255,10 @@ public class MonsterBoundsHandler
         else
         {
             // Both dimensions are too small
-            float maxRadius = Mathf.Min(size.x, size.y) * 0.3f;
+            float maxRadius = Mathf.Min(size.x, size.y) * BOUNDS_SCALE_FACTOR;
             return (
                 new Vector2(-maxRadius, -maxRadius),
                 new Vector2(maxRadius, maxRadius)
-            );
-        }
-    }
-
-    // UPDATED: Better relaxed targeting that preserves X movement
-    private Vector2 GetRelaxedTarget()
-    {
-        var gameAreaRect = _gameManager.gameArea;
-        Vector2 size = gameAreaRect.sizeDelta;
-        
-        // Always try to use full width if possible
-        float padding = 20f;
-        float halfWidth = _rectTransform.rect.width / 2;
-        
-        float availableWidth = size.x - (halfWidth * 2) - (padding * 2);
-        
-        if (availableWidth > 50f) // Can use full width
-        {
-            return new Vector2(
-                UnityEngine.Random.Range(-size.x / 2 + halfWidth + padding, size.x / 2 - halfWidth - padding),
-                UnityEngine.Random.Range(-15f, 15f) // Small Y jitter
-            );
-        }
-        else
-        {
-            // Both dimensions constrained
-            float jitterRange = 10f;
-            return new Vector2(
-                UnityEngine.Random.Range(-jitterRange, jitterRange),
-                UnityEngine.Random.Range(-jitterRange, jitterRange)
             );
         }
     }

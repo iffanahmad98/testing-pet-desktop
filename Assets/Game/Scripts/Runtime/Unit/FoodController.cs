@@ -68,8 +68,8 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
     public void OnPointerUp(PointerEventData eventData)
     {
         IsBeingDragged = false;
-        if (!ServiceLocator.Get<GameManager>().IsPositionInGameArea(rectTransform.anchoredPosition))
-            ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
+        if (!ServiceLocator.Get<MonsterManager>().IsPositionInGameArea(rectTransform.anchoredPosition))
+            ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
     }
 
     public bool TryClaim(MonsterController monster)

@@ -6,50 +6,57 @@ using Unity.VisualScripting;
 public class MonsterMovementHandler
 {
     private RectTransform _transform;
-    private MonsterStateMachine _stateMachine;
-    private MonsterController _controller; // NEW: Add controller reference
-    private GameManager _gameManager;
+    private MonsterController _controller;
     private SkeletonGraphic _spineGraphic;
-    
-    public MonsterMovementHandler(RectTransform transform, MonsterStateMachine stateMachine, MonsterController controller, GameManager gameManager, SkeletonGraphic spineGraphic)
+
+    public MonsterMovementHandler(MonsterController controller, RectTransform transform, SkeletonGraphic spineGraphic)
     {
-        _transform = transform;
-        _stateMachine = stateMachine;
         _controller = controller;
-        _gameManager = gameManager;
+        _transform = transform;
         _spineGraphic = spineGraphic;
     }
     
     public void UpdateMovement(ref Vector2 targetPosition, MonsterDataSO data)
     {
+        // Validate target is in bounds before moving toward it
+        if (_controller.BoundHandler != null && 
+            !_controller.BoundHandler.IsWithinBoundsForState(targetPosition, _controller.StateMachine.CurrentState))
+        {
+            targetPosition = _controller.BoundHandler.GetRandomTargetForState(_controller.StateMachine.CurrentState);
+        }
+        
+        if (_controller.EvolutionHandler != null && _controller.EvolutionHandler.IsEvolving)
+            return;
+
         Vector2 pos = _transform.anchoredPosition;
         float currentSpeed = GetCurrentMoveSpeed(data);
-        
-        // NEW: Reduce speed in very small areas to prevent jittery movement
-        // TODO: Implement bounds checking when boundsHandler is available
-        // if (_controller.boundsHandler.IsMovementAreaTooSmall())
-        // {
-        //     currentSpeed *= 0.3f; // Slow down significantly
-        // }
-        
         _transform.anchoredPosition = Vector2.MoveTowards(pos, targetPosition, currentSpeed * Time.deltaTime);
         HandleStateSpecificBehavior(pos, targetPosition);
     }
     
     private float GetCurrentMoveSpeed(MonsterDataSO data)
     {
-        if (_stateMachine == null || data == null) return 0f;
-        
-        return _stateMachine.CurrentState switch
+        if (_controller.StateMachine == null || data == null) return 0f;
+
+        // Check if flying monster has reached destination (for hovering)
+        bool isAtFlyingDestination = false;
+        if (_controller.StateMachine.CurrentState == MonsterState.Flying)
+        {
+            Vector2 pos = _transform.anchoredPosition;
+            Vector2 targetPos = _controller.GetTargetPosition();
+            isAtFlyingDestination = Vector2.Distance(pos, targetPos) < 10f;
+        }
+
+        return _controller.StateMachine.CurrentState switch
         {
             MonsterState.Walking => GetWalkSpeed(data),
             MonsterState.Running => GetRunSpeed(data),
-            MonsterState.Flying => GetFlySpeed(data),
-            MonsterState.Flapping => GetFlySpeed(data) * 0.5f, // Slower flapping movement
+            MonsterState.Flying => isAtFlyingDestination ? 0f : GetFlySpeed(data), // Hover when reached destination
+            MonsterState.Flapping => 0f,  // Ground-based wing flapping (no movement)
             MonsterState.Jumping => 0f,
             MonsterState.Eating => 0f,
-            MonsterState.Idle => IsInAir() ? GetFlySpeed(data) * 0.3f : 0f, // Gentle floating for air idle
-            MonsterState.Itching => IsInAir() ? GetFlySpeed(data) * 0.2f : 0f, // Very slow air movement
+            MonsterState.Idle => 0f, // No movement during idle (ground only)
+            MonsterState.Itching => 0f, // No movement during itching
             _ => 0f
         };
     }
@@ -69,7 +76,7 @@ public class MonsterMovementHandler
         if (TryGetBehaviorConfigSpeed("run", out float configSpeed))
             return configSpeed;
             
-        return data.moveSpd * 1.3f;
+        return data.moveSpd * 1.2f;
     }
     
     private float GetFlySpeed(MonsterDataSO data)
@@ -77,7 +84,7 @@ public class MonsterMovementHandler
         if (TryGetBehaviorConfigSpeed("fly", out float configSpeed))
             return configSpeed;
             
-        return data.moveSpd * 1.1f;
+        return data.moveSpd * 1.5f;
     }
     
     private bool TryGetBehaviorConfigSpeed(string speedType, out float speed)
@@ -97,7 +104,7 @@ public class MonsterMovementHandler
             {
                 "walk" => config.walkSpeed,
                 "run" => config.runSpeed,
-                "fly" => config.flySpeed, // Assuming this exists
+                "fly" => config.flySpeed,
                 _ => 0f
             };
             return speed > 0f;
@@ -108,18 +115,50 @@ public class MonsterMovementHandler
     
     private void HandleStateSpecificBehavior(Vector2 pos, Vector2 target)
     {
-        if (_spineGraphic == null || _stateMachine == null) return;
+        if (_spineGraphic == null || _controller.StateMachine == null) return;
 
-        MonsterState state = _stateMachine.CurrentState;
-        UpdateAnimation(state); 
+        MonsterState state = _controller.StateMachine.CurrentState;
         HandleDirectionalFlipping(pos, target);
+        UpdateAnimation(state); 
+    }
+    
+    private Vector2 _lastPosition;
+    private float _lastFlipTime = 0f;
+    private const float FLIP_COOLDOWN = 0.25f; // 250ms minimum between flips
+
+    private void HandleDirectionalFlipping(Vector2 currentPos, Vector2 target)
+    {
+        // Use actual movement direction instead of target direction
+        Vector2 movementDirection = currentPos - _lastPosition;
+        
+        // Only flip if we've moved a meaningful amount
+        if (movementDirection.magnitude > 0.5f && Time.time - _lastFlipTime > FLIP_COOLDOWN) 
+        {
+            if (Mathf.Abs(movementDirection.x) > 0.1f) // Only flip for meaningful horizontal movement
+            {
+                Flip(movementDirection.x);
+                _lastFlipTime = Time.time;
+            }
+        }
+        
+        _lastPosition = currentPos;
+    }
+
+    private void Flip(float direction)
+    {
+        Transform parentTransform = _spineGraphic.transform.parent;
+        Transform targetTransform = parentTransform ?? _spineGraphic.transform;
+        
+        Vector3 scale = targetTransform.localScale;
+        scale.x = direction > 0 ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
+        targetTransform.localScale = scale;
     }
     
     private void UpdateAnimation(MonsterState state)
     {
         string animationName = GetAnimationForState(state);
         var current = _spineGraphic.AnimationState.GetCurrent(0);
-        
+
         if (current == null || current.Animation.Name != animationName)
         {
             _spineGraphic.AnimationState.SetAnimation(0, animationName, true);
@@ -129,66 +168,14 @@ public class MonsterMovementHandler
     private string GetAnimationForState(MonsterState state)
     {
         // Let MonsterStateMachine handle the logic
-        return _stateMachine?.GetAvailableAnimation(state) ?? "idle";
-    }
-    
-    private void HandleDirectionalFlipping(Vector2 pos, Vector2 target)
-    {
-        float direction = target.x - pos.x;
-        
-        // NEW: Different thresholds and cooldowns based on area size
-        if (_controller.MovementBounds?.IsMovementAreaTooSmall() == true)
-        {
-            // Small areas: Higher threshold + longer cooldown
-            float flipThreshold = 50f; // Much higher threshold
-            float flipCooldown = 2f;   // 2 second cooldown
-            
-            if (Mathf.Abs(direction) > flipThreshold && Time.time - _lastFlipTime > flipCooldown)
-            {
-                PerformFlip(direction);
-                _lastFlipTime = Time.time;
-            }
-        }
-        else
-        {
-            // Normal areas: Standard flipping
-            float flipThreshold = 0.1f;
-            if (Mathf.Abs(direction) > flipThreshold)
-            {
-                PerformFlip(direction);
-            }
-        }
+        return _controller.StateMachine?.GetAvailableAnimation(state) ?? "idle";
     }
 
-    // ADD: Flip cooldown tracking
-    private float _lastFlipTime = 0f;
-    
-    private void PerformFlip(float direction)
-    {
-        Transform parentTransform = _spineGraphic.transform.parent;
-        Transform targetTransform = parentTransform ?? _spineGraphic.transform;
-        
-        Vector3 scale = targetTransform.localScale;
-        scale.x = direction > 0 ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
-        targetTransform.localScale = scale;
-    }
-
-    // Add helper method to check if monster is in air
+    // helper method to check if monster is in air
     private bool IsInAir()
     {
         Vector2 currentPos = _transform.anchoredPosition;
-        // You can access the bounds handler through the controller if needed
-        // Or use a simple Y threshold
         return currentPos.y > -200f; // Adjust threshold based on your game area
     }
-
-    // Add helper method to check if monster is in air
-    // private bool IsInAir()
-    // {
-    //     Vector2 currentPos = _transform.anchoredPosition;
-    //     // You can access the bounds handler through the controller if needed
-    //     // Or use a simple Y threshold
-    //     return currentPos.y > -200f; // Adjust threshold based on your game area
-    // }
 }
 

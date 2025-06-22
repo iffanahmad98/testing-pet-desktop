@@ -43,10 +43,10 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        ServiceLocator.Get<GameManager>().OnCoinChanged?.Invoke(ServiceLocator.Get<GameManager>().coinCollected += value);
-        SaveSystem.SaveCoin(ServiceLocator.Get<GameManager>().coinCollected);
+        ServiceLocator.Get<MonsterManager>().OnCoinChanged?.Invoke(ServiceLocator.Get<MonsterManager>().coinCollected += value);
+        SaveSystem.SaveCoin(ServiceLocator.Get<MonsterManager>().coinCollected);
         SaveSystem.Flush();
-        ServiceLocator.Get<GameManager>().DespawnToPool(gameObject);
+        ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
     }
 }
 

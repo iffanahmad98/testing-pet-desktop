@@ -6,8 +6,8 @@ using UnityEngine;
 public class MonsterDataSOEditor : Editor
 {
     // Organize foldouts by category and set sensible defaults
-    private bool showBasicInfo = true;
-    private bool showStats = true;
+    private bool showBasicInfo = false;        // Changed from true to false
+    private bool showStats = false;            // Changed from true to false
     private bool showBehavior = false;          // Combine happiness + poop
     private bool showEvolution = false;         // Less frequently edited
     private bool showAnimations = false;        // Technical details - collapsed by default
@@ -39,6 +39,11 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterName"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("id"));
         
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Classification", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("poopType")); // Move this here
+        
         // Pricing Section
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Pricing & Gacha", EditorStyles.boldLabel);
@@ -56,7 +61,6 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("isGachaOnly"), new GUIContent("Gacha Only"));
         
         EditorGUILayout.Space(3);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }
@@ -76,6 +80,49 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.LabelField("Base Values", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHunger"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHappiness"));
+        
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Drop Rates", EditorStyles.boldLabel);
+        
+        // Stage 1 rates (always shown)
+        EditorGUILayout.LabelField("Stage 1:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage1"), new GUIContent("Gold Coin Rate (minutes)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRateStage1"), new GUIContent("Silver Coin Rate (minutes)"));
+        EditorGUI.indentLevel--;
+        
+        // Stage 2 rates
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Stage 2:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage2"), new GUIContent("Gold Coin Rate (minutes)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRateStage2"), new GUIContent("Silver Coin Rate (minutes)"));
+        
+        // Show fallback info
+        var goldStage2 = serializedObject.FindProperty("goldCoinDropRateStage2").floatValue;
+        var silverStage2 = serializedObject.FindProperty("silverCoinDropRateStage2").floatValue;
+        if (goldStage2 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 gold rate as fallback", MessageType.Info);
+        if (silverStage2 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 silver rate as fallback", MessageType.Info);
+        EditorGUI.indentLevel--;
+        
+        // Stage 3 rates
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Stage 3:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage3"), new GUIContent("Gold Coin Rate (minutes)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRateStage3"), new GUIContent("Silver Coin Rate (minutes)"));
+        
+        // Show fallback info
+        var goldStage3 = serializedObject.FindProperty("goldCoinDropRateStage3").floatValue;
+        var silverStage3 = serializedObject.FindProperty("silverCoinDropRateStage3").floatValue;
+        if (goldStage3 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 gold rate as fallback", MessageType.Info);
+        if (silverStage3 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 silver rate as fallback", MessageType.Info);
+        EditorGUI.indentLevel--;
+        
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Other Rates", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("poopRate"), new GUIContent("Poop Rate (minutes)"));
+        
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }
@@ -89,19 +136,14 @@ public class MonsterDataSOEditor : Editor
         
         // Hunger & Happiness
         EditorGUILayout.LabelField("Hunger & Happiness", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHunger"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHungerStage1"), new GUIContent("Max Hunger (Stage 1)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHungerStage2"), new GUIContent("Max Hunger (Stage 2)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHungerStage3"), new GUIContent("Max Hunger (Stage 3)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerDepleteRate"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("areaHappinessRate"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("pokeHappinessValue"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerHappinessThreshold"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerHappinessDrainRate"));
-        
-        EditorGUILayout.Space(3);
-        
-        // Poop Behavior
-        EditorGUILayout.LabelField("Poop Behavior", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("poopType"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("poopRate"));
         
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
@@ -163,12 +205,6 @@ public class MonsterDataSOEditor : Editor
         // Use the CORRECT property name from MonsterDataSO
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsIconImg"), new GUIContent("Monster Icons"), true);
         
-        // Add goldCoinDropRate and silverCoinDropRate since they're visual/economic settings
-        EditorGUILayout.Space(3);
-        EditorGUILayout.LabelField("Coin Drop Rates", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRate"), new GUIContent("Gold Coin Drop Rate (minutes)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRate"), new GUIContent("Silver Coin Drop Rate (minutes)"));
-        
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }
@@ -194,6 +230,7 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("deathSound"));
         
         EditorGUI.indentLevel--;
+        EditorGUILayout.Space(5);  // Add this line for consistency
     }
 }
 #endif

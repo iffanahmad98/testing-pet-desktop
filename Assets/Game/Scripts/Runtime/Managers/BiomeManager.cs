@@ -21,6 +21,12 @@ public class BiomeManager : MonoBehaviour
     private const float CLOUD_START_X_OFFSET = 0.6f;
     private const float CLOUD_END_X_OFFSET = 0.6f;
     private const float LANE_HEIGHT_PERCENTAGE = 0.8f;
+
+    // Add these constants
+    private const float CLOUD_USABLE_HEIGHT_PERCENTAGE = 0.6f;
+    private const float CLOUD_TOP_OFFSET_PERCENTAGE = 0.2f;
+    private const float CLOUD_MIN_Y_BOUND = -0.4f;
+    private const float CLOUD_MAX_Y_BOUND = 0.4f;
     #endregion
 
     [Header("Biome Layers")]
@@ -54,6 +60,10 @@ public class BiomeManager : MonoBehaviour
     public UnityEngine.Events.UnityEvent<string, bool> OnLayerToggled;
     public UnityEngine.Events.UnityEvent<bool> OnCloudsToggled;
 
+    // Add events
+    public event System.Action<bool> OnCloudsEnabledChanged;
+    public event System.Action<BiomeLayer> OnLayerStateChanged;
+
     [Header("Object Pooling")]
     public bool useCloudPooling = true;
     private Queue<GameObject> cloudPool = new Queue<GameObject>();
@@ -65,6 +75,7 @@ public class BiomeManager : MonoBehaviour
 
     private Dictionary<int, float> lastCloudSpawnTime = new Dictionary<int, float>(); // Track last spawn time per lane
     private Dictionary<int, float> lastCloudSpeed = new Dictionary<int, float>(); // Track last cloud speed per lane
+    private Dictionary<GameObject, float> cloudSpeeds = new Dictionary<GameObject, float>();
 
     private float initialAreaHeight;
     private float skyStartPos;
@@ -129,6 +140,7 @@ public class BiomeManager : MonoBehaviour
     private void Update()
     {
         HandleTestingInput();
+        UpdateAllClouds();
     }
 
     private void LateUpdate() {
@@ -374,6 +386,7 @@ public class BiomeManager : MonoBehaviour
         // Update lane tracking
         lastCloudSpawnTime[availableLane] = Time.time;
         lastCloudSpeed[availableLane] = baseCloudSpeed * speedMultiplier;
+        cloudSpeeds[cloud] = baseCloudSpeed * speedMultiplier;
         
         // Start movement
         StartCoroutine(MoveCloud(cloud, speedMultiplier));
@@ -404,23 +417,25 @@ public class BiomeManager : MonoBehaviour
         return true;
     }
 
+    private List<int> _cachedAvailableLanes = new List<int>(4); // Pre-allocate with capacity
+
     private int GetAvailableLane()
     {
-        List<int> availableLanes = new List<int>();
+        _cachedAvailableLanes.Clear(); // Reuse existing list instead of creating a new one
         
         for (int i = 0; i < cloudLanes; i++)
         {
             if (IsLaneAvailable(i))
             {
-                availableLanes.Add(i);
+                _cachedAvailableLanes.Add(i);
             }
         }
         
-        if (availableLanes.Count == 0)
+        if (_cachedAvailableLanes.Count == 0)
             return -1;
         
         // Return random available lane
-        return availableLanes[Random.Range(0, availableLanes.Count)];
+        return _cachedAvailableLanes[Random.Range(0, _cachedAvailableLanes.Count)];
     }
 
     private bool IsLaneAvailable(int laneIndex)
@@ -463,11 +478,11 @@ public class BiomeManager : MonoBehaviour
         // Work in local coordinates where (0,0) is center of skyBG
         // Sky top = +height/2, Sky bottom = -height/2
         
-        float usableHeight = skyRect.height * 0.6f; // Use 60% of sky height
+        float usableHeight = skyRect.height * CLOUD_USABLE_HEIGHT_PERCENTAGE; // Use 60% of sky height
         float laneSpacing = usableHeight / cloudLanes;
         
         // Start from a reasonable position within sky bounds
-        float startFromTop = skyRect.height * 0.2f; // 20% down from top
+        float startFromTop = skyRect.height * CLOUD_TOP_OFFSET_PERCENTAGE; // 20% down from top
         float actualStartY = (skyRect.height * 0.5f) - startFromTop; // Top edge minus offset
         
         // Calculate lane position
@@ -560,12 +575,8 @@ public class BiomeManager : MonoBehaviour
             StopCloudSystem();
         }
         
-        
-        var uiManager = ServiceLocator.Get<UIManager>();
-        if (uiManager != null)
-        {
-            uiManager.ShowMessage($"Clouds: {(cloudsEnabled ? "ON" : "OFF")}", 1f);
-        }
+        // Raise events instead of calling UIManager directly
+        OnCloudsEnabledChanged?.Invoke(cloudsEnabled);
     }
 
     private void ClearAllClouds()
@@ -579,6 +590,36 @@ public class BiomeManager : MonoBehaviour
         
         // Reset lane tracking
         InitializeLanes();
+    }
+
+    private void UpdateAllClouds()
+    {
+        if (!cloudsEnabled) return;
+        
+        for (int i = activeClouds.Count - 1; i >= 0; i--)
+        {
+            GameObject cloud = activeClouds[i];
+            if (cloud == null) continue;
+            
+            var cloudRect = cloud.GetComponent<RectTransform>();
+            if (cloudRect == null) continue;
+            
+            float speed = cloudSpeeds[cloud];
+            Vector2 pos = cloudRect.anchoredPosition;
+            pos.x += speed * Time.deltaTime;
+            cloudRect.anchoredPosition = pos;
+            
+            // Check if cloud reached the end
+            Rect skyRect = skyBG.rect;
+            float endX = skyRect.width * CLOUD_END_X_OFFSET;
+            
+            if (pos.x > endX)
+            {
+                activeClouds.RemoveAt(i);
+                cloudSpeeds.Remove(cloud);
+                ReturnCloudToPool(cloud);
+            }
+        }
     }
     #endregion
 
@@ -658,5 +699,15 @@ public class BiomeManager : MonoBehaviour
             0
         );
         Gizmos.DrawWireCube(exitZone, new Vector3(20f, skyRect.height, 0));
+    }
+
+    private void PreWarmCloudPool(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            GameObject cloud = Instantiate(cloudPrefab, skyBG);
+            cloud.SetActive(false);
+            cloudPool.Enqueue(cloud);
+        }
     }
 }

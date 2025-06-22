@@ -12,12 +12,13 @@ public class MonsterStateMachine : MonoBehaviour
     
     private MonsterController _controller;
     private MonsterAnimationHandler _animationHandler;
+    public MonsterAnimationHandler AnimationHandler => _animationHandler;
     private MonsterBehaviorHandler _behaviorHandler;
 
     public MonsterState CurrentState => _currentState;
     public MonsterState PreviousState => _previousState;
     public event Action<MonsterState> OnStateChanged;
-    public MonsterAnimationHandler AnimationHandler => _animationHandler;     
+
     private void Start()
     {
         _controller = GetComponent<MonsterController>();
@@ -33,19 +34,13 @@ public class MonsterStateMachine : MonoBehaviour
     {
         _stateTimer += Time.deltaTime;
 
-        // Prevent state changes during evolution
-        if (_controller != null && _controller.IsEvolving)
-        {
-            return; // Don't process state changes while evolving
-        }
+        if (_controller?.EvolutionHandler?.IsEvolving == true) return;
 
-        // Better coordination with food handler
         if (_currentState == MonsterState.Eating)
         {
             var foodHandler = _controller.FoodHandler;
 
-            // Only timeout if food handler confirms eating should end
-            if (_stateTimer > _defaultEatingStateDuration * 4f) // Even more lenient
+            if (_stateTimer > _defaultEatingStateDuration * 4f) 
             {
                 bool isStillEating = foodHandler?.IsCurrentlyEating ?? false;
                 if (!isStillEating)
@@ -53,32 +48,24 @@ public class MonsterStateMachine : MonoBehaviour
                     ChangeState(MonsterState.Idle);
                     return;
                 }
-                else
-                {
-                    // Continue waiting
-                }
             }
         }
 
-        // ADD: Check if monster should continue current movement state
         if (ShouldContinueCurrentMovement())
         {
-            return; // Don't change state while traveling to target
+            return; 
         }
 
-        // Normal state transitions - exclude eating from auto-transitions
         if (_stateTimer >= _currentStateDuration && _currentState != MonsterState.Eating)
         {
             var nextState = _behaviorHandler.SelectNextState(_currentState);
             
-            // ADD: Validate state transition based on position
             if (IsValidStateTransition(_currentState, nextState))
             {
                 ChangeState(nextState);
             }
             else
             {
-                // Extend current state duration and try again later
                 _currentStateDuration += 1f;
             }
         }
@@ -86,17 +73,8 @@ public class MonsterStateMachine : MonoBehaviour
 
     public void ChangeState(MonsterState newState)
     {
-        // Prevent state changes during evolution
-        if (_controller != null && _controller.IsEvolving)
-        {
-            return;
-        }
-
-        // Validate state has animations before changing
-        if (!_animationHandler.HasValidAnimationForState(newState))
-        {
-            newState = MonsterState.Idle; // Fallback to idle
-        }
+        if (_controller == null) return;
+        if (!_animationHandler.HasValidAnimationForState(newState)) newState = MonsterState.Idle;
         
         _previousState = _currentState;
         _currentState = newState;
@@ -110,84 +88,83 @@ public class MonsterStateMachine : MonoBehaviour
     public float GetCurrentStateDuration() => _currentStateDuration;
     public string GetAvailableAnimation(MonsterState state) => _animationHandler?.GetAvailableAnimation(state) ?? "idle";
 
-    // ADD: Method to check if monster should continue moving to target
     private bool ShouldContinueCurrentMovement()
     {
-        // Only apply to movement states
         if (_currentState != MonsterState.Walking && 
             _currentState != MonsterState.Running && 
-            _currentState != MonsterState.Flying &&
-            _currentState != MonsterState.Flapping)
+            _currentState != MonsterState.Flying)
         {
             return false;
         }
 
-        // Get current position and target from controller
-        var rectTransform = _controller.GetComponent<RectTransform>();
+        if (_currentState == MonsterState.Flying)
+        {
+            if (ShouldUseHoveringBehavior())
+            {
+                return UnityEngine.Random.value < 0.5f;
+            }
+        }
+
+        var rectTransform = GetComponent<RectTransform>();
         if (rectTransform == null) return false;
 
         Vector2 currentPos = rectTransform.anchoredPosition;
-        Vector2 targetPos = _controller.GetTargetPosition(); // You'll need to expose this from MonsterController
-        
-        // Check if still traveling to target (within reasonable distance)
+        Vector2 targetPos = _controller.GetTargetPosition();
         float distanceToTarget = Vector2.Distance(currentPos, targetPos);
         
-        // If still far from target, continue current state
-        if (distanceToTarget > 30f) // Adjust threshold as needed
-        {
-            return true;
-        }
-
-        return false;
+        return distanceToTarget > 30f;
     }
 
-    // ADD: Method to validate state transitions based on position
     private bool IsValidStateTransition(MonsterState fromState, MonsterState toState)
     {
-        // Get current position
         var rectTransform = _controller.GetComponent<RectTransform>();
-        if (rectTransform == null) return true; // Allow transition if can't check
+        if (rectTransform == null) return true;
 
         Vector2 currentPos = rectTransform.anchoredPosition;
-        
-        // Check if monster is in air (you can get this from bounds handler)
         bool isInAir = IsMonsterInAir(currentPos);
         
-        // Flying to ground state transitions - only allow if monster is actually on ground
         if ((fromState == MonsterState.Flying || fromState == MonsterState.Flapping) &&
             (toState == MonsterState.Walking || toState == MonsterState.Running || toState == MonsterState.Idle))
         {
-            return !isInAir; // Only transition to ground states if not in air
+            return !isInAir;
         }
         
-        // Ground to flying transitions - always allowed
         if ((fromState == MonsterState.Walking || fromState == MonsterState.Running || fromState == MonsterState.Idle) &&
             (toState == MonsterState.Flying || toState == MonsterState.Flapping))
         {
             return true;
         }
         
-        // Non-movement state transitions while flying - keep in air
         if (isInAir && (toState == MonsterState.Idle || toState == MonsterState.Jumping || toState == MonsterState.Itching))
         {
-            return true; // Allow these but they'll use air bounds
+            return true;
         }
         
-        return true; // Allow other transitions
+        return true;
     }
 
-        // ADD: Helper method to check if monster is in air
     private bool IsMonsterInAir(Vector2 position)
     {
-        // You can access the bounds handler through the controller
-        var boundsHandler = _controller.MovementBounds; // You'll need to expose this
+        var boundsHandler = _controller.BoundHandler;
         if (boundsHandler != null)
         {
-            var groundBounds = boundsHandler.CalculateGroundBounds(); // You'll need to make this public
-            return position.y > groundBounds.max.y + 50f; // 50f buffer zone
+            var groundBounds = boundsHandler.CalculateGroundBounds();
+            return position.y > groundBounds.max.y + 50f;
         }
         
-        // Fallback: simple Y threshold
-        return position.y > -200f; // Adjust based on your game area
+        return position.y > -200f;
+    }
+
+    public bool ShouldUseHoveringBehavior()
+    {
+        if (_currentState != MonsterState.Flying) return false;
+        
+        var rectTransform = GetComponent<RectTransform>();
+        if (rectTransform == null) return false;
+        
+        Vector2 currentPos = rectTransform.anchoredPosition;
+        Vector2 targetPos = _controller.GetTargetPosition();
+        
+        return Vector2.Distance(currentPos, targetPos) < 10f;
     }
 }

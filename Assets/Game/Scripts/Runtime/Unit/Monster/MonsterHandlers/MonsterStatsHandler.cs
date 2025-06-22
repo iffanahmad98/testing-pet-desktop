@@ -26,23 +26,22 @@ public class MonsterStatsHandler
     {
         _controller = controller;
         
-        // Set initial values from monster data
         if (_controller.MonsterData != null)
         {
-            _currentHunger = _controller.MonsterData.baseHunger;        // 50f from SO
-            _currentHappiness = _controller.MonsterData.baseHappiness;  // 0f from SO
+            float maxHunger = _controller.MonsterData.GetMaxHunger(_controller.evolutionLevel);
+            _currentHunger = Mathf.Clamp(_controller.MonsterData.baseHunger, 0f, maxHunger);
+            _currentHappiness = _controller.MonsterData.baseHappiness;
         }
         else
         {
             // Fallback values that match the controller's fallbacks
-            _currentHunger = 50f;
-            _currentHappiness = 0f;  // Match the controller fallback
+            _currentHunger = 0f;
+            _currentHappiness = 0f;  
         }
         
         _isSick = false;
         _lowHungerTime = 0f;
         
-        // ADD: Trigger initial UI update
         OnHungerChanged?.Invoke(_currentHunger);
         OnHappinessChanged?.Invoke(_currentHappiness);
         OnSickChanged?.Invoke(_isSick);
@@ -50,23 +49,32 @@ public class MonsterStatsHandler
     
     public void Initialize(float initialHunger, float initialHappiness, bool initialSick, float initialLowHungerTime)
     {
-        _currentHunger = initialHunger;
-        _currentHappiness = initialHappiness;
+        float maxHunger = _controller.MonsterData?.GetMaxHunger(_controller.evolutionLevel) ?? 100f;
+        _currentHunger = Mathf.Clamp(initialHunger, 0f, maxHunger);
+        
+        _currentHappiness = Mathf.Clamp(initialHappiness, 0f, 100f);
         _isSick = initialSick;
         _lowHungerTime = initialLowHungerTime;
     }
     
     public void SetHunger(float value)
     {
-        if (Mathf.Approximately(_currentHunger, value)) return;
-        _currentHunger = value;
+        // Clamp the value between 0 and monster's max hunger based on evolution level
+        float maxHunger = _controller.MonsterData?.GetMaxHunger(_controller.evolutionLevel) ?? 100f;
+        float clampedValue = Mathf.Clamp(value, 0f, maxHunger);
+        
+        if (Mathf.Approximately(_currentHunger, clampedValue)) return;
+        _currentHunger = clampedValue;
         OnHungerChanged?.Invoke(_currentHunger);
     }
     
     public void SetHappiness(float value)
     {
-        if (Mathf.Approximately(_currentHappiness, value)) return;
-        _currentHappiness = value;
+        // Clamp happiness between 0 and 100
+        float clampedValue = Mathf.Clamp(value, 0f, 100f);
+        
+        if (Mathf.Approximately(_currentHappiness, clampedValue)) return;
+        _currentHappiness = clampedValue;
         OnHappinessChanged?.Invoke(_currentHappiness);
     }
     
@@ -110,7 +118,7 @@ public class MonsterStatsHandler
         _lowHungerTime = 0f;
     }
     
-    public void UpdateHappinessBasedOnArea(MonsterDataSO monsterData, GameManager gameManager)
+    public void UpdateHappinessBasedOnArea(MonsterDataSO monsterData, MonsterManager gameManager)
     {
         if (monsterData == null || gameManager?.gameArea == null) return;
 

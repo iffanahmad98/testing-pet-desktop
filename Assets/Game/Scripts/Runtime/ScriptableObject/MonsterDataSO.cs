@@ -16,15 +16,24 @@ public class MonsterDataSO : ScriptableObject
     [Header("Stats")]
     public float maxHealth = 100f;        // Maximum health
     public float moveSpd = 100f;       // Move speed
-    public float hungerDepleteRate = 0.05f;  // How fast hunger depletes
+    public float baseHappiness = 50f;            // Add base happiness
+    public float foodDetectionRange = 200f;     // Range to detect food
+    public float eatDistance = 5f;              // Distance to eat food
+    public float hungerDepleteRate = 0f;  // How fast hunger depletes
+    public float baseHunger = 0f;               // Add base hunger
+    public float maxHungerStage1 = 0f;          // Stage 1 hunger (keep existing)
+    public float maxHungerStage2 = 0f;          // Stage 2 hunger
+    public float maxHungerStage3 = 0f;          // Stage 3 hunger
+
+
+    [Header("Drop Rates")]
     public float poopRate = 20f;     // Default: 20 minutes
-    public float goldCoinDropRate = 60f;    // Default: 60 minutes for gold coins
-    public float silverCoinDropRate = 30f;  // Default: 30 minutes for silver coins
-    public float maxHunger = 200f;      // Maximum hunger
-    public float baseHunger = 50f;     // Add base hunger
-    public float baseHappiness = 0f;   // Add base happiness
-    public float foodDetectionRange = 200f; // Range to detect food
-    public float eatDistance = 5f;      // Distance to eat food
+    public float goldCoinDropRateStage1 = 2f;    // Stage 1 gold coin rate
+    public float silverCoinDropRateStage1 = 60f;  // Stage 1 silver coin rate
+    public float goldCoinDropRateStage2 = 0f;   // Stage 2 gold coin rate
+    public float silverCoinDropRateStage2 = 0f; // Stage 2 silver coin rate
+    public float goldCoinDropRateStage3 = 0f;   // Stage 3 gold coin rate
+    public float silverCoinDropRateStage3 = 0f; // Stage 3 silver coin rate
 
     [Header("Gacha Settings")]
     public float gachaChancePercent = 0f;  // e.g., 0.10 for 0.10%
@@ -32,25 +41,25 @@ public class MonsterDataSO : ScriptableObject
     public bool isGachaOnly = false;       // True if buy price is 0
 
     [Header("Happiness Settings")]
-    public float areaHappinessRate = 0.2f;
-    public float pokeHappinessValue = 2f;
-    public float hungerHappinessThreshold = 20f; // New field - threshold below which hunger affects happiness
-    public float hungerHappinessDrainRate = 2f; // New field - how much happiness drains when hungry
+    public float areaHappinessRate = 0.1f; // Rate at which happiness increases in the area
+    public float pokeHappinessValue = 5f;
+    public float hungerHappinessThreshold = 30f; // threshold below which hunger affects happiness
+    public float hungerHappinessDrainRate = 0.1f; // how much happiness drains when hungry
 
     [Header("Evolution")]
     public bool canEvolve = true;
     public bool isEvolved = false;
     public bool isFinalEvol = false;
-    public int evolutionLevel = 1; 
+    public int evolutionLevel = 1;
 
     [Header("Evolution Requirements - Embedded")]
-    public EvolutionRequirement[] evolutionRequirements; 
+    public EvolutionRequirement[] evolutionRequirements;
 
     [Header("Spine Data")]
     public SkeletonDataAsset[] monsterSpine;
 
     [Header("Images")]
-    public Sprite[] monsIconImg;        
+    public Sprite[] monsIconImg;
 
     [Header("Evolution Animations")]
     public EvolutionAnimationSet[] evolutionAnimationSets;
@@ -84,6 +93,53 @@ public class MonsterDataSO : ScriptableObject
             default: return sellPriceStage1;
         }
     }
+
+    public float GetGoldCoinDropRate(int evolutionLevel)
+    {
+        switch (evolutionLevel)
+        {
+            case 1: return goldCoinDropRateStage1;
+            case 2: return goldCoinDropRateStage2 > 0 ? goldCoinDropRateStage2 : goldCoinDropRateStage1;
+            case 3: return goldCoinDropRateStage3 > 0 ? goldCoinDropRateStage3 : goldCoinDropRateStage1;
+            default: return goldCoinDropRateStage1;
+        }
+    }
+
+    public float GetSilverCoinDropRate(int evolutionLevel)
+    {
+        switch (evolutionLevel)
+        {
+            case 1: return silverCoinDropRateStage1;
+            case 2: return silverCoinDropRateStage2 > 0 ? silverCoinDropRateStage2 : silverCoinDropRateStage1;
+            case 3: return silverCoinDropRateStage3 > 0 ? silverCoinDropRateStage3 : silverCoinDropRateStage1;
+            default: return silverCoinDropRateStage1;
+        }
+    }
+
+    public float GetMaxHunger(int evolutionLevel)
+    {
+        switch (evolutionLevel)
+        {
+            case 1: return maxHungerStage1 > 0 ? maxHungerStage1 : 100f; // Default to 100 if not set
+            case 2: return maxHungerStage2 > 0 ? maxHungerStage2 : maxHungerStage1 * 2f;
+            case 3: return maxHungerStage3 > 0 ? maxHungerStage3 : maxHungerStage2 * 1.5f;
+            default: return maxHungerStage1;
+        }
+    }
+}
+
+[Serializable]
+public class MonsterSaveData
+{
+    public string monsterId;
+    public float lastHunger;
+    public float lastHappiness;
+    public float lastLowHungerTime;
+    public bool isSick;
+    public int evolutionLevel;
+    public float timeSinceCreation;
+    public int foodConsumed;
+    public int interactionCount;
 }
 
 [Serializable]
