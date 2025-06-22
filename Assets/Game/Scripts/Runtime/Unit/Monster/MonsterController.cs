@@ -659,13 +659,21 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void SetHovered(bool value)
     {
         if (_isHovered == value) return;
-        _isHovered = value;
+        if (EvolutionHandler.IsEvolving)
+        {
+            _isHovered = false;
+            return;
+        }
+        else
+        {
+            _isHovered = value;
+        }
         OnHoverChanged?.Invoke(_isHovered);
     }
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _isHovered = true;
+        SetHovered(true);
         OnHoverChanged?.Invoke(_isHovered);
         UI.OnHoverEnter();
         _interactionHandler?.OnPointerEnter(eventData);
@@ -673,7 +681,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        _isHovered = false;
+        SetHovered(false);
         OnHoverChanged?.Invoke(_isHovered);
         UI.OnHoverExit();
         _interactionHandler?.OnPointerExit(eventData);

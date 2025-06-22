@@ -65,15 +65,15 @@ public class MonsterEvolutionHandler
     public void OnFoodConsumed()
     {
         _foodConsumed++;
-        // CheckEvolutionConditions();
-        _controller.StartCoroutine(WaitForIdle());
+        CheckEvolutionConditions();
+        // _controller.StartCoroutine(WaitForIdle());
     }
 
     public void OnInteraction()
     {
         _interactionCount++;
-        // CheckEvolutionConditions();
-        _controller.StartCoroutine(WaitForIdle());
+        CheckEvolutionConditions();
+        // _controller.StartCoroutine(WaitForIdle());
     }
 
     
@@ -122,13 +122,12 @@ public class MonsterEvolutionHandler
         _isEvolving = true;
         _evolutionLevel = _controller.evolutionLevel;
         _targetLevel = _evolutionLevel + 1;
-
         _controller.StartCoroutine(EvolutionSequence());
     }
 
     private IEnumerator EvolutionSequence()
     {
-        yield return new WaitForSeconds(0.2f); // Short delay before starting evolution
+        yield return new WaitForSeconds(2.1f); // Short delay before starting evolution
 
         _monsterRectTransform = _controller.GetComponent<RectTransform>();
 

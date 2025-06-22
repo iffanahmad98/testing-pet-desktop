@@ -12,7 +12,7 @@ public class MonsterBehaviorHandler
     {
         _controller = controller;
     }
-    
+
     public MonsterState SelectNextState(MonsterState currentState)
     {
         // Fast path for eating state
@@ -22,8 +22,8 @@ public class MonsterBehaviorHandler
         }
 
         var possibleTransitions = GetValidTransitions(currentState);
-        
-        if (possibleTransitions.Count == 0) 
+
+        if (possibleTransitions.Count == 0)
         {
             return GetSimpleDefaultNextState(currentState);
         }
@@ -46,36 +46,42 @@ public class MonsterBehaviorHandler
                 return possibleTransitions[i].toState;
             }
         }
-        
-        return GetSimpleDefaultNextState(currentState);    }
+
+        return GetSimpleDefaultNextState(currentState);
+    }
     
     // Simple fallback - only Idle and Walking
     private MonsterState GetSimpleDefaultNextState(MonsterState currentState)
     {
-        // Check if monster is currently in air
         bool isInAir = IsMonsterCurrentlyInAir();
-        
+        float currentHappiness = _controller.StatsHandler.CurrentHappiness;
+
+        // Prevent movement if happiness is too low
+        bool restrictMovement = currentHappiness < 0.5f;
+
         return currentState switch
         {
-            MonsterState.Idle => isInAir ? 
-                (Random.Range(0, 3) == 0 ? MonsterState.Flying : MonsterState.Idle) :
-                (Random.Range(0, 2) == 0 ? MonsterState.Walking : MonsterState.Idle),
-                
-            MonsterState.Walking => Random.Range(0, 2) == 0 ? MonsterState.Idle : MonsterState.Walking,
-            
-            // Flying states: prefer to stay flying if in air, transition to ground states if on ground
-            MonsterState.Flying => isInAir ? 
-                (Random.Range(0, 2) == 0 ? MonsterState.Flying : MonsterState.Idle) :
-                MonsterState.Walking,
-                
-            MonsterState.Flapping => isInAir ? MonsterState.Flying : MonsterState.Idle,
-            
-            // Special states return to appropriate states based on position
-            MonsterState.Jumping => isInAir ? MonsterState.Flying : MonsterState.Idle,
+            MonsterState.Idle => restrictMovement ? MonsterState.Idle :
+                (isInAir ? (Random.Range(0, 3) == 0 ? MonsterState.Flying : MonsterState.Idle)
+                         : (Random.Range(0, 2) == 0 ? MonsterState.Walking : MonsterState.Idle)),
+
+            MonsterState.Walking => restrictMovement ? MonsterState.Idle :
+                (Random.Range(0, 2) == 0 ? MonsterState.Idle : MonsterState.Walking),
+
+            MonsterState.Flying => restrictMovement ? MonsterState.Idle :
+                (isInAir ? (Random.Range(0, 2) == 0 ? MonsterState.Flying : MonsterState.Idle)
+                         : MonsterState.Walking),
+
+            MonsterState.Flapping => restrictMovement ? MonsterState.Idle :
+                (isInAir ? MonsterState.Flying : MonsterState.Idle),
+
+            MonsterState.Jumping => restrictMovement ? MonsterState.Idle :
+                (isInAir ? MonsterState.Flying : MonsterState.Idle),
+
             MonsterState.Itching => MonsterState.Idle,
-            MonsterState.Running => MonsterState.Walking,
-            
-            _ => MonsterState.Idle // Ultimate fallback
+            MonsterState.Running => restrictMovement ? MonsterState.Idle : MonsterState.Walking,
+
+            _ => MonsterState.Idle
         };
     }
     

@@ -80,13 +80,26 @@ public class MonsterUIHandler
         sickStatusText.text = isSick ? "Status: Sick" : "Status: Healthy";
         
         // Always show when sick, otherwise show only on hover
-        _sickStatusInfoCg.alpha = isSick ? 1f : (showUI ? 1f : 0f);
+        _sickStatusInfoCg.alpha = showUI ? 1f : 0f;
         
         // Update emoji color based on sick status
         if (emojiImage != null)
         {
             emojiImage.color = isSick ? sickColor : healthyColor;
         }
+    }
+
+    public void HideAllUI()
+    {
+        // Hide all UI elements
+        _hungerInfoCg.alpha = 0f;
+        _happinessInfoCg.alpha = 0f;
+        _sickStatusInfoCg.alpha = 0f;
+        _emojiExpressionCg.alpha = 0f;
+        
+        // Reset hover state
+        _hoverStartTime = 0f;
+        _isDisplayingEmoji = false;
     }
     
     // Add hover tracking methods

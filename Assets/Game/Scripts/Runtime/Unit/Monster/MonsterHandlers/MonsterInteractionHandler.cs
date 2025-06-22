@@ -128,6 +128,7 @@ public class MonsterInteractionHandler
     
     public void OnPointerClick(PointerEventData e)
     {
+        if (_controller.EvolutionHandler.IsEvolving) return;
         HandlePoke();
     }
 

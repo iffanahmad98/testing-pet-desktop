@@ -30,8 +30,19 @@ public class MonsterAnimationHandler
     
     public void PlayStateAnimation(MonsterState state)
     {
-        // Start delayed animation playback to handle initialization timing
-        _controller.StartCoroutine(TryPlayStateAnimation(state));
+        if (_skeletonGraphic != null && _skeletonGraphic.skeletonDataAsset != null && _skeletonGraphic.AnimationState != null)
+        {
+            // Clear all tracks before playing new animation
+            _skeletonGraphic.AnimationState.ClearTracks();
+
+            string animName = GetAvailableAnimation(state);
+            _skeletonGraphic.AnimationState.SetAnimation(0, animName, true);
+        }
+        else
+        {
+            // Fallback to coroutine if not ready
+            _controller.StartCoroutine(TryPlayStateAnimation(state));
+        }
     }
 
     private IEnumerator TryPlayStateAnimation(MonsterState state)
