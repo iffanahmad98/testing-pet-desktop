@@ -17,6 +17,7 @@ public class MonsterUIHandler
     public Image emojiImage;
     public Color healthyColor = Color.green;
     public Color sickColor = Color.red;
+    public Color hungryColor = Color.yellow;
     
     private TextMeshProUGUI hungerText;
     private TextMeshProUGUI happinessText;
@@ -29,7 +30,7 @@ public class MonsterUIHandler
     
     private float _hoverStartTime = 0f;
     private bool _isDisplayingEmoji = false;
-    private const float EMOJI_DISPLAY_DELAY = 1.5f;
+    private const float EMOJI_DISPLAY_DELAY = 0.8f;
 
     public void Init()
     {

@@ -7,9 +7,11 @@ using UnityEngine.UI;
 [Serializable]
 public class MonsterEvolutionHandler
 {
+    private MonsterController _controller;
     public bool IsEvolving => _isEvolving;
     private bool _isEvolving = false;
-    private MonsterController _controller;
+    private int _evolutionLevel = 1; // Current evolution level
+    private int _targetLevel = 2; // Target evolution level for next evolution
 
     // Evolution tracking
     private float _lastUpdateTime;
@@ -57,37 +59,30 @@ public class MonsterEvolutionHandler
     public void UpdateEvolutionTracking(float deltaTime)
     {
         if (!CanEvolve) return;
-
         _timeSinceCreation += deltaTime;
-        if (Time.time - _lastUpdateTime >= 5f)
-        {
-            CheckEvolutionConditions();
-            _lastUpdateTime = Time.time;
-        }
     }
 
     public void OnFoodConsumed()
     {
         _foodConsumed++;
-        CheckEvolutionConditions();
+        // CheckEvolutionConditions();
+        _controller.StartCoroutine(WaitForIdle());
     }
 
     public void OnInteraction()
     {
         _interactionCount++;
-        _controller.StartCoroutine(DelayedEvolutionCheck());
+        // CheckEvolutionConditions();
+        _controller.StartCoroutine(WaitForIdle());
     }
 
-    private IEnumerator DelayedEvolutionCheck()
+    
+    private IEnumerator WaitForIdle()
     {
-        yield return new WaitForSeconds(2.5f);
-
-        if (!_isEvolving)
-        {
-            var stateMachine = _controller.GetComponent<MonsterStateMachine>();
-            if (stateMachine?.CurrentState == MonsterState.Idle || stateMachine?.CurrentState == MonsterState.Walking)
-                CheckEvolutionConditions();
-        }
+        // Wait until the monster is idle
+        while (_controller.StateMachine.CurrentState != MonsterState.Idle)
+            yield return new WaitForSeconds(2.1f);
+        CheckEvolutionConditions();
     }
 
     private void CheckEvolutionConditions()
@@ -98,7 +93,13 @@ public class MonsterEvolutionHandler
         if (nextEvolution == null) return;
 
         if (MeetsEvolutionRequirements(nextEvolution))
-            TriggerEvolution();
+        {
+            _controller.StateMachine?.ChangeState(MonsterState.Idle);
+            if (_controller.StateMachine?.CurrentState == MonsterState.Idle)
+            {
+                TriggerEvolution();
+            }
+        }
     }
 
     private EvolutionRequirement GetNextEvolutionRequirement()
@@ -111,37 +112,31 @@ public class MonsterEvolutionHandler
         return _timeSinceCreation >= req.minTimeAlive &&
                _foodConsumed >= req.minFoodConsumed &&
                _interactionCount >= req.minInteractions &&
-               _controller.currentHappiness >= req.minCurrentHappiness &&
-               _controller.currentHunger >= req.minCurrentHunger &&
+               _controller.StatsHandler.CurrentHappiness >= req.minCurrentHappiness &&
+               _controller.StatsHandler.CurrentHunger >= req.minCurrentHunger &&
                (req.customCondition?.Invoke(_controller) ?? true);
     }
 
     public void TriggerEvolution()
     {
-        if (!CanEvolve || _isEvolving) return;
-
         _isEvolving = true;
-        var oldLevel = _controller.evolutionLevel;
-        var newLevel = oldLevel + 1;
+        _evolutionLevel = _controller.evolutionLevel;
+        _targetLevel = _evolutionLevel + 1;
 
-        _controller.StartCoroutine(EvolutionSequence(newLevel));
+        _controller.StartCoroutine(EvolutionSequence());
     }
 
-    private IEnumerator EvolutionSequence(int targetLevel)
+    private IEnumerator EvolutionSequence()
     {
+        yield return new WaitForSeconds(0.2f); // Short delay before starting evolution
+
         _monsterRectTransform = _controller.GetComponent<RectTransform>();
-        _controller.GetComponent<MonsterStateMachine>()?.ChangeState(MonsterState.Idle);
 
         // Animation sequence
-        yield return BasicVisualEffect();
-
-        // Update monster data
-        _controller.evolutionLevel = targetLevel;
-        UpdateMonsterID(targetLevel);
-        _controller.UpdateVisuals();
+        yield return VFX();
 
         // Show evolution message
-        ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {targetLevel}!", 3f);
+        ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
 
         // IMPORTANT: Save data BEFORE resetting counters
         _controller.SaveMonData();
@@ -149,11 +144,9 @@ public class MonsterEvolutionHandler
         // NOW reset counters for next evolution
         _foodConsumed = 0;
         _interactionCount = 0;
-
-        _controller.UpdateVisuals();
         
         // Add a cooldown period where the monster stays idle
-        float postEvolutionIdleTime = 2.5f;
+        float postEvolutionIdleTime = 3f;
         yield return new WaitForSeconds(postEvolutionIdleTime);
         
         _isEvolving = false;
@@ -197,13 +190,13 @@ public class MonsterEvolutionHandler
         float timeProgress = req.minTimeAlive > 0 ? _timeSinceCreation / req.minTimeAlive : 1f;
         float foodProgress = req.minFoodConsumed > 0 ? (float)_foodConsumed / req.minFoodConsumed : 1f;
         float interactionProgress = req.minInteractions > 0 ? (float)_interactionCount / req.minInteractions : 1f;
-        float happinessProgress = req.minCurrentHappiness > 0 ? _controller.currentHappiness / req.minCurrentHappiness : 1f;
-        float hungerProgress = req.minCurrentHunger > 0 ? _controller.currentHunger / req.minCurrentHunger : 1f;
+        float happinessProgress = req.minCurrentHappiness > 0 ? _controller.StatsHandler.CurrentHappiness / req.minCurrentHappiness : 1f;
+        float hungerProgress = req.minCurrentHunger > 0 ? _controller.StatsHandler.CurrentHunger / req.minCurrentHunger : 1f;
 
         return Mathf.Clamp01((timeProgress + foodProgress + interactionProgress + happinessProgress + hungerProgress) / 5f);
     }
     
-    private IEnumerator BasicVisualEffect()
+    private IEnumerator VFX()
     {
         // Store original properties
         Vector3 originalScale = _monsterRectTransform.localScale;
@@ -246,7 +239,7 @@ public class MonsterEvolutionHandler
         _monsterRectTransform.SetAsLastSibling();
         
         // Target values for zoom
-        Vector3 targetScale = originalScale * 5f;
+        Vector3 targetScale = originalScale * 3.8f;
         Vector2 canvasCenter = Vector2.zero;
         
         // 1. ZOOM IN EFFECT
@@ -279,17 +272,17 @@ public class MonsterEvolutionHandler
         highlightRect.anchoredPosition = canvasCenter;
         
         // Small pause at full zoom
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         
         // 2. PULSE EFFECT (using ZOOMED scale as base)
         for (int i = 0; i < 3; i++)
         {
             // Pulse up with rotation
             elapsed = 0f;
-            duration = 0.15f;
+            duration = 0.2f;
             Vector3 startScale = targetScale; // Use zoomed scale
-            Vector3 pulseScale = targetScale * 1.2f; // Pulse 20% larger from zoomed
-            
+            Vector3 pulseScale = targetScale * 1.8f; // Pulse 80% larger from zoomed
+
             while (elapsed < duration)
             {
                 float t = elapsed/duration;
@@ -315,36 +308,6 @@ public class MonsterEvolutionHandler
             }
             
             yield return new WaitForSeconds(0.1f);
-        }
-
-        // 3. RIPPLE EFFECT (centered)
-        if (canvas != null)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                GameObject rippleObj = new GameObject("EvolutionRipple");
-                rippleObj.transform.SetParent(canvas.transform, false);
-                
-                Image rippleImage = rippleObj.AddComponent<Image>();
-                rippleObj.AddComponent<Mask>().showMaskGraphic = true;
-                rippleImage.sprite = CreateCircleSprite();
-                
-                Color rippleColor = new Color(1f, 1f, 0.7f, 0.7f);
-                rippleImage.color = rippleColor;
-                rippleImage.raycastTarget = false;
-                
-                RectTransform rippleRect = rippleObj.GetComponent<RectTransform>();
-                rippleRect.anchoredPosition = canvasCenter; // Use canvas center
-                
-                // Scale ripple with monster's zoomed size
-                float baseSize = 30 * (targetScale.x / originalScale.x);
-                rippleRect.sizeDelta = new Vector2(baseSize, baseSize);
-                
-                // Expand and fade out
-                _controller.StartCoroutine(AnimateRipple(rippleRect, rippleImage, 0.8f));
-                
-                yield return new WaitForSeconds(0.2f);
-            }
         }
 
         // 4. SCREEN FLASH EFFECT
@@ -384,37 +347,6 @@ public class MonsterEvolutionHandler
             UnityEngine.Object.Destroy(flashObj);
         }
 
-        // 5. SPARKLE EFFECTS (positioned around center)
-        if (canvas != null)
-        {
-            for (int i = 0; i < 15; i++)
-            {
-                float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
-                float distance = UnityEngine.Random.Range(20f, 100f) * (targetScale.x / originalScale.x); // Scale with zoom
-                
-                Vector2 position = canvasCenter + // Use canvas center
-                                new Vector2(Mathf.Cos(angle) * distance, Mathf.Sin(angle) * distance);
-                
-                GameObject sparkle = new GameObject("Sparkle");
-                sparkle.transform.SetParent(canvas.transform, false);
-                
-                Image sparkleImg = sparkle.AddComponent<Image>();
-                sparkleImg.sprite = CreateSimpleSparkleSprite();
-                sparkleImg.raycastTarget = false;
-                
-                // Random size and delay - scale with zoom
-                float size = UnityEngine.Random.Range(20f, 80f) * (targetScale.x / originalScale.x);
-                float delay = UnityEngine.Random.Range(0f, 0.7f);
-                
-                RectTransform sparkleRect = sparkle.GetComponent<RectTransform>();
-                sparkleRect.anchoredPosition = position;
-                sparkleRect.sizeDelta = new Vector2(size, size);
-                
-                _controller.StartCoroutine(AnimateSparkleWithDelay(
-                    sparkleRect, sparkleImg, UnityEngine.Random.Range(0.5f, 1.5f), delay));
-            }
-        }
-
         // 6. HOVER EFFECT (at center)
         Vector2 startPos = canvasCenter; // Use canvas center
         float hoverTime = 0f, hoverDuration = 1.5f;
@@ -439,15 +371,85 @@ public class MonsterEvolutionHandler
         // Reset position to center exactly
         _monsterRectTransform.anchoredPosition = canvasCenter;
         _monsterRectTransform.rotation = originalRotation;
-        
+
         // 7. PARTICLE EFFECT (if available)
         if (_evolutionParticle != null && _evolutionParticleCanvasGroup != null)
         {
             _evolutionParticleCanvasGroup.alpha = 1f;
             _evolutionParticle.Play();
+
+            // 3. RIPPLE EFFECT (centered)
+            if (canvas != null)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    GameObject rippleObj = new GameObject("EvolutionRipple");
+                    rippleObj.transform.SetParent(canvas.transform, false);
+
+                    Image rippleImage = rippleObj.AddComponent<Image>();
+                    rippleObj.AddComponent<Mask>().showMaskGraphic = true;
+                    rippleImage.sprite = CreateCircleSprite();
+
+                    Color rippleColor = new Color(1f, 1f, 0.7f, 0.7f);
+                    rippleImage.color = rippleColor;
+                    rippleImage.raycastTarget = false;
+
+                    RectTransform rippleRect = rippleObj.GetComponent<RectTransform>();
+                    rippleRect.anchoredPosition = canvasCenter; // Use canvas center
+
+                    // Scale ripple with monster's zoomed size
+                    float baseSize = 30 * (targetScale.x / originalScale.x);
+                    rippleRect.sizeDelta = new Vector2(baseSize, baseSize);
+
+                    // Expand and fade out
+                    _controller.StartCoroutine(AnimateRipple(rippleRect, rippleImage, 1.2f));
+
+                    //Update Monster
+                    _controller.evolutionLevel = _targetLevel;
+                    UpdateMonsterID(_targetLevel);
+                    _controller.UpdateVisuals();
+
+                    yield return new WaitForSeconds(0.6f);
+                }
+            }
+
             yield return new WaitForSeconds(2f);
+
             _evolutionParticleCanvasGroup.alpha = 0f;
             _evolutionParticle.Stop(true);
+
+            // 5. SPARKLE EFFECTS (positioned around center)
+            if (canvas != null)
+            {
+                for (int i = 0; i < 15; i++)
+                {
+                    float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
+                    float distance = UnityEngine.Random.Range(20f, 100f) * (targetScale.x / originalScale.x); // Scale with zoom
+
+                    Vector2 position = canvasCenter + // Use canvas center
+                                    new Vector2(Mathf.Cos(angle) * distance, Mathf.Sin(angle) * distance);
+
+                    GameObject sparkle = new GameObject("Sparkle");
+                    sparkle.transform.SetParent(canvas.transform, false);
+
+                    Image sparkleImg = sparkle.AddComponent<Image>();
+                    sparkleImg.sprite = CreateSimpleSparkleSprite();
+                    sparkleImg.raycastTarget = false;
+
+                    // Random size and delay - scale with zoom
+                    float size = UnityEngine.Random.Range(20f, 80f) * (targetScale.x / originalScale.x);
+                    float delay = UnityEngine.Random.Range(0.5f, 1.2f);
+
+                    RectTransform sparkleRect = sparkle.GetComponent<RectTransform>();
+                    sparkleRect.anchoredPosition = position;
+                    sparkleRect.sizeDelta = new Vector2(size, size);
+
+                    _controller.StartCoroutine(AnimateSparkleWithDelay(
+                        sparkleRect, sparkleImg, UnityEngine.Random.Range(0.5f, 1.5f), delay));
+                }
+                
+                yield return new WaitForSeconds(1.5f); // Wait for sparkles to finish
+            }
         }
         
         // 8. FINALLY ZOOM OUT

@@ -25,7 +25,7 @@ public class MonsterMovementHandler
             targetPosition = _controller.BoundHandler.GetRandomTargetForState(_controller.StateMachine.CurrentState);
         }
         
-        if (_controller.EvolutionHandler != null && _controller.IsEvolving)
+        if (_controller.EvolutionHandler != null && _controller.EvolutionHandler.IsEvolving)
             return;
 
         Vector2 pos = _transform.anchoredPosition;

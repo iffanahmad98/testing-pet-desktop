@@ -27,10 +27,9 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     
     // Monster identification & basic data
     public string monsterID;
+    public int evolutionLevel;
     private MonsterDataSO monsterData;
     public MonsterDataSO MonsterData => monsterData;
-    public int evolutionLevel;
-    public int CurrentEvolutionLevel => evolutionLevel;
     
     // Event handlers
     private Action<float> _hungerChangedHandler;
@@ -39,13 +38,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private Action<bool> _hoverChangedHandler;
     
     // Stats & state properties
-    public float currentHunger => _statsHandler?.CurrentHunger ?? 0f;
-    public float currentHappiness => _statsHandler?.CurrentHappiness ?? 0f;
     public bool IsSick => _statsHandler?.IsSick ?? false;
-    public bool isHovered => _isHovered;
     public bool IsLoaded => _isLoaded;
-    public bool IsEvolving => _evolutionHandler?.IsEvolving ?? false;
-    public FoodController nearestFood => _foodHandler?.NearestFood;
     
     // Core events
     public event Action<float> OnHungerChanged;
@@ -275,7 +269,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (!IsFullyInitialized) return;
 
         // ADD: Skip all updates during evolution except evolution tracking
-        if (IsEvolving)
+        if (_evolutionHandler?.IsEvolving == true)
         {
             _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
             return; // Skip movement, interactions, etc.
@@ -342,8 +336,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         
         _hoverChangedHandler = (hovered) =>
         {
-            UI.UpdateHungerDisplay(currentHunger, hovered);
-            UI.UpdateHappinessDisplay(currentHappiness, hovered);
+            UI.UpdateHungerDisplay(StatsHandler.CurrentHunger, hovered);
+            UI.UpdateHappinessDisplay(StatsHandler.CurrentHappiness, hovered);
         };
 
         _statsHandler.OnHungerChanged += _hungerChangedHandler;
@@ -375,29 +369,16 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private void HandleMovement()
     {
         if (monsterData == null) return;
-        
-        // Prevent movement during evolution
-        if (_evolutionHandler != null && _evolutionHandler.IsEvolving)
-        {
-            return;
-        }
+        if (_evolutionHandler != null && _evolutionHandler.IsEvolving) return;
 
-        // NEW: Check if we should use relaxed bounds for very small areas
+        // NEW: Check if we should use relaxed bounds for very small areas, Only update movement every 3rd frame for tiny areas
         bool useRelaxedBounds = _boundHandler?.IsMovementAreaTooSmall() ?? false;
-        
-        // NEW: For very small areas, drastically reduce movement updates
-        if (useRelaxedBounds)
-        {
-            // Only update movement every 3rd frame for tiny areas
-            if (Time.frameCount % 3 != 0) return;
-        }
-
-        // Apply separation force regardless of state
         Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
-
+        // NEW: For very small areas, drastically reduce movement updates
         // NEW: Reduce separation force for small areas
         if (useRelaxedBounds)
         {
+            if (Time.frameCount % 3 != 0) return;
             separationForce *= 0.1f; // Much weaker separation
         }
 
@@ -425,13 +406,12 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             _rectTransform.anchoredPosition = newPos;
         }
 
-        bool isEating = _stateMachine?.CurrentState == MonsterState.Eating;
+        bool isEating = _foodHandler?.IsCurrentlyEating ?? false;
         if (isEating) return;
 
         bool isMovementState = _stateMachine?.CurrentState == MonsterState.Walking ||
                               _stateMachine?.CurrentState == MonsterState.Running ||
-                              _stateMachine?.CurrentState == MonsterState.Flying ||
-                              _stateMachine?.CurrentState == MonsterState.Flapping;
+                              _stateMachine?.CurrentState == MonsterState.Flying;
 
         if (isMovementState)
         {
@@ -664,8 +644,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public float GetLowHungerTime() => _statsHandler?.LowHungerTime ?? 0f;
     public void SetLowHungerTime(float value) => _statsHandler?.SetLowHungerTime(value);
     public void IncreaseHappiness(float amount) => _statsHandler?.IncreaseHappiness(amount);
-    public void TreatSickness() => _statsHandler?.TreatSickness();
-    public void TriggerFoodConsumption() => _evolutionHandler?.OnFoodConsumed();    
+    public void TreatSickness() => _statsHandler?.TreatSickness(); 
     public void GiveMedicine()
     {
         if (_statsHandler?.IsSick == true)
@@ -701,8 +680,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
     
     public void OnPointerClick(PointerEventData eventData) => _interactionHandler?.OnPointerClick(eventData);
-    
-    public void TriggerEating() => _stateMachine?.ChangeState(MonsterState.Eating);
     #endregion
 
     #region Visual Effects

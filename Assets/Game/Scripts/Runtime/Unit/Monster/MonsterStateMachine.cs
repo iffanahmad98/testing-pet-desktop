@@ -34,7 +34,7 @@ public class MonsterStateMachine : MonoBehaviour
     {
         _stateTimer += Time.deltaTime;
 
-        if (_controller != null && _controller.IsEvolving) return; 
+        if (_controller?.EvolutionHandler?.IsEvolving == true) return;
 
         if (_currentState == MonsterState.Eating)
         {
@@ -73,15 +73,8 @@ public class MonsterStateMachine : MonoBehaviour
 
     public void ChangeState(MonsterState newState)
     {
-        if (_controller != null && _controller.IsEvolving)
-        {
-            return;
-        }
-
-        if (!_animationHandler.HasValidAnimationForState(newState))
-        {
-            newState = MonsterState.Idle;
-        }
+        if (_controller == null) return;
+        if (!_animationHandler.HasValidAnimationForState(newState)) newState = MonsterState.Idle;
         
         _previousState = _currentState;
         _currentState = newState;
@@ -99,8 +92,7 @@ public class MonsterStateMachine : MonoBehaviour
     {
         if (_currentState != MonsterState.Walking && 
             _currentState != MonsterState.Running && 
-            _currentState != MonsterState.Flying &&
-            _currentState != MonsterState.Flapping)
+            _currentState != MonsterState.Flying)
         {
             return false;
         }

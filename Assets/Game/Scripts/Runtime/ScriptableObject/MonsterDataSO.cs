@@ -19,7 +19,7 @@ public class MonsterDataSO : ScriptableObject
     public float baseHappiness = 50f;            // Add base happiness
     public float foodDetectionRange = 200f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
-    public float hungerDepleteRate = 0.01f;  // How fast hunger depletes
+    public float hungerDepleteRate = 0f;  // How fast hunger depletes
     public float baseHunger = 0f;               // Add base hunger
     public float maxHungerStage1 = 0f;          // Stage 1 hunger (keep existing)
     public float maxHungerStage2 = 0f;          // Stage 2 hunger

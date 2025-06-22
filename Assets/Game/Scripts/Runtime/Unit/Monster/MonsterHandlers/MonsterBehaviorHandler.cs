@@ -88,9 +88,9 @@ public class MonsterBehaviorHandler
             return _transitions;
 
         // Consider getting hunger and happiness once to avoid property access in loop
-        float currentHunger = _controller.currentHunger;
-        float currentHappiness = _controller.currentHappiness;
-        bool hasFoodNearby = _controller.nearestFood != null;
+        float currentHunger = _controller.StatsHandler.CurrentHunger;
+        float currentHappiness = _controller.StatsHandler.CurrentHappiness;
+        bool hasFoodNearby = _controller.FoodHandler.IsNearFood;
 
         for (int i = 0; i < currentBehaviorConfig.transitions.Length; i++)
         {

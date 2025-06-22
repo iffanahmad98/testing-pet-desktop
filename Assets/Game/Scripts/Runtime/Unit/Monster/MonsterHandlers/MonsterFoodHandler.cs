@@ -74,11 +74,7 @@ public class MonsterFoodHandler
     {
         if (NearestFood == null || _isInternallyEating) return;
         
-        // FIXED: Use cached state machine reference
-        if (_controller.StateMachine?.CurrentState == MonsterState.Eating)
-        {
-            return;
-        }
+        if (_controller.StateMachine?.CurrentState == MonsterState.Eating) return;
 
         // Validate food is still valid
         if (!IsValidFood(NearestFood))
@@ -111,7 +107,7 @@ public class MonsterFoodHandler
         _isInternallyEating = true;
         
         // Trigger eating animation
-        _controller.TriggerEating();
+        _controller.StateMachine?.ChangeState(MonsterState.Eating);
         
         // Start consumption process
         _eatingCoroutine = _controller.StartCoroutine(ConsumeAfterEating());
@@ -121,7 +117,7 @@ public class MonsterFoodHandler
     {
         if (NearestFood != null)
         {
-            NearestFood.ReleaseClaim(_controller); // ADDED: Release claim
+            NearestFood.ReleaseClaim(_controller);
             NearestFood = null;
         }
     }
@@ -147,16 +143,15 @@ public class MonsterFoodHandler
         if (NearestFood != null)
         {
             // Always allow feeding regardless of sick status
-            float newHunger = Mathf.Clamp(_controller.currentHunger + NearestFood.nutritionValue, 0f, 100f);
-            float newHappiness = Mathf.Clamp(_controller.currentHappiness + (NearestFood.nutritionValue * 0.5f), 0f, 100f);
-            
+            float newHunger = Mathf.Clamp(_controller.StatsHandler.CurrentHunger + NearestFood.nutritionValue, 0f, 100f);
+            float newHappiness = Mathf.Clamp(_controller.StatsHandler.CurrentHappiness + (NearestFood.nutritionValue * 0.5f), 0f, 100f);
+
             _controller.SetHunger(newHunger);
             _controller.SetHappiness(newHappiness);
             
             // Remove and despawn food
             _controller.MonsterManager.activeFoods.Remove(NearestFood);
             _controller.MonsterManager.DespawnToPool(NearestFood.gameObject);
-            _controller.TriggerFoodConsumption();
         }
         
         // Always clean up food reference
@@ -166,28 +161,13 @@ public class MonsterFoodHandler
     
     private void CompleteEatingSequence()
     {
+        _controller.StateMachine.ChangeState(MonsterState.Idle);
         _lastEatingTime = Time.time;
         _eatingCoroutine = null;
         _isInternallyEating = false;
-        
-        // Let state machine handle transition
-        if (_controller.StateMachine?.CurrentState == MonsterState.Eating)
-        {
-            _controller.StateMachine.ChangeState(MonsterState.Idle);
-        }
-        
-        _controller.SetRandomTarget();
+        _controller.EvolutionHandler.OnFoodConsumed();
     }
     
     // Public getter using internal state
     public bool IsCurrentlyEating => _isInternallyEating || (_controller.StateMachine?.CurrentState == MonsterState.Eating);
-
-    // Modify ValidateEatingConditions to be simpler
-    private bool ValidateEatingConditions()
-    {
-        return NearestFood != null &&
-               IsValidFood(NearestFood) &&
-               NearestFood.IsClaimedBy(_controller) &&
-               Time.time - _lastEatingTime >= EATING_COOLDOWN;
-    }
 }
