@@ -17,9 +17,9 @@ public class MonsterShopManager : MonoBehaviour
 
     private void Start()
     {
-        rarityTabController.OnTabChanged += OnRarityTabChanged;
-        OnRarityTabChanged(0); // Default to "All"
-        detailPanel.SetVisible(false);
+        // rarityTabController.OnTabChanged += OnRarityTabChanged;
+        // OnRarityTabChanged(0); // Default to "All"
+        // detailPanel.SetVisible(false);
     }
 
     private void OnRarityTabChanged(int index)

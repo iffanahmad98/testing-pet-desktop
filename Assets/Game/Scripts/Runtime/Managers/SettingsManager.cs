@@ -51,7 +51,7 @@ public class SettingsManager : MonoBehaviour
 
     private const float MIN_SIZE = 270f;
     private const float DEFAULT_MONSTER_SCALE = 1f;
-    private const float MONSTER_BOUNDS_PADDING = 50f; 
+    private const float MONSTER_BOUNDS_PADDING = 50f;
     private const string DECIMAL_FORMAT = "F0";
     private const string SCALE_FORMAT = "F2";
     private const string VOLUME_FORMAT = "F1";
@@ -71,6 +71,7 @@ public class SettingsManager : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register(this);
+        SaveSystem.Initialize();
     }
     private void Start()
     {
@@ -78,13 +79,14 @@ public class SettingsManager : MonoBehaviour
         InitializeGameAreaSettings();
         InitializeLanguageSettings();
 
-        
+
     }
 
     private void OnDestroy()
     {
         UnregisterAllCallbacks();
-        ServiceLocator.Unregister<SettingsManager>();    }
+        ServiceLocator.Unregister<SettingsManager>();
+    }
 
 
     private void InitializeGameAreaSettings()
@@ -219,7 +221,7 @@ public class SettingsManager : MonoBehaviour
         // Update text displays
         UpdateValueText(widthValueText, gameArea.sizeDelta.x, DECIMAL_FORMAT);
         UpdateValueText(heightValueText, gameArea.sizeDelta.y, DECIMAL_FORMAT);
-        UpdateValueText(horizontalPositionValueText, gameArea.anchoredPosition.x, DECIMAL_FORMAT);        UpdateValueText(verticalPositionValueText, gameArea.anchoredPosition.y, DECIMAL_FORMAT);
+        UpdateValueText(horizontalPositionValueText, gameArea.anchoredPosition.x, DECIMAL_FORMAT); UpdateValueText(verticalPositionValueText, gameArea.anchoredPosition.y, DECIMAL_FORMAT);
     }
     #region Input Field Handlers
     private void OnWidthInputChanged(string value)
@@ -398,7 +400,7 @@ public class SettingsManager : MonoBehaviour
             RepositionMonstersAfterScaling();
             _lastRepositionTime = Time.time;
         }
-        
+
         OnGameAreaChanged?.Invoke();
     }
 
@@ -496,32 +498,32 @@ public class SettingsManager : MonoBehaviour
         foreach (var monster in gameManager.activeMonsters)
         {
             if (monster == null) continue;
-            
+
             var rectTransform = monster.GetComponent<RectTransform>();
             Vector2 currentPos = rectTransform.anchoredPosition;
-            
+
             // Use proper bounds calculation like MonsterMovementBounds does
             Vector2 gameAreaSize = gameArea.sizeDelta;
             float monsterHalfWidth = rectTransform.rect.width / 2;
             float monsterHalfHeight = rectTransform.rect.height / 2;
-            
+
             // Calculate actual movement bounds with consistent padding
             Vector2 boundsMin = new Vector2(
                 -gameAreaSize.x / 2 + monsterHalfWidth + MONSTER_BOUNDS_PADDING,
                 -gameAreaSize.y / 2 + monsterHalfHeight + MONSTER_BOUNDS_PADDING
             );
-            
+
             Vector2 boundsMax = new Vector2(
                 gameAreaSize.x / 2 - monsterHalfWidth - MONSTER_BOUNDS_PADDING,
                 gameAreaSize.y / 2 - monsterHalfHeight - MONSTER_BOUNDS_PADDING
             );
-            
+
             // Check if monster is outside new bounds
-            bool isOutside = currentPos.x < boundsMin.x || 
+            bool isOutside = currentPos.x < boundsMin.x ||
                             currentPos.x > boundsMax.x ||
-                            currentPos.y < boundsMin.y || 
+                            currentPos.y < boundsMin.y ||
                             currentPos.y > boundsMax.y;
-            
+
             if (isOutside)
             {
                 // Clamp to new bounds with consistent padding
@@ -529,9 +531,9 @@ public class SettingsManager : MonoBehaviour
                     Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
                     Mathf.Clamp(currentPos.y, boundsMin.y, boundsMax.y)
                 );
-                
+
                 rectTransform.anchoredPosition = newPos;
-                
+
                 // Give monster new random target within new bounds
                 monster.SetRandomTarget();
             }

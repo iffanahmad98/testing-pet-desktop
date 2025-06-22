@@ -87,7 +87,6 @@ public class AudioSettingsManager : MonoBehaviour, ISettingsSavable
         cachedMaster = settings.masterVolume;
         cachedBGM = settings.bgmVolume;
         cachedSFX = settings.sfxVolume;
-        Debug.Log($"Loaded Audio Settings: Master={cachedMaster}, BGM={cachedBGM}, SFX={cachedSFX}");
 
         if (masterSlider != null)
         {

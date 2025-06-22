@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class RarityWeight
@@ -51,6 +52,7 @@ public class GachaManager : MonoBehaviour
     }
     public void RollGacha()
     {
+        Debug.Log("Rolling gacha...");
         if (ServiceLocator.Get<MonsterManager>().coinCollected < gachaCost)
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);
