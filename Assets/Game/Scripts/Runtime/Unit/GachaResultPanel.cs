@@ -19,14 +19,16 @@ public class GachaResultPanel : MonoBehaviour
     public Image eggImage;
     public GameObject monsterDisplay;
     [Header("Effects")]
-    public GameObject confettiFx;
-    public GameObject shineFx;
+    public GameObject confettiFxRender;
+    public ParticleSystem confettiFx;
+    public GameObject shineFxRender;
+    public ParticleSystem shineFx;
     [Header("Buttons")]
     public Button backButton;
     public Button rollAgainButton;
     private Tween sequenceTween;
-    [SerializeField] private float intervalBetweenFrames = 0.1f;
-    [SerializeField] private float intervalBetweenAnimations = 0.1f;
+    [SerializeField] private float intervalBetweenFrames = 0.25f;
+    [SerializeField] private float intervalBetweenAnimations = 2f;
 
     public void Show(MonsterDataSO monster, System.Action onRollAgain)
     {
@@ -36,18 +38,15 @@ public class GachaResultPanel : MonoBehaviour
         // Begin the sequence
         sequenceTween = DOTween.Sequence()
        .AppendCallback(() => StartCoroutine(PlayFrameSequence(chestImage, chestFrames, intervalBetweenFrames))) // Chest
-       .AppendInterval(chestFrames.Length * 0.1f + 0.1f)
+       .AppendInterval(chestFrames.Length * intervalBetweenFrames)
        .AppendCallback(() =>
        {
            chestImage.gameObject.SetActive(false);
-           shineFx.SetActive(true);
+           shineFx.Play();
+           shineFxRender.SetActive(true);
            StartCoroutine(PlayFrameSequence(eggImage, eggFrames, intervalBetweenFrames)); // Egg
        })
-       .AppendInterval(eggFrames.Length * 0.1f + 0.1f)
-       .AppendCallback(() =>
-       {
-           confettiFx.SetActive(true);
-       })
+       .AppendInterval(eggFrames.Length * intervalBetweenFrames)
        .AppendInterval(intervalBetweenAnimations)
        .AppendCallback(() =>
        {
@@ -56,6 +55,11 @@ public class GachaResultPanel : MonoBehaviour
            //    monsterImage.sprite = monster.monsIconImg[0];
            monsterNameText.text = monster.monsterName;
            //    rarityText.text = monster.monType.ToString().ToUpper();
+       })
+       .AppendCallback(() =>
+       {
+           confettiFx.Play();
+           confettiFxRender.SetActive(true);
        });
 
 
@@ -82,8 +86,8 @@ public class GachaResultPanel : MonoBehaviour
     {
         chestImage.gameObject.SetActive(false);
         eggImage.gameObject.SetActive(false);
-        confettiFx.SetActive(false);
-        shineFx.SetActive(false);
+        confettiFxRender.SetActive(false);
+        shineFxRender.SetActive(false);
         monsterDisplay.SetActive(false);
     }
     private IEnumerator PlayFrameSequence(Image targetImage, Sprite[] frames, float frameDelay)

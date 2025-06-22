@@ -479,7 +479,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  skeletonDataAsset: {fileID: 0}
+  skeletonDataAsset: {fileID: 11400000, guid: 2849b090bc78ec149b91dec4e919ce91, type: 2}
   additiveMaterial: {fileID: 2100000, guid: 2e8245019faeb8c43b75f9ca3ac8ee34, type: 2}
   multiplyMaterial: {fileID: 2100000, guid: e74a1f8978a7da348a721508d0d58834, type: 2}
   screenMaterial: {fileID: 2100000, guid: bab24c479f34eec45be6ea8595891569, type: 2}
@@ -771,6 +771,7 @@ MonoBehaviour:
     emojiImage: {fileID: 1273210171923547663}
     healthyColor: {r: 0, g: 1, b: 0, a: 1}
     sickColor: {r: 1, g: 0, b: 0, a: 1}
+    hungryColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!114 &2708909758104116800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1038,6 +1039,10 @@ PrefabInstance:
     - target: {fileID: 7163778051069607806, guid: 663d032acce709e4b835c13a807d8471, type: 3}
       propertyPath: m_Name
       value: ParticleRawImage
+      objectReference: {fileID: 0}
+    - target: {fileID: 7163778051069607806, guid: 663d032acce709e4b835c13a807d8471, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
