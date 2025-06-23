@@ -9,6 +9,7 @@ public class MonsterManager : MonoBehaviour
     [Header("Prefabs & Pool Settings")]
     public GameObject monsterPrefab;
     public GameObject foodPrefab;
+    public GameObject medicinePrefab;
     public GameObject poopPrefab;
     public GameObject coinPrefab;
     public RectTransform poolContainer;
@@ -31,8 +32,9 @@ public class MonsterManager : MonoBehaviour
     private Camera _mainCamera;
     private RectTransform _foodIndicatorRT;
     private Image _foodIndicatorImage;
-    
+
     private Queue<GameObject> _foodPool = new Queue<GameObject>();
+    private Queue<GameObject> _medicinePool = new Queue<GameObject>();
     private Queue<GameObject> _poopPool = new Queue<GameObject>();
     private Queue<GameObject> _coinPool = new Queue<GameObject>();
 
@@ -42,6 +44,7 @@ public class MonsterManager : MonoBehaviour
     [HideInInspector] public int poopCollected;
     [HideInInspector] public int coinCollected;
     public List<FoodController> activeFoods = new List<FoodController>();
+    public List<MedicineController> activeMedicines = new List<MedicineController>();
     private List<string> savedMonIDs = new List<string>();
 
     private bool isInPlacementMode = false;
@@ -58,7 +61,7 @@ public class MonsterManager : MonoBehaviour
         InitializePools();
         CacheComponents();
     }
-    
+
     private void CacheComponents()
     {
         _mainCamera = mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCanvas.worldCamera;
@@ -89,12 +92,6 @@ public class MonsterManager : MonoBehaviour
 
     void Update()
     {
-        if (isInPlacementMode)
-        {
-            IndicatorPlacementHandler();
-            FoodPlacementHandler();
-        }
-
         if (enableDepthSorting && Time.time - lastSortTime >= sortInterval)
         {
             SortMonstersByDepth();
@@ -107,7 +104,7 @@ public class MonsterManager : MonoBehaviour
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
     {
         GameObject monster = CreateMonster(monsterData);
-        
+
         var controller = monster.GetComponent<MonsterController>();
 
         if (!string.IsNullOrEmpty(id))
@@ -138,7 +135,7 @@ public class MonsterManager : MonoBehaviour
     private GameObject CreateMonster(MonsterDataSO monsterData = null)
     {
         var monster = Instantiate(monsterPrefab, gameArea);
-        
+
         var monsterController = monster.GetComponent<MonsterController>();
         var rectTransform = monster.GetComponent<RectTransform>();
         var movementBounds = new MonsterBoundsHandler(this, rectTransform);
@@ -148,13 +145,13 @@ public class MonsterManager : MonoBehaviour
         if (monsterController != null)
         {
             MonsterDataSO _data = monsterData;
-            
+
             // If no data provided, pick random from database
             if (_data == null && monsterDatabase != null && monsterDatabase.monsters.Count > 0)
             {
                 _data = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
             }
-            
+
             if (_data != null)
             {
                 monsterController.SetMonsterData(_data);
@@ -217,7 +214,7 @@ public class MonsterManager : MonoBehaviour
             string monsterTypeId = parts[0];
             string levelPart = parts[1];
             int evolutionLevel = 0;
-            
+
             if (levelPart.StartsWith("Stage"))
             {
                 if (!int.TryParse(levelPart.Substring(5), out evolutionLevel))
@@ -225,7 +222,7 @@ public class MonsterManager : MonoBehaviour
                     evolutionLevel = 0;
                 }
             }
-            
+
             foreach (var data in monsterDatabase.monsters)
             {
                 if (data.id == monsterTypeId)
@@ -234,17 +231,17 @@ public class MonsterManager : MonoBehaviour
                 }
             }
         }
-        
+
         return (null, 0);
     }
-    
+
     public void SortMonstersByDepth()
     {
         if (activeMonsters.Count <= 1) return;
 
         // Use array for better performance with large lists
         var validMonsters = new List<MonsterController>(activeMonsters.Count);
-        
+
         // Filter out null/inactive monsters first
         for (int i = activeMonsters.Count - 1; i >= 0; i--)
         {
@@ -260,7 +257,7 @@ public class MonsterManager : MonoBehaviour
         }
 
         // Sort by Y position (higher Y = lower sibling index)
-        validMonsters.Sort((a, b) => 
+        validMonsters.Sort((a, b) =>
             b.transform.position.y.CompareTo(a.transform.position.y));
 
         // Update sibling indices, starting from index 1 to preserve background at index 0
@@ -271,81 +268,58 @@ public class MonsterManager : MonoBehaviour
     }
     #endregion
 
-    #region Food Management
-    public void StartFoodPurchase(int cost)
+    #region Consumable Management
+    public void SpawnItem(ItemDataSO data, Vector2 pos)
     {
-        if (coinCollected >= cost)
+        GameObject pooled = null;
+
+        switch (data.category)
         {
-            pendingFoodCost = cost;
-            isInPlacementMode = true;
-            foodPlacementIndicator.SetActive(true);
-            ServiceLocator.Get<UIManager>().ShowMessage("Click to place food (Right-click to cancel)");
+            case ItemType.Food:
+                pooled = GetPooledObject(_foodPool, foodPrefab);
+                break;
+
+            case ItemType.Medicine:
+                pooled = GetPooledObject(_medicinePool, medicinePrefab);
+                break;
+
+            default:
+                Debug.LogWarning($"SpawnItem: Unsupported item type: {data.category}");
+                return;
         }
-        else
+
+        if (pooled != null)
         {
-            ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins!", 1f);
-        }
-    }
+            SetupPooledObject(pooled, gameArea, pos);
 
-    private void IndicatorPlacementHandler()
-    {
-        var indicatorPos = ScreenToGameAreaPosition();
-        
-        if (_foodIndicatorRT.parent != gameArea)
-            _foodIndicatorRT.SetParent(gameArea, false);
-        
-        _foodIndicatorRT.anchoredPosition = indicatorPos;
-        _foodIndicatorImage.color = IsPositionInGameArea(indicatorPos) ? validPositionColor : invalidPositionColor;
-    }
-
-    private void FoodPlacementHandler()
-    {
-        if (Input.GetMouseButtonDown(0)) TryPlaceFood();
-        else if (Input.GetMouseButtonDown(1)) CancelPlacement();
-    }
-
-    private void TryPlaceFood()
-    {
-        Vector2 position = ScreenToGameAreaPosition();
-
-        if (IsPositionInGameArea(position))
-        {
-            if (SpentCoin(pendingFoodCost))
+            if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {
-                SpawnFoodAtPosition(position);
+                consumable.Initialize(data);
             }
-            EndPlacement();
-        }
-        else
-        {
-            ServiceLocator.Get<UIManager>().ShowMessage("Can't place here!", 1f);
-        }
-    }
 
-    private void CancelPlacement()
-    {
-        EndPlacement();
-        ServiceLocator.Get<UIManager>().ShowMessage("Placement canceled", 1f);
-    }
+            // Register into the correct active list
+            switch (data.category)
+            {
+                case ItemType.Food:
+                    if (pooled.TryGetComponent<FoodController>(out var foodCtrl) && !activeFoods.Contains(foodCtrl))
+                    {
+                        activeFoods.Add(foodCtrl);
+                    }
+                    break;
 
-    private void EndPlacement()
-    {
-        isInPlacementMode = false;
-        pendingFoodCost = 0;
-        foodPlacementIndicator.SetActive(false);
-    }
-
-    private void SpawnFoodAtPosition(Vector2 position)
-    {
-        var food = GetPooledObject(_foodPool, foodPrefab);
-        SetupPooledObject(food, gameArea, position);
-
-        var foodController = food.GetComponent<FoodController>();
-        if (foodController != null && !activeFoods.Contains(foodController))
-        {
-            activeFoods.Add(foodController);
+                case ItemType.Medicine:
+                    if (pooled.TryGetComponent<MedicineController>(out var medCtrl) && !activeMedicines.Contains(medCtrl))
+                    {
+                        activeMedicines.Add(medCtrl);
+                    }
+                    break;
+            }
         }
     }
+
+
+
+
     #endregion
 
     #region Item Management
@@ -369,33 +343,33 @@ public class MonsterManager : MonoBehaviour
         float duration = 0.8f; // Arc animation duration
         float arcHeight = 100f; // How high the coin goes
         float elapsedTime = 0f;
-        
+
         RectTransform coinRect = coinTransform.GetComponent<RectTransform>();
         if (coinRect == null) yield break;
-        
+
         while (elapsedTime < duration)
         {
             float t = elapsedTime / duration;
-            
+
             // Ease out curve for natural falling motion
             float easedT = 1f - (1f - t) * (1f - t);
-            
+
             // Calculate arc position
             Vector2 currentPos = Vector2.Lerp(startPos, endPos, easedT);
-            
+
             // Add vertical arc (parabolic motion)
             float arcProgress = 4f * t * (1f - t); // Peaks at t=0.5
             currentPos.y += arcHeight * arcProgress;
-            
+
             coinRect.anchoredPosition = currentPos;
-            
+
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        
+
         // Ensure final position
         coinRect.anchoredPosition = endPos;
-        
+
         // Optional: Add a small bounce effect on landing
         StartCoroutine(CoinBounceEffect(coinRect));
     }
@@ -406,18 +380,18 @@ public class MonsterManager : MonoBehaviour
         float bounceHeight = 15f;
         float bounceDuration = 0.3f;
         float elapsedTime = 0f;
-        
+
         while (elapsedTime < bounceDuration)
         {
             float t = elapsedTime / bounceDuration;
             float bounce = bounceHeight * (1f - t) * Mathf.Sin(t * Mathf.PI * 3f); // 3 small bounces
-            
+
             coinRect.anchoredPosition = finalPos + Vector2.up * bounce;
-            
+
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        
+
         coinRect.anchoredPosition = finalPos;
     }
 
@@ -425,26 +399,26 @@ public class MonsterManager : MonoBehaviour
     {
         // Find a non-overlapping position
         Vector2 finalPos = FindNonOverlappingPosition(anchoredPos, 50f);
-        
+
         var poop = GetPooledObject(_poopPool, poopPrefab);
         SetupPooledObject(poop, gameArea, finalPos);
         poop.GetComponent<PoopController>().Initialize(type);
         return poop;
     }
-    
+
     private Vector2 FindNonOverlappingPosition(Vector2 preferredPos, float minDistance)
     {
         Vector2 testPos = preferredPos;
         int maxAttempts = 10;
-        
+
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
             bool hasOverlap = false;
-            
+
             // Check against active coins and poop
             foreach (Transform child in gameArea)
             {
-                if (child.gameObject.activeInHierarchy && 
+                if (child.gameObject.activeInHierarchy &&
                     (child.GetComponent<CoinController>() != null || child.GetComponent<PoopController>() != null))
                 {
                     float distance = Vector2.Distance(testPos, child.GetComponent<RectTransform>().anchoredPosition);
@@ -455,30 +429,30 @@ public class MonsterManager : MonoBehaviour
                     }
                 }
             }
-            
+
             if (!hasOverlap)
                 return testPos;
-            
+
             // Try a random nearby position
             Vector2 randomOffset = Random.insideUnitCircle * (minDistance * 2f);
             testPos = preferredPos + randomOffset;
-            
+
             // Keep within game area bounds
             var rect = gameArea.rect;
             testPos.x = Mathf.Clamp(testPos.x, rect.xMin + 25f, rect.xMax - 25f);
             testPos.y = Mathf.Clamp(testPos.y, rect.yMin + 25f, rect.yMax - 25f);
         }
-        
-        return testPos; 
+
+        return testPos;
     }
-    
+
     public bool SpentCoin(int amount)
     {
         if (coinCollected < amount) return false;
 
         coinCollected -= amount;
         SaveSystem.SaveCoin(coinCollected);
-        OnCoinChanged?.Invoke(coinCollected); 
+        OnCoinChanged?.Invoke(coinCollected);
         return true;
     }
 
@@ -524,6 +498,11 @@ public class MonsterManager : MonoBehaviour
             _foodPool.Enqueue(obj);
             activeFoods.Remove(food);
         }
+        else if (obj.TryGetComponent<MedicineController>(out var medicine))
+        {
+            _medicinePool.Enqueue(obj);
+            activeMedicines.Remove(medicine);
+        }
         else if (obj.TryGetComponent<CoinController>(out _))
         {
             _coinPool.Enqueue(obj);
@@ -534,7 +513,7 @@ public class MonsterManager : MonoBehaviour
             _poopPool.Enqueue(obj);
             CollectPoop();
             _activePoops.Remove(obj);
-        } 
+        }
     }
     #endregion
 
@@ -552,7 +531,7 @@ public class MonsterManager : MonoBehaviour
                 var (monsterData, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
                 if (monsterData != null)
                 {
-                    SpawnMonster(monsterData, id); 
+                    SpawnMonster(monsterData, id);
                 }
             }
         }
@@ -597,7 +576,7 @@ public class MonsterManager : MonoBehaviour
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             gameArea, Input.mousePosition, cam, out Vector2 localPoint);
-        
+
         return localPoint;
     }
 
@@ -623,7 +602,7 @@ public class MonsterManager : MonoBehaviour
                 }
             }
         }
-        
+
         // Check poop
         foreach (var poop in _activePoops)
         {
@@ -637,7 +616,7 @@ public class MonsterManager : MonoBehaviour
                 }
             }
         }
-        
+
         return true;
     }
     #endregion

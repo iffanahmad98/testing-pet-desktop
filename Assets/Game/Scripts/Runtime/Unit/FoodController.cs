@@ -2,42 +2,52 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler, IConsumable
 {
-    FoodDataSO foodData;
-    public float nutritionValue ;
-    [SerializeField] private bool isRotten = false;
-    [SerializeField] private Image foodImages;
-    public bool IsBeingDragged { get; private set; }
+    private ItemDataSO itemData;
+    [SerializeField] private Image foodImage;
+    [SerializeField] private bool isRotten;
+
+    public MonsterController claimedBy;
+    public float nutritionValue;
 
     private RectTransform rectTransform;
     private Vector2 dragOffset;
+    public bool IsBeingDragged { get; private set; }
+    public event System.Action OnPlaced;
 
-    public MonsterController claimedBy;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-
-     private void Awake()
+    private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-    } 
-    public void Initialize(FoodDataSO data)
-    {    
-        foodData = data;
-        nutritionValue = foodData.nutritionValue;
-        isRotten = false;
+    }
 
+    public void Initialize(ItemDataSO data)
+    {
+        itemData = data;
+        nutritionValue = data.nutritionValue;
+        isRotten = false;
         UpdateFoodImage();
     }
+    public void PlaceFood() // Call this when valid placement is confirmed
+    {
+        OnPlaced?.Invoke();
+    }
+
+    public void Consume(MonsterController monster = null)
+    {
+        // monster.Feed(nutritionValue); // Example method on MonsterController
+        ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
+    }
+
+    public ItemDataSO GetItemData() => itemData;
+
+
     public void UpdateFoodImage()
     {
-        if (isRotten)
-        {
-            foodImages.sprite = foodData.foodImgs.Length > 1 ? foodData.foodImgs[1] : foodData.foodImgs[0];
-        }
+        if (isRotten && itemData.itemImgs.Length > 1)
+            foodImage.sprite = itemData.itemImgs[1];
         else
-        {
-            foodImages.sprite = foodData.foodImgs[0];
-        }
+            foodImage.sprite = itemData.itemImgs[0];
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -53,23 +63,27 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (IsBeingDragged)
+        if (!IsBeingDragged) return;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rectTransform.parent as RectTransform,
+            eventData.position,
+            eventData.pressEventCamera,
+            out Vector2 localPos))
         {
-            Vector2 localPointerPosition;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                rectTransform.parent as RectTransform,
-                eventData.position,
-                eventData.pressEventCamera,
-                out localPointerPosition);
-            rectTransform.anchoredPosition = localPointerPosition + dragOffset;
+            rectTransform.anchoredPosition = localPos + dragOffset;
         }
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         IsBeingDragged = false;
+        Debug.Log($"[FoodController] Pointer up at {rectTransform.anchoredPosition}");
+
         if (!ServiceLocator.Get<MonsterManager>().IsPositionInGameArea(rectTransform.anchoredPosition))
+        {
             ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
+        }
     }
 
     public bool TryClaim(MonsterController monster)
@@ -80,34 +94,25 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
             return true;
         }
         return claimedBy == monster;
-    }    public void ReleaseClaim(MonsterController monster)
+    }
+
+    public void ReleaseClaim(MonsterController monster)
     {
-        // Only release if the monster releasing is the one who claimed it
         if (claimedBy == monster)
         {
             claimedBy = null;
         }
         else if (claimedBy != null)
         {
-            Debug.LogWarning($"[FoodController] Attempted to release claim on {gameObject.name} by {monster.name}, but claimed by {claimedBy.name}");
+            Debug.LogWarning($"[FoodController] {monster.name} tried to release but {claimedBy.name} owns it");
         }
     }
 
-    // Optional: Add a force release for cleanup scenarios
     public void ForceReleaseClaim()
     {
-        if (claimedBy != null)
-        {
-            claimedBy = null;
-        }
+        claimedBy = null;
     }
 
-    // Optional: Check if claimed by specific monster
-    public bool IsClaimedBy(MonsterController monster)
-    {
-        return claimedBy == monster;
-    }
-
-    // Optional: Check if claimed at all
+    public bool IsClaimedBy(MonsterController monster) => claimedBy == monster;
     public bool IsClaimed => claimedBy != null;
 }

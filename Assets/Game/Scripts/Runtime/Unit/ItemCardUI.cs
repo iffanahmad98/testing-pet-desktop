@@ -33,7 +33,7 @@ public class ItemCardUI : MonoBehaviour
         itemData = data;
 
         if (itemIcon != null)
-            itemIcon.sprite = data.icon;
+            itemIcon.sprite = data.itemImgs[0]; // Assuming first image is the default icon
 
         if (itemNameText != null)
             itemNameText.text = data.itemName;

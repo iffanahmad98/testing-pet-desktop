@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
     #region Inspector Fields
 
     [Header("UI Panels")]
-    public GameObject UIFloatMenuPanel; 
+    public GameObject UIFloatMenuPanel;
     public CanvasGroup UIFloatMenuCanvasGroup;
     public GameObject SettingPanel;
     public CanvasGroup SettingCanvasGroup;
@@ -22,11 +22,11 @@ public class UIManager : MonoBehaviour
 
     [Header("Buttons")]
     public Button UIMenuButton;
-    public Button InventoryButton; 
+    public Button InventoryButton;
     public Button groundButton;
     public Button doorButton;
-    public Button windowButton; 
-    public Button miniWindowButton; 
+    public Button windowButton;
+    public Button miniWindowButton;
     public Button shopButton;
     public Button closeShopButton;
     public Button settingsButton;
@@ -39,7 +39,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI coinCounterText;
     public Button spawnPetButton;
     public Button spawnFoodButton;
-    public Button gachaButton; 
+    public Button gachaButton;
     public TextMeshProUGUI messageText;
 
     [Header("Animation Settings")]
@@ -68,7 +68,7 @@ public class UIManager : MonoBehaviour
     private Vector2 _originalWindowButtonPosition;
     private CanvasGroup _buttonCanvasGroup;
     private CanvasGroup _windowButtonCanvasGroup;
-    private CanvasGroup _gameContentCanvasGroup; 
+    private CanvasGroup _gameContentCanvasGroup;
     private RectTransform _newMenuPanelRect;
     private RectTransform _buttonRect;
     private RectTransform _windowButtonRect;
@@ -121,7 +121,7 @@ public class UIManager : MonoBehaviour
         if (monster != null)
         {
             spawnPetButton?.onClick.AddListener(() => monster.BuyMons());
-            spawnFoodButton?.onClick.AddListener(StartFoodPlacement);
+            // spawnFoodButton?.onClick.AddListener(StartFoodPlacement);
 
             monster.OnCoinChanged += UpdateCoinCounterValue;
             monster.OnPoopChanged += UpdatePoopCounterValue;
@@ -136,7 +136,7 @@ public class UIManager : MonoBehaviour
         if (monster != null)
         {
             spawnPetButton?.onClick.RemoveAllListeners();
-            spawnFoodButton?.onClick.RemoveAllListeners();
+            // spawnFoodButton?.onClick.RemoveAllListeners();
 
             monster.OnCoinChanged -= UpdateCoinCounterValue;
             monster.OnPoopChanged -= UpdatePoopCounterValue;
@@ -502,10 +502,10 @@ public class UIManager : MonoBehaviour
         poopCounterText.text = $"Poop : {newPoopAmount}";
     }
 
-    public void StartFoodPlacement()
-    {
-        ServiceLocator.Get<MonsterManager>().StartFoodPurchase(0);
-    }
+    // public void StartFoodPlacement()
+    // {
+    //     ServiceLocator.Get<MonsterManager>().StartFoodPurchase(0);
+    // }
 
     #endregion
 

@@ -29,7 +29,7 @@ public class SettingsManager : MonoBehaviour
     public Button uiSizeIncreaseButton;
     public Button uiSizeDecreaseButton;
     public Button uiSizeResetButton;
-    
+
     [Header("Switch Screen")]
     public Button switchScreenLeftButton;
     public Button switchScreenRightButton;
@@ -59,7 +59,7 @@ public class SettingsManager : MonoBehaviour
     private const float DEFAULT_GAME_AREA_WIDTH = 1920f;
     private const float DEFAULT_GAME_AREA_HEIGHT = 1080f;
     private const float DEFAULT_UI_SCALE = 1f;
-    private const float MONSTER_BOUNDS_PADDING = 50f; 
+    private const float MONSTER_BOUNDS_PADDING = 50f;
     private float maxScreenWidth;
     private float maxScreenHeight;
     private float initialGameAreaHeight;
@@ -91,8 +91,6 @@ public class SettingsManager : MonoBehaviour
         InitializeGameAreaSettings();
         InitializeLanguageSettings();
 
-        // Load saved values or defaults to avoid null/zero on cancel
-        LoadSavedSettings();
 
         // Discover all savable modules in scene
         savableSettingsModules.AddRange(
@@ -168,6 +166,8 @@ public class SettingsManager : MonoBehaviour
             min: -maxScreenHeight / 2f,
             max: maxScreenHeight / 2f
         );
+        // Load saved values or defaults to avoid null/zero on cancel
+        LoadSavedSettings();
 
 
         RegisterGameAreaCallbacks();
@@ -272,7 +272,7 @@ public class SettingsManager : MonoBehaviour
             RepositionMonstersAfterScaling();
             _lastRepositionTime = Time.time;
         }
-        
+
         OnGameAreaChanged?.Invoke();
     }
 
@@ -451,6 +451,7 @@ public class SettingsManager : MonoBehaviour
         widthControl.SetValueWithoutNotify(settings.gameAreaWidth);
         horizontalPositionControl.SetValueWithoutNotify(settings.gameAreaX);
         heightPositionControl.SetValueWithoutNotify(settings.gameAreaY);
+        Debug.Log($"Loaded settings: Width={settings.gameAreaWidth}, X={settings.gameAreaX}, Y={settings.gameAreaY}, UIScale={settings.uiScale}, LanguageIndex={settings.languageIndex}, ScreenState={settings.screenState}");
 
         // Set dropdown value without triggering change callback
         if (languageDropdown != null && settings.languageIndex < languageDropdown.options.Count)

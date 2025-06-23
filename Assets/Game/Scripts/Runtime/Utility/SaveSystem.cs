@@ -22,9 +22,11 @@ public static class SaveSystem
 
     public static void Initialize()
     {
+
         LoadPlayerConfig();
         _sessionStartTime = DateTime.Now;
 
+        Debug.Log(_playerConfig.lastLoginTime);
         // Handle first-time login
         if (_playerConfig.lastLoginTime == default)
         {
@@ -40,6 +42,7 @@ public static class SaveSystem
         UpdatePlayTime();
         SavePlayerConfig();
     }
+
 
     // Pets
     public static void SaveMon(MonsterSaveData data)
@@ -200,8 +203,8 @@ public static class SaveSystem
             {
                 string json = File.ReadAllText(path);
                 _playerConfig = JsonUtility.FromJson<PlayerConfig>(json);
+                _playerConfig.SyncFromSerializable();
                 Debug.Log("Game data loaded successfully");
-                Debug.LogWarning(path);
             }
             catch (Exception e)
             {
@@ -215,12 +218,14 @@ public static class SaveSystem
         }
     }
 
+
     private static void SavePlayerConfig()
     {
         string path = Path.Combine(Application.persistentDataPath, SaveFileName);
 
         try
         {
+            _playerConfig.SyncToSerializable(); // Prepare for serialization
             string json = JsonUtility.ToJson(_playerConfig, true);
             File.WriteAllText(path, json);
             Debug.Log("Game data saved successfully");
@@ -231,12 +236,15 @@ public static class SaveSystem
         }
     }
 
+
     private static void CreateNewPlayerConfig()
     {
         _playerConfig = new PlayerConfig();
         _playerConfig.lastLoginTime = DateTime.Now;
+        _playerConfig.SyncToSerializable();
         Debug.Log("Created new game data");
     }
+
 
     public static void DeleteAllSaveData()
     {
@@ -250,6 +258,17 @@ public static class SaveSystem
         _playerConfig = new PlayerConfig();
         _playerConfig.lastLoginTime = DateTime.Now;
         Debug.Log("All game data deleted");
+    }
+    public static void UpdateItemData(string itemID, int amount)
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, cannot update item data.");
+            return;
+        }
+
+        _playerConfig.AddItem(itemID, amount);
+        SaveAll();
     }
     #endregion
 

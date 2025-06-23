@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8094414825485508866
+--- !u!1 &8849121513959480036
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,24 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6873612178908066135}
-  - component: {fileID: 1011742880675065400}
-  - component: {fileID: 6793505315941708801}
-  - component: {fileID: 4417955335749060679}
+  - component: {fileID: 1069196861309620816}
+  - component: {fileID: 6934440850859914927}
+  - component: {fileID: 1584517358280546009}
+  - component: {fileID: 7518103523595807737}
   m_Layer: 5
-  m_Name: Food
+  m_Name: Medicine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &6873612178908066135
+--- !u!224 &1069196861309620816
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8094414825485508866}
+  m_GameObject: {fileID: 8849121513959480036}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -35,24 +35,24 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 191.6, y: -53.5}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &1011742880675065400
+--- !u!222 &6934440850859914927
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8094414825485508866}
+  m_GameObject: {fileID: 8849121513959480036}
   m_CullTransparentMesh: 1
---- !u!114 &6793505315941708801
+--- !u!114 &1584517358280546009
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8094414825485508866}
+  m_GameObject: {fileID: 8849121513959480036}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 1152017847484434406, guid: 8fbffb0919c419a449c72aadddcccdec, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -76,19 +76,15 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4417955335749060679
+--- !u!114 &7518103523595807737
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8094414825485508866}
+  m_GameObject: {fileID: 8849121513959480036}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2673d92470a58a48b58d6736e9b5e43, type: 3}
+  m_Script: {fileID: 11500000, guid: 23f3fc691b7f9af4d94ee6ce9cd3bf6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foodImage: {fileID: 6793505315941708801}
-  isRotten: 0
-  claimedBy: {fileID: 0}
-  nutritionValue: 30
