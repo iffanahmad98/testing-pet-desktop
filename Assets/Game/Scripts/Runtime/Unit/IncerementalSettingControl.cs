@@ -5,6 +5,7 @@ using System;
 
 public class IncrementSettingControl : MonoBehaviour
 {
+    public string settingName;
     public Button minusTenButton;
     public Button minusOneButton;
     public Button plusOneButton;
@@ -44,7 +45,7 @@ public class IncrementSettingControl : MonoBehaviour
     private void SetValue(float newValue)
     {
         currentValue = Mathf.Clamp(newValue, minValue, maxValue);
-        inputField.text = currentValue.ToString("F0");
+        inputField.text = settingName == "heightPos" ? (currentValue + 500).ToString("F0") : currentValue.ToString("F0");
         onValueChanged?.Invoke(currentValue);
     }
 
@@ -56,15 +57,16 @@ public class IncrementSettingControl : MonoBehaviour
         }
         else
         {
-            inputField.text = currentValue.ToString("F0");
+            inputField.text = settingName == "heightPos" ? (currentValue + 500).ToString("F0") : currentValue.ToString("F0");
         }
     }
 
     public float GetValue() => currentValue;
+
     public void SetValueWithoutNotify(float newValue)
     {
         currentValue = Mathf.Clamp(newValue, minValue, maxValue);
-        inputField.text = currentValue.ToString("F0");
+        inputField.text = settingName == "heightPos" ? (currentValue + 500).ToString("F0") : currentValue.ToString("F0");
 
         // Don’t invoke onValueChanged
     }

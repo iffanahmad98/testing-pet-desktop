@@ -3,6 +3,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Comprehensive setup manager handling game area, audio, and language settings
@@ -14,31 +15,31 @@ public class SettingsManager : MonoBehaviour
     public CanvasScaler canvasScaler;
     private MonsterManager gameManager;
 
-    [Header("Game Area Sliders")]
-    public Slider widthSlider;
-    public Slider heightSlider;
-    public Slider horizontalPositionSlider;
-    public Slider verticalPositionSlider;
-    public Slider monsterScaleSlider;
-    public Slider uiScaleSlider;
-    [Header("Input Field References")]
-    [SerializeField] private TMP_InputField widthInputField;
-    [SerializeField] private TMP_InputField heightInputField;
-    [SerializeField] private TMP_InputField horizontalPositionInputField;
-    [SerializeField] private TMP_InputField verticalPositionInputField;
-    [SerializeField] private TMP_InputField monsterScaleInputField;
-    [SerializeField] private TMP_InputField uiScaleInputField;
+    [Header("Game Area Incremental Control")]
+    public IncrementSettingControl widthControl;
+    public IncrementSettingControl horizontalPositionControl;
+    public IncrementSettingControl heightPositionControl;
 
-    [Header("Game Area Texts")]
-    public TextMeshProUGUI widthValueText;
-    public TextMeshProUGUI heightValueText;
-    public TextMeshProUGUI horizontalPositionValueText;
-    public TextMeshProUGUI verticalPositionValueText;
-    public TextMeshProUGUI monsterValueText;
-    public TextMeshProUGUI uiValueText;
-    [Header("Panel References")]
-    public GameObject gameAreaPanel;
-    public GameObject audioLanguagePanel;
+    [Header("Game Area Size")]
+    public Button gameAreaSizeIncreaseButton;
+    public Button gameAreaSizeDecreaseButton;
+    public Button gameAreaSizeResetButton;
+
+    [Header("UI Size")]
+    public Button uiSizeIncreaseButton;
+    public Button uiSizeDecreaseButton;
+    public Button uiSizeResetButton;
+    
+    [Header("Switch Screen")]
+    public Button switchScreenLeftButton;
+    public Button switchScreenRightButton;
+    public Button switchScreenResetButton;
+
+    [Header("Settings Control Buttons")]
+    public Button saveButton;
+    public Button cancelButton;
+    public Button newGameButton;
+
 
     [Header("Language Settings")]
     public TMP_Dropdown languageDropdown;
@@ -48,38 +49,55 @@ public class SettingsManager : MonoBehaviour
         SystemLanguage.French,
         SystemLanguage.Spanish
     };
+    [SerializeField] private GameObject settingPanel;
+    [SerializeField] private Button closeButton;
+
+    private float uiScale = 1f; // optionally make this persistent
+    private int screenState = 0; // 0 = Center, -1 = Left, 1 = Right
 
     private const float MIN_SIZE = 270f;
-    private const float DEFAULT_MONSTER_SCALE = 1f;
-    private const float MONSTER_BOUNDS_PADDING = 50f;
-    private const string DECIMAL_FORMAT = "F0";
-    private const string SCALE_FORMAT = "F2";
-    private const string VOLUME_FORMAT = "F1";
-    private const float MIN_VOLUME_DB = -80f;
-    private const float MAX_VOLUME_DB = 0f;
+    private const float DEFAULT_GAME_AREA_WIDTH = 1920f;
+    private const float DEFAULT_GAME_AREA_HEIGHT = 1080f;
+    private const float DEFAULT_UI_SCALE = 1f;
+    private const float MONSTER_BOUNDS_PADDING = 50f; 
     private float maxScreenWidth;
     private float maxScreenHeight;
     private float initialGameAreaHeight;
-    private Vector2 cachedPosition;
-    private bool _isResizing = false;
     private float _lastRepositionTime = 0f;
     private const float REPOSITION_COOLDOWN = 0.2f;
 
     [Header("Events")]
     public UnityEvent OnGameAreaChanged;
 
+    [Header("Saved Settings")]
+    private float savedGameAreaWidth;
+    private float savedGameAreaX;
+    private float savedGameAreaY;
+    private float savedUIScale;
+    private int savedLanguageIndex;
+    private int savedScreenState;
+    private List<ISettingsSavable> savableSettingsModules = new List<ISettingsSavable>();
+
+
     private void Awake()
     {
         ServiceLocator.Register(this);
         SaveSystem.Initialize();
     }
+
     private void Start()
     {
         gameManager = ServiceLocator.Get<MonsterManager>();
         InitializeGameAreaSettings();
         InitializeLanguageSettings();
 
+        // Load saved values or defaults to avoid null/zero on cancel
+        LoadSavedSettings();
 
+        // Discover all savable modules in scene
+        savableSettingsModules.AddRange(
+            FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISettingsSavable>()
+        );
     }
 
     private void OnDestroy()
@@ -94,9 +112,8 @@ public class SettingsManager : MonoBehaviour
         if (!ValidateGameAreaReferences()) return;
 
         CacheScreenValues();
-        InitializeGameAreaSliders();
-        InitializeInputFields();
-        SetInitialGameAreaValues();
+        InitializeGameAreaConfig();
+        RegisterButtonCallbacks();
     }
 
 
@@ -138,230 +155,84 @@ public class SettingsManager : MonoBehaviour
         initialGameAreaHeight = gameArea.sizeDelta.y;
     }
 
-    private void InitializeGameAreaSliders()
+    private void InitializeGameAreaConfig()
     {
-        if (widthSlider != null)
-        {
-            widthSlider.minValue = MIN_SIZE;
-            widthSlider.maxValue = maxScreenWidth;
-        }
+        widthControl.Initialize(DEFAULT_GAME_AREA_WIDTH, MIN_SIZE, maxScreenWidth);
+        horizontalPositionControl.Initialize(
+            defaultVal: 0f,
+            min: -maxScreenWidth / 2f,
+            max: maxScreenWidth / 2f
+        );
+        heightPositionControl.Initialize(
+            defaultVal: -500f,
+            min: -maxScreenHeight / 2f,
+            max: maxScreenHeight / 2f
+        );
 
-        if (heightSlider != null)
-        {
-            heightSlider.minValue = MIN_SIZE;
-            heightSlider.maxValue = initialGameAreaHeight;
-        }
-
-        if (horizontalPositionSlider != null)
-        {
-            horizontalPositionSlider.minValue = -maxScreenWidth / 2f;
-            horizontalPositionSlider.maxValue = maxScreenWidth / 2f;
-        }
-
-        if (verticalPositionSlider != null)
-        {
-            verticalPositionSlider.minValue = -maxScreenHeight / 2f;
-            verticalPositionSlider.maxValue = maxScreenHeight / 2f;
-        }
 
         RegisterGameAreaCallbacks();
     }
-    private void InitializeInputFields()
-    {
-        // Set initial values
-        if (widthInputField != null)
-        {
-            widthInputField.text = gameArea.sizeDelta.x.ToString(DECIMAL_FORMAT);
-            widthInputField.onEndEdit.AddListener(OnWidthInputChanged);
-        }
 
-        if (heightInputField != null)
-        {
-            heightInputField.text = gameArea.sizeDelta.y.ToString(DECIMAL_FORMAT);
-            heightInputField.onEndEdit.AddListener(OnHeightInputChanged);
-        }
-
-        if (horizontalPositionInputField != null)
-        {
-            horizontalPositionInputField.text = gameArea.anchoredPosition.x.ToString(DECIMAL_FORMAT);
-            horizontalPositionInputField.onEndEdit.AddListener(OnHorizontalPosInputChanged);
-        }
-
-        if (verticalPositionInputField != null)
-        {
-            verticalPositionInputField.text = gameArea.anchoredPosition.y.ToString(DECIMAL_FORMAT);
-            verticalPositionInputField.onEndEdit.AddListener(OnVerticalPosInputChanged);
-        }
-
-        if (monsterScaleInputField != null)
-        {
-            monsterScaleInputField.text = DEFAULT_MONSTER_SCALE.ToString(SCALE_FORMAT);
-            monsterScaleInputField.onEndEdit.AddListener(OnMonsterScaleInputChanged);
-        }
-
-        if (uiScaleInputField != null)
-        {
-            uiScaleInputField.text = canvasScaler.scaleFactor.ToString(SCALE_FORMAT);
-            uiScaleInputField.onEndEdit.AddListener(OnUIScaleInputChanged);
-        }
-        // Register input field callbacks
-        RegisterInputFieldCallbacks();
-    }
-
-    private void SetInitialGameAreaValues()
-    {
-        if (gameArea == null) return;
-        if (widthSlider != null) widthSlider.value = gameArea.sizeDelta.x;
-        if (heightSlider != null) heightSlider.value = gameArea.sizeDelta.y;
-        if (horizontalPositionSlider != null) horizontalPositionSlider.value = gameArea.anchoredPosition.x;
-        if (verticalPositionSlider != null) verticalPositionSlider.value = gameArea.anchoredPosition.y;
-        if (monsterScaleSlider != null) monsterScaleSlider.value = DEFAULT_MONSTER_SCALE;
-        if (uiScaleSlider != null && canvasScaler != null) uiScaleSlider.value = canvasScaler.scaleFactor;
-
-        // Update text displays
-        UpdateValueText(widthValueText, gameArea.sizeDelta.x, DECIMAL_FORMAT);
-        UpdateValueText(heightValueText, gameArea.sizeDelta.y, DECIMAL_FORMAT);
-        UpdateValueText(horizontalPositionValueText, gameArea.anchoredPosition.x, DECIMAL_FORMAT); UpdateValueText(verticalPositionValueText, gameArea.anchoredPosition.y, DECIMAL_FORMAT);
-    }
-    #region Input Field Handlers
-    private void OnWidthInputChanged(string value)
-    {
-        if (float.TryParse(value, out float result))
-        {
-            result = Mathf.Clamp(result, MIN_SIZE, maxScreenWidth);
-            widthSlider.value = result;
-            UpdateGameAreaWidth(result);
-        }
-        else
-        {
-            widthInputField.text = gameArea.sizeDelta.x.ToString(DECIMAL_FORMAT);
-        }
-    }
-
-    private void OnHeightInputChanged(string value)
-    {
-        if (float.TryParse(value, out float result))
-        {
-            result = Mathf.Clamp(result, MIN_SIZE, initialGameAreaHeight);
-            heightSlider.value = result;
-            UpdateGameAreaHeight(result);
-        }
-        else
-        {
-            heightInputField.text = gameArea.sizeDelta.y.ToString(DECIMAL_FORMAT);
-        }
-    }
-
-    private void OnHorizontalPosInputChanged(string value)
-    {
-        if (float.TryParse(value, out float result))
-        {
-            result = Mathf.Clamp(result, -maxScreenWidth / 2f, maxScreenWidth / 2f);
-            horizontalPositionSlider.value = result;
-            UpdateGameAreaHorizontalPosition(result);
-        }
-        else
-        {
-            horizontalPositionInputField.text = gameArea.anchoredPosition.x.ToString(DECIMAL_FORMAT);
-        }
-    }
-
-    private void OnVerticalPosInputChanged(string value)
-    {
-        if (float.TryParse(value, out float result))
-        {
-            result = Mathf.Clamp(result, -maxScreenHeight / 2f, maxScreenHeight / 2f);
-            verticalPositionSlider.value = result;
-            UpdateGameAreaVerticalPosition(result);
-        }
-        else
-        {
-            verticalPositionInputField.text = gameArea.anchoredPosition.y.ToString(DECIMAL_FORMAT);
-        }
-    }
-
-    private void OnMonsterScaleInputChanged(string value)
-    {
-        if (float.TryParse(value, out float result))
-        {
-            monsterScaleSlider.value = result;
-            UpdateMonsterScale(result);
-        }
-        else
-        {
-            monsterScaleInputField.text = DEFAULT_MONSTER_SCALE.ToString(SCALE_FORMAT);
-        }
-    }
-
-    private void OnUIScaleInputChanged(string value)
-    {
-        if (float.TryParse(value, out float result))
-        {
-            uiScaleSlider.value = result;
-            UpdateUIScale(result);
-        }
-        else
-        {
-            uiScaleInputField.text = canvasScaler.scaleFactor.ToString(SCALE_FORMAT);
-        }
-    }
-    #endregion
 
     #region Callback Registration
     private void RegisterGameAreaCallbacks()
     {
-        widthSlider?.onValueChanged.AddListener(UpdateGameAreaWidth);
-        heightSlider?.onValueChanged.AddListener(UpdateGameAreaHeight);
-        horizontalPositionSlider?.onValueChanged.AddListener(UpdateGameAreaHorizontalPosition);
-        verticalPositionSlider?.onValueChanged.AddListener(UpdateGameAreaVerticalPosition);
-        monsterScaleSlider?.onValueChanged.AddListener(UpdateMonsterScale);
-        uiScaleSlider?.onValueChanged.AddListener(UpdateUIScale);
+        widthControl.onValueChanged += UpdateGameAreaWidth;
+        horizontalPositionControl.onValueChanged += UpdateGameAreaHorizontalPosition;
+        heightPositionControl.onValueChanged += UpdateGameAreaVerticalPosition;
+
     }
-    private void RegisterInputFieldCallbacks()
+    private void RegisterButtonCallbacks()
     {
-        if (widthInputField != null) widthInputField.onEndEdit.AddListener(OnWidthInputChanged);
-        if (heightInputField != null) heightInputField.onEndEdit.AddListener(OnHeightInputChanged);
-        if (horizontalPositionInputField != null) horizontalPositionInputField.onEndEdit.AddListener(OnHorizontalPosInputChanged);
-        if (verticalPositionInputField != null) verticalPositionInputField.onEndEdit.AddListener(OnVerticalPosInputChanged);
-        if (monsterScaleInputField != null) monsterScaleInputField.onEndEdit.AddListener(OnMonsterScaleInputChanged);
-        if (uiScaleInputField != null) uiScaleInputField.onEndEdit.AddListener(OnUIScaleInputChanged);
+        gameAreaSizeIncreaseButton.onClick.AddListener(() => AdjustGameAreaSize(10f));
+        gameAreaSizeDecreaseButton.onClick.AddListener(() => AdjustGameAreaSize(-10f));
+        gameAreaSizeResetButton.onClick.AddListener(() => ResetGameAreaSize());
+        uiSizeIncreaseButton.onClick.AddListener(() => AdjustUIScale(0.05f));
+        uiSizeDecreaseButton.onClick.AddListener(() => AdjustUIScale(-0.05f));
+        uiSizeResetButton.onClick.AddListener(() => ResetUIScale());
+        switchScreenLeftButton.onClick.AddListener(SwitchScreenLeft);
+        switchScreenRightButton.onClick.AddListener(SwitchScreenRight);
+        switchScreenResetButton.onClick.AddListener(ResetScreenLayout);
+        saveButton.onClick.AddListener(OnSaveSettings);
+        cancelButton.onClick.AddListener(OnCancelSettings);
+        newGameButton.onClick.AddListener(OnNewGame);
+        closeButton.onClick.AddListener(OnClickCloseButton);
     }
+
 
 
     private void UnregisterAllCallbacks()
     {
-        // Game Area
-        widthSlider?.onValueChanged.RemoveListener(UpdateGameAreaWidth);
-        heightSlider?.onValueChanged.RemoveListener(UpdateGameAreaHeight);
-        horizontalPositionSlider?.onValueChanged.RemoveListener(UpdateGameAreaHorizontalPosition);
-        verticalPositionSlider?.onValueChanged.RemoveListener(UpdateGameAreaVerticalPosition);
-        monsterScaleSlider?.onValueChanged.RemoveListener(UpdateMonsterScale);
-        uiScaleSlider?.onValueChanged.RemoveListener(UpdateUIScale);
-        // Input Fields
-        widthInputField?.onEndEdit.RemoveListener(OnWidthInputChanged);
-        heightInputField?.onEndEdit.RemoveListener(OnHeightInputChanged);
-        horizontalPositionInputField?.onEndEdit.RemoveListener(OnHorizontalPosInputChanged);
-        verticalPositionInputField?.onEndEdit.RemoveListener(OnVerticalPosInputChanged);
-        monsterScaleInputField?.onEndEdit.RemoveListener(OnMonsterScaleInputChanged);
-        uiScaleInputField?.onEndEdit.RemoveListener(OnUIScaleInputChanged);
+
+        gameAreaSizeIncreaseButton.onClick.RemoveAllListeners();
+        gameAreaSizeDecreaseButton.onClick.RemoveAllListeners();
+        gameAreaSizeResetButton.onClick.RemoveAllListeners();
+        uiSizeIncreaseButton.onClick.RemoveAllListeners();
+        uiSizeDecreaseButton.onClick.RemoveAllListeners();
+        uiSizeResetButton.onClick.RemoveAllListeners();
+        switchScreenLeftButton.onClick.RemoveAllListeners();
+        switchScreenRightButton.onClick.RemoveAllListeners();
+        switchScreenResetButton.onClick.RemoveAllListeners();
+        saveButton.onClick.RemoveAllListeners();
+        cancelButton.onClick.RemoveAllListeners();
+        newGameButton.onClick.RemoveAllListeners();
 
         // Language
         languageDropdown?.onValueChanged.RemoveListener(OnLanguageChanged);
+
     }
     #endregion
 
     #region Update Methods (modified to sync with input fields)
     public void UpdateGameAreaWidth(float value)
     {
-        if (gameArea == null) return;
-
-        value = Mathf.Clamp(value, MIN_SIZE, maxScreenWidth);
+        // Clamp already handled in IncrementSettingControl
         Vector2 size = gameArea.sizeDelta;
         size.x = value;
         gameArea.sizeDelta = size;
 
-        UpdateValueText(widthValueText, value, DECIMAL_FORMAT);
-        if (widthInputField != null) widthInputField.text = value.ToString(DECIMAL_FORMAT);
+        // UpdateValueText(widthValueText, value, DECIMAL_FORMAT);
+        // if (widthInputField != null) widthInputField.text = value.ToString(DECIMAL_FORMAT);
 
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
@@ -371,6 +242,7 @@ public class SettingsManager : MonoBehaviour
 
         OnGameAreaChanged?.Invoke();
     }
+
 
     public void UpdateGameAreaHeight(float value)
     {
@@ -391,8 +263,8 @@ public class SettingsManager : MonoBehaviour
         pos.y = currentBottom + (value * gameArea.pivot.y);
         gameArea.anchoredPosition = pos;
 
-        UpdateValueText(heightValueText, value, DECIMAL_FORMAT);
-        if (heightInputField != null) heightInputField.text = value.ToString(DECIMAL_FORMAT);
+        // UpdateValueText(heightValueText, value, DECIMAL_FORMAT);
+        // if (heightInputField != null) heightInputField.text = value.ToString(DECIMAL_FORMAT);
 
         // Only reposition monsters occasionally during continuous resizing
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
@@ -400,71 +272,88 @@ public class SettingsManager : MonoBehaviour
             RepositionMonstersAfterScaling();
             _lastRepositionTime = Time.time;
         }
-
+        
         OnGameAreaChanged?.Invoke();
     }
 
     public void UpdateGameAreaHorizontalPosition(float value)
     {
-        UpdateGameAreaPosition(value, true);
-    }
+        if (gameArea == null) return;
 
+        Vector2 pos = gameArea.anchoredPosition;
+        pos.x = value;
+        gameArea.anchoredPosition = pos;
+
+        // No need to sync UI anymore, IncrementSettingControl already does
+    }
     public void UpdateGameAreaVerticalPosition(float value)
-    {
-        UpdateGameAreaPosition(value, false);
-    }
-
-    private void UpdateGameAreaPosition(float value, bool isHorizontal)
     {
         if (gameArea == null) return;
 
-        float clampedValue = isHorizontal
-            ? Mathf.Clamp(value, -maxScreenWidth / 2f, maxScreenWidth / 2f)
-            : Mathf.Clamp(value, -maxScreenHeight / 2f, maxScreenHeight / 2f);
-
-        cachedPosition = gameArea.anchoredPosition;
-
-        if (isHorizontal)
-        {
-            cachedPosition.x = clampedValue;
-            if (horizontalPositionInputField != null) horizontalPositionInputField.text = clampedValue.ToString(DECIMAL_FORMAT);
-        }
-        else
-        {
-            cachedPosition.y = clampedValue;
-            if (verticalPositionInputField != null) verticalPositionInputField.text = clampedValue.ToString(DECIMAL_FORMAT);
-        }
-
-        gameArea.anchoredPosition = cachedPosition;
-
-        var textComponent = isHorizontal ? horizontalPositionValueText : verticalPositionValueText;
-        UpdateValueText(textComponent, clampedValue, DECIMAL_FORMAT);
+        Vector2 pos = gameArea.anchoredPosition;
+        pos.y = value;
+        gameArea.anchoredPosition = pos;
     }
-
-    public void UpdateMonsterScale(float value)
+    public void AdjustGameAreaSize(float delta)
     {
-        if (gameManager?.activeMonsters == null) return;
+        if (gameArea == null) return;
 
-        var monsters = gameManager.activeMonsters;
-        var scaleVector = Vector3.one * value;
+        float currentHeight = gameArea.sizeDelta.y;
+        float newHeight = Mathf.Clamp(currentHeight + delta, MIN_SIZE, maxScreenHeight);
 
-        for (int i = 0; i < monsters.Count; i++)
-        {
-            if (monsters[i] != null)
-                monsters[i].transform.localScale = scaleVector;
-        }
-
-        UpdateValueText(monsterValueText, value, SCALE_FORMAT);
-        if (monsterScaleInputField != null) monsterScaleInputField.text = value.ToString(SCALE_FORMAT);
+        UpdateGameAreaHeight(newHeight);
     }
+
+
+
+    public void AdjustUIScale(float delta)
+    {
+        uiScale = Mathf.Clamp(uiScale + delta, 0.5f, 2f);
+        canvasScaler.scaleFactor = uiScale;
+    }
+    public void ResetGameAreaSize()
+    {
+
+        UpdateGameAreaHeight(DEFAULT_GAME_AREA_HEIGHT);
+    }
+
+    public void ResetUIScale()
+    {
+        UpdateUIScale(DEFAULT_UI_SCALE);
+    }
+    public void SwitchScreenLeft()
+    {
+        screenState--;
+        ApplyScreenLayout(screenState);
+    }
+
+    public void SwitchScreenRight()
+    {
+        screenState++;
+        ApplyScreenLayout(screenState);
+    }
+
+    public void ResetScreenLayout()
+    {
+        screenState = 0;
+        ApplyScreenLayout(screenState);
+    }
+
+    private void ApplyScreenLayout(int layoutId)
+    {
+        // Your logic to adjust RectTransform layout or canvas anchoring
+        Debug.Log("Applying screen layout: " + layoutId);
+
+        // Example:
+        // layoutId = -1 => left, 0 => center, 1 => right
+        // Adjust anchoring, pivot, or camera accordingly
+    }
+
 
     public void UpdateUIScale(float value)
     {
         if (canvasScaler != null)
             canvasScaler.scaleFactor = value;
-
-        UpdateValueText(uiValueText, value, SCALE_FORMAT);
-        if (uiScaleInputField != null) uiScaleInputField.text = value.ToString(SCALE_FORMAT);
     }
     #endregion
 
@@ -539,4 +428,93 @@ public class SettingsManager : MonoBehaviour
             }
         }
     }
+    private void LoadSavedSettings()
+    {
+        var settings = SaveSystem.GetPlayerConfig().settings;
+
+        // Cache saved values for Cancel
+        savedGameAreaWidth = settings.gameAreaWidth;
+        savedGameAreaX = settings.gameAreaX;
+        savedGameAreaY = settings.gameAreaY;
+        savedUIScale = settings.uiScale;
+        savedLanguageIndex = settings.languageIndex;
+        savedScreenState = settings.screenState;
+
+        // Apply values to game area and UI
+        UpdateGameAreaWidth(settings.gameAreaWidth);
+        UpdateGameAreaHorizontalPosition(settings.gameAreaX);
+        UpdateGameAreaVerticalPosition(settings.gameAreaY);
+        UpdateUIScale(settings.uiScale);
+        ApplyScreenLayout(settings.screenState);
+
+        // Update IncrementSettingControl UI fields
+        widthControl.SetValueWithoutNotify(settings.gameAreaWidth);
+        horizontalPositionControl.SetValueWithoutNotify(settings.gameAreaX);
+        heightPositionControl.SetValueWithoutNotify(settings.gameAreaY);
+
+        // Set dropdown value without triggering change callback
+        if (languageDropdown != null && settings.languageIndex < languageDropdown.options.Count)
+        {
+            languageDropdown.SetValueWithoutNotify(settings.languageIndex);
+        }
+
+        // Also update screenState field (used in ApplyScreenLayout logic)
+        screenState = settings.screenState;
+    }
+
+
+    private void OnSaveSettings()
+    {
+        var settings = SaveSystem.GetPlayerConfig().settings;
+        Debug.Log(settings);
+
+        settings.gameAreaWidth = gameArea.sizeDelta.x;
+        settings.gameAreaX = gameArea.anchoredPosition.x;
+        settings.gameAreaY = gameArea.anchoredPosition.y;
+        settings.uiScale = uiScale;
+        // settings.languageIndex = languageDropdown.value;
+        settings.screenState = screenState;
+        foreach (var module in savableSettingsModules)
+            module.SaveSettings(); // Save each module's settings
+
+        SaveSystem.SaveAll(); // This will serialize PlayerConfig to file
+    }
+
+
+    private void OnCancelSettings()
+    {
+        // Revert UI/Game area settings
+        UpdateGameAreaWidth(savedGameAreaWidth);
+        UpdateGameAreaHorizontalPosition(savedGameAreaX);
+        UpdateGameAreaVerticalPosition(savedGameAreaY);
+        widthControl.SetValueWithoutNotify(savedGameAreaWidth);
+        horizontalPositionControl.SetValueWithoutNotify(savedGameAreaX);
+        heightPositionControl.SetValueWithoutNotify(savedGameAreaY);
+
+        UpdateUIScale(savedUIScale);
+        // languageDropdown.value = savedLanguageIndex;
+        screenState = savedScreenState;
+        ApplyScreenLayout(screenState);
+
+        foreach (var module in savableSettingsModules)
+            module.RevertSettings();
+
+        Debug.Log("Settings reverted.");
+    }
+
+    private void OnNewGame()
+    {
+        Debug.Log("Starting new game...");
+
+        foreach (var module in savableSettingsModules)
+            module.SaveSettings(); // optionally save before new game
+
+        // gameManager?.StartNewGame(); // Or your scene load logic
+    }
+    private void OnClickCloseButton()
+    {
+        settingPanel.SetActive(false); // Hide settings panel
+    }
+
+
 }

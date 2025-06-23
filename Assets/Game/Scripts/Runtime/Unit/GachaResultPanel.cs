@@ -28,7 +28,7 @@ public class GachaResultPanel : MonoBehaviour
     public Button rollAgainButton;
     private Tween sequenceTween;
     [SerializeField] private float intervalBetweenFrames = 0.25f;
-    [SerializeField] private float intervalBetweenAnimations = 2f;
+    [SerializeField] private float intervalBetweenAnimations = 0.8f;
 
     public void Show(MonsterDataSO monster, System.Action onRollAgain)
     {
@@ -58,8 +58,10 @@ public class GachaResultPanel : MonoBehaviour
        })
        .AppendCallback(() =>
        {
-           confettiFx.Play();
            confettiFxRender.SetActive(true);
+           confettiFx.Play();
+           shineFx.Stop();
+           shineFxRender.SetActive(false);
        });
 
 
