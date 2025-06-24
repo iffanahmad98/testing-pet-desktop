@@ -9,11 +9,13 @@ public class MonsterInteractionHandler
     private float _pokeCooldownTimer = 0f;
     private bool _hasBeenInteractedWith = false; 
     private bool _pendingEvolutionCheck = false;
+    private CursorManager _cursorManager;
 
     public MonsterInteractionHandler(MonsterController controller, MonsterStateMachine stateMachine)
     {
         _controller = controller;
         _controller.StateMachine.OnStateChanged += OnStateChanged;
+        _cursorManager = ServiceLocator.Get<CursorManager>();
     }
     
     private void OnStateChanged(MonsterState newState)
@@ -115,20 +117,19 @@ public class MonsterInteractionHandler
     public void OnPointerEnter(PointerEventData e)
     {
         _controller.SetHovered(true);
-        var cursorManager = ServiceLocator.Get<CursorManager>();
-        cursorManager?.Set(CursorType.Monster);
+        _cursorManager?.Set(CursorType.Monster);
     }
     
     public void OnPointerExit(PointerEventData e)
     {
         _controller.SetHovered(false);
-        var cursorManager = ServiceLocator.Get<CursorManager>();
-        cursorManager?.Reset();
+        _cursorManager?.Reset();
     }
     
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData e)
     {
-        if (_controller.isHovered) HandlePoke();
+        if (_controller.EvolutionHandler.IsEvolving) return;
+        HandlePoke();
     }
 
 }

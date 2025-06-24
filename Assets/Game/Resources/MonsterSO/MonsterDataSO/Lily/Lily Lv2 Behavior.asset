@@ -21,7 +21,7 @@ MonoBehaviour:
     maxDuration: 0
     requiresFood: 0
     hungerThreshold: 0
-    happinessThreshold: 0
+    happinessThreshold: 49
   - name: idle - jump
     fromState: 0
     toState: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
     maxDuration: 0
     requiresFood: 0
     hungerThreshold: 0
-    happinessThreshold: 0
+    happinessThreshold: 49
   - name: walk - run
     fromState: 1
     toState: 2

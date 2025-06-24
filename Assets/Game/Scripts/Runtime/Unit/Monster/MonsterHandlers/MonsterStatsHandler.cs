@@ -28,7 +28,7 @@ public class MonsterStatsHandler
         
         if (_controller.MonsterData != null)
         {
-            float maxHunger = _controller.MonsterData.GetMaxHunger(_controller.CurrentEvolutionLevel);
+            float maxHunger = _controller.MonsterData.GetMaxHunger(_controller.evolutionLevel);
             _currentHunger = Mathf.Clamp(_controller.MonsterData.baseHunger, 0f, maxHunger);
             _currentHappiness = _controller.MonsterData.baseHappiness;
         }
@@ -49,7 +49,7 @@ public class MonsterStatsHandler
     
     public void Initialize(float initialHunger, float initialHappiness, bool initialSick, float initialLowHungerTime)
     {
-        float maxHunger = _controller.MonsterData?.GetMaxHunger(_controller.CurrentEvolutionLevel) ?? 100f;
+        float maxHunger = _controller.MonsterData?.GetMaxHunger(_controller.evolutionLevel) ?? 100f;
         _currentHunger = Mathf.Clamp(initialHunger, 0f, maxHunger);
         
         _currentHappiness = Mathf.Clamp(initialHappiness, 0f, 100f);
@@ -60,7 +60,7 @@ public class MonsterStatsHandler
     public void SetHunger(float value)
     {
         // Clamp the value between 0 and monster's max hunger based on evolution level
-        float maxHunger = _controller.MonsterData?.GetMaxHunger(_controller.CurrentEvolutionLevel) ?? 100f;
+        float maxHunger = _controller.MonsterData?.GetMaxHunger(_controller.evolutionLevel) ?? 100f;
         float clampedValue = Mathf.Clamp(value, 0f, maxHunger);
         
         if (Mathf.Approximately(_currentHunger, clampedValue)) return;

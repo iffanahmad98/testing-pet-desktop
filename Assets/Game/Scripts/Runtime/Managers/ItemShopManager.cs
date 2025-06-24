@@ -38,11 +38,11 @@ public class ItemShopManager : MonoBehaviour
     {
         if (tabIndex < 0 || tabIndex >= tabCategories.Count) return;
 
-        string category = tabCategories[tabIndex];
+        ItemType category = (ItemType)System.Enum.Parse(typeof(ItemType), tabCategories[tabIndex]);
         ShowItemsByCategory(category);
     }
 
-    private void ShowItemsByCategory(string category)
+    private void ShowItemsByCategory(ItemType category)
     {
         ClearItemGrid();
 
@@ -76,8 +76,8 @@ public class ItemShopManager : MonoBehaviour
         itemPriceText.text = $"Price: {item.price}";
         itemDescText.text = item.description;
         itemFullnessText.text = $"Fullness: {item.fullness}";
-        itemInfoIcon.sprite = item.icon;
-        itemInfoIcon.enabled = item.icon != null;
+        itemInfoIcon.sprite = item.itemImgs[0];
+        itemInfoIcon.enabled = item.itemImgs[0] != null;
     }
 
     private void ClearItemGrid()

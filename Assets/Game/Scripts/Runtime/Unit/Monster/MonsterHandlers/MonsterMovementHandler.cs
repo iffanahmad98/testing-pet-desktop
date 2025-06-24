@@ -18,6 +18,16 @@ public class MonsterMovementHandler
     
     public void UpdateMovement(ref Vector2 targetPosition, MonsterDataSO data)
     {
+        // Validate target is in bounds before moving toward it
+        if (_controller.BoundHandler != null && 
+            !_controller.BoundHandler.IsWithinBoundsForState(targetPosition, _controller.StateMachine.CurrentState))
+        {
+            targetPosition = _controller.BoundHandler.GetRandomTargetForState(_controller.StateMachine.CurrentState);
+        }
+        
+        if (_controller.EvolutionHandler != null && _controller.EvolutionHandler.IsEvolving)
+            return;
+
         Vector2 pos = _transform.anchoredPosition;
         float currentSpeed = GetCurrentMoveSpeed(data);
         _transform.anchoredPosition = Vector2.MoveTowards(pos, targetPosition, currentSpeed * Time.deltaTime);
@@ -28,16 +38,25 @@ public class MonsterMovementHandler
     {
         if (_controller.StateMachine == null || data == null) return 0f;
 
+        // Check if flying monster has reached destination (for hovering)
+        bool isAtFlyingDestination = false;
+        if (_controller.StateMachine.CurrentState == MonsterState.Flying)
+        {
+            Vector2 pos = _transform.anchoredPosition;
+            Vector2 targetPos = _controller.GetTargetPosition();
+            isAtFlyingDestination = Vector2.Distance(pos, targetPos) < 10f;
+        }
+
         return _controller.StateMachine.CurrentState switch
         {
             MonsterState.Walking => GetWalkSpeed(data),
             MonsterState.Running => GetRunSpeed(data),
-            MonsterState.Flying => GetFlySpeed(data),
-            MonsterState.Flapping => 0f,
+            MonsterState.Flying => isAtFlyingDestination ? 0f : GetFlySpeed(data), // Hover when reached destination
+            MonsterState.Flapping => 0f,  // Ground-based wing flapping (no movement)
             MonsterState.Jumping => 0f,
             MonsterState.Eating => 0f,
-            MonsterState.Idle => IsInAir() ? GetFlySpeed(data) * 0.3f : 0f, // Gentle floating for air idle
-            MonsterState.Itching => IsInAir() ? GetFlySpeed(data) * 0.2f : 0f, // Very slow air movement
+            MonsterState.Idle => 0f, // No movement during idle (ground only)
+            MonsterState.Itching => 0f, // No movement during itching
             _ => 0f
         };
     }
@@ -103,16 +122,26 @@ public class MonsterMovementHandler
         UpdateAnimation(state); 
     }
     
-    private void HandleDirectionalFlipping(Vector2 pos, Vector2 target)
-    {
-        float direction = target.x - pos.x;
+    private Vector2 _lastPosition;
+    private float _lastFlipTime = 0f;
+    private const float FLIP_COOLDOWN = 0.25f; // 250ms minimum between flips
 
-        // Normal areas: Standard flipping
-        float flipThreshold = 0.1f;
-        if (Mathf.Abs(direction) > flipThreshold)
+    private void HandleDirectionalFlipping(Vector2 currentPos, Vector2 target)
+    {
+        // Use actual movement direction instead of target direction
+        Vector2 movementDirection = currentPos - _lastPosition;
+        
+        // Only flip if we've moved a meaningful amount
+        if (movementDirection.magnitude > 0.5f && Time.time - _lastFlipTime > FLIP_COOLDOWN) 
         {
-            Flip(direction);
+            if (Mathf.Abs(movementDirection.x) > 0.1f) // Only flip for meaningful horizontal movement
+            {
+                Flip(movementDirection.x);
+                _lastFlipTime = Time.time;
+            }
         }
+        
+        _lastPosition = currentPos;
     }
 
     private void Flip(float direction)

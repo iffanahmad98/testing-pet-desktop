@@ -16,10 +16,10 @@ public class MonsterDataSO : ScriptableObject
     [Header("Stats")]
     public float maxHealth = 100f;        // Maximum health
     public float moveSpd = 100f;       // Move speed
-    public float baseHappiness = 0f;            // Add base happiness
+    public float baseHappiness = 50f;            // Add base happiness
     public float foodDetectionRange = 200f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
-    public float hungerDepleteRate = 0.02f;  // How fast hunger depletes
+    public float hungerDepleteRate = 0f;  // How fast hunger depletes
     public float baseHunger = 0f;               // Add base hunger
     public float maxHungerStage1 = 0f;          // Stage 1 hunger (keep existing)
     public float maxHungerStage2 = 0f;          // Stage 2 hunger
@@ -43,8 +43,8 @@ public class MonsterDataSO : ScriptableObject
     [Header("Happiness Settings")]
     public float areaHappinessRate = 0.1f; // Rate at which happiness increases in the area
     public float pokeHappinessValue = 5f;
-    public float hungerHappinessThreshold = 50f; // threshold below which hunger affects happiness
-    public float hungerHappinessDrainRate = 1f; // how much happiness drains when hungry
+    public float hungerHappinessThreshold = 30f; // threshold below which hunger affects happiness
+    public float hungerHappinessDrainRate = 0.1f; // how much happiness drains when hungry
 
     [Header("Evolution")]
     public bool canEvolve = true;
@@ -120,9 +120,9 @@ public class MonsterDataSO : ScriptableObject
     {
         switch (evolutionLevel)
         {
-            case 1: return maxHungerStage1;
-            case 2: return maxHungerStage2 > 0 ? maxHungerStage2 : maxHungerStage1 * 1.5f;
-            case 3: return maxHungerStage3 > 0 ? maxHungerStage3 : maxHungerStage2 * 1.2f;
+            case 1: return maxHungerStage1 > 0 ? maxHungerStage1 : 100f; // Default to 100 if not set
+            case 2: return maxHungerStage2 > 0 ? maxHungerStage2 : maxHungerStage1 * 2f;
+            case 3: return maxHungerStage3 > 0 ? maxHungerStage3 : maxHungerStage2 * 1.5f;
             default: return maxHungerStage1;
         }
     }

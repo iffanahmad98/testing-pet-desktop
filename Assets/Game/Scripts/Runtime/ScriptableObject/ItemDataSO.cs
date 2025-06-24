@@ -1,12 +1,17 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Shop/ItemData")]
+[CreateAssetMenu(menuName = "Item/Item Data")]
 public class ItemDataSO : ScriptableObject
 {
+    [Header("Basic Info")]
+    public string itemID; // Unique identifier for the item
     public string itemName;
-    public Sprite icon;
-    public int price;
-    public int fullness; //optional
+    public Sprite[] itemImgs; // [0] base, [1+] rotten forms
     public string description;
-    public string category; // e.g., "Food", "Medicine", etc.
+    public ItemType category; // Use enum ItemType for categorization (e.g., Food, Medicine)
+
+    [Header("Stats")]
+    public int price;
+    public int fullness;         // Optional: use this as an alternate to nutritionValue
+    public float nutritionValue; // If used as food
 }

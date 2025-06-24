@@ -12,6 +12,9 @@ public class MonsterSeparationHandler
     public float maxSeparationSpeed = 100f; // Limit separation movement speed
     public LayerMask monsterLayer = -1;
     
+    private Vector2 _lastSeparationDirection = Vector2.zero;
+    private const float DIRECTION_SMOOTHING = 0.3f;
+    
     public MonsterSeparationHandler(MonsterController controller, RectTransform rectTransform)
     {
         _controller = controller;
@@ -51,6 +54,19 @@ public class MonsterSeparationHandler
         if (count > 0)
         {
             separationVector /= count;
+            
+            // Get game area size
+            var gameAreaSize = _controller.MonsterManager.gameArea.sizeDelta;
+            
+            // Scale force by available area (smaller area = gentler force)
+            float areaFactor = Mathf.Clamp01(gameAreaSize.x * gameAreaSize.y / (500f * 500f));
+            separationVector *= areaFactor;
+            
+            // Reduce horizontal component when height is small
+            if (gameAreaSize.y < 300f) {
+                separationVector.x *= gameAreaSize.y / 300f;
+            }
+            
             return separationVector;
         }
         
@@ -60,6 +76,22 @@ public class MonsterSeparationHandler
     public Vector2 ApplySeparationToTarget(Vector2 originalTarget)
     {
         Vector2 separation = CalculateSeparationForce();
+        
+        // Smooth direction changes to prevent rapid flipping
+        if (separation != Vector2.zero)
+        {
+            separation = Vector2.Lerp(_lastSeparationDirection, separation, DIRECTION_SMOOTHING);
+            _lastSeparationDirection = separation;
+        }
+        
+        // When height is constrained, INCREASE horizontal separation instead
+        var gameAreaSize = _controller.MonsterManager.gameArea.sizeDelta;
+        if (gameAreaSize.y < 300f) {
+            // Boost horizontal movement when vertical space is limited
+            float boostFactor = Mathf.Lerp(2.0f, 1.0f, gameAreaSize.y / 300f);
+            separation.x *= boostFactor;
+        }
+        
         return originalTarget + separation;
     }
 }
