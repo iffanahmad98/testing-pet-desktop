@@ -217,11 +217,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         // Initialize UI
         UI.Init();
-        // Only call if handler exists
-        if (_evolutionHandler != null)
-        {
-            _evolutionHandler.InitUIParticles(UI);
-        }
         
         // Set initial values
         SetRandomTarget();
