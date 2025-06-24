@@ -2,11 +2,13 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections;
+using Spine.Unity;
 
 [Serializable]
 public class MonsterEvolutionHandler
 {
     private MonsterController _controller;
+    private SkeletonGraphic _skeletonGraphic;
     public bool IsEvolving => _isEvolving;
     private bool _isEvolving = false;
     private int _evolutionLevel = 1; // Current evolution level
@@ -22,9 +24,10 @@ public class MonsterEvolutionHandler
     public int FoodConsumed => _foodConsumed;
     public int InteractionCount => _interactionCount;
 
-    public MonsterEvolutionHandler(MonsterController controller)
+    public MonsterEvolutionHandler(MonsterController controller, SkeletonGraphic skeletonGraphic)
     {
         _controller = controller;
+        _skeletonGraphic = skeletonGraphic;
     }
 
     private EvolutionRequirement[] GetAvailableEvolutions()
@@ -59,15 +62,6 @@ public class MonsterEvolutionHandler
     public void OnInteraction()
     {
         _interactionCount++;
-        CheckEvolutionConditions();
-    }
-
-    
-    private IEnumerator WaitForIdle()
-    {
-        // Wait until the monster is idle
-        while (_controller.StateMachine.CurrentState != MonsterState.Idle)
-            yield return new WaitForSeconds(2.1f);
         CheckEvolutionConditions();
     }
 
@@ -115,31 +109,48 @@ public class MonsterEvolutionHandler
     {
         Debug.Log($"[Evolution] { _controller.MonsterData.monsterName } evolution started.");
 
-        // Simulate a short delay for effect (optional, can be removed)
+        var originalPos = _skeletonGraphic.rectTransform.anchoredPosition;
+        var originalScale = _skeletonGraphic.rectTransform.localScale.x;
+        var originalParent = _controller.transform.parent;
+        var monsterTransform = _controller.transform;
+        var areaTransform = _controller.MonsterManager.gameArea.transform;
+
+        // Get the next evolution skeleton asset
+        var monsterData = _controller.MonsterData;
+        int index = _targetLevel- 1;
+        SkeletonDataAsset nextSkeleton = 
+            (monsterData != null && monsterData.monsterSpine != null && index >= 0 && index < monsterData.monsterSpine.Length)
+            ? monsterData.monsterSpine[index]
+            : null;
+        // Get references to required components
+        var mainCamera = Camera.main;
+        var spineGraphic = _skeletonGraphic; 
+        var evolutionParticle = _controller.UI.evolutionVFX; 
+        var whiteFlashMaterial = _controller.UI.evolutionMaterial; 
+
+        bool sequenceDone = false;
+        MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
+            mainCamera,
+            spineGraphic,
+            evolutionParticle,
+            whiteFlashMaterial,
+            nextSkeleton,
+            () =>
+            {
+                _controller.evolutionLevel = _targetLevel;
+                UpdateMonsterID(_targetLevel);
+                _controller.SaveMonData();
+                _foodConsumed = 0;
+                _interactionCount = 0;
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
+                sequenceDone = true;
+            }
+        );
+
+        
+
+        yield return new WaitUntil(() => sequenceDone);
         yield return new WaitForSeconds(0.5f);
-
-        // Update evolution level and monster ID
-        _controller.evolutionLevel = _targetLevel;
-        UpdateMonsterID(_targetLevel);
-
-        // Update monster visuals (e.g., change spine/appearance)
-        _controller.UpdateVisuals();
-
-        // Show evolution message
-        ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
-
-        // Save data BEFORE resetting counters
-        _controller.SaveMonData();
-
-        // Reset counters for next evolution
-        _foodConsumed = 0;
-        _interactionCount = 0;
-
-        Debug.Log($"[Evolution] { _controller.MonsterData.monsterName } evolved to level { _targetLevel }!");
-
-        // Optional: short idle period after evolution
-        yield return new WaitForSeconds(0.5f);
-
         _isEvolving = false;
     }
 

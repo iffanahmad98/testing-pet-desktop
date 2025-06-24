@@ -157,6 +157,7 @@ public class UIManager : MonoBehaviour
 
         settingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
+        InventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, InventoryCanvasGroup.alpha == 0f || !InventoryPanel.activeSelf));
         // catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
@@ -177,7 +178,7 @@ public class UIManager : MonoBehaviour
         closeShopButton?.onClick.RemoveAllListeners();
         catalogueButton?.onClick.RemoveAllListeners();
         closeCatalogueButton?.onClick.RemoveAllListeners();
-        gachaButton?.onClick.RemoveAllListeners();
+        InventoryButton?.onClick.RemoveAllListeners();
     }
 
     #endregion
@@ -189,6 +190,7 @@ public class UIManager : MonoBehaviour
         UIFloatMenuPanel.SetActive(false);
         SettingPanel.SetActive(false);
         ShopPanel.SetActive(false);
+        InventoryPanel.SetActive(false);
         // CataloguePanel?.SetActive(false);
     }
 

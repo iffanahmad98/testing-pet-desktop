@@ -11,18 +11,22 @@ public class GachaResultPanel : MonoBehaviour
     public Image monsterImage;
     public TextMeshProUGUI monsterNameText;
     public TextMeshProUGUI rarityText;
+
     [Header("Sequence Objects")]
     public Sprite[] chestFrames; // Chest opening animation
     public Sprite[] eggFrames;   // Egg hatching animation
+
     [Header("Display Objects")]
     public Image chestImage;
     public Image eggImage;
     public GameObject monsterDisplay;
+
     [Header("Effects")]
     public GameObject confettiFxRender;
     public ParticleSystem confettiFx;
     public GameObject shineFxRender;
     public ParticleSystem shineFx;
+
     [Header("Buttons")]
     public Button backButton;
     public Button rollAgainButton;

@@ -1,6 +1,7 @@
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
+using TMPro;
+using Coffee.UIExtensions;
 
 [System.Serializable]
 public class MonsterUIHandler
@@ -9,8 +10,10 @@ public class MonsterUIHandler
     public GameObject hungerInfo;
     public GameObject happinessInfo;
     public GameObject sickStatusInfo;
-    public ParticleSystem evolutionEffect;
-    public CanvasGroup evolutionEffectCg;
+
+    [Header("Evolution VFX")]
+    public UIParticle evolutionVFX;
+    public Material evolutionMaterial;
     
     [Header("Emoji Expression")]
     public GameObject emojiExpression;
@@ -48,12 +51,6 @@ public class MonsterUIHandler
         _happinessInfoCg.alpha = 0f;
         _sickStatusInfoCg.alpha = 0f;
         _emojiExpressionCg.alpha = 0f;
-        
-        // Initialize evolution effects as hidden
-        if (evolutionEffectCg != null)
-        {
-            evolutionEffectCg.alpha = 0f;
-        }
     }
 
     public void UpdateHungerDisplay(float hunger, bool showUI)
