@@ -14,11 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: pineapple
   displayName: Pineapple Seed
-  icon: {fileID: -549004524, guid: 81b1dae6d9f395f4d87374728440b174, type: 3}
+  icon: {fileID: -3250807299213069671, guid: ec604399faba4d543adca1d5acb03d2d, type: 3}
   itemType: 0
   rarity: 0
   isStackable: 1
   description: 
-  stageTiles: []
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: 5e74222781194224cada5b9aa50269c0, type: 2}
+  - {fileID: 11400000, guid: 1d42a4450b332f444bab82be9bff43a8, type: 2}
+  stageWilted: {fileID: 11400000, guid: 405a504d7887bb246bcabe5e8f2f979b, type: 2}
+  markHarvest: {fileID: 1014885876863682215, guid: 33c313ac6254f184aaacf7496036acdf, type: 3}
   dropItems: []
   boost: 1

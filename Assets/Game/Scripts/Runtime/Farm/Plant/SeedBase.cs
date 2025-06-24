@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -30,6 +31,7 @@ namespace MagicalGarden.Farm
         public PlantStatus status = PlantStatus.Normal;
         public Vector3Int cellPosition;
         public ItemData itemData;
+        public Image markHarvest;
         public abstract List<GrowthStage> GetGrowthRequirements();
         public abstract Monster GetMonster();
 
@@ -77,12 +79,15 @@ namespace MagicalGarden.Farm
                 if (stage < growthRequirements.Count)
                 {
                     UpdateStage();
-                    ResetStageProgress();
                 }
                 else
                 {
                     UpdateStage(); // final stage
+                    markHarvest.sprite = itemData.markHarvest;
+                    markHarvest.gameObject.SetActive(true);
+                    Debug.Log($"[{seedName}] Siap panen! Final stage tercapai di posisi {cellPosition}");
                 }
+                ResetStageProgress();
             }
         }
         public void UpdateStage()
@@ -198,6 +203,7 @@ namespace MagicalGarden.Farm
             }
 
             InventoryManager.Instance.inventoryUI.RefreshUI();
+            markHarvest.gameObject.SetActive(false);
             Clear();
         }
 

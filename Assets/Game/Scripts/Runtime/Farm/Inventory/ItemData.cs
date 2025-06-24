@@ -15,6 +15,8 @@ namespace MagicalGarden.Inventory
         public bool isStackable = true;
         public string description;
         public List<TileBase> stageTiles;
+        public TileBase stageWilted;
+        public Sprite markHarvest;
         public List<DropItem> dropItems;
 
         //for fertilizer

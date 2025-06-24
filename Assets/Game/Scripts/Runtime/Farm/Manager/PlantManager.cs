@@ -24,6 +24,17 @@ namespace MagicalGarden.Farm
 
         private void Update()
         {
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                SaveToJson();
+                Debug.Log("⌨️ [Save] Tombol S ditekan — Tanaman disimpan ke file JSON.");
+            }
+
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                LoadFromJson();
+                Debug.Log("⌨️ [Load] Tombol L ditekan — Data tanaman dimuat dari file JSON.");
+            }
             // Tambahkan waktu simulasi setiap frame
             simulatedNow = simulatedNow.AddSeconds(Time.deltaTime * timeMultiplier);
         }
@@ -63,7 +74,8 @@ namespace MagicalGarden.Farm
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
             bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
             if (!removed) return;
-            var plantObj = Instantiate(plantPrefab, cellPosition, Quaternion.identity);
+            Vector3 worldPos = TileManager.Instance.tilemapSeed.CellToWorld(cellPosition) + new Vector3(0f, 0.5f, 0);
+            var plantObj = Instantiate(plantPrefab, worldPos, Quaternion.identity);
             plantObj.transform.parent = poolPlant;
 
             var plant = plantObj.GetComponent<PlantController>();
@@ -71,6 +83,7 @@ namespace MagicalGarden.Farm
             plant.seed.plantedTime = simulatedNow;
             plant.seed.cellPosition = cellPosition;
             plant.seed.itemData = itemdata;
+            plant.seed.seedName = itemdata.displayName;
 
             TileManager.Instance.tilemapSeed.SetTile(cellPosition, itemdata.stageTiles[0]);
             plants[cellPosition] = plant;
@@ -89,6 +102,31 @@ namespace MagicalGarden.Farm
             else
             {
                 Debug.LogWarning($"No plant found at {cellPosition} to water.");
+            }
+        }
+        public void RemovePlantAt(Vector3Int cellPosition)
+        {
+            if (plants.TryGetValue(cellPosition, out var plant))
+            {
+                // Hapus tile di tilemap
+                TileManager.Instance.tilemapSeed.SetTile(cellPosition, null);
+                TileManager.Instance.tilemapWater.SetTile(cellPosition, null);
+                TileManager.Instance.tilemapFertilizer.SetTile(cellPosition, null);
+
+                // Hancurkan GameObject tanaman
+                if (plant != null)
+                {
+                    Destroy(plant.gameObject);
+                }
+
+                // Hapus dari dictionary
+                plants.Remove(cellPosition);
+
+                Debug.Log($"Tanaman di {cellPosition} telah dicabut.");
+            }
+            else
+            {
+                Debug.LogWarning($"Tidak ada tanaman di {cellPosition} untuk dicabut.");
             }
         }
 
@@ -171,15 +209,6 @@ namespace MagicalGarden.Farm
 
             return true;
         }
-        //buang tanaman
-        public void RemovePlantAt(Vector3Int cellPosition)
-        {
-            // if (plantedSeeds.TryGetValue(cellPosition, out var seed))
-            // {
-            //     Destroy(seed.gameObject);
-            //     plantedSeeds.Remove(cellPosition);
-            // }
-        }
 
         public Dictionary<Vector3Int, string> GetSaveData()
         {
@@ -239,9 +268,112 @@ namespace MagicalGarden.Farm
         }
         [ContextMenu("MyHopeful - CallToSomething")]
         public void Test()
-        { 
+        {
             Debug.LogError(GetItemById("grapes"));
         }
+#region SAVE LOAD
+        public List<Manager.PlantSaveData> GetSaveDataList()
+        {
+            var saveList = new List<Manager.PlantSaveData>();
+
+            foreach (var pair in plants)
+            {
+                var plant = pair.Value;
+                var seed = plant.seed;
+
+                var data = new Manager.PlantSaveData
+                {
+                    cellPosition = pair.Key,
+                    itemId = seed.itemData.itemId,
+                    currentStage = seed.stage,
+                    timeInStage = seed.timeInStage,
+                    plantedTime = seed.plantedTime.ToString("o"),
+                    lastUpdateTime = seed.lastUpdateTime.ToString("o"),
+                    lastWateredTime = seed.lastWateredTime.ToString("o"),
+                    status = seed.status,
+                    isFertilized = plant.Fertilize != null
+                };
+
+                saveList.Add(data);
+            }
+
+            return saveList;
+        }
+
+        public void LoadFromSaveData(List<Manager.PlantSaveData> saveDataList)
+        {
+            foreach (var data in saveDataList)
+            {
+                ItemData item = GetItemById(data.itemId);
+                if (item == null) continue;
+
+                Vector3 worldPos = TileManager.Instance.tilemapSeed.CellToWorld(data.cellPosition) + new Vector3(0f, 0.5f, 0);
+                var plantObj = Instantiate(plantPrefab, worldPos, Quaternion.identity);
+                plantObj.transform.parent = poolPlant;
+
+                var plant = plantObj.GetComponent<PlantController>();
+                var seed = plant.seed;
+
+                seed.cellPosition = data.cellPosition;
+                seed.itemData = item;
+                seed.seedName = item.displayName;
+                seed.stage = data.currentStage;
+                seed.timeInStage = data.timeInStage;
+                seed.plantedTime = DateTime.Parse(data.plantedTime);
+                seed.lastUpdateTime = DateTime.Parse(data.lastUpdateTime);
+                seed.lastWateredTime = DateTime.Parse(data.lastWateredTime);
+                seed.status = data.status;
+
+                TileManager.Instance.tilemapSeed.SetTile(data.cellPosition, item.stageTiles[data.currentStage]);
+
+                if ((PlantManager.Instance.simulatedNow - seed.lastWateredTime).TotalHours <= 1)
+                {
+                    TileManager.Instance.tilemapWater.SetTile(data.cellPosition, TileManager.Instance.tileWater);
+                }
+
+                if (data.isFertilized)
+                {
+                    plant.Fertilize = item;
+                    TileManager.Instance.tilemapFertilizer.SetTile(data.cellPosition, TileManager.Instance.tileFertilizer);
+                }
+
+                if (seed.IsReadyToHarvest())
+                {
+                    seed.markHarvest.sprite = item.markHarvest;
+                    seed.markHarvest.gameObject.SetActive(true);
+                }
+
+                plants[data.cellPosition] = plant;
+                //update stage
+                float deltaHours = (float)(simulatedNow - seed.lastUpdateTime).TotalHours;
+                if (deltaHours > 0f)
+                {
+                    float fertilizerBoost = plant.Fertilize != null ? plant.Fertilize.boost : 0;
+                    seed.Update(deltaHours, fertilizerBoost);
+                    seed.lastUpdateTime = simulatedNow;
+                }
+            }
+        }
+        public void SaveToJson()
+        {
+            var dataList = GetSaveDataList();
+            var wrapper = new PlantSaveWrapper { data = dataList };
+            string json = JsonUtility.ToJson(wrapper, true);
+            System.IO.File.WriteAllText(Application.persistentDataPath + "/plants.json", json);
+            Debug.Log("Tanaman disimpan ke file.");
+        }
+
+        public void LoadFromJson()
+        {
+            string path = Application.persistentDataPath + "/plants.json";
+            if (!System.IO.File.Exists(path)) return;
+
+            string json = System.IO.File.ReadAllText(path);
+            var wrapper = JsonUtility.FromJson<PlantSaveWrapper>(json);
+            LoadFromSaveData(wrapper.data);
+            Debug.Log("Tanaman berhasil dimuat dari file.");
+        }
+#endregion
     }
 }
 

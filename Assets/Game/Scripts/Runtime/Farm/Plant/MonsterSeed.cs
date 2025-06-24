@@ -23,7 +23,6 @@ namespace MagicalGarden.Farm
                         new GrowthStage { requiredHours = 1 },
                         new GrowthStage { requiredHours = 1 },
                         new GrowthStage { requiredHours = 1 },
-                        new GrowthStage { requiredHours = 1 },
                     };
                 case MonsterType.Uncommon:
                     return new List<GrowthStage> {

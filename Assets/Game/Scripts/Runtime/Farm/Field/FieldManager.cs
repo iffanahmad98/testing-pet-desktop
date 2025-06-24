@@ -20,7 +20,7 @@ namespace MagicalGarden.Farm
             foreach (var item in blocks)
             {
                 UpdateOverlayVisual(item.blockId, false);
-                var bubble = Instantiate(bubbleLockUI);
+                var bubble = Instantiate(bubbleLockUI, gameObject.transform);
                 bubble.GetComponent<UnlockBubbleUI>().Setup(item, new Vector3Int(item.blockId.x,item.blockId.y, 0));
             }
         }

@@ -9,6 +9,7 @@ namespace MagicalGarden.Manager
     public class FertilizerManager : MonoBehaviour
     {
         public static FertilizerManager Instance;
+        public Animator craftingAnimator;
 
         // private List<FertilizerTask> activeTasks = new();
         private FertilizerTask activeTasks = null;
@@ -58,6 +59,8 @@ namespace MagicalGarden.Manager
                 };
 
                 activeTasks = task;
+                if (craftingAnimator != null)
+                    craftingAnimator.SetBool("run", true);
             }
         }
 
@@ -65,6 +68,8 @@ namespace MagicalGarden.Manager
         {
             InventoryManager.Instance.AddItem(task.recipe.outputItem.item, task.recipe.outputItem.quantity);
             InventoryManager.Instance.inventoryUI.RefreshUI();
+            if (craftingAnimator != null)
+                craftingAnimator.SetBool("run", false);
             // UIManager.Instance?.ShowPopup($"Selesai membuat: {task.recipe.outputItem.item.displayName}");
 
             // Opsional: efek visual atau suara

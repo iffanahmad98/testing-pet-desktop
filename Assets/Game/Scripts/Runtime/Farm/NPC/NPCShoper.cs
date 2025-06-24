@@ -6,7 +6,7 @@ using MagicalGarden.Manager;
 using MagicalGarden.Farm;
 using System.Linq;
 
-namespace MagicalGarden.NPC
+namespace MagicalGarden.AI
 {
     public class NPCShoper : MonoBehaviour
     {
@@ -296,11 +296,5 @@ namespace MagicalGarden.NPC
 
             return true;
         }
-    }
-    [System.Serializable]
-    public struct StateChance
-    {
-        public string stateName;
-        public float probability;
     }
 }

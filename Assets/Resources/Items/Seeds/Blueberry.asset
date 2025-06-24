@@ -14,11 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: blueberry
   displayName: Blueberry Seed
-  icon: {fileID: -2030565853, guid: 81b1dae6d9f395f4d87374728440b174, type: 3}
+  icon: {fileID: -355225151927756138, guid: a31a360d9c872db458cff0f5da9ae268, type: 3}
   itemType: 0
   rarity: 0
   isStackable: 1
   description: 
-  stageTiles: []
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: e722507d198183148b70cc5914687e56, type: 2}
+  - {fileID: 11400000, guid: ec891c0868b05944abf34972d12cec3f, type: 2}
+  stageWilted: {fileID: 11400000, guid: 4566954c308aaa14ab6e276d1b73c937, type: 2}
+  markHarvest: {fileID: 7748859870099944956, guid: 810c386ae5635214fbf0f3fd7c42a9a1, type: 3}
   dropItems: []
   boost: 1

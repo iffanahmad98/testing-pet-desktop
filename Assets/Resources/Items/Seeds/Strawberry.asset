@@ -14,11 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: strawberry
   displayName: Strawberry Seed
-  icon: {fileID: 1564130308, guid: 81b1dae6d9f395f4d87374728440b174, type: 3}
+  icon: {fileID: 7957971520576583045, guid: 402ba9a8b94e75e45bfa373769cb23f0, type: 3}
   itemType: 0
   rarity: 0
   isStackable: 1
   description: 
-  stageTiles: []
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: f3baf99e01f7ac744b064786de9ed007, type: 2}
+  - {fileID: 11400000, guid: 6f7c17a3406015a44ae1bb4686048cb4, type: 2}
+  stageWilted: {fileID: 11400000, guid: afa5ebefcadec7c4f95b929fa66a9122, type: 2}
+  markHarvest: {fileID: -6830017184538276368, guid: 43f02be5e105fb34397656fe312cd333, type: 3}
   dropItems: []
   boost: 1

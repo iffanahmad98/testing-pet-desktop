@@ -14,11 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: grapes
   displayName: Grapes Seed
-  icon: {fileID: 327057935, guid: 81b1dae6d9f395f4d87374728440b174, type: 3}
+  icon: {fileID: -4322626274103637176, guid: a1335540b18da9842bfafe02949a7380, type: 3}
   itemType: 0
   rarity: 0
   isStackable: 1
   description: 
-  stageTiles: []
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: 4b968ce43e61d434190c8f1b3c9cc085, type: 2}
+  - {fileID: 11400000, guid: 548e3ecb31de6c84f845d0d0eb8d97b7, type: 2}
+  stageWilted: {fileID: 11400000, guid: ecb473cc0d718f04bba32079dfa69f1f, type: 2}
+  markHarvest: {fileID: 2230748062605740563, guid: 3fe7b93703ce2fe4d81548a784009a13, type: 3}
   dropItems: []
   boost: 1

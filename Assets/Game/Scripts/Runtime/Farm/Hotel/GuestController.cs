@@ -117,6 +117,7 @@ namespace MagicalGarden.Hotel
             {
                 roomServiceBtn.SetActive(true);
                 hasRequest = true;
+                currentRoom.SetHotelTileDirty(true);
             }
             else if (randomType == GuestRequestType.Food)
             {
@@ -186,6 +187,10 @@ namespace MagicalGarden.Hotel
                 fillExpired.transform.parent.gameObject.SetActive(false);
 
                 Debug.Log($"✅ {guestName} puas dengan {type}! Happiness: {happiness}");
+            }
+            if (type == GuestRequestType.RoomService)
+            {
+                // currentRoom.SetHotelTileDirty(false);
             }
         }
 

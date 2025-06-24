@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using MagicalGarden.Manager;
 using MagicalGarden.Farm;
 using System;
+using MagicalGarden.AI;
 
 namespace MagicalGarden.Hotel
 {
@@ -25,9 +26,14 @@ namespace MagicalGarden.Hotel
             acceptButton.onClick.RemoveAllListeners();
             acceptButton.onClick.AddListener(() =>
             {
-                bool assigned = HotelManager.Instance.AssignGuestToAvailableRoom(guest);
-                if (assigned)
+                HotelRoom room = HotelManager.Instance.AssignGuestToAvailableRoom(guest);
+                if (room != null)
                 {
+                    var guest = Instantiate(HotelManager.Instance.guestPrefab, HotelManager.Instance.guestSpawnPoint.position, Quaternion.identity);
+                    guest.GetComponent<PetMonsterHotel>().destinationTile.x = room.hotelPosition.x;
+                    guest.GetComponent<PetMonsterHotel>().destinationTile.y = room.hotelPosition.y;
+                    guest.GetComponent<PetMonsterHotel>().hotelRoomRef = room;
+                    guest.GetComponent<PetMonsterHotel>().SetupPetHotel();
                     Destroy(gameObject);
                 }
             });

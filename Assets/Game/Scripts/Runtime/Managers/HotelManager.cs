@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using MagicalGarden.Hotel;
 using System.Linq;
 using MagicalGarden.Farm;
+using MagicalGarden.AI;
 
 namespace MagicalGarden.Manager
 {
@@ -13,13 +14,16 @@ namespace MagicalGarden.Manager
         public static HotelManager Instance;
         [Header("Hotel")]
         public List<HotelRoom> hotelRooms = new();
+        public HotelTile cleanTile;
+        public HotelTile dirtyTile;
         public GameObject guestPrefab;
+        public NPCHotel npcHotel;
         [Header("Guest Queue")]
         public Transform guestSpawnPoint;
         public List<GuestRequest> todayGuestRequests = new List<GuestRequest>();
         [Header("UI")]
         [SerializeField] private GameObject prefabGuestItem;
-        public GameObject occupiedIconPrefab;
+        public GameObject roomHotelPrefab;
         [SerializeField] private Transform content;
         [SerializeField] public Transform objectGuestPool;
         private string[] guestNames = { "Flufflin", "Grizzle", "Lumo", "Chompy", "Zibra" };
@@ -41,13 +45,13 @@ namespace MagicalGarden.Manager
         {
             yield return new WaitForSeconds(1f); // ⏱ Delay 1 detik
 
-            // PlayerPrefs.DeleteAll();
-            // PlayerPrefs.Save();
-            // Debug.Log("✅ Semua PlayerPrefs dihapus.");
+            PlayerPrefs.DeleteAll();
+            PlayerPrefs.Save();
+            Debug.Log("✅ Semua PlayerPrefs dihapus.");
 
             FindHotelTiles();
             LoadLastDate();
-            LoadHotelRooms();
+            // LoadHotelRooms();
             LoadGuestRequests();
             CheckGenerateGuestList();
         }
@@ -68,7 +72,7 @@ namespace MagicalGarden.Manager
             if (roll < 95) return GuestRarity.Mythic;
             return GuestRarity.Legend;
         }
-        public bool AssignGuestToAvailableRoom(GuestRequest guest)
+        public HotelRoom AssignGuestToAvailableRoom(GuestRequest guest)
         {
             List<HotelRoom> availableRooms = new List<HotelRoom>();
 
@@ -81,19 +85,19 @@ namespace MagicalGarden.Manager
             if (availableRooms.Count == 0)
             {
                 Debug.LogWarning("No available rooms for guest: " + guest.guestName);
-                return false;
+                return null;
             }
             int randomIndex = UnityEngine.Random.Range(0, availableRooms.Count);
             HotelRoom selectedRoom = availableRooms[randomIndex];
-            var guestObj = Instantiate(occupiedIconPrefab, objectGuestPool);
-            var guestController = guestObj.GetComponent<GuestController>();
+            selectedRoom.gameObject.SetActive(true);
+            var guestController = selectedRoom.guest;
             guestController.SetupFromRequest(guest);
 
             selectedRoom.AssignGuest(guestController);
             Vector3 worldPos = TileManager.Instance.tilemapHotel.GetCellCenterWorld(selectedRoom.hotelPosition) + new Vector3(0, 3f, 0);
-            guestObj.transform.position = worldPos;
+            selectedRoom.transform.position = worldPos;
             SaveHotelRooms();
-            return true;
+            return selectedRoom;
         }
         public void GenerateGuestRequestsForToday()
         {
@@ -130,10 +134,12 @@ namespace MagicalGarden.Manager
             foreach (var pos in mapHotel.cellBounds.allPositionsWithin)
             {
                 if (!mapHotel.HasTile(pos)) continue;
-                GameObject roomObj = new GameObject("HotelRoom");
-                HotelRoom room = roomObj.AddComponent<HotelRoom>();
+                var roomObj = Instantiate(roomHotelPrefab, objectGuestPool);
+                HotelRoom room = roomObj.GetComponent<HotelRoom>();
                 room.hotelPosition = pos;
+                room.CalculateWanderingArea();
                 hotelRooms.Add(room);
+                room.gameObject.SetActive(false);
             }
         }
         private void CheckGenerateGuestList()
@@ -257,15 +263,15 @@ namespace MagicalGarden.Manager
                 var room = hotelRooms.FirstOrDefault(r => r.hotelPosition == pos);
                 if (room != null)
                 {
-                    var guestObj = Instantiate(occupiedIconPrefab, objectGuestPool);
-                    var guestController = guestObj.GetComponent<GuestController>();
+                    // var guestObj = Instantiate(occupiedIconPrefab, objectGuestPool);
+                    var guestController = room.guest;
                     guestController.SetupFromRequest(saved.guest);
                     guestController.happiness = (int)saved.happiness;
                     guestController.SetHappiness(saved.happiness);
                     room.AssignGuestLoad(guestController);
 
                     Vector3 worldPos = TileManager.Instance.tilemapHotel.GetCellCenterWorld(pos) + new Vector3(0, 3f, 0);
-                    guestObj.transform.position = worldPos;
+                    room.transform.position = worldPos;
                 }
             }
         }

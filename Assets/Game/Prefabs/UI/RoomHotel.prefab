@@ -1397,7 +1397,7 @@ GameObject:
   - component: {fileID: -2504067920266371343}
   - component: {fileID: 6088655117866872067}
   m_Layer: 0
-  m_Name: Occupied
+  m_Name: RoomHotel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1504,7 +1504,9 @@ MonoBehaviour:
   roomId: 
   guest: {fileID: -2504067920266371343}
   hotelPosition: {x: 0, y: 0, z: 0}
+  offsetDirection: 4
   roomRequests: []
+  IsOccupied: 0
 --- !u!1 &7769761811792753773
 GameObject:
   m_ObjectHideFlags: 0

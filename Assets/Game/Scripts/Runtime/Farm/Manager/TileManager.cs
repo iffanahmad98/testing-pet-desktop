@@ -15,7 +15,8 @@ namespace MagicalGarden.Manager
         Seed,
         Water,
         Fertilizer,
-        Harvest
+        Harvest,
+        Remove
     }
 
     public class TileManager : MonoBehaviour
@@ -53,13 +54,19 @@ namespace MagicalGarden.Manager
                     currentAction = TileAction.Seed;
                     break;
                 case "Water":
+                    CursorIconManager.Instance.ShowWateringIcon();
                     currentAction = TileAction.Water;
                     break;
                 case "Fertilizer":
                     currentAction = TileAction.Fertilizer;
                     break;
                 case "Harvest":
+                    CursorIconManager.Instance.ShowHarvestIcon();
                     currentAction = TileAction.Harvest;
+                    break;
+                case "Remove":
+                    CursorIconManager.Instance.ShowRemoveIcon();
+                    currentAction = TileAction.Remove;
                     break;
                 default:
                     currentAction = TileAction.None;
@@ -92,6 +99,10 @@ namespace MagicalGarden.Manager
             //         UIManager.Instance.TogglefertizerUI();
             //     }
             // }
+            if (Input.GetMouseButtonDown(1)) // Klik kanan
+            {
+                SetAction("None");
+            }
             HighlightHoverTiles();
             ActionToTile();
         }
@@ -100,13 +111,21 @@ namespace MagicalGarden.Manager
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int cellPos = tilemapSoil.WorldToCell(mouseWorldPos);
+
+            // Jika tile tidak bisa ditanami, hapus highlight dan return
             if (!IsPlantable(cellPos))
-            { 
-                tilemapHighlight.SetTile(previousCellPos, null);
+            {
+                if (hasPreviousTile)
+                {
+                    tilemapHighlight.SetTile(previousCellPos, null);
+                    hasPreviousTile = false;
+                    Farm.UIManager.Instance.HidePlantInfo();
+                }
                 return;
             }
-            // Kalau tile baru berbeda dengan sebelumnya
-            if (cellPos != previousCellPos)
+
+            // Jika tile baru berbeda atau tile sebelumnya sudah hilang highlight-nya
+            if (cellPos != previousCellPos || !hasPreviousTile)
             {
                 // Hapus highlight sebelumnya
                 if (hasPreviousTile)
@@ -122,13 +141,13 @@ namespace MagicalGarden.Manager
                     tilemapHighlight.SetTile(cellPos, highlightTile);
                     previousCellPos = cellPos;
                     hasPreviousTile = true;
-                    // ShowPlantInfoAtHoveredTile(cellPos);
                 }
                 else
                 {
-                    previousCellPos = cellPos; // tetap update pos agar tidak spam
+                    previousCellPos = cellPos; // tetap update agar tidak spam
                 }
             }
+
             if (tilemapSeed.HasTile(cellPos))
             {
                 ShowPlantInfoAtHoveredTile(cellPos);
@@ -169,6 +188,9 @@ namespace MagicalGarden.Manager
                         break;
                     case TileAction.Fertilizer:
                         PlantManager.Instance.PlantFertilizeAt(cellPos, currentItemdata);
+                        break;
+                    case TileAction.Remove:
+                        PlantManager.Instance.RemovePlantAt(cellPos);
                         break;
                     case TileAction.Harvest:
                         PlantManager.Instance.HarvestAt(cellPos);

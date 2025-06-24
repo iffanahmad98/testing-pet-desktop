@@ -14,11 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: banana
   displayName: Banana Seed
-  icon: {fileID: -488388978, guid: 81b1dae6d9f395f4d87374728440b174, type: 3}
+  icon: {fileID: -1114858839314874028, guid: 74e28e4d842873a4eafea45afa1a1a9d, type: 3}
   itemType: 0
   rarity: 0
   isStackable: 1
   description: 
-  stageTiles: []
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: 7d76bc1f308644a4f8f54f7f742ab5c9, type: 2}
+  - {fileID: 11400000, guid: 5513adfadb0fe174182fc78210120539, type: 2}
+  stageWilted: {fileID: 11400000, guid: 497dc6eb0d2be794ca5e5cdfff40b396, type: 2}
+  markHarvest: {fileID: 7527668141429871993, guid: 697742b41d56cbf469f0f4df58d25958, type: 3}
   dropItems: []
   boost: 1

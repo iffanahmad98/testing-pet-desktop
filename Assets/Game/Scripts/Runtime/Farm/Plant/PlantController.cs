@@ -3,6 +3,7 @@ using System;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Inventory;
 using MagicalGarden.Manager;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -71,6 +72,7 @@ namespace MagicalGarden.Farm
             float multiplier = 1f + fertilizerBoost / 100f;
 
             string debugText =
+                $"Tanaman: {seed.seedName}\n"+
                 $"Stage: {seed.stage + 1}\n" +
                 $"Status: {seed.status}\n" +
                 $"TimeInStage: {TimeSpan.FromHours(seed.timeInStage):hh\\:mm\\:ss}\n" +
