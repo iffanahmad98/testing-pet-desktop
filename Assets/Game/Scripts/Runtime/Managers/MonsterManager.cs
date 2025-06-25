@@ -550,7 +550,7 @@ public class MonsterManager : MonoBehaviour
                 isSick = monster.IsSick,
                 evolutionLevel = monster.evolutionLevel,
                 timeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
-                foodConsumed = monster.GetEvolutionFoodConsumed(),
+                nutritionCount = monster.GetEvolutionFoodConsumed(),
                 interactionCount = monster.GetEvolutionInteractionCount()
             };
             SaveSystem.SaveMon(saveData);

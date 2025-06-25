@@ -573,7 +573,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  skeletonDataAsset: {fileID: 11400000, guid: 2849b090bc78ec149b91dec4e919ce91, type: 2}
+  skeletonDataAsset: {fileID: 0}
   additiveMaterial: {fileID: 2100000, guid: 2e8245019faeb8c43b75f9ca3ac8ee34, type: 2}
   multiplyMaterial: {fileID: 2100000, guid: e74a1f8978a7da348a721508d0d58834, type: 2}
   screenMaterial: {fileID: 2100000, guid: bab24c479f34eec45be6ea8595891569, type: 2}
@@ -893,11 +893,8 @@ MonoBehaviour:
     sickStatusInfo: {fileID: 4231740121206559642}
     evolutionVFX: {fileID: 180174910240339442}
     evolutionMaterial: {fileID: 2100000, guid: 80b83ed1a883abc42ad32d8b00db0ae0, type: 2}
-    emojiExpression: {fileID: 657145950826039692}
-    emojiImage: {fileID: 1273210171923547663}
-    healthyColor: {r: 0, g: 1, b: 0, a: 1}
-    sickColor: {r: 1, g: 0, b: 0, a: 1}
-    hungryColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    Expression: {fileID: 657145950826039692}
+    emojiAnimator: {fileID: 4235871775633330412}
 --- !u!114 &2708909758104116800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -922,6 +919,8 @@ GameObject:
   - component: {fileID: 8091922838405198021}
   - component: {fileID: 3586256421881285307}
   - component: {fileID: 1273210171923547663}
+  - component: {fileID: 4235871775633330412}
+  - component: {fileID: 3229616230421010709}
   m_Layer: 5
   m_Name: Emoji
   m_TagString: Untagged
@@ -943,10 +942,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1931537827153667451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 75, y: 25}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -125, y: 125}
+  m_SizeDelta: {x: 100, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3586256421881285307
 CanvasRenderer:
@@ -986,6 +985,40 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!95 &4235871775633330412
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6586208393257046413}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 480c03b687c18c948a98b267db955a55, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!225 &3229616230421010709
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6586208393257046413}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &356624275504611539
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1014,6 +1047,10 @@ PrefabInstance:
       propertyPath: m_SortingLayer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7453128015446306254, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0f5b1c3deee6569428efd0ddfe9100a5, type: 2}
     - target: {fileID: 7453128015461601582, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -16,12 +16,8 @@ public class MonsterUIHandler
     public Material evolutionMaterial;
     
     [Header("Emoji Expression")]
-    public GameObject emojiExpression;
-    public Image emojiImage;
-    public Color healthyColor = Color.green;
-    public Color sickColor = Color.red;
-    public Color hungryColor = Color.yellow;
-    
+    public GameObject Expression;
+    public Animator emojiAnimator;
     private TextMeshProUGUI hungerText;
     private TextMeshProUGUI happinessText;
     private TextMeshProUGUI sickStatusText;
@@ -29,7 +25,7 @@ public class MonsterUIHandler
     private CanvasGroup _hungerInfoCg;
     private CanvasGroup _happinessInfoCg;
     private CanvasGroup _sickStatusInfoCg;
-    private CanvasGroup _emojiExpressionCg;
+    private CanvasGroup _expressionCg;
     
     private float _hoverStartTime = 0f;
     private bool _isDisplayingEmoji = false;
@@ -40,7 +36,7 @@ public class MonsterUIHandler
         _hungerInfoCg = hungerInfo.GetComponent<CanvasGroup>();
         _happinessInfoCg = happinessInfo.GetComponent<CanvasGroup>();
         _sickStatusInfoCg = sickStatusInfo.GetComponent<CanvasGroup>();
-        _emojiExpressionCg = emojiExpression.GetComponent<CanvasGroup>();
+        _expressionCg = Expression.GetComponent<CanvasGroup>();
 
         hungerText = hungerInfo.GetComponentInChildren<TextMeshProUGUI>();
         happinessText = happinessInfo.GetComponentInChildren<TextMeshProUGUI>();
@@ -50,7 +46,7 @@ public class MonsterUIHandler
         _hungerInfoCg.alpha = 0f;
         _happinessInfoCg.alpha = 0f;
         _sickStatusInfoCg.alpha = 0f;
-        _emojiExpressionCg.alpha = 0f;
+        _expressionCg.alpha = 0f;
     }
 
     public void UpdateHungerDisplay(float hunger, bool showUI)
@@ -60,6 +56,12 @@ public class MonsterUIHandler
 
         // Control visibility based on hover
         _hungerInfoCg.alpha = showUI ? 1f : 0f;
+
+        // update emoji
+        if (emojiAnimator != null)
+        {
+            emojiAnimator.SetFloat("Hunger", hunger); // Example threshold for hungry state
+        }
     }
 
     public void UpdateHappinessDisplay(float happiness, bool showUI)
@@ -69,6 +71,12 @@ public class MonsterUIHandler
 
         // Control visibility based on hover
         _happinessInfoCg.alpha = showUI ? 1f : 0f;
+
+        // update emoji
+        if (emojiAnimator != null)
+        {
+            emojiAnimator.SetFloat("Happiness", happiness); // Example threshold for happy state
+        }
     }
 
     public void UpdateSickStatusDisplay(bool isSick, bool showUI)
@@ -80,9 +88,9 @@ public class MonsterUIHandler
         _sickStatusInfoCg.alpha = showUI ? 1f : 0f;
         
         // Update emoji color based on sick status
-        if (emojiImage != null)
+        if (emojiAnimator != null)
         {
-            emojiImage.color = isSick ? sickColor : healthyColor;
+            emojiAnimator.SetBool("IsSick", isSick);
         }
     }
 
@@ -92,7 +100,7 @@ public class MonsterUIHandler
         _hungerInfoCg.alpha = 0f;
         _happinessInfoCg.alpha = 0f;
         _sickStatusInfoCg.alpha = 0f;
-        _emojiExpressionCg.alpha = 0f;
+        _expressionCg.alpha = 0f;
         
         // Reset hover state
         _hoverStartTime = 0f;
@@ -110,9 +118,9 @@ public class MonsterUIHandler
     {
         _hoverStartTime = 0f;
         _isDisplayingEmoji = false;
-        if (_emojiExpressionCg != null)
+        if (_expressionCg != null)
         {
-            _emojiExpressionCg.alpha = 0f;
+            _expressionCg.alpha = 0f;
         }
     }
     
@@ -125,13 +133,13 @@ public class MonsterUIHandler
             if (hoverDuration >= EMOJI_DISPLAY_DELAY)
             {
                 _isDisplayingEmoji = true;
-                if (_emojiExpressionCg != null)
+                if (_expressionCg != null)
                 {
-                    _emojiExpressionCg.alpha = 1f;
+                    _expressionCg.alpha = 1f;
                     // Set color based on sick status
-                    if (emojiImage != null)
+                    if (emojiAnimator != null)
                     {
-                        emojiImage.color = isSick ? sickColor : healthyColor;
+                        emojiAnimator.SetBool("IsSick", isSick);
                     }
                 }
             }

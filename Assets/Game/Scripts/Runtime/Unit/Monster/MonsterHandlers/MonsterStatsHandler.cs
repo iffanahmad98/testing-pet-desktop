@@ -29,8 +29,8 @@ public class MonsterStatsHandler
         if (_controller.MonsterData != null)
         {
             float maxHunger = _controller.MonsterData.GetMaxHunger(_controller.evolutionLevel);
-            _currentHunger = Mathf.Clamp(_controller.MonsterData.baseHunger, 0f, maxHunger);
-            _currentHappiness = _controller.MonsterData.baseHappiness;
+            _currentHunger = Mathf.Clamp(_controller.MonsterData.startingHunger, 0f, maxHunger);
+            _currentHappiness = _controller.MonsterData.startingHappiness;
         }
         else
         {

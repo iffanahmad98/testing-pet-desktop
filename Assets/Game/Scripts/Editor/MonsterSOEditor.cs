@@ -78,8 +78,8 @@ public class MonsterDataSOEditor : Editor
         
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Base Values", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHunger"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHappiness"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("startingHunger"));      // <-- FIXED
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("startingHappiness"));   // <-- FIXED
         
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Drop Rates", EditorStyles.boldLabel);

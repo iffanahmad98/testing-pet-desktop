@@ -16,14 +16,14 @@ public class MonsterDataSO : ScriptableObject
     [Header("Stats")]
     public float maxHealth = 100f;        // Maximum health
     public float moveSpd = 100f;       // Move speed
-    public float baseHappiness = 50f;            // Add base happiness
     public float foodDetectionRange = 200f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
-    public float hungerDepleteRate = 0f;  // How fast hunger depletes
-    public float baseHunger = 0f;               // Add base hunger
-    public float maxHungerStage1 = 0f;          // Stage 1 hunger (keep existing)
-    public float maxHungerStage2 = 0f;          // Stage 2 hunger
-    public float maxHungerStage3 = 0f;          // Stage 3 hunger
+    public float startingHappiness = 50f;            // Add base happiness
+    public float startingHunger = 100f;               // Add base hunger
+    public float hungerDepleteRate = 0.001f;  // How fast hunger depletes
+    public float maxNutritionStage1 = 0f;          // Stage 1 hunger (keep existing)
+    public float maxNutritionStage2 = 0f;          // Stage 2 hunger
+    public float maxNutritionStage3 = 0f;          // Stage 3 hunger
 
 
     [Header("Drop Rates")]
@@ -120,10 +120,10 @@ public class MonsterDataSO : ScriptableObject
     {
         switch (evolutionLevel)
         {
-            case 1: return maxHungerStage1 > 0 ? maxHungerStage1 : 100f; // Default to 100 if not set
-            case 2: return maxHungerStage2 > 0 ? maxHungerStage2 : maxHungerStage1 * 2f;
-            case 3: return maxHungerStage3 > 0 ? maxHungerStage3 : maxHungerStage2 * 1.5f;
-            default: return maxHungerStage1;
+            case 1: return maxNutritionStage1 > 0 ? maxNutritionStage1 : 100f; // Default to 100 if not set
+            case 2: return maxNutritionStage2 > 0 ? maxNutritionStage2 : maxNutritionStage1 * 2f;
+            case 3: return maxNutritionStage3 > 0 ? maxNutritionStage3 : maxNutritionStage2 * 1.5f;
+            default: return maxNutritionStage1;
         }
     }
 }
@@ -138,7 +138,7 @@ public class MonsterSaveData
     public bool isSick;
     public int evolutionLevel;
     public float timeSinceCreation;
-    public int foodConsumed;
+    public int nutritionCount;
     public int interactionCount;
 }
 
