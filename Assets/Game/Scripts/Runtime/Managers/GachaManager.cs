@@ -115,11 +115,11 @@ public class GachaManager : MonoBehaviour
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
     }
 
-    private void ShowGachaResult(MonsterDataSO monster, System.Action onComplete = null)
+    private void ShowGachaResult(MonsterDataSO monster, System.Action onComplete)
     {
         if (gachaResultPanel != null)
         {
-            gachaResultPanel.Show(monster, RollGacha);
+            gachaResultPanel.Show(monster, RollGacha, onComplete);
         }
     }
 
