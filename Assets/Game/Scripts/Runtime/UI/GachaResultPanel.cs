@@ -109,7 +109,11 @@ public class GachaResultPanel : MonoBehaviour
             eggAnimator.Play("egg", 0, 0f);
         });
         seq.AppendInterval(GetClipLength(eggAnimator, "egg"));
-        seq.JoinCallback(() => shineVFX?.Play());
+        seq.JoinCallback(() =>
+        {
+            shineVFX?.gameObject.SetActive(true);
+            shineVFX?.Play();
+        });
         seq.Append(eggCanvas.DOFade(0, 0.2f).SetEase(fadeOutEggEase));
         // 4. Show monster info 
         seq.AppendCallback(() =>
@@ -123,6 +127,7 @@ public class GachaResultPanel : MonoBehaviour
         seq.JoinCallback(() => confettiVFX?.Play());
         seq.AppendCallback(() =>
         {
+            shineVFX.gameObject.SetActive(false);
             rollAgainButton.onClick.RemoveAllListeners();
             rollAgainButton.onClick.AddListener(() => onRollAgain?.Invoke());
             onFinishGacha?.Invoke();
@@ -134,7 +139,6 @@ public class GachaResultPanel : MonoBehaviour
     {
         // Ensure root is active and reset scale
         root.SetActive(true);
-        var canvasGroup = root.GetComponent<CanvasGroup>();
         if (canvasGroup != null) canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
@@ -142,7 +146,6 @@ public class GachaResultPanel : MonoBehaviour
         // Hide and reset chest
         chest.SetActive(false);
         chestAnimator.ResetTrigger("Open");
-        var chestCanvas = chest.GetComponent<CanvasGroup>();
         if (chestCanvas != null) chestCanvas.alpha = 0f;
 
         // Hide and reset egg
@@ -151,7 +154,6 @@ public class GachaResultPanel : MonoBehaviour
         if (eggCanvas != null) eggCanvas.alpha = 0f;
 
         // Hide and reset monster display
-        var monsterCanvas = monsterDisplay.GetComponent<CanvasGroup>();
         if (monsterCanvas != null) monsterCanvas.alpha = 0f;
         monsterCanvas.interactable = false;
         monsterCanvas.blocksRaycasts = false;
@@ -176,7 +178,6 @@ public class GachaResultPanel : MonoBehaviour
 
             monsterCanvas.DOFade(0, 0.5f).OnComplete(() =>
             {
-                monsterDisplay.SetActive(false);
                 monsterCanvas.alpha = 0f;
                 monsterCanvas.interactable = false;
                 monsterCanvas.blocksRaycasts = false;
@@ -187,14 +188,6 @@ public class GachaResultPanel : MonoBehaviour
             root.SetActive(false);
             onFinishGacha?.Invoke();
         }
-    }
-
-    private IEnumerator WaitForAnimation(Animator animator, string stateName)
-    {
-        while (!animator.GetCurrentAnimatorStateInfo(0).IsName(stateName))
-            yield return null;
-        while (animator.IsInTransition(0) || animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
-            yield return null;
     }
     
     float GetClipLength(Animator anim, string clipName)

@@ -270,8 +270,7 @@ MonoBehaviour:
   m_AbsoluteMode: 0
   m_Scale3D: {x: 50, y: 50, z: 50}
   m_AnimatableProperties: []
-  m_Particles:
-  - {fileID: 0}
+  m_Particles: []
   m_MeshSharing: 0
   m_GroupId: 0
   m_GroupMaxId: 0
@@ -289,7 +288,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1272714472859051069}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -995,6 +994,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5600369671092417510}
     m_Modifications:
+    - target: {fileID: 5337362313182113028, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5337362313182113029, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
       propertyPath: m_LocalScale.x
       value: 0
@@ -1005,6 +1008,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5337362313182113029, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
       propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7453128015446306254, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
+      propertyPath: m_SortingLayer
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7453128015461601582, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
@@ -1038,6 +1045,18 @@ PrefabInstance:
     - target: {fileID: 7453128015461601582, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
       propertyPath: m_SizeDelta.y
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7453128015461601582, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7453128015461601582, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7453128015461601582, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7453128015461601582, guid: 46175462a81d51f4ca6b73fa6b3a964f, type: 3}
       propertyPath: m_LocalPosition.x
