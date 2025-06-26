@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
+using TMPro;
 
 [System.Serializable]
 public class BiomeLayer
@@ -9,247 +10,204 @@ public class BiomeLayer
     public GameObject layerObject;
     public string layerName;
     public bool isActive = true;
-    public float parallaxSpeed = 0f; // 0 = no parallax, 1 = full speed
 }
 
 public class BiomeManager : MonoBehaviour
 {
-    #region Constants
-    private const float PARALLAX_TIME_MULTIPLIER = 0.1f;
-    private const float PARALLAX_AMPLITUDE = 10f;
-    private const float SKY_USAGE_PERCENTAGE = 0.8f;
-    private const float CLOUD_START_X_OFFSET = 0.6f;
-    private const float CLOUD_END_X_OFFSET = 0.6f;
-    private const float LANE_HEIGHT_PERCENTAGE = 0.8f;
-
-    // Add these constants
-    private const float CLOUD_USABLE_HEIGHT_PERCENTAGE = 0.6f;
-    private const float CLOUD_TOP_OFFSET_PERCENTAGE = 0.2f;
-    private const float CLOUD_MIN_Y_BOUND = -0.4f;
-    private const float CLOUD_MAX_Y_BOUND = 0.4f;
-    #endregion
-
+    [Header("Biome Data")]
+    [SerializeField] private BiomeDataSO[] availableBiomes;
+    [SerializeField] public BiomeDataSO currentBiome { get; private set; }
+    [SerializeField] private TMP_Dropdown biomeDropdown;
+    
     [Header("Biome Layers")]
     public BiomeLayer skyLayer;
     public BiomeLayer ambientLayer;
-    public BiomeLayer groundLayer;
 
     [Header("Cloud System")]
     public RectTransform skyBG;
-    public GameObject cloudPrefab;
-    public Sprite[] cloudSprites;
-    public int maxClouds = 3;
-    public float cloudSpawnInterval = 5f;
-    public float baseCloudSpeed = 50f;
-    public Vector2 speedRange = new Vector2(1.0f, 2.0f);
-    public Vector2 scaleRange = new Vector2(0.2f, 0.5f); // Smaller clouds to reduce overlap
-    public Vector2 opacityRange = new Vector2(0.4f, 0.8f);
-    public int cloudLanes = 2; // Increased from 3 to 4 lanes
-    public float minCloudSpacing = 100f; // Increased from 50f
-    public float baseWaitTime = 5f; // Reduced since we have better spacing
-    private Vector2 lastSkyPosition;
-    private Vector2 lastSkySize;
-    private bool skyAreaChanged = false;
+    public RectTransform ambientBG;
+
+    [Header("Background Positioning")]
+    private Vector2 originalSkyBGPosition;
+    private Vector2 originalAmbientBGPosition;
+    private const float skyBGMinY = -1000f;
+    private const float ambientBGMinY = -800f;
+    
+    // Reference to SettingsManager to get height values
+    private SettingsManager settingsManager;
+    
+    // Reference to cloud system
+    private CloudAmbientSystem cloudSystem;
 
     [Header("Testing Controls")]
     public KeyCode toggleSkyKey = KeyCode.Alpha1;
     public KeyCode toggleAmbientKey = KeyCode.Alpha2;
     public KeyCode toggleCloudsKey = KeyCode.Alpha3;
+    public KeyCode nextBiomeKey = KeyCode.Alpha4;
+    public KeyCode prevBiomeKey = KeyCode.Alpha5;
 
     [Header("Events")]
     public UnityEngine.Events.UnityEvent<string, bool> OnLayerToggled;
     public UnityEngine.Events.UnityEvent<bool> OnCloudsToggled;
-
-    // Add events
-    public event System.Action<bool> OnCloudsEnabledChanged;
-    public event System.Action<BiomeLayer> OnLayerStateChanged;
-
-    [Header("Object Pooling")]
-    public bool useCloudPooling = true;
-    private Queue<GameObject> cloudPool = new Queue<GameObject>();
-
-    private List<GameObject> activeClouds = new List<GameObject>();
-    private Coroutine cloudSpawner;
-    private bool cloudsEnabled = true;
-    [SerializeField] private RectTransform gameAreaRect;
-
-    private Dictionary<int, float> lastCloudSpawnTime = new Dictionary<int, float>(); // Track last spawn time per lane
-    private Dictionary<int, float> lastCloudSpeed = new Dictionary<int, float>(); // Track last cloud speed per lane
-    private Dictionary<GameObject, float> cloudSpeeds = new Dictionary<GameObject, float>();
-
-    private float initialAreaHeight;
-    private float skyStartPos;
-    private float ambientStartPos;
-
-    // ───────── tuning knobs ─────────
-    [SerializeField] float ambientRatio = 0.50f;   // 0 = horizon locked, 1 = same speed as sky
-    [SerializeField] float minSkyPixels = 120f;    // keep at least this many sky pixels
+    public UnityEngine.Events.UnityEvent<BiomeDataSO> OnBiomeChanged;
     
-    private RectTransform skyRectTransform;
-    private RectTransform ambientRectTransform;
-    private RectTransform groundRectTransform;
+    // Spawned objects tracking
+    private List<GameObject> spawnedSkyObjects = new List<GameObject>();
+    private List<GameObject> spawnedEffectObjects = new List<GameObject>();
+    
+    private int currentBiomeIndex = 0;
 
     private void Awake()
     {
         ServiceLocator.Register(this);
         InitializeBiome();
 
-        SettingsManager settings = ServiceLocator.Get<SettingsManager>();
-        if (settings != null)
-        {
-            settings.OnGameAreaChanged.AddListener(OnGameAreaResized);
-        }
-    }
-
-    public void OnGameAreaResized()
-    {
-        // Clear current clouds and restart system
-        ClearAllClouds();
-        InitializeLanes();
+        // Store original positions
+        if (skyBG != null) originalSkyBGPosition = skyBG.anchoredPosition;
+        if (ambientBG != null) originalAmbientBGPosition = ambientBG.anchoredPosition;
         
-        // Update cached values
-        if (skyBG != null)
+        // Find cloud system
+        cloudSystem = GetComponent<CloudAmbientSystem>();
+        if (cloudSystem == null)
         {
-            lastSkyPosition = skyBG.anchoredPosition;
-            lastSkySize = skyBG.sizeDelta;
+            Debug.LogWarning("BiomeManager: CloudAmbientSystem not found!");
         }
     }
 
     private void Start()
     {
-        if (gameAreaRect == null)
+        // Get reference to SettingsManager
+        settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
         {
-            gameAreaRect = transform.parent.GetComponent<RectTransform>();
+            // Subscribe to game area resize events
+            settingsManager.OnGameAreaChanged.AddListener(UpdateBackgroundPositions);
+            
+            // Initialize positions with current game area size
+            UpdateBackgroundPositions();
         }
-
-        // Initialize lane tracking
-        InitializeLanes();
-        StartCloudSystem();
-
-        // NEW – record baseline numbers
-        initialAreaHeight = gameAreaRect.sizeDelta.y;
-
-        if (skyLayer.layerObject != null)
-            skyStartPos = skyLayer.layerObject.GetComponent<RectTransform>().anchoredPosition.y;
-
-        if (ambientLayer.layerObject != null)
-            ambientStartPos = ambientLayer.layerObject.GetComponent<RectTransform>().anchoredPosition.y;
-
+        
+        // Initialize dropdown if available
+        if (biomeDropdown != null)
+        {
+            InitializeDropdown();
+            biomeDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
+        }
+        
+        // Apply initial biome data
+        if (currentBiome != null)
+        {
+            ApplyBiomeData(currentBiome);
+        }
     }
 
     private void Update()
     {
         HandleTestingInput();
-        UpdateAllClouds();
-    }
-
-    private void LateUpdate() {
-        UpdateParallax();
-        UpdateVerticalCompress();
     }
 
     private void InitializeBiome()
     {
-        // Initialize layers if not set in inspector
-        if (skyLayer.layerObject == null)
-            Debug.LogWarning("Sky layer object is not set! Please assign it in the inspector.");
-        if (ambientLayer.layerObject == null)
-            Debug.LogWarning("Ambient layer object is not set! Please assign it in the inspector.");
-        if (groundLayer.layerObject == null)
-            Debug.LogWarning("Ground layer object is not set! Please assign it in the inspector.");
-
         // Set initial states
         SetLayerActive(skyLayer, skyLayer.isActive);
         SetLayerActive(ambientLayer, ambientLayer.isActive);
-        SetLayerActive(groundLayer, groundLayer.isActive);
-
-        // Cache RectTransform components
-        if (skyLayer.layerObject != null)
-            skyRectTransform = skyLayer.layerObject.GetComponent<RectTransform>();
-        if (ambientLayer.layerObject != null)
-            ambientRectTransform = ambientLayer.layerObject.GetComponent<RectTransform>();
-        if (groundLayer.layerObject != null)
-            groundRectTransform = groundLayer.layerObject.GetComponent<RectTransform>();
+        
+        // Set current biome index
+        if (availableBiomes != null && availableBiomes.Length > 0 && currentBiome != null)
+        {
+            for (int i = 0; i < availableBiomes.Length; i++)
+            {
+                if (availableBiomes[i] == currentBiome)
+                {
+                    currentBiomeIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+    
+    private void InitializeDropdown()
+    {
+        biomeDropdown.ClearOptions();
+        
+        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
+        foreach (BiomeDataSO biome in availableBiomes)
+        {
+            options.Add(new TMP_Dropdown.OptionData(biome.biomeName));
+        }
+        
+        biomeDropdown.AddOptions(options);
+        
+        // Set initial selection to match current biome
+        if (currentBiome != null)
+        {
+            for (int i = 0; i < availableBiomes.Length; i++)
+            {
+                if (availableBiomes[i] == currentBiome)
+                {
+                    biomeDropdown.value = i;
+                    break;
+                }
+            }
+        }
     }
 
     private void HandleTestingInput()
     {
-        if (Input.GetKeyDown(toggleSkyKey))
+        if (Input.GetKeyDown(toggleSkyKey)) ToggleLayer(ref skyLayer);
+        if (Input.GetKeyDown(toggleAmbientKey)) ToggleLayer(ref ambientLayer);
+        if (Input.GetKeyDown(toggleCloudsKey)) ToggleClouds();
+        
+        // Biome cycling
+        if (Input.GetKeyDown(nextBiomeKey)) ChangeBiome(1);
+        if (Input.GetKeyDown(prevBiomeKey)) ChangeBiome(-1);
+    }
+
+    private void UpdateBackgroundPositions()
+    {
+        if (settingsManager == null) return;
+        
+        // Get current game area height
+        float currentHeight = settingsManager.gameArea.sizeDelta.y;
+        
+        // Get min and max height values directly from SettingsManager constants
+        float minHeight = settingsManager.GetMinGameAreaHeight();
+        float maxHeight = settingsManager.GetMaxGameAreaHeight();
+        
+        // Calculate height percentage (0 = min height, 1 = max height)
+        float heightPercentage = Mathf.InverseLerp(minHeight, maxHeight, currentHeight);
+        
+        // Update skyBG position
+        if (skyBG != null)
         {
-            ToggleLayer(ref skyLayer);
+            Vector2 newPos = skyBG.anchoredPosition;
+            newPos.y = Mathf.Lerp(skyBGMinY, originalSkyBGPosition.y, heightPercentage);
+            skyBG.anchoredPosition = newPos;
         }
         
-        if (Input.GetKeyDown(toggleAmbientKey))
+        // Update ambientBG position
+        if (ambientBG != null)
         {
-            ToggleLayer(ref ambientLayer);
+            Vector2 newPos = ambientBG.anchoredPosition;
+            newPos.y = Mathf.Lerp(ambientBGMinY, originalAmbientBGPosition.y, heightPercentage);
+            ambientBG.anchoredPosition = newPos;
         }
+    }
+
+    private void ToggleClouds()
+    {
+        bool active = skyBG != null && skyBG.gameObject.activeSelf;
+        active = !active;
         
-        if (Input.GetKeyDown(toggleCloudsKey))
-        {
-            ToggleClouds();
-        }
-    }
-
-    private void UpdateParallax()
-    {
-        float timeOffset = Time.time * PARALLAX_TIME_MULTIPLIER;
+        if (skyBG != null)
+            skyBG.gameObject.SetActive(active);
+            
+        OnCloudsToggled?.Invoke(active);
         
-        if (skyLayer.layerObject != null && skyLayer.parallaxSpeed > 0 && skyRectTransform != null)
+        var uiManager = ServiceLocator.Get<UIManager>();
+        if (uiManager != null)
         {
-            Vector2 pos = skyRectTransform.anchoredPosition;
-            pos.x = Mathf.Sin(timeOffset * skyLayer.parallaxSpeed) * PARALLAX_AMPLITUDE;
-            skyRectTransform.anchoredPosition = pos;
-        }
-    }
-    
-    private void UpdateVerticalCompress()
-    {
-        if (gameAreaRect == null) return;
-
-        float lost = initialAreaHeight - gameAreaRect.rect.height;
-        if (lost < 0f) lost = 0f;
-
-        // Add null checks before accessing components
-        if (skyLayer.layerObject != null)
-        {
-            var skyRect = skyRectTransform ?? skyLayer.layerObject.GetComponent<RectTransform>();
-            float skyCrop = Mathf.Min(lost, skyRect.rect.height - minSkyPixels);
-            SlideBandY(skyLayer.layerObject, skyStartPos, skyCrop);
-        }
-
-        if (ambientLayer.layerObject != null)
-        {
-            float ambientCrop = lost * ambientRatio;
-            SlideBandY(ambientLayer.layerObject, ambientStartPos, ambientCrop);
-        }
-    }
-
-    private void SlideBandY(GameObject go, float startY, float downBy)
-    {
-        if (go == null) return;
-
-        RectTransform rt = null;
-        if (go == skyLayer.layerObject) rt = skyRectTransform;
-        else if (go == ambientLayer.layerObject) rt = ambientRectTransform;
-        else if (go == groundLayer.layerObject) rt = groundRectTransform;
-        else rt = go.GetComponent<RectTransform>(); // Fallback
-
-        if (rt == null) return;
-
-        Vector2 p = rt.anchoredPosition;
-        p.y = startY - downBy;
-        rt.anchoredPosition = p;
-    }
-
-    private void InitializeLanes()
-    {
-        lastCloudSpawnTime.Clear();
-        lastCloudSpeed.Clear();
-
-        for (int i = 0; i < cloudLanes; i++)
-        {
-            lastCloudSpawnTime[i] = -999f; // Long ago
-            lastCloudSpeed[i] = 0f;
+            uiManager.ShowMessage($"Clouds: {(active ? "ON" : "OFF")}", 1f);
         }
     }
 
@@ -258,7 +216,6 @@ public class BiomeManager : MonoBehaviour
     {
         layer.isActive = !layer.isActive;
         SetLayerActive(layer, layer.isActive);
-        
         OnLayerToggled?.Invoke(layer.layerName, layer.isActive);
         
         // Show message if UIManager is available
@@ -288,426 +245,178 @@ public class BiomeManager : MonoBehaviour
         ambientLayer.isActive = active;
         SetLayerActive(ambientLayer, active);
     }
-
-    public void SetLayerActive(string layerName, bool active)
-    {
-        var layer = GetLayerByName(layerName);
-        if (layer != null)
-        {
-            layer.isActive = active;
-            SetLayerActive(layer, active);
-        }
-    }
-
-    private BiomeLayer GetLayerByName(string name)
-    {
-        return name.ToLower() switch
-        {
-            "sky" => skyLayer,
-            "ambient" => ambientLayer,
-            "ground" => groundLayer,
-            _ => null
-        };
-    }
     #endregion
-
-    #region Cloud System
-    private void StartCloudSystem()
+    
+    #region Biome Management
+    
+    private void OnDropdownValueChanged(int index)
     {
-        if (cloudSpawner != null)
-            StopCoroutine(cloudSpawner);
-            
-        cloudSpawner = StartCoroutine(CloudSpawnerCoroutine());
-    }
-
-    private void StopCloudSystem()
-    {
-        if (cloudSpawner != null)
+        if (index >= 0 && index < availableBiomes.Length)
         {
-            StopCoroutine(cloudSpawner);
-            cloudSpawner = null;
+            ChangeBiomeByIndex(index);
         }
-        
-        ClearAllClouds();
     }
-
-    private IEnumerator CloudSpawnerCoroutine()
+    
+    /// <summary>
+    /// Change biome by relative offset (1 for next, -1 for previous)
+    /// </summary>
+    public void ChangeBiome(int offset)
     {
-        while (cloudsEnabled)
+        if (availableBiomes == null || availableBiomes.Length == 0) return;
+        
+        // Calculate new index with wrap-around
+        int newIndex = (currentBiomeIndex + offset) % availableBiomes.Length;
+        if (newIndex < 0) newIndex = availableBiomes.Length - 1;
+        
+        ChangeBiomeByIndex(newIndex);
+    }
+    
+    /// <summary>
+    /// Change biome by index in the available biomes array
+    /// </summary>
+    public void ChangeBiomeByIndex(int index)
+    {
+        if (availableBiomes == null || index < 0 || index >= availableBiomes.Length) return;
+        
+        BiomeDataSO newBiome = availableBiomes[index];
+        ApplyBiomeData(newBiome);
+        currentBiomeIndex = index;
+        
+        // Update dropdown if available
+        if (biomeDropdown != null && biomeDropdown.value != index)
         {
-            if (activeClouds.Count < maxClouds && skyLayer.isActive)
+            biomeDropdown.SetValueWithoutNotify(index);
+        }
+    }
+    
+    /// <summary>
+    /// Change biome by name
+    /// </summary>
+    public void ChangeBiomeByName(string biomeName)
+    {
+        if (availableBiomes == null) return;
+        
+        for (int i = 0; i < availableBiomes.Length; i++)
+        {
+            if (availableBiomes[i].biomeName == biomeName)
             {
-                SpawnCloud();
-            }
-            
-            yield return new WaitForSeconds(cloudSpawnInterval);
-        }
-    }
-
-    private void SpawnCloud()
-    {
-        if (!ValidateCloudSpawning()) return;
-
-        int availableLane = GetAvailableLane();
-        if (availableLane == -1) // No available lanes
-            return;
-
-        GameObject cloud = GetPooledCloud();
-        var cloudRect = cloud.GetComponent<RectTransform>();
-        var cloudImage = cloud.GetComponent<Image>();
-        
-        if (cloudRect == null || cloudImage == null)
-        {
-            Destroy(cloud);
-            return;
-        }
-
-        // Random sprite selection
-        cloudImage.sprite = cloudSprites[Random.Range(0, cloudSprites.Length)];
-        
-        // Random properties
-        Color cloudColor = cloudImage.color;
-        cloudColor.a = Random.Range(opacityRange.x, opacityRange.y);
-        cloudImage.color = cloudColor;
-        
-        float scale = Random.Range(scaleRange.x, scaleRange.y);
-        cloud.transform.localScale = Vector3.one * scale;
-        
-        // Random speed for this cloud
-        float speedMultiplier = Random.Range(speedRange.x, speedRange.y);
-        
-        // Calculate lane position
-        Rect skyRect = skyBG.rect;
-        float startX = -skyRect.width * 0.6f;
-        float laneY = CalculateLaneY(availableLane);
-        
-        cloudRect.anchoredPosition = new Vector2(startX, laneY);
-        
-        // Update lane tracking
-        lastCloudSpawnTime[availableLane] = Time.time;
-        lastCloudSpeed[availableLane] = baseCloudSpeed * speedMultiplier;
-        cloudSpeeds[cloud] = baseCloudSpeed * speedMultiplier;
-        
-        // Start movement
-        StartCoroutine(MoveCloud(cloud, speedMultiplier));
-        
-        activeClouds.Add(cloud);
-    }
-
-    private bool ValidateCloudSpawning()
-    {
-        if (cloudSprites == null || cloudSprites.Length == 0)
-        {
-            Debug.LogWarning("BiomeManager: No cloud sprites assigned!");
-            return false;
-        }
-        
-        if (cloudPrefab == null)
-        {
-            Debug.LogWarning("BiomeManager: No cloud prefab assigned!");
-            return false;
-        }
-        
-        if (skyBG == null)
-        {
-            Debug.LogWarning("BiomeManager: No sky background assigned!");
-            return false;
-        }
-        
-        return true;
-    }
-
-    private List<int> _cachedAvailableLanes = new List<int>(4); // Pre-allocate with capacity
-
-    private int GetAvailableLane()
-    {
-        _cachedAvailableLanes.Clear(); // Reuse existing list instead of creating a new one
-        
-        for (int i = 0; i < cloudLanes; i++)
-        {
-            if (IsLaneAvailable(i))
-            {
-                _cachedAvailableLanes.Add(i);
+                ChangeBiomeByIndex(i);
+                return;
             }
         }
         
-        if (_cachedAvailableLanes.Count == 0)
-            return -1;
-        
-        // Return random available lane
-        return _cachedAvailableLanes[Random.Range(0, _cachedAvailableLanes.Count)];
+        Debug.LogWarning($"BiomeManager: Biome with name '{biomeName}' not found!");
     }
-
-    private bool IsLaneAvailable(int laneIndex)
+    
+    /// <summary>
+    /// Apply the selected biome data
+    /// </summary>
+    private void ApplyBiomeData(BiomeDataSO biome)
     {
-        // Check if this lane has ever been used
-        if (!lastCloudSpawnTime.ContainsKey(laneIndex))
-            return true;
+        if (biome == null) return;
         
-        float timeSinceLastSpawn = Time.time - lastCloudSpawnTime[laneIndex];
+        // Update current biome
+        currentBiome = biome;
         
-        // Base wait time (5 seconds) + spacing-based wait time
-        float baseWait = baseWaitTime;
-        
-        // Additional wait based on spacing and speed
-        float spacingWait = 0f;
-        if (lastCloudSpeed.ContainsKey(laneIndex) && lastCloudSpeed[laneIndex] > 0)
+        // Update sky background
+        if (skyBG != null && biome.skyBackground != null)
         {
-            spacingWait = minCloudSpacing / lastCloudSpeed[laneIndex];
-        }
-        
-        float totalWaitTime = baseWait + spacingWait;
-        
-        // Optional: Add some debug logging
-        #if UNITY_EDITOR && DEBUG_CLOUDS
-        if (timeSinceLastSpawn < totalWaitTime)
-        {
-            Debug.Log($"Lane {laneIndex}: Waiting {totalWaitTime - timeSinceLastSpawn:F1}s more (Base: {baseWait}s + Spacing: {spacingWait:F1}s)");
-        }
-        #endif
-        
-        return timeSinceLastSpawn >= totalWaitTime;
-    }
-
-    private float CalculateLaneY(int laneIndex)
-    {
-        if (skyBG == null) return 0f;
-        
-        Rect skyRect = skyBG.rect;
-        
-        // Work in local coordinates where (0,0) is center of skyBG
-        // Sky top = +height/2, Sky bottom = -height/2
-        
-        float usableHeight = skyRect.height * CLOUD_USABLE_HEIGHT_PERCENTAGE; // Use 60% of sky height
-        float laneSpacing = usableHeight / cloudLanes;
-        
-        // Start from a reasonable position within sky bounds
-        float startFromTop = skyRect.height * CLOUD_TOP_OFFSET_PERCENTAGE; // 20% down from top
-        float actualStartY = (skyRect.height * 0.5f) - startFromTop; // Top edge minus offset
-        
-        // Calculate lane position
-        float laneY = actualStartY - (laneIndex * laneSpacing);
-        
-        // Ensure we're within sky bounds
-        float minY = -skyRect.height * 0.4f; // Don't go too low
-        float maxY = skyRect.height * 0.4f;  // Don't go too high
-        
-        laneY = Mathf.Clamp(laneY, minY, maxY);
-         
-        return laneY;
-    }
-
-    private IEnumerator MoveCloud(GameObject cloud, float speedMultiplier)
-    {
-        var cloudRect = cloud.GetComponent<RectTransform>();
-        if (cloudRect == null) yield break;
-        
-        float speed = baseCloudSpeed * speedMultiplier;
-        Rect skyRect = skyBG.rect;
-        float endX = skyRect.width * 0.6f;
-        
-        while (cloud != null && cloudRect.anchoredPosition.x < endX)
-        {
-            Vector2 pos = cloudRect.anchoredPosition;
-            pos.x += speed * Time.deltaTime;
-            cloudRect.anchoredPosition = pos;
-            
-            yield return null;
-        }
-        
-        if (cloud != null)
-        {
-            activeClouds.Remove(cloud);
-            ReturnCloudToPool(cloud);
-        }
-    }
-
-    private GameObject GetPooledCloud()
-    {
-        GameObject cloud;
-        
-        if (useCloudPooling && cloudPool.Count > 0)
-        {
-            cloud = cloudPool.Dequeue();
-            cloud.SetActive(true); // Reactivate
-            
-            // Reset transform to avoid issues
-            cloud.transform.localScale = Vector3.one;
-            
-            // Reset image properties
-            var cloudImage = cloud.GetComponent<Image>();
-            if (cloudImage != null)
+            Image skyImage = skyBG.GetComponent<Image>();
+            if (skyImage != null)
             {
-                cloudImage.color = Color.white; // Reset color/alpha
+                skyImage.sprite = biome.skyBackground;
             }
         }
-        else
-        {
-            cloud = Instantiate(cloudPrefab, skyBG);
-        }
         
-        return cloud;
-    }
-
-    private void ReturnCloudToPool(GameObject cloud)
-    {
-        if (useCloudPooling)
+        // Update ambient background
+        if (ambientBG != null && biome.ambientBackground != null)
         {
-            cloud.SetActive(false);
-            cloudPool.Enqueue(cloud);
-        }
-        else
-        {
-            Destroy(cloud);
-        }
-    }
-
-    public void ToggleClouds()
-    {
-        cloudsEnabled = !cloudsEnabled;
-        
-        if (cloudsEnabled)
-        {
-            StartCloudSystem();
-        }
-        else
-        {
-            StopCloudSystem();
-        }
-        
-        // Raise events instead of calling UIManager directly
-        OnCloudsEnabledChanged?.Invoke(cloudsEnabled);
-    }
-
-    private void ClearAllClouds()
-    {
-        foreach (var cloud in activeClouds)
-        {
-            if (cloud != null)
-                ReturnCloudToPool(cloud);
-        }
-        activeClouds.Clear();
-        
-        // Reset lane tracking
-        InitializeLanes();
-    }
-
-    private void UpdateAllClouds()
-    {
-        if (!cloudsEnabled) return;
-        
-        for (int i = activeClouds.Count - 1; i >= 0; i--)
-        {
-            GameObject cloud = activeClouds[i];
-            if (cloud == null) continue;
-            
-            var cloudRect = cloud.GetComponent<RectTransform>();
-            if (cloudRect == null) continue;
-            
-            float speed = cloudSpeeds[cloud];
-            Vector2 pos = cloudRect.anchoredPosition;
-            pos.x += speed * Time.deltaTime;
-            cloudRect.anchoredPosition = pos;
-            
-            // Check if cloud reached the end
-            Rect skyRect = skyBG.rect;
-            float endX = skyRect.width * CLOUD_END_X_OFFSET;
-            
-            if (pos.x > endX)
+            Image ambientImage = ambientBG.GetComponent<Image>();
+            if (ambientImage != null)
             {
-                activeClouds.RemoveAt(i);
-                cloudSpeeds.Remove(cloud);
-                ReturnCloudToPool(cloud);
+                ambientImage.sprite = biome.ambientBackground;
             }
         }
+        
+        // Update cloud system
+        if (cloudSystem != null)
+        {
+            cloudSystem.UpdateBiomeData(biome);
+        }
+        
+        // Clear existing sky objects
+        ClearSpawnedObjects(spawnedSkyObjects);
+        
+        // Spawn new sky objects
+        if (biome.skyObjects != null && biome.skyObjects.Length > 0 && skyBG != null)
+        {
+            foreach (GameObject prefab in biome.skyObjects)
+            {
+                if (prefab != null)
+                {
+                    GameObject obj = Instantiate(prefab, skyBG);
+                    spawnedSkyObjects.Add(obj);
+                }
+            }
+        }
+        
+        // Clear existing effect objects
+        ClearSpawnedObjects(spawnedEffectObjects);
+        
+        // Spawn new effect objects
+        if (biome.effectPrefabs != null && biome.effectPrefabs.Length > 0 && skyBG != null)
+        {
+            foreach (GameObject prefab in biome.effectPrefabs)
+            {
+                if (prefab != null)
+                {
+                    GameObject obj = Instantiate(prefab, skyBG);
+                    spawnedEffectObjects.Add(obj);
+                }
+            }
+        }
+        
+        // Invoke the biome changed event
+        OnBiomeChanged?.Invoke(biome);
+        
+        // Show message if UIManager is available
+        var uiManager = ServiceLocator.Get<UIManager>();
+        if (uiManager != null)
+        {
+            uiManager.ShowMessage($"Biome: {biome.biomeName}", 1.5f);
+        }
     }
-    #endregion
-
-    #region Public API
-    public void SetCloudSpeed(float multiplier)
+    
+    private void ClearSpawnedObjects(List<GameObject> objects)
     {
-        baseCloudSpeed *= multiplier;
+        foreach (GameObject obj in objects)
+        {
+            if (obj != null)
+            {
+                Destroy(obj);
+            }
+        }
+        
+        objects.Clear();
     }
-
-    public void SetCloudSpawnRate(float interval)
-    {
-        cloudSpawnInterval = interval;
-    }
-
-    public bool IsSkyLayerActive() => skyLayer.isActive;
-    public bool IsAmbientLayerActive() => ambientLayer.isActive;
-    public bool AreCloudsEnabled() => cloudsEnabled;
     #endregion
 
     private void OnDestroy()
     {
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
+        {
+            settingsManager.OnGameAreaChanged.RemoveListener(UpdateBackgroundPositions);
+        }
+        
+        if (biomeDropdown != null)
+        {
+            biomeDropdown.onValueChanged.RemoveListener(OnDropdownValueChanged);
+        }
+        
+        ClearSpawnedObjects(spawnedSkyObjects);
+        ClearSpawnedObjects(spawnedEffectObjects);
+        
         ServiceLocator.Unregister<BiomeManager>();
-        StopCloudSystem();
-    }
-
-    // Gizmos for debugging
-    private void OnDrawGizmosSelected()
-    {
-        if (skyBG == null) return;
-
-        Rect skyRect = skyBG.rect;
-
-        // Draw sky area boundary (WORLD coordinates)
-        Gizmos.color = Color.cyan;
-        Vector3 skyWorldPos = skyBG.TransformPoint(Vector3.zero); // Convert to world
-        Gizmos.DrawWireCube(skyWorldPos, new Vector3(skyBG.rect.width, skyBG.rect.height, 0));
-
-        // Draw cloud lanes (CORRECTED coordinates)
-        Gizmos.color = Color.yellow;
-        
-        for (int i = 0; i < cloudLanes; i++)
-        {
-            float laneYLocal = CalculateLaneY(i); // Local coordinate
-            Vector3 laneWorldPos = skyBG.TransformPoint(new Vector3(0, laneYLocal, 0)); // Convert to world
-            
-            Vector3 laneStart = new Vector3(
-                skyWorldPos.x - skyBG.rect.width * 0.5f, 
-                laneWorldPos.y, // Use converted world position
-                0
-            );
-            Vector3 laneEnd = new Vector3(
-                skyWorldPos.x + skyBG.rect.width * 0.5f, 
-                laneWorldPos.y, // Use converted world position
-                0
-            );
-            
-            Gizmos.DrawLine(laneStart, laneEnd);
-            
-            #if UNITY_EDITOR
-            UnityEditor.Handles.Label(laneStart, $"Lane {i}");
-            #endif
-        }
-
-        // Draw spawn and exit zones
-        Gizmos.color = Color.green; // Spawn zone
-        Vector3 spawnZone = new Vector3(
-            skyBG.position.x - skyRect.width * CLOUD_START_X_OFFSET,
-            skyBG.position.y,
-            0
-        );
-        Gizmos.DrawWireCube(spawnZone, new Vector3(20f, skyRect.height, 0));
-        
-        Gizmos.color = Color.red; // Exit zone
-        Vector3 exitZone = new Vector3(
-            skyBG.position.x + skyRect.width * CLOUD_END_X_OFFSET,
-            skyBG.position.y,
-            0
-        );
-        Gizmos.DrawWireCube(exitZone, new Vector3(20f, skyRect.height, 0));
-    }
-
-    private void PreWarmCloudPool(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            GameObject cloud = Instantiate(cloudPrefab, skyBG);
-            cloud.SetActive(false);
-            cloudPool.Enqueue(cloud);
-        }
     }
 }

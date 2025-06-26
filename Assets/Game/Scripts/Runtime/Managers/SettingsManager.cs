@@ -17,13 +17,9 @@ public class SettingsManager : MonoBehaviour
 
     [Header("Game Area Incremental Control")]
     public IncrementSettingControl widthControl;
+    public IncrementSettingControl heightControl;
     public IncrementSettingControl horizontalPositionControl;
-    public IncrementSettingControl heightPositionControl;
-
-    [Header("Game Area Size")]
-    public Button gameAreaSizeIncreaseButton;
-    public Button gameAreaSizeDecreaseButton;
-    public Button gameAreaSizeResetButton;
+    public IncrementSettingControl verticalPositionControl;
 
     [Header("UI Size")]
     public Button uiSizeIncreaseButton;
@@ -71,6 +67,7 @@ public class SettingsManager : MonoBehaviour
 
     [Header("Saved Settings")]
     private float savedGameAreaWidth;
+    private float savedGameAreaHeight;
     private float savedGameAreaX;
     private float savedGameAreaY;
     private float savedUIScale;
@@ -155,13 +152,22 @@ public class SettingsManager : MonoBehaviour
 
     private void InitializeGameAreaConfig()
     {
-        widthControl.Initialize(DEFAULT_GAME_AREA_WIDTH, MIN_SIZE, maxScreenWidth);
+        widthControl.Initialize(
+            defaultVal: DEFAULT_GAME_AREA_WIDTH,
+            min: MIN_SIZE,
+            max: maxScreenWidth
+        );
+        heightControl.Initialize(
+            defaultVal: DEFAULT_GAME_AREA_HEIGHT,
+            min: MIN_SIZE,
+            max: maxScreenHeight
+        );
         horizontalPositionControl.Initialize(
             defaultVal: 0f,
             min: -maxScreenWidth / 2f,
             max: maxScreenWidth / 2f
         );
-        heightPositionControl.Initialize(
+        verticalPositionControl.Initialize(
             defaultVal: -500f,
             min: -maxScreenHeight / 2f,
             max: maxScreenHeight / 2f
@@ -178,15 +184,13 @@ public class SettingsManager : MonoBehaviour
     private void RegisterGameAreaCallbacks()
     {
         widthControl.onValueChanged += UpdateGameAreaWidth;
+        heightControl.onValueChanged += UpdateGameAreaHeight;
         horizontalPositionControl.onValueChanged += UpdateGameAreaHorizontalPosition;
-        heightPositionControl.onValueChanged += UpdateGameAreaVerticalPosition;
+        verticalPositionControl.onValueChanged += UpdateGameAreaVerticalPosition;
 
     }
     private void RegisterButtonCallbacks()
     {
-        gameAreaSizeIncreaseButton.onClick.AddListener(() => AdjustGameAreaSize(10f));
-        gameAreaSizeDecreaseButton.onClick.AddListener(() => AdjustGameAreaSize(-10f));
-        gameAreaSizeResetButton.onClick.AddListener(() => ResetGameAreaSize());
         uiSizeIncreaseButton.onClick.AddListener(() => AdjustUIScale(0.05f));
         uiSizeDecreaseButton.onClick.AddListener(() => AdjustUIScale(-0.05f));
         uiSizeResetButton.onClick.AddListener(() => ResetUIScale());
@@ -203,10 +207,6 @@ public class SettingsManager : MonoBehaviour
 
     private void UnregisterAllCallbacks()
     {
-
-        gameAreaSizeIncreaseButton.onClick.RemoveAllListeners();
-        gameAreaSizeDecreaseButton.onClick.RemoveAllListeners();
-        gameAreaSizeResetButton.onClick.RemoveAllListeners();
         uiSizeIncreaseButton.onClick.RemoveAllListeners();
         uiSizeDecreaseButton.onClick.RemoveAllListeners();
         uiSizeResetButton.onClick.RemoveAllListeners();
@@ -263,10 +263,6 @@ public class SettingsManager : MonoBehaviour
         pos.y = currentBottom + (value * gameArea.pivot.y);
         gameArea.anchoredPosition = pos;
 
-        // UpdateValueText(heightValueText, value, DECIMAL_FORMAT);
-        // if (heightInputField != null) heightInputField.text = value.ToString(DECIMAL_FORMAT);
-
-        // Only reposition monsters occasionally during continuous resizing
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
             RepositionMonstersAfterScaling();
@@ -283,8 +279,6 @@ public class SettingsManager : MonoBehaviour
         Vector2 pos = gameArea.anchoredPosition;
         pos.x = value;
         gameArea.anchoredPosition = pos;
-
-        // No need to sync UI anymore, IncrementSettingControl already does
     }
     public void UpdateGameAreaVerticalPosition(float value)
     {
@@ -303,8 +297,6 @@ public class SettingsManager : MonoBehaviour
 
         UpdateGameAreaHeight(newHeight);
     }
-
-
 
     public void AdjustUIScale(float delta)
     {
@@ -434,6 +426,7 @@ public class SettingsManager : MonoBehaviour
 
         // Cache saved values for Cancel
         savedGameAreaWidth = settings.gameAreaWidth;
+        savedGameAreaHeight = settings.gameAreaHeight;
         savedGameAreaX = settings.gameAreaX;
         savedGameAreaY = settings.gameAreaY;
         savedUIScale = settings.uiScale;
@@ -449,9 +442,9 @@ public class SettingsManager : MonoBehaviour
 
         // Update IncrementSettingControl UI fields
         widthControl.SetValueWithoutNotify(settings.gameAreaWidth);
+        heightControl.SetValueWithoutNotify(settings.gameAreaHeight);
         horizontalPositionControl.SetValueWithoutNotify(settings.gameAreaX);
-        heightPositionControl.SetValueWithoutNotify(settings.gameAreaY);
-        Debug.Log($"Loaded settings: Width={settings.gameAreaWidth}, X={settings.gameAreaX}, Y={settings.gameAreaY}, UIScale={settings.uiScale}, LanguageIndex={settings.languageIndex}, ScreenState={settings.screenState}");
+        verticalPositionControl.SetValueWithoutNotify(settings.gameAreaY);
 
         // Set dropdown value without triggering change callback
         if (languageDropdown != null && settings.languageIndex < languageDropdown.options.Count)
@@ -486,11 +479,13 @@ public class SettingsManager : MonoBehaviour
     {
         // Revert UI/Game area settings
         UpdateGameAreaWidth(savedGameAreaWidth);
+        UpdateGameAreaHeight(savedGameAreaHeight);
         UpdateGameAreaHorizontalPosition(savedGameAreaX);
         UpdateGameAreaVerticalPosition(savedGameAreaY);
         widthControl.SetValueWithoutNotify(savedGameAreaWidth);
+        heightControl.SetValueWithoutNotify(savedGameAreaHeight);
         horizontalPositionControl.SetValueWithoutNotify(savedGameAreaX);
-        heightPositionControl.SetValueWithoutNotify(savedGameAreaY);
+        verticalPositionControl.SetValueWithoutNotify(savedGameAreaY);
 
         UpdateUIScale(savedUIScale);
         // languageDropdown.value = savedLanguageIndex;
@@ -509,7 +504,6 @@ public class SettingsManager : MonoBehaviour
 
         foreach (var module in savableSettingsModules)
             module.SaveSettings(); // optionally save before new game
-
         // gameManager?.StartNewGame(); // Or your scene load logic
     }
     private void OnClickCloseButton()
@@ -517,5 +511,13 @@ public class SettingsManager : MonoBehaviour
         settingPanel.SetActive(false); // Hide settings panel
     }
 
+    public float GetMinGameAreaHeight()
+    {
+        return MIN_SIZE;
+    }
 
+    public float GetMaxGameAreaHeight()
+    {
+        return DEFAULT_GAME_AREA_HEIGHT;
+    }
 }

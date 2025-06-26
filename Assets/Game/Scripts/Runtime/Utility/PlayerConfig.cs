@@ -73,6 +73,7 @@ public class PlayerConfig
 public class SettingsData
 {
     public float gameAreaWidth = 1920f;
+    public float gameAreaHeight = 1080f;
     public float gameAreaX = 0f;
     public float gameAreaY = 0f;
     public float uiScale = 1f;
