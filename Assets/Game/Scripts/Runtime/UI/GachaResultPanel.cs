@@ -4,12 +4,12 @@ using TMPro;
 using Coffee.UIExtensions;
 using DG.Tweening;
 using System.Collections;
+using Spine.Unity;
 
 public class GachaResultPanel : MonoBehaviour
 {
     [Header("Core Elements")]
     public GameObject root;
-    public Image monsterImage;
     public TextMeshProUGUI monsterNameText;
     public TextMeshProUGUI rarityText;
 
@@ -17,6 +17,8 @@ public class GachaResultPanel : MonoBehaviour
     public GameObject chest;
     public GameObject egg;
     public GameObject monsterDisplay;
+    public SkeletonGraphic monsterSkeletonGraphic;
+    public Material monsterMaterial; 
 
     [Header("Effects")]
     public UIParticle shineVFX;
@@ -111,14 +113,19 @@ public class GachaResultPanel : MonoBehaviour
         seq.AppendInterval(GetClipLength(eggAnimator, "egg"));
         seq.JoinCallback(() =>
         {
-            shineVFX?.gameObject.SetActive(true);
-            shineVFX?.Play();
+            shineVFX.gameObject.SetActive(true);
+            shineVFX.Play();
         });
+        seq.AppendInterval(2f);
         seq.Append(eggCanvas.DOFade(0, 0.2f).SetEase(fadeOutEggEase));
         // 4. Show monster info 
         seq.AppendCallback(() =>
         {
             monsterNameText.text = monster.monsterName;
+            monsterSkeletonGraphic.skeletonDataAsset = monster.monsterSpine[0];
+            monsterSkeletonGraphic.material = monsterMaterial;
+            monsterSkeletonGraphic.startingAnimation = monsterSkeletonGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";
+            monsterSkeletonGraphic.Initialize(true);
             rarityText.text = monster.monType.ToString().ToUpperInvariant();
         });
         // 5. Monster display: fade in + scale punch
@@ -159,8 +166,8 @@ public class GachaResultPanel : MonoBehaviour
         monsterCanvas.blocksRaycasts = false;
 
         // Stop effects
-        shineVFX?.Stop();
-        confettiVFX?.Stop();
+        shineVFX.Stop();
+        confettiVFX.Stop();
     }
 
     private void HideResultPanel()
