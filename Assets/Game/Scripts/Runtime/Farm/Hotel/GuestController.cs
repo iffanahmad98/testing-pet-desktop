@@ -119,16 +119,16 @@ namespace MagicalGarden.Hotel
                 hasRequest = true;
                 currentRoom.SetHotelTileDirty(true);
             }
-            else if (randomType == GuestRequestType.Food)
-            {
-                foodBtn.SetActive(true);
-                hasRequest = true;
-            }
-            else if (randomType == GuestRequestType.Gift)
-            {
-                giftBtn.SetActive(true);
-                hasRequest = true;
-            }
+            // else if (randomType == GuestRequestType.Food)
+            // {
+            //     foodBtn.SetActive(true);
+            //     hasRequest = true;
+            // }
+            // else if (randomType == GuestRequestType.Gift)
+            // {
+            //     giftBtn.SetActive(true);
+            //     hasRequest = true;
+            // }
             else
             {
 
@@ -190,6 +190,8 @@ namespace MagicalGarden.Hotel
             }
             if (type == GuestRequestType.RoomService)
             {
+                HotelManager.Instance.npcHotel.hotelRoomRef = currentRoom;
+                StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
                 // currentRoom.SetHotelTileDirty(false);
             }
         }

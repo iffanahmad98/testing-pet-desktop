@@ -21,10 +21,11 @@ namespace MagicalGarden.AI
             // return base.CustomState(stateName);
         }
 
-        /// <summary>
-        /// Start is called on the frame when a script is enabled just before
-        /// any of the Update methods is called the first time.
-        /// </summary>
+        public void RunIdle()
+        { 
+            StartNewCoroutine(IdleState());
+        }
+
         void Start()
         {
             base.Start();
@@ -40,12 +41,12 @@ namespace MagicalGarden.AI
             if (!destinationOpt.HasValue)
             {
                 Debug.LogWarning("🚫 Tidak ada wandering tile tersedia!");
-                stateLoopCoroutine = StartCoroutine(MoveToTarget(destinationTile));
+                StartNewCoroutine(MoveToTarget(destinationTile));
                 yield break;
             }
 
             Vector2Int destination = destinationOpt.Value;
-            stateLoopCoroutine = StartCoroutine(MoveToTarget(destination));
+            StartNewCoroutine(MoveToTarget(destination));
         }
         private IEnumerator WanderRoutine()
         {
@@ -178,7 +179,7 @@ namespace MagicalGarden.AI
 
             SetAnimation("idle");
             isOverridingState = false;
-            stateLoopCoroutine = StartCoroutine(StateLoop());
+            StartNewCoroutine(StateLoop());
         }
         private List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
         {
@@ -207,13 +208,13 @@ namespace MagicalGarden.AI
         public void SetupPetHotel()
         {
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
-            StartCoroutine(SetupPetHotelRoutine());
+            StartNewCoroutine(SetupPetHotelRoutine());
         }
         [ContextMenu("test to wander")]
         public void WanderTest()
         {
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
-            StartCoroutine(WanderRoutine());
+            StartNewCoroutine(WanderRoutine());
         }
         
     }

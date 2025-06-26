@@ -39,6 +39,7 @@ namespace MagicalGarden.Manager
         private Vector3Int previousCellPos = Vector3Int.zero;
         private bool hasPreviousTile = false;
         private ItemData currentItemdata;
+        public bool disableTileSelect = false;
 
         private void Awake()
         {
@@ -89,6 +90,7 @@ namespace MagicalGarden.Manager
         }
         void Update()
         {
+            if (disableTileSelect) return;
             // if (Input.GetMouseButtonDown(0))
             // {
             //     Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -165,11 +167,11 @@ namespace MagicalGarden.Manager
                 switch (currentAction)
                 {
                     case TileAction.Seed:
-                        if (currentItemdata.itemType == ItemType.MonsterSeed)
+                        if (currentItemdata.itemType == Inventory.ItemType.MonsterSeed)
                         {
                             if (PlantManager.Instance.CanPlantMonsterSeedAt(cellPos))
                             {
-                                PlantManager.Instance.PlantSeedAt(cellPos, currentItemdata);
+                                PlantManager.Instance.PlantSeedAt(cellPos, currentItemdata, true);
                             }
                             else
                             {

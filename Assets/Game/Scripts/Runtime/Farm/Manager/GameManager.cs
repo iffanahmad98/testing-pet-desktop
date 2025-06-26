@@ -4,30 +4,22 @@ namespace MagicalGarden.Farm
 {
     public class GameManager : MonoBehaviour
     {
-        public float dragSpeed = 5f;
-        private Vector3 dragOrigin;
-        private bool isDragging = false;
-
-        void Update()
+        public static GameManager Instance;
+        public CameraDragMove cameraRig;
+        private void Awake()
         {
-            if (Input.GetMouseButtonDown(2)) // Middle mouse button
-            {
-                isDragging = true;
-                dragOrigin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            }
+            Instance = this;
+        }
 
-            if (Input.GetMouseButtonUp(2))
-            {
-                isDragging = false;
-            }
-
-            if (isDragging)
-            {
-                Vector3 currentPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Vector3 difference = dragOrigin - currentPos;
-
-                transform.position += difference;
-            }
+        public void DisableCameraRig()
+        {
+            cameraRig.canDrag = false;
+            cameraRig.canZoom = false;
+        }
+        public void EnableCameraRig()
+        {
+            cameraRig.canDrag = true;
+            cameraRig.canZoom = true;
         }
     }
 }

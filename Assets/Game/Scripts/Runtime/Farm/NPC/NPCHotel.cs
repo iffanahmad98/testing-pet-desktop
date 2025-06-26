@@ -31,13 +31,41 @@ namespace MagicalGarden.AI
         }
 
 
-        private IEnumerator NPCHotelCleaning()
+        public IEnumerator NPCHotelCleaning()
         {
             yield return new WaitForSeconds(1f);
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
             stateLoopCoroutine = StartCoroutine(MoveToTarget(new Vector2Int(hotelRoomRef.hotelPosition.x, hotelRoomRef.hotelPosition.y)));
         }
-        
+
+        public IEnumerator CleaningRoutine(float cleanDuration = 5f)
+        {
+            Debug.Log("🧹 Memulai bersih-bersih...");
+
+            // 2. Timer countdown (bisa sambil munculkan efek/animasi jika perlu)
+            float timer = 0f;
+            while (timer < cleanDuration)
+            {
+                timer += Time.deltaTime;
+                // (opsional: tambahkan efek partikel atau animasi di sini)
+                yield return null;
+            }
+
+            Debug.Log("✅ Selesai bersih-bersih.");
+
+            // 3. NPC muncul kembali
+            GetComponent<MeshRenderer>().enabled = true;
+
+            // 4. Ubah tile kamar menjadi bersih
+            if (hotelRoomRef != null)
+            {
+                hotelRoomRef.SetHotelTileDirty(false); // ubah tile ke bersih
+            }
+
+            // 5. Lanjut wander
+            stateLoopCoroutine = StartCoroutine(StateLoop());
+        }
+
         public IEnumerator MoveToTarget(Vector2Int destination, bool walkOnly = false)
         {
             if (!IsWalkableTile(destination))
@@ -110,6 +138,8 @@ namespace MagicalGarden.AI
 
             SetAnimation("idle");
             isOverridingState = false;
+            GetComponent<MeshRenderer>().enabled = false;
+            stateLoopCoroutine = StartCoroutine(CleaningRoutine());
         }
         private List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
         {

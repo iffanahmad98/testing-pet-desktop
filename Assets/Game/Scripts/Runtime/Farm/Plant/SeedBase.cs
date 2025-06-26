@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections;
 using System;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Inventory;
 using MagicalGarden.Manager;
-using Unity.Mathematics;
+using MagicalGarden.AI;
+using DG.Tweening;
 
 namespace MagicalGarden.Farm
 {
@@ -23,6 +24,7 @@ namespace MagicalGarden.Farm
     public abstract class SeedBase : MonoBehaviour
     {
         public string seedName;
+        public bool typeMonster;
         public int stage = 0;
         public float timeInStage = 0f;
         public System.DateTime lastWateredTime;
@@ -45,7 +47,7 @@ namespace MagicalGarden.Farm
 
             if (status == PlantStatus.Mati || IsReadyToHarvest())
                 return;
-
+            
             DateTime now = PlantManager.Instance?.simulatedNow ?? DateTime.Now;
             double hoursSinceWatered = (now - lastWateredTime).TotalHours;
 
@@ -55,9 +57,11 @@ namespace MagicalGarden.Farm
                 TileManager.Instance.tilemapWater.SetTile(cellPosition, null);
             }
 
-            bool isWatered = hoursSinceWatered <= 1;
-            if (!isWatered)
+            bool isWatered = lastWateredTime > DateTime.MinValue;
+
+            if (!isWatered || hoursSinceWatered < 1)
             {
+                Debug.LogWarning($"⏱️ Tidak bisa tumbuh. Disiram: {isWatered}, Selisih jam: {hoursSinceWatered:F2}");
                 CheckHealth();
                 return;
             }
@@ -70,7 +74,7 @@ namespace MagicalGarden.Farm
 
             var currentStage = growthRequirements[stage];
 
-            Debug.Log($"[{seedName}] Update: +{boostedHours:F2}h (base: {deltaHours:F2}h, boost: {fertilizerBoost}%) | Total timeInStage: {timeInStage:F2}/{currentStage.requiredHours}h");
+            Debug.LogError($"[{seedName}] Update: +{boostedHours:F2}h (base: {deltaHours:F2}h, boost: {fertilizerBoost}%) | Total timeInStage: {timeInStage:F2}/{currentStage.requiredHours}h");
 
             // Naik ke tahap berikutnya jika cukup waktu
             if (timeInStage >= currentStage.requiredHours)
@@ -170,17 +174,17 @@ namespace MagicalGarden.Farm
 
             switch (status)
             {
-                // case PlantStatus.Normal:
-                //     tilemap.SetTile(cellPosition, stageTiles[Mathf.Min(stage, stageTiles.Count - 1)]);
-                //     break;
-                // case PlantStatus.Layu:
-                //     tilemap.SetTileFlags(cellPosition, TileFlags.None);
-                //     tilemap.SetColor(cellPosition, Color.yellow); // contoh: layu → kuning
-                //     break;
-                // case PlantStatus.Mati:
-                //     tilemap.SetTileFlags(cellPosition, TileFlags.None);
-                //     tilemap.SetColor(cellPosition, Color.gray); // contoh: mati → abu-abu
-                //     break;
+                case PlantStatus.Normal:
+                    tilemap.SetTile(cellPosition, itemData.stageTiles[Mathf.Min(stage, itemData.stageTiles.Count - 1)]);
+                    break;
+                case PlantStatus.Layu:
+                    tilemap.SetTileFlags(cellPosition, TileFlags.None);
+                    tilemap.SetColor(cellPosition, Color.yellow); // contoh: layu → kuning
+                    break;
+                case PlantStatus.Mati:
+                    tilemap.SetTileFlags(cellPosition, TileFlags.None);
+                    tilemap.SetColor(cellPosition, Color.gray); // contoh: mati → abu-abu
+                    break;
             }
         }
         
@@ -188,23 +192,58 @@ namespace MagicalGarden.Farm
         public virtual void Harvest()
         {
             Debug.Log($"{seedName} harvested at {cellPosition}");
-
-            foreach (var drop in itemData.dropItems)
+            if (!typeMonster)
             {
-                if (UnityEngine.Random.value <= drop.dropChance)
-                {
-                    int amount = UnityEngine.Random.Range(drop.minAmount, drop.maxAmount + 1);
-                    InventoryManager.Instance.AddItem(drop.item, amount);
-                    // for (int i = 0; i < Mathf.Min(amount, 3); i++)
-                    // {
-                    //     AnimateDrop(drop.item, TileManager.Instance.tilemapSeed.CellToWorld(cellPosition) + Vector3.one * 0.5f);
-                    // }
-                }
-            }
+                GatchaMonsterEgg(TileManager.Instance.tilemapSeed.CellToWorld(cellPosition));
+                markHarvest.gameObject.SetActive(false);
 
-            InventoryManager.Instance.inventoryUI.RefreshUI();
-            markHarvest.gameObject.SetActive(false);
-            Clear();
+            } else {
+                foreach (var drop in itemData.dropItems)
+                {
+                    if (UnityEngine.Random.value <= drop.dropChance)
+                    {
+                        int amount = UnityEngine.Random.Range(drop.minAmount, drop.maxAmount + 1);
+                        InventoryManager.Instance.AddItem(drop.item, amount);
+                        // for (int i = 0; i < Mathf.Min(amount, 3); i++)
+                        // {
+                        //     AnimateDrop(drop.item, TileManager.Instance.tilemapSeed.CellToWorld(cellPosition) + Vector3.one * 0.5f);
+                        // }
+                    }
+                }
+
+                InventoryManager.Instance.inventoryUI.RefreshUI();
+                markHarvest.gameObject.SetActive(false);
+                Clear();
+            }
+        }
+
+        public void GatchaMonsterEgg(Vector3 cellPosition)
+        {
+            TileManager.Instance.disableTileSelect = true;
+            GameManager.Instance.DisableCameraRig();
+            CursorIconManager.Instance.HideSeedIcon();
+            UIManager.Instance.ToggleMenuBar();
+            PlantManager.Instance.cameraMove.FocusOnTarget(cellPosition, 4f, 1f);
+            // Simulasikan evolusi 3 detik
+            StartCoroutine(WaitAndZoomOut(cellPosition));
+        }
+
+        IEnumerator WaitAndZoomOut(Vector3 _cellPosition)
+        {
+            yield return new WaitForSeconds(2f);
+            TileManager.Instance.tilemapSeed.SetTile(cellPosition, null);
+            TileManager.Instance.tilemapWater.SetTile(cellPosition, null);
+            var monsterEggPrefab = Instantiate(PlantManager.Instance.monsterEggPrefab, _cellPosition + PlantManager.Instance.offsetEgg, Quaternion.identity);
+            yield return new WaitForSeconds(1f);
+            monsterEggPrefab.GetComponent<EggMonsterController>().vfxShinePrefab.SetActive(true);
+            var monsterPrefab = Instantiate(HotelManager.Instance.GetRandomGuestPrefab(), _cellPosition + PlantManager.Instance.offsetEgg, Quaternion.identity);
+            monsterPrefab.transform.localScale = Vector3.zero;
+            monsterPrefab.transform.DOScale(new Vector3(0.2f, 0.2f, 0.2f), 0.5f).SetEase(Ease.OutBack);
+            monsterPrefab.GetComponent<PetMonsterHotel>().RunIdle();
+            monsterEggPrefab.GetComponent<EggMonsterController>().menu.SetActive(true);
+            monsterEggPrefab.GetComponent<EggMonsterController>().monsterGatcha = monsterPrefab;
+            // yield return new WaitForSeconds(5f);
+            // PlantManager.Instance.cameraMove.ResetZoom(0.5f);
         }
 
         private void AnimateDrop(ItemData item, Vector3 worldPos)

@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using JetBrains.Annotations;
+using System.Collections;
 using MagicalGarden.Inventory;
 using MagicalGarden.Manager;
 using System.Linq;
+using Unity.Mathematics;
+// using System.Numerics;
 
 namespace MagicalGarden.Farm
 {
@@ -21,6 +23,11 @@ namespace MagicalGarden.Farm
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         [Header("Simulated Time")]
         public float timeMultiplier = 60f; // 1 detik real = 1 menit in-game
+
+        [Header("Monster")]
+        public GameObject monsterEggPrefab;
+        public Vector3 offsetEgg;
+        public CameraDragMove cameraMove;
 
         private void Update()
         {
@@ -64,7 +71,7 @@ namespace MagicalGarden.Farm
             return plants.Values;
         }
 
-        public void PlantSeedAt(Vector3Int cellPosition, ItemData itemdata)
+        public void PlantSeedAt(Vector3Int cellPosition, ItemData itemdata, bool monsterSeed = false)
         {
             if (plants.ContainsKey(cellPosition))
             {
@@ -83,6 +90,7 @@ namespace MagicalGarden.Farm
             plant.seed.plantedTime = simulatedNow;
             plant.seed.cellPosition = cellPosition;
             plant.seed.itemData = itemdata;
+            plant.seed.typeMonster = monsterSeed;
             plant.seed.seedName = itemdata.displayName;
 
             TileManager.Instance.tilemapSeed.SetTile(cellPosition, itemdata.stageTiles[0]);
@@ -164,7 +172,7 @@ namespace MagicalGarden.Farm
                 if (plant.seed.IsReadyToHarvest())
                 {
                     plant.seed.Harvest();
-                    plants.Remove(cellPosition);
+                    // plants.Remove(cellPosition);
                 }
                 else
                 {

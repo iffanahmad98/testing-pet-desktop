@@ -17,6 +17,18 @@ namespace MagicalGarden.AI
         public Vector2Int currentTile;
         protected Coroutine stateLoopCoroutine;
         protected bool isOverridingState = false;
+
+        protected Coroutine currentCoroutine;
+        protected void StartNewCoroutine(IEnumerator routine)
+        {
+            if (currentCoroutine != null)
+            {
+                StopCoroutine(currentCoroutine);
+                currentCoroutine = null;
+            }
+
+            currentCoroutine = StartCoroutine(routine);
+        }
         protected virtual void Start()
         {
             Vector3 worldPos = transform.position;

@@ -16,7 +16,7 @@ namespace MagicalGarden.Manager
         public List<HotelRoom> hotelRooms = new();
         public HotelTile cleanTile;
         public HotelTile dirtyTile;
-        public GameObject guestPrefab;
+        public List<GameObject> guestPrefab;
         public NPCHotel npcHotel;
         [Header("Guest Queue")]
         public Transform guestSpawnPoint;
@@ -63,6 +63,12 @@ namespace MagicalGarden.Manager
         private void DeleteRoomHotel() {
             PlayerPrefs.DeleteKey("SavedHotelRooms");
             PlayerPrefs.Save();
+        }
+
+        public GameObject GetRandomGuestPrefab()
+        {
+            int randomIndex = UnityEngine.Random.Range(0, guestPrefab.Count);
+            return guestPrefab[randomIndex];
         }
         GuestRarity GetRandomRarity()
         {
@@ -155,7 +161,7 @@ namespace MagicalGarden.Manager
             else
             {
                 Debug.Log("✅ Guest request hari ini sudah ada, pakai data tersimpan.");
-                DisplayGuestRequests(); // tetap tampilkan ke UI
+                DisplayGuestRequests();
             }
         }
         private void LoadLastDate()

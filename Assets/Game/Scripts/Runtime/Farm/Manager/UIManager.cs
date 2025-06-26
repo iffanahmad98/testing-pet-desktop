@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 using MagicalGarden.Farm.UI;
 
 namespace MagicalGarden.Farm
@@ -20,6 +21,7 @@ namespace MagicalGarden.Farm
         public GameObject fertizerUI;
         public GameObject shopUI;
         public GameObject guestUI;
+        public GameObject menuBar;
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -65,6 +67,26 @@ namespace MagicalGarden.Farm
 
             coinText.text = "coin : " + coins;
             harvestText.text = "harvest : " + harvests;
+        }
+        private float showY = 69.7f;
+        private float hideY;
+        public void ToggleMenuBar()
+        {
+            RectTransform rect = menuBar.GetComponent<RectTransform>();
+            if (!menuBar.activeSelf)
+            {
+                hideY = showY - rect.rect.height;
+                rect.anchoredPosition = new Vector2(0, hideY);
+                menuBar.SetActive(true);
+                rect.DOAnchorPosY(showY, 0.5f).SetEase(Ease.OutBack);
+            }
+            else
+            {
+                rect.DOAnchorPosY(hideY, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
+                {
+                    menuBar.SetActive(false);
+                });
+            }
         }
 
 #region ToolTip UI

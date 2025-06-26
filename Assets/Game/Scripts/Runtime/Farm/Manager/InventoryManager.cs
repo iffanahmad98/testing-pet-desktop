@@ -104,7 +104,7 @@ namespace MagicalGarden.Inventory
         Crop,
         Tool,
         Fertilizer,
-        MonsterSeed,
+        MonsterSeed
     }
     public enum ItemRarity
     {

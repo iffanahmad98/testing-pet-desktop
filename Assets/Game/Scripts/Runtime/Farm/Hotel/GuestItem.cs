@@ -29,7 +29,9 @@ namespace MagicalGarden.Hotel
                 HotelRoom room = HotelManager.Instance.AssignGuestToAvailableRoom(guest);
                 if (room != null)
                 {
-                    var guest = Instantiate(HotelManager.Instance.guestPrefab, HotelManager.Instance.guestSpawnPoint.position, Quaternion.identity);
+                    
+                    var guestPrefab = HotelManager.Instance.GetRandomGuestPrefab();
+                    var guest = Instantiate(guestPrefab, HotelManager.Instance.guestSpawnPoint.position, Quaternion.identity);
                     guest.GetComponent<PetMonsterHotel>().destinationTile.x = room.hotelPosition.x;
                     guest.GetComponent<PetMonsterHotel>().destinationTile.y = room.hotelPosition.y;
                     guest.GetComponent<PetMonsterHotel>().hotelRoomRef = room;
