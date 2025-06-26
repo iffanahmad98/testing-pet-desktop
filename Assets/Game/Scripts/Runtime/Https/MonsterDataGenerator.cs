@@ -256,14 +256,14 @@ public class MonsterDataGenerator
         asset.monsterName = csvData.name;
         asset.monType = csvData.type;
         asset.maxHealth = csvData.stage1.hp;
-        asset.maxHungerStage1 = csvData.stage1.fullness;
+        asset.maxNutritionStage1 = csvData.stage1.fullness;
         
         // NEW: Map stage-specific hunger values
         if (csvData.stage2 != null)
-            asset.maxHungerStage2 = csvData.stage2.fullness;
+            asset.maxNutritionStage2 = csvData.stage2.fullness;
         
         if (csvData.stage3 != null)
-            asset.maxHungerStage3 = csvData.stage3.fullness;
+            asset.maxNutritionStage3 = csvData.stage3.fullness;
         
         // Map coin drop rates for all stages
         asset.goldCoinDropRateStage1 = csvData.stage1.goldCoinHour;
@@ -361,8 +361,8 @@ public class MonsterDataGenerator
         
         asset.hungerDepleteRate = 0.05f;
         asset.poopRate = 20f;
-        asset.baseHunger = 50f;
-        asset.baseHappiness = 0f;
+        asset.startingHunger = 50f;
+        asset.startingHappiness = 0f;
         asset.foodDetectionRange = 200f;
         asset.eatDistance = 5f;
         asset.areaHappinessRate = 0.2f;

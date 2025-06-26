@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d43525788b090c4aacd2306bac8c1b1, type: 3}
+  m_Name: DefaultBiome
+  m_EditorClassIdentifier: 
+  biomeName: Default Biome
+  skyBackground: {fileID: 6088746641700858844, guid: a87c452b0ba753f459d790451c224d1b, type: 3}
+  skyObjects: []
+  cloudSprites:
+  - {fileID: 8287873616420496286, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: 7911139459876737251, guid: c20d89fcb969455489a4e257f74ea706, type: 3}
+  - {fileID: -1115256706364395465, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -477254976604553037, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: 5291327898690728900, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -3052748074778076258, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -5914686066510983863, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -8928922196803100657, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  cloudSpawnRate: 3
+  cloudMinSpeed: 20
+  cloudMaxSpeed: 50
+  cloudMinScale: 0.5
+  cloudMaxScale: 1.5
+  maxClouds: 8
+  effectPrefabs: []
+  ambientBackground: {fileID: 860544438658991203, guid: 4b6ccdb222c8dd24c9a1456c8521d672, type: 3}

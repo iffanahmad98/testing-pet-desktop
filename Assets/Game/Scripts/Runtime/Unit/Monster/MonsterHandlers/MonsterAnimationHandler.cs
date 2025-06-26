@@ -3,6 +3,7 @@ using Spine;
 using Spine.Unity;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 public class MonsterAnimationHandler
 {
@@ -22,25 +23,51 @@ public class MonsterAnimationHandler
         [MonsterState.Eating] = new[] { "eating" }
     };
 
+    private void SetupAnimationBlend()
+    {
+        if (_skeletonGraphic?.AnimationState?.Data == null) return;
+
+        var mixData = _skeletonGraphic.AnimationState.Data;
+        mixData.DefaultMix = 0.2f; // fallback
+
+        // Get config from controller
+        var config = _controller?.MonsterData?.evolutionBehaviors.FirstOrDefault(
+            behavior => behavior.evolutionLevel == _controller.evolutionLevel)?.behaviorConfig;
+        if (config != null && config.transitions != null)
+        {
+            foreach (var transition in config.transitions)
+            {
+                // Get animation names for states
+                string[] fromAnims = GetDefaultAnimations(transition.fromState);
+                string[] toAnims = GetDefaultAnimations(transition.toState);
+                foreach (var from in fromAnims)
+                {
+                    foreach (var to in toAnims)
+                    {
+                        mixData.SetMix(from.ToLowerInvariant(), to.ToLowerInvariant(), transition.blendDuration);
+                    }
+                }
+            }
+        }
+    }
+
     public MonsterAnimationHandler(MonsterController controller, SkeletonGraphic skeletonGraphic)
     {
         _controller = controller;
         _skeletonGraphic = skeletonGraphic;
+        SetupAnimationBlend();
     }
     
     public void PlayStateAnimation(MonsterState state)
     {
         if (_skeletonGraphic != null && _skeletonGraphic.skeletonDataAsset != null && _skeletonGraphic.AnimationState != null)
         {
-            // Clear all tracks before playing new animation
-            _skeletonGraphic.AnimationState.ClearTracks();
-
             string animName = GetAvailableAnimation(state);
-            _skeletonGraphic.AnimationState.SetAnimation(0, animName, true);
+            bool loop = state != MonsterState.Itching && state != MonsterState.Jumping;
+            _skeletonGraphic.AnimationState.SetAnimation(0, animName, loop);
         }
         else
         {
-            // Fallback to coroutine if not ready
             _controller.StartCoroutine(TryPlayStateAnimation(state));
         }
     }
@@ -239,15 +266,16 @@ public class MonsterAnimationHandler
 
     private string[] GetDefaultAnimations(MonsterState state)
     {
-        return StateAnimationMap.TryGetValue(state, out var animations) 
-            ? animations 
+        var key = state.ToString().ToLowerInvariant();
+        return StateAnimationMap.TryGetValue(state, out var animations)
+            ? animations
             : new[] { "idle" };
     }
 
     public float GetAnimationDuration(string animationName)
     {
         var animation = GetAnimation(animationName);
-        return animation?.Duration ?? 1f;
+        return animation.Duration;
     }
 
     private SkeletonData GetSkeletonData()

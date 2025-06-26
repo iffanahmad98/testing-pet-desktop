@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [System.Serializable]
 public class PlayerConfig
@@ -33,17 +34,20 @@ public class PlayerConfig
         TimeSpan.TryParse(totalPlayTimeString, out totalPlayTime);
     }
 
-    // Optional: Helper methods
     public void AddItem(string itemID, int amount)
     {
-        var existing = ownedItems.Find(i => i.itemID == itemID);
-        if (existing != null)
+        var item = ownedItems.Find(i => i.itemID == itemID);
+        if (item == null)
         {
-            existing.amount += amount;
+            ownedItems.Add(new OwnedItemData { itemID = itemID, amount = Mathf.Max(0, amount) });
+        }
+        else if (amount <= 0)
+        {
+            item.amount = Mathf.Max(0, item.amount + amount);
         }
         else
         {
-            ownedItems.Add(new OwnedItemData { itemID = itemID, amount = amount });
+            return; // No change if amount is zero or negative
         }
     }
 
@@ -69,6 +73,7 @@ public class PlayerConfig
 public class SettingsData
 {
     public float gameAreaWidth = 1920f;
+    public float gameAreaHeight = 1080f;
     public float gameAreaX = 0f;
     public float gameAreaY = 0f;
     public float uiScale = 1f;

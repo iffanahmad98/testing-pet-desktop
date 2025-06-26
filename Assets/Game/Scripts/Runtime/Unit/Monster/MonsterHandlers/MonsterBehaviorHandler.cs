@@ -194,28 +194,22 @@ public class MonsterBehaviorHandler
                 return randomDuration;
                 
             default:
-                return 3f; // Default fallback
+                return 1f; // Default fallback
         }
     }
 
     private float TryGetSpineDuration(MonsterState state, MonsterAnimationHandler animationHandler)
     {
         if (animationHandler == null) return 0f;
-        
+
         // Get the specific animation name for this state
         string animationName = animationHandler.GetAvailableAnimation(state);
         if (string.IsNullOrEmpty(animationName)) return 0f;
-        
+
         // Get the actual duration
         float duration = animationHandler.GetAnimationDuration(animationName);
         
-        // Validate the duration is reasonable (between 0.5s and 10s)
-        if (duration >= 0.5f && duration <= 10f)
-        {
-            return duration;
-        }
-        
-        return 0f; // Return 0 to indicate we should use fallbacks
+        return duration > 0 ? duration : 0f;
     }
 
     private float GetRandomDuration(float? configMin, float? configMax, float defaultMin, float defaultMax)

@@ -154,7 +154,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         // 2. Create handlers that depend on core handlers
         _coroutineHandler = new MonsterCoroutineHandler(this);
         _saveHandler = new MonsterSaveHandler(this);
-        _evolutionHandler = new MonsterEvolutionHandler(this);
+        _evolutionHandler = new MonsterEvolutionHandler(this, _monsterSpineGraphic);
         // Create handlers that need components (but not external services)
         if (_monsterSpineGraphic != null)
         {
@@ -217,11 +217,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         // Initialize UI
         UI.Init();
-        // Only call if handler exists
-        if (_evolutionHandler != null)
-        {
-            _evolutionHandler.InitUIParticles(UI);
-        }
         
         // Set initial values
         SetRandomTarget();

@@ -78,8 +78,8 @@ public class MonsterDataSOEditor : Editor
         
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Base Values", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHunger"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHappiness"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("startingHunger"));      // <-- FIXED
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("startingHappiness"));   // <-- FIXED
         
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Drop Rates", EditorStyles.boldLabel);
@@ -136,9 +136,9 @@ public class MonsterDataSOEditor : Editor
         
         // Hunger & Happiness
         EditorGUILayout.LabelField("Hunger & Happiness", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHungerStage1"), new GUIContent("Max Hunger (Stage 1)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHungerStage2"), new GUIContent("Max Hunger (Stage 2)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHungerStage3"), new GUIContent("Max Hunger (Stage 3)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxNutritionStage1"), new GUIContent("Max Hunger (Stage 1)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxNutritionStage2"), new GUIContent("Max Hunger (Stage 2)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxNutritionStage3"), new GUIContent("Max Hunger (Stage 3)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerDepleteRate"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("areaHappinessRate"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("pokeHappinessValue"));

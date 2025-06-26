@@ -71,8 +71,7 @@ public class GachaManager : MonoBehaviour
         // Only spend coins AFTER we confirm we can spawn a monster
         if (ServiceLocator.Get<MonsterManager>().SpentCoin(gachaCost))
         {
-            SpawnMonster(selectedMonster);
-            ShowGachaResult(selectedMonster);
+            ShowGachaResult(selectedMonster, () => SpawnMonster(selectedMonster));
         }
     }
 
@@ -116,20 +115,11 @@ public class GachaManager : MonoBehaviour
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
     }
 
-    private void ShowGachaResult(MonsterDataSO monster)
+    private void ShowGachaResult(MonsterDataSO monster, System.Action onComplete)
     {
         if (gachaResultPanel != null)
         {
-            gachaResultPanel.Show(monster, RollGacha); // Attach roll again
-        }
-    }
-
-    // Public method to add new allowed rarities at runtime if needed
-    public void AddAllowedRarity(MonsterType rarity)
-    {
-        if (!allowedRarities.Contains(rarity))
-        {
-            allowedRarities.Add(rarity);
+            gachaResultPanel.Show(monster, RollGacha, onComplete);
         }
     }
 

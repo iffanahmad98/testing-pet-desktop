@@ -272,40 +272,6 @@ public static class SaveSystem
     }
     #endregion
 
-    #region Farming System Integration
-
-    public static void SavePlants(PlantListWrapper plants)
-    {
-        string path = Path.Combine(Application.persistentDataPath, "plants.json");
-        try
-        {
-            string json = JsonUtility.ToJson(plants, true);
-            File.WriteAllText(path, json);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Failed to save plants: " + e.Message);
-        }
-    }
-
-    public static PlantListWrapper LoadPlants()
-    {
-        string path = Path.Combine(Application.persistentDataPath, "plants.json");
-        if (File.Exists(path))
-        {
-            try
-            {
-                string json = File.ReadAllText(path);
-                return JsonUtility.FromJson<PlantListWrapper>(json);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Failed to load plants: " + e.Message);
-            }
-        }
-        return null;
-    }
-    #endregion
     public static PlayerConfig GetPlayerConfig()
     {
         if (_playerConfig == null)
@@ -317,10 +283,4 @@ public static class SaveSystem
         return _playerConfig;
     }
 
-}
-
-[Serializable]
-public class PlantListWrapper
-{
-    public List<PlantSaveData> plants;
 }

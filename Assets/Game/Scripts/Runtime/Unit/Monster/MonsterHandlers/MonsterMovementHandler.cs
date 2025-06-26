@@ -146,9 +146,7 @@ public class MonsterMovementHandler
 
     private void Flip(float direction)
     {
-        Transform parentTransform = _spineGraphic.transform.parent;
-        Transform targetTransform = parentTransform ?? _spineGraphic.transform;
-        
+        Transform targetTransform = _spineGraphic.transform;
         Vector3 scale = targetTransform.localScale;
         scale.x = direction > 0 ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
         targetTransform.localScale = scale;
