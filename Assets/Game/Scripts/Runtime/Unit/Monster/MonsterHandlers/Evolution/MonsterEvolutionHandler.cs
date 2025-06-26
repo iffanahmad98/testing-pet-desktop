@@ -3,6 +3,9 @@ using System;
 using System.Linq;
 using System.Collections;
 using Spine.Unity;
+using CartoonFX;
+using System.Collections.Generic;
+using DG.Tweening;
 
 [Serializable]
 public class MonsterEvolutionHandler
@@ -117,20 +120,48 @@ public class MonsterEvolutionHandler
 
         // Get the next evolution skeleton asset
         var monsterData = _controller.MonsterData;
+        var monsterPos = _controller.GetComponent<RectTransform>().anchoredPosition;
         int index = _targetLevel- 1;
         SkeletonDataAsset nextSkeleton = 
             (monsterData != null && monsterData.monsterSpine != null && index >= 0 && index < monsterData.monsterSpine.Length)
             ? monsterData.monsterSpine[index]
             : null;
         // Get references to required components
-        var mainCamera = Camera.main;
+        var evolveCam = MainCanvas.MonsterCamera;
         var spineGraphic = _skeletonGraphic; 
         var evolutionParticle = _controller.UI.evolutionVFX; 
-        var whiteFlashMaterial = _controller.UI.evolutionMaterial; 
+        var whiteFlashMaterial = _controller.UI.evolutionMaterial;
+
+        int _remaining = 0;
+        // turn other monsters invisible
+        foreach (var monster in _controller.MonsterManager.activeMonsters)
+        {
+            _remaining = _controller.MonsterManager.activeMonsters.Count - 1; // -1 for self
+            if (monster != _controller)
+            {
+                monster.transform.GetChild(0).GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+                _remaining--;
+                yield return new WaitForSeconds(0.1f); // stagger the fade 
+            }
+        }
+
+        //turn coin, poop, and food collection invisible
+        foreach (var coin in _controller.MonsterManager._activeCoins)
+        {
+            coin.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+        }
+        foreach (var poop in _controller.MonsterManager._activePoops)
+        {
+            poop.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+        }
+        foreach (var food in _controller.MonsterManager.activeFoods)
+        {
+            food.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+        }
 
         bool sequenceDone = false;
         MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
-            mainCamera,
+            evolveCam,
             spineGraphic,
             evolutionParticle,
             whiteFlashMaterial,
@@ -140,16 +171,41 @@ public class MonsterEvolutionHandler
                 _controller.evolutionLevel = _targetLevel;
                 UpdateMonsterID(_targetLevel);
                 _controller.SaveMonData();
-                _foodConsumed = 0;
-                _interactionCount = 0;
+                // _foodConsumed = 0;
+                // _interactionCount = 0;
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
                 sequenceDone = true;
-            }
+            },
+            monsterPos
         );
-
-        
-
         yield return new WaitUntil(() => sequenceDone);
+
+        // turn other monsters visible
+        foreach (var monster in _controller.MonsterManager.activeMonsters)
+        {
+            _remaining = _controller.MonsterManager.activeMonsters.Count - 1; // -1 for self
+            if (monster != _controller)
+            {
+                monster.transform.GetChild(0).GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+                _remaining--;
+                yield return new WaitForSeconds(0.1f); // stagger the fade 
+            }
+        }
+        
+        //turn coin, poop, and food collection visible
+        foreach (var coin in _controller.MonsterManager._activeCoins)
+        {
+            coin.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+        }
+        foreach (var poop in _controller.MonsterManager._activePoops)
+        {
+            poop.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+        }
+        foreach (var food in _controller.MonsterManager.activeFoods)
+        {
+            food.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+        }
+
         yield return new WaitForSeconds(0.5f);
         _isEvolving = false;
     }

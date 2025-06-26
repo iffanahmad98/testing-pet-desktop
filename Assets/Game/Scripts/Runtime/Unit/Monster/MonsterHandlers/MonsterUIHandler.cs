@@ -38,24 +38,24 @@ public class MonsterUIHandler
         _sickStatusInfoCg = sickStatusInfo.GetComponent<CanvasGroup>();
         _expressionCg = Expression.GetComponent<CanvasGroup>();
 
-        hungerText = hungerInfo.GetComponentInChildren<TextMeshProUGUI>();
-        happinessText = happinessInfo.GetComponentInChildren<TextMeshProUGUI>();
-        sickStatusText = sickStatusInfo.GetComponentInChildren<TextMeshProUGUI>();
+        // hungerText = hungerInfo.GetComponentInChildren<TextMeshProUGUI>();
+        // happinessText = happinessInfo.GetComponentInChildren<TextMeshProUGUI>();
+        // sickStatusText = sickStatusInfo.GetComponentInChildren<TextMeshProUGUI>();
 
         // Start hidden
-        _hungerInfoCg.alpha = 0f;
-        _happinessInfoCg.alpha = 0f;
-        _sickStatusInfoCg.alpha = 0f;
+        // _hungerInfoCg.alpha = 0f;
+        // _happinessInfoCg.alpha = 0f;
+        // _sickStatusInfoCg.alpha = 0f;
         _expressionCg.alpha = 0f;
     }
 
     public void UpdateHungerDisplay(float hunger, bool showUI)
     {
         // Always update the text content (color stays as set in inspector)
-        hungerText.text = $"Hunger: {hunger:F1}%";
+        // hungerText.text = $"Hunger: {hunger:F1}%";
 
         // Control visibility based on hover
-        _hungerInfoCg.alpha = showUI ? 1f : 0f;
+        // _hungerInfoCg.alpha = showUI ? 1f : 0f;
 
         // update emoji
         if (emojiAnimator != null)
@@ -67,10 +67,10 @@ public class MonsterUIHandler
     public void UpdateHappinessDisplay(float happiness, bool showUI)
     {
         // Always update the text content (color stays as set in inspector)
-        happinessText.text = $"Happiness: {happiness:F1}%";
+        // happinessText.text = $"Happiness: {happiness:F1}%";
 
         // Control visibility based on hover
-        _happinessInfoCg.alpha = showUI ? 1f : 0f;
+        // _happinessInfoCg.alpha = showUI ? 1f : 0f;
 
         // update emoji
         if (emojiAnimator != null)
@@ -82,10 +82,10 @@ public class MonsterUIHandler
     public void UpdateSickStatusDisplay(bool isSick, bool showUI)
     {
         // Update the sick status display based on the isSick parameter
-        sickStatusText.text = isSick ? "Status: Sick" : "Status: Healthy";
+        // sickStatusText.text = isSick ? "Status: Sick" : "Status: Healthy";
         
         // Always show when sick, otherwise show only on hover
-        _sickStatusInfoCg.alpha = showUI ? 1f : 0f;
+        // _sickStatusInfoCg.alpha = showUI ? 1f : 0f;
         
         // Update emoji color based on sick status
         if (emojiAnimator != null)

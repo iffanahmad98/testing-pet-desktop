@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5337362313182113028}
   - component: {fileID: 2951407271614369516}
   - component: {fileID: 2710772836419658473}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Orbital
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,7 +29,7 @@ RectTransform:
   m_GameObject: {fileID: 5337362313182113050}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7453128015461601582}
@@ -4882,7 +4882,7 @@ MonoBehaviour:
   m_GroupMaxId: 0
   m_PositionMode: 0
   m_AutoScaling: 0
-  m_AutoScalingMode: 2
+  m_AutoScalingMode: 1
   m_UseCustomView: 0
   m_CustomViewSize: 10
   m_TimeScaleMultiplier: 1
@@ -4900,8 +4900,9 @@ GameObject:
   - component: {fileID: 7453128015461895437}
   - component: {fileID: 2299180756538234527}
   - component: {fileID: 2972153533141866989}
-  m_Layer: 0
-  m_Name: CFXR3 Shield Leaves A (Lit)
+  - component: {fileID: 2603394134914667514}
+  m_Layer: 5
+  m_Name: Evolve-ShieldVFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4916,7 +4917,7 @@ RectTransform:
   m_GameObject: {fileID: 7453128015461895438}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5337362313182113029}
@@ -9751,13 +9752,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9205bc1bbacc90040a998067b5643d16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clearBehavior: 2
+  clearBehavior: 0
   cameraShake:
     enabled: 1
-    useMainCamera: 1
-    cameras: []
-    delay: 0
-    duration: 1
+    useMainCamera: 0
+    cameras:
+    - {fileID: 0}
+    - {fileID: 0}
+    delay: 0.5
+    duration: 8
     shakeSpace: 0
     shakeStrength: {x: 0.1, y: 0.1, z: 0.1}
     shakeCurve:
@@ -9786,7 +9789,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     shakesDelay: 0
   animatedLights: []
-  fadeOutReference: {fileID: 0}
+  fadeOutReference: {fileID: 5337362313182113031}
 --- !u!222 &2299180756538234527
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9818,7 +9821,7 @@ MonoBehaviour:
   m_IsTrail: 0
   m_IgnoreCanvasScaler: 0
   m_AbsoluteMode: 0
-  m_Scale3D: {x: 45, y: 45, z: 45}
+  m_Scale3D: {x: 50, y: 50, z: 50}
   m_AnimatableProperties: []
   m_Particles:
   - {fileID: 7453128015446398062}
@@ -9827,7 +9830,19 @@ MonoBehaviour:
   m_GroupMaxId: 0
   m_PositionMode: 0
   m_AutoScaling: 0
-  m_AutoScalingMode: 2
+  m_AutoScalingMode: 1
   m_UseCustomView: 0
   m_CustomViewSize: 10
   m_TimeScaleMultiplier: 1
+--- !u!225 &2603394134914667514
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7453128015461895438}
+  m_Enabled: 0
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

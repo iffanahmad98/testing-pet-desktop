@@ -38,11 +38,11 @@ public class MonsterManager : MonoBehaviour
     private Queue<GameObject> _poopPool = new Queue<GameObject>();
     private Queue<GameObject> _coinPool = new Queue<GameObject>();
 
-    private List<GameObject> _activeCoins = new List<GameObject>();
-    private List<GameObject> _activePoops = new List<GameObject>();
-    [HideInInspector] public List<MonsterController> activeMonsters = new List<MonsterController>();
     [HideInInspector] public int poopCollected;
     [HideInInspector] public int coinCollected;
+    public List<MonsterController> activeMonsters = new List<MonsterController>();
+    public List<GameObject> _activeCoins = new List<GameObject>();
+    public List<GameObject> _activePoops = new List<GameObject>();
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     private List<string> savedMonIDs = new List<string>();
@@ -331,6 +331,7 @@ public class MonsterManager : MonoBehaviour
             _activeCoins.Add(coin);
             SetupPooledObject(coin, gameArea, startPosition);
             coin.GetComponent<CoinController>().Initialize(type);
+            _activeCoins.Add(coin);
 
             // Start arc animation coroutine
             StartCoroutine(AnimateCoinArc(coin.transform, startPosition, targetPosition));
