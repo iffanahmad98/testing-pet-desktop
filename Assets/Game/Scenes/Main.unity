@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -209, y: -326}
+  m_AnchoredPosition: {x: -208.99994, y: -326}
   m_SizeDelta: {x: 379, y: -696}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &627439
@@ -304,7 +304,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -505.01007}
+  m_AnchoredPosition: {x: 0, y: -505.01}
   m_SizeDelta: {x: 1920, y: 1010}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &17609073
@@ -2406,7 +2406,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -209, y: 644}
+  m_AnchoredPosition: {x: -208.99994, y: 644}
   m_SizeDelta: {x: 1024, y: 1024}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &321689314
@@ -9728,9 +9728,11 @@ MonoBehaviour:
   validPositionColor: {r: 0, g: 1, b: 0, a: 1}
   invalidPositionColor: {r: 1, g: 0, b: 0, a: 1}
   enableDepthSorting: 1
-  activeMonsters: []
   poopCollected: 0
   coinCollected: 0
+  activeMonsters: []
+  _activeCoins: []
+  _activePoops: []
   activeFoods: []
   activeMedicines: []
 --- !u!114 &1264463001 stripped
@@ -10304,13 +10306,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7490413730875285844, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_RequiresDepthTextureOption
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490413730875285844, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_RequiresOpaqueTextureOption
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_ClearFlags
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
       propertyPath: field of view
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_BackGroundColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
       propertyPath: m_CullingMask.m_Bits
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 8490052007542762080, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
+      propertyPath: m_AllowDynamicResolution
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9135783036499835674, guid: 8eec37d2c612987449d9f0a156f52cae, type: 3}
       propertyPath: m_Name
@@ -11057,7 +11091,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 1851037288}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 133.2
   m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -13924,7 +13958,7 @@ Camera:
   m_GameObject: {fileID: 1851037286}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 4
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -13949,7 +13983,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 100
   field of view: 60
-  orthographic: 1
+  orthographic: 0
   orthographic size: 150
   m_Depth: -1
   m_CullingMask:
@@ -13959,9 +13993,9 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
-  m_AllowDynamicResolution: 0
+  m_HDR: 0
+  m_AllowMSAA: 0
+  m_AllowDynamicResolution: 1
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
@@ -13989,7 +14023,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1851037286}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e99c05bf5b0f9747a4942e2d76e21b4, type: 3}
   m_Name: 
@@ -14016,7 +14050,7 @@ MonoBehaviour:
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4294967295
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 0
@@ -14047,7 +14081,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1851037286}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
   m_Name: 
