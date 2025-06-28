@@ -12,6 +12,7 @@ public class GachaResultPanel : MonoBehaviour
     public GameObject root;
     public TextMeshProUGUI monsterNameText;
     public TextMeshProUGUI rarityText;
+    private MonsterDataSO monsterData;
 
     [Header("Display Objects")]
     public GameObject chest;
@@ -25,8 +26,9 @@ public class GachaResultPanel : MonoBehaviour
     public UIParticle confettiVFX;
 
     [Header("Buttons")]
-    public Button backButton;
-    public Button rollAgainButton;
+    public Button spawnBtn;
+    public Button sellBtn;
+    public TextMeshProUGUI sellPriceText;
 
     [Header("Tween Eases")]
     public Ease fadeInRootEase = Ease.OutQuad;
@@ -37,8 +39,6 @@ public class GachaResultPanel : MonoBehaviour
     public Ease fadeOutEggEase = Ease.InQuad;
     public Ease fadeInMonsterEase = Ease.OutQuad;
     public Ease punchMonsterEase = Ease.OutElastic;
-
-    private System.Action onFinishGacha;
 
     private CanvasGroup canvasGroup;
     private CanvasGroup chestCanvas;
@@ -51,14 +51,14 @@ public class GachaResultPanel : MonoBehaviour
     {
         // Ensure all necessary components are present
         if (root == null || chest == null || egg == null || monsterDisplay == null ||
-            monsterNameText == null || rarityText == null || backButton == null || rollAgainButton == null)
+            monsterNameText == null || rarityText == null)
         {
             Debug.LogError("GachaResultPanel: Missing required UI elements!");
             return;
         }
 
-        backButton.onClick.RemoveAllListeners();
-        backButton.onClick.AddListener(() => HideResultPanel());
+        spawnBtn.onClick.RemoveAllListeners();
+        sellBtn.onClick.RemoveAllListeners();
 
         canvasGroup = root.GetComponent<CanvasGroup>() ?? root.AddComponent<CanvasGroup>();
         chestCanvas = chest.GetComponent<CanvasGroup>() ?? chest.AddComponent<CanvasGroup>();
@@ -72,10 +72,10 @@ public class GachaResultPanel : MonoBehaviour
 
     }
 
-    public void Show(MonsterDataSO monster, System.Action onRollAgain, System.Action onComplete)
+    public void Show(MonsterDataSO monster, System.Action onSell, System.Action onSpawn)
     {
         ResetAllStates();
-        onFinishGacha = onComplete;
+        monsterData = monster;
 
         Sequence seq = DOTween.Sequence();
 
@@ -127,6 +127,7 @@ public class GachaResultPanel : MonoBehaviour
             monsterSkeletonGraphic.startingAnimation = monsterSkeletonGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";
             monsterSkeletonGraphic.Initialize(true);
             rarityText.text = monster.monType.ToString().ToUpperInvariant();
+            sellPriceText.text = monster.sellPriceStage1.ToString();
         });
         // 5. Monster display: fade in + scale punch
         seq.Append(monsterCanvas.DOFade(1, 0.2f).SetEase(fadeInMonsterEase));
@@ -135,9 +136,17 @@ public class GachaResultPanel : MonoBehaviour
         seq.AppendCallback(() =>
         {
             shineVFX.gameObject.SetActive(false);
-            rollAgainButton.onClick.RemoveAllListeners();
-            rollAgainButton.onClick.AddListener(() => onRollAgain?.Invoke());
-            onFinishGacha?.Invoke();
+            sellBtn.onClick.AddListener(() =>
+            {
+                onSell?.Invoke();
+                HideResultPanel();
+            });
+            spawnBtn.onClick.AddListener(() =>
+            {
+                onSpawn?.Invoke();
+                HideResultPanel();
+            });
+            
         });
         seq.Play();
     }
@@ -193,7 +202,6 @@ public class GachaResultPanel : MonoBehaviour
         else
         {
             root.SetActive(false);
-            onFinishGacha?.Invoke();
         }
     }
     

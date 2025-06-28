@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     #region Inspector Fields
 
     [Header("UI Panels")]
+    public TextMeshProUGUI playerCoin;
     public GameObject UIFloatMenuPanel;
     public CanvasGroup UIFloatMenuCanvasGroup;
     public GameObject SettingPanel;
@@ -34,12 +35,6 @@ public class UIManager : MonoBehaviour
     public Button catalogueButton;
     public Button closeCatalogueButton;
 
-    [Header("Temporary UI Elements")]
-    public TextMeshProUGUI poopCounterText;
-    public TextMeshProUGUI coinCounterText;
-    public Button spawnPetButton;
-    public Button spawnFoodButton;
-    public Button gachaButton;
     public TextMeshProUGUI messageText;
 
     [Header("Animation Settings")]
@@ -120,9 +115,6 @@ public class UIManager : MonoBehaviour
         var monster = ServiceLocator.Get<MonsterManager>();
         if (monster != null)
         {
-            spawnPetButton?.onClick.AddListener(() => monster.BuyMons());
-            // spawnFoodButton?.onClick.AddListener(StartFoodPlacement);
-
             monster.OnCoinChanged += UpdateCoinCounterValue;
             monster.OnPoopChanged += UpdatePoopCounterValue;
             monster.OnCoinChanged?.Invoke(monster.coinCollected);
@@ -135,9 +127,6 @@ public class UIManager : MonoBehaviour
         var monster = ServiceLocator.Get<MonsterManager>();
         if (monster != null)
         {
-            spawnPetButton?.onClick.RemoveAllListeners();
-            // spawnFoodButton?.onClick.RemoveAllListeners();
-
             monster.OnCoinChanged -= UpdateCoinCounterValue;
             monster.OnPoopChanged -= UpdatePoopCounterValue;
         }
@@ -495,18 +484,14 @@ public class UIManager : MonoBehaviour
 
     private void UpdateCoinCounterValue(int newCoinAmount)
     {
-        coinCounterText.text = $"Coin : {newCoinAmount}";
+        // coinCounterText.text = $"Coin : {newCoinAmount}";
+        playerCoin.text = $"{newCoinAmount}";
     }
 
     private void UpdatePoopCounterValue(int newPoopAmount)
     {
-        poopCounterText.text = $"Poop : {newPoopAmount}";
+        // poopCounterText.text = $"Poop : {newPoopAmount}";
     }
-
-    // public void StartFoodPlacement()
-    // {
-    //     ServiceLocator.Get<MonsterManager>().StartFoodPurchase(0);
-    // }
 
     #endregion
 

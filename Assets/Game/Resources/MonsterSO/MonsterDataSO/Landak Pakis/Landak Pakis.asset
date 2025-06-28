@@ -18,14 +18,14 @@ MonoBehaviour:
   poopType: 1
   maxHealth: 100
   moveSpd: 100
-  baseHappiness: 50
   foodDetectionRange: 200
   eatDistance: 5
+  startingHappiness: 50
+  startingHunger: 100
   hungerDepleteRate: 0
-  baseHunger: 50
-  maxHungerStage1: 0
-  maxHungerStage2: 0
-  maxHungerStage3: 0
+  maxNutritionStage1: 0
+  maxNutritionStage2: 0
+  maxNutritionStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 2
   silverCoinDropRateStage1: 60
@@ -98,7 +98,7 @@ MonoBehaviour:
     - walking
   evolutionBehaviors: []
   monsterPrice: 10
-  sellPriceStage1: 0
+  sellPriceStage1: 240
   sellPriceStage2: 0
   sellPriceStage3: 0
   idleSounds: []

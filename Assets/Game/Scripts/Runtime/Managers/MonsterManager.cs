@@ -29,26 +29,20 @@ public class MonsterManager : MonoBehaviour
     public bool enableDepthSorting = true;
     private float lastSortTime = 0f;
     private float sortInterval = 0.1f;
-    private Camera _mainCamera;
-    private RectTransform _foodIndicatorRT;
-    private Image _foodIndicatorImage;
 
     private Queue<GameObject> _foodPool = new Queue<GameObject>();
     private Queue<GameObject> _medicinePool = new Queue<GameObject>();
     private Queue<GameObject> _poopPool = new Queue<GameObject>();
     private Queue<GameObject> _coinPool = new Queue<GameObject>();
 
-    [HideInInspector] public int poopCollected;
-    [HideInInspector] public int coinCollected;
+    public int poopCollected;
+    public int coinCollected;
     public List<MonsterController> activeMonsters = new List<MonsterController>();
     public List<GameObject> _activeCoins = new List<GameObject>();
     public List<GameObject> _activePoops = new List<GameObject>();
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     private List<string> savedMonIDs = new List<string>();
-
-    private bool isInPlacementMode = false;
-    private int pendingFoodCost = 0;
 
     public System.Action<int> OnCoinChanged;
     public System.Action<int> OnPoopChanged;
@@ -59,14 +53,6 @@ public class MonsterManager : MonoBehaviour
     {
         ServiceLocator.Register(this);
         InitializePools();
-        CacheComponents();
-    }
-
-    private void CacheComponents()
-    {
-        _mainCamera = mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCanvas.worldCamera;
-        _foodIndicatorRT = foodPlacementIndicator.GetComponent<RectTransform>();
-        _foodIndicatorImage = foodPlacementIndicator.GetComponent<Image>();
     }
 
     private void InitializePools()
@@ -101,6 +87,16 @@ public class MonsterManager : MonoBehaviour
     #endregion
 
     #region Monster Management
+    public void SellMonster(MonsterDataSO monsterData)
+    {
+        if (monsterData == null) return;
+
+        int sellPrice = monsterData.GetSellPrice(activeMonsters.Find(m => m.MonsterData.id == monsterData.id)?.evolutionLevel ?? 0);
+        coinCollected += sellPrice;
+        SaveSystem.SaveCoin(coinCollected);
+        OnCoinChanged?.Invoke(coinCollected);
+    }
+
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
     {
         GameObject monster = CreateMonster(monsterData);
