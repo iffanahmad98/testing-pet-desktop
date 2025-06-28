@@ -7,7 +7,8 @@ public class MonsterDataSO : ScriptableObject
 {
     [Header("Basic Info")]
     public string monsterName;
-    public string id;
+    public string monsterId;
+    public string id; 
 
     [Header("Classification")]
     public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)
@@ -18,8 +19,8 @@ public class MonsterDataSO : ScriptableObject
     public float moveSpd = 100f;       // Move speed
     public float foodDetectionRange = 200f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
-    public float startingHappiness = 50f;            // Add base happiness
-    public float startingHunger = 100f;               // Add base hunger
+    public float baseHappiness = 50f;            // Add base happiness
+    public float baseHunger = 100f;               // Add base hunger
     public float hungerDepleteRate = 0.001f;  // How fast hunger depletes
     public float maxNutritionStage1 = 0f;          // Stage 1 hunger (keep existing)
     public float maxNutritionStage2 = 0f;          // Stage 2 hunger
@@ -29,11 +30,11 @@ public class MonsterDataSO : ScriptableObject
     [Header("Drop Rates")]
     public float poopRate = 20f;     // Default: 20 minutes
     public float goldCoinDropRateStage1 = 2f;    // Stage 1 gold coin rate
-    public float silverCoinDropRateStage1 = 60f;  // Stage 1 silver coin rate
+    public float platCoinDropRateStage1 = 60f;  // Stage 1 silver coin rate
     public float goldCoinDropRateStage2 = 0f;   // Stage 2 gold coin rate
-    public float silverCoinDropRateStage2 = 0f; // Stage 2 silver coin rate
+    public float platCoinDropRateStage2 = 0f; // Stage 2 silver coin rate
     public float goldCoinDropRateStage3 = 0f;   // Stage 3 gold coin rate
-    public float silverCoinDropRateStage3 = 0f; // Stage 3 silver coin rate
+    public float platCoinDropRateStage3 = 0f; // Stage 3 silver coin rate
 
     [Header("Gacha Settings")]
     public float gachaChancePercent = 0f;  // e.g., 0.10 for 0.10%
@@ -43,13 +44,12 @@ public class MonsterDataSO : ScriptableObject
     [Header("Happiness Settings")]
     public float areaHappinessRate = 0.1f; // Rate at which happiness increases in the area
     public float pokeHappinessValue = 5f;
-    public float hungerHappinessThreshold = 30f; // threshold below which hunger affects happiness
+    public float hungerHappinessThreshold = 50f; // threshold below which hunger affects happiness
     public float hungerHappinessDrainRate = 0.1f; // how much happiness drains when hungry
 
     [Header("Evolution")]
     public bool canEvolve = true;
     public bool isEvolved = false;
-    public bool isFinalEvol = false;
     public int evolutionLevel = 1;
 
     [Header("Evolution Requirements - Embedded")]
@@ -105,14 +105,14 @@ public class MonsterDataSO : ScriptableObject
         }
     }
 
-    public float GetSilverCoinDropRate(int evolutionLevel)
+    public float GetPlatinumCoinDropRate(int evolutionLevel) 
     {
         switch (evolutionLevel)
         {
-            case 1: return silverCoinDropRateStage1;
-            case 2: return silverCoinDropRateStage2 > 0 ? silverCoinDropRateStage2 : silverCoinDropRateStage1;
-            case 3: return silverCoinDropRateStage3 > 0 ? silverCoinDropRateStage3 : silverCoinDropRateStage1;
-            default: return silverCoinDropRateStage1;
+            case 1: return platCoinDropRateStage1;
+            case 2: return platCoinDropRateStage2 > 0 ? platCoinDropRateStage2 : platCoinDropRateStage1;
+            case 3: return platCoinDropRateStage3 > 0 ? platCoinDropRateStage3 : platCoinDropRateStage1;
+            default: return platCoinDropRateStage1;
         }
     }
 
@@ -131,11 +131,14 @@ public class MonsterDataSO : ScriptableObject
 [Serializable]
 public class MonsterSaveData
 {
+    [Header("Basic Info")]
     public string monsterId;
-    public float lastHunger;
-    public float lastHappiness;
+    public float currentHunger;
+    public float currentHappiness;
     public float lastLowHungerTime;
     public bool isSick;
+
+    [Header("Evolution Data")]
     public int evolutionLevel;
     public float timeSinceCreation;
     public int nutritionCount;
@@ -167,11 +170,14 @@ public class EvolutionRequirement
     public string description = "Evolution requirements";
 
     [Header("Reset Behavior")]
-    public bool resetHappinessProgress = true;
-    public bool resetHungerProgress = true;
-    public bool resetFoodProgress = true;
-    public bool resetInteractionProgress = true;
     [Range(0f, 1f)] public float progressRetentionPercentage = 0f;
+}
+
+[Serializable]
+public class EvolutionAnimationSet
+{
+    public int evolutionLevel;
+    public string[] availableAnimations;
 }
 
 [Serializable]
@@ -181,9 +187,3 @@ public class EvolutionBehaviorConfig
     public MonsterBehaviorConfigSO behaviorConfig;
 }
 
-[Serializable]
-public class EvolutionAnimationSet
-{
-    public int evolutionLevel;
-    public string[] availableAnimations;
-}

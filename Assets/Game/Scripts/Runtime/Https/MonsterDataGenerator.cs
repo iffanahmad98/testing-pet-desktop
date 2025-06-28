@@ -45,7 +45,7 @@ public class MonsterDataGenerator
         
         Debug.Log($"🔍 ParseCSV: Total lines = {lines.Length}");
         
-        for (int i = 3; i < lines.Length; i++)
+        for (int i = 4; i < lines.Length; i++)
         {
             string line = lines[i].Trim();
             
@@ -109,7 +109,7 @@ public class MonsterDataGenerator
                 timeEvolveDays = ParseFloat(values[6]), // Column 7: Time Evolve
                 gachaChance = values[7],              // Column 8: Chance Gatcha
                 gachaChanceDecimal = ParseGachaChance(values[7]),
-                silverCoinHour = ParseFloat(values[8]), // Column 9: Platinum Coin
+                platCoinHour = ParseFloat(values[8]), // Column 9: Platinum Coin (renamed from silverCoinHour)
                 goldCoinHour = ParseFloat(values[9]),   // Column 10: Gold Coin
                 priceBuy = ParseFloat(values[10]),    // Column 11: Price Buy
                 priceSell = ParseFloat(values[11])    // Column 12: Price Sell
@@ -120,7 +120,7 @@ public class MonsterDataGenerator
                 fullness = ParseFloatWithDefault(values, 12, monster.stage1.fullness * 1.5f),  // Column 13
                 hp = ParseFloatWithDefault(values, 13, monster.stage1.hp * 2f),               // Column 14
                 timeEvolveDays = ParseFloatWithDefault(values, 14, monster.stage1.timeEvolveDays), // Column 15
-                silverCoinHour = ParseFloatWithDefault(values, 15, monster.stage1.silverCoinHour), // Column 16: Platinum
+                platCoinHour = ParseFloatWithDefault(values, 15, monster.stage1.platCoinHour), // Column 16: Platinum
                 goldCoinHour = ParseFloatWithDefault(values, 16, monster.stage1.goldCoinHour * 3f), // Column 17: Gold
                 priceSell = ParseFloatWithDefault(values, 17, monster.stage1.priceSell * 2f)   // Column 18
             };
@@ -130,7 +130,7 @@ public class MonsterDataGenerator
                 fullness = ParseFloatWithDefault(values, 18, monster.stage2.fullness * 1.2f),  // Column 19
                 hp = ParseFloatWithDefault(values, 19, monster.stage2.hp * 1.4f),             // Column 20
                 timeEvolveDays = 0,
-                silverCoinHour = ParseFloatWithDefault(values, 20, monster.stage2.silverCoinHour), // Column 21: Platinum
+                platCoinHour = ParseFloatWithDefault(values, 20, monster.stage2.platCoinHour), // Column 21: Platinum
                 goldCoinHour = ParseFloatWithDefault(values, 21, monster.stage2.goldCoinHour * 2f), // Column 22: Gold
                 priceSell = ParseFloatWithDefault(values, 22, monster.stage2.priceSell * 2f)   // Column 23
             };
@@ -268,18 +268,18 @@ public class MonsterDataGenerator
         
         // Map coin drop rates for all stages
         asset.goldCoinDropRateStage1 = csvData.stage1.goldCoinHour;
-        asset.silverCoinDropRateStage1 = csvData.stage1.silverCoinHour;
-        
+        asset.platCoinDropRateStage1 = csvData.stage1.platCoinHour; // Updated from silverCoinHour
+
         if (csvData.stage2 != null)
         {
             asset.goldCoinDropRateStage2 = csvData.stage2.goldCoinHour;
-            asset.silverCoinDropRateStage2 = csvData.stage2.silverCoinHour;
+            asset.platCoinDropRateStage2 = csvData.stage2.platCoinHour; // Updated from silverCoinHour
         }
         
         if (csvData.stage3 != null)
         {
             asset.goldCoinDropRateStage3 = csvData.stage3.goldCoinHour;
-            asset.silverCoinDropRateStage3 = csvData.stage3.silverCoinHour;
+            asset.platCoinDropRateStage3 = csvData.stage3.platCoinHour; // Updated from silverCoinHour
         }
         
         asset.monsterPrice = (int)csvData.stage1.priceBuy;
@@ -295,7 +295,6 @@ public class MonsterDataGenerator
         asset.sellPriceStage3 = csvData.stage3 != null ? (int)csvData.stage3.priceSell : 0;
         
         asset.canEvolve = csvData.stage2 != null;
-        asset.isFinalEvol = csvData.stage3 == null;
         
         if (csvData.stage3 != null)
             asset.evolutionLevel = 0;
@@ -362,8 +361,8 @@ public class MonsterDataGenerator
         
         asset.hungerDepleteRate = 0.05f;
         asset.poopRate = 20f;
-        asset.startingHunger = 50f;
-        asset.startingHappiness = 0f;
+        asset.baseHunger = 50f;
+        asset.baseHappiness = 0f;
         asset.foodDetectionRange = 200f;
         asset.eatDistance = 5f;
         asset.areaHappinessRate = 0.2f;
@@ -383,7 +382,6 @@ public class MonsterDataGenerator
         // ADD: Set evolution flags properly
         asset.isEvolved = false; // Always start as base form
         asset.canEvolve = csvData.stage2 != null;
-        asset.isFinalEvol = csvData.stage3 == null && csvData.stage2 != null;
     }
     
     private static EvolutionRequirement CreateEvolutionRequirement(MonsterCSVData csvData, int targetLevel, float timeEvolveDays)
@@ -581,7 +579,7 @@ public class StageData
     public string gachaChance;
     public float gachaChanceDecimal;
     public float goldCoinHour;
-    public float silverCoinHour;
+    public float platCoinHour; // Renamed from silverCoinHour to match MonsterDataSO
     public float priceBuy;
     public float priceSell;
 }

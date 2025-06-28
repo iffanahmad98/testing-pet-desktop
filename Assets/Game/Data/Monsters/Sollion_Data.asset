@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Sollion_Data
   m_EditorClassIdentifier: 
   monsterName: Sollion
+  monsterId: 
   id: sollion
   monType: 1
   poopType: 1
@@ -20,19 +21,19 @@ MonoBehaviour:
   moveSpd: 110
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 0
-  startingHunger: 50
+  baseHappiness: 0
+  baseHunger: 50
   hungerDepleteRate: 0.05
   maxNutritionStage1: 54
   maxNutritionStage2: 162
   maxNutritionStage3: 194.40001
   poopRate: 20
   goldCoinDropRateStage1: 90
-  silverCoinDropRateStage1: 5
+  platCoinDropRateStage1: 5
   goldCoinDropRateStage2: 90
-  silverCoinDropRateStage2: 15
+  platCoinDropRateStage2: 15
   goldCoinDropRateStage3: 180
-  silverCoinDropRateStage3: 15
+  platCoinDropRateStage3: 15
   gachaChancePercent: 0.03
   gachaChanceDisplay: 3.00%
   isGachaOnly: 0
@@ -42,8 +43,7 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  isFinalEvol: 0
-  evolutionLevel: 0
+  evolutionLevel: 1
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 1036800
@@ -53,10 +53,6 @@ MonoBehaviour:
     minInteractions: 25
     evolutionName: Sollion Stage 2
     description: Evolve to Sollion Stage 2
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 1036800
@@ -66,10 +62,6 @@ MonoBehaviour:
     minInteractions: 50
     evolutionName: Sollion Stage 3
     description: Evolve to Sollion Stage 3
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine: []
   monsIconImg: []

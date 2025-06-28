@@ -13,8 +13,8 @@ public class MonsterSaveHandler
         var data = new MonsterSaveData
         {
             monsterId = _controller.monsterID,
-            lastHunger = _controller.StatsHandler.CurrentHunger,
-            lastHappiness = _controller.StatsHandler.CurrentHappiness,
+            currentHunger = _controller.StatsHandler.CurrentHunger,
+            currentHappiness = _controller.StatsHandler.CurrentHappiness,
             evolutionLevel = _controller.evolutionLevel,
             
             // Sick status data
@@ -38,7 +38,7 @@ public class MonsterSaveHandler
         if (SaveSystem.LoadMon(_controller.monsterID, out var data))
         {
             // Initialize stats handler with loaded data
-            _controller.StatsHandler.Initialize(data.lastHunger, data.lastHappiness, data.isSick, data.lastLowHungerTime);
+            _controller.StatsHandler.Initialize(data.currentHunger, data.currentHappiness, data.isSick, data.lastLowHungerTime);
 
             // Load evolution level (default to 1 if not found)
             int savedLevel = PlayerPrefs.GetInt($"{_controller.monsterID}_evolutionLevel", 1);

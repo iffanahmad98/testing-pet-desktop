@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Name_Data
   m_EditorClassIdentifier: 
   monsterName: Name
+  monsterId: 
   id: name
   monType: 0
   poopType: 1
@@ -20,19 +21,19 @@ MonoBehaviour:
   moveSpd: 120
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 0
-  startingHunger: 50
+  baseHappiness: 0
+  baseHunger: 50
   hungerDepleteRate: 0.05
   maxNutritionStage1: 0
   maxNutritionStage2: 0
   maxNutritionStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 0
-  silverCoinDropRateStage1: 0
+  platCoinDropRateStage1: 0
   goldCoinDropRateStage2: 0
-  silverCoinDropRateStage2: 0
+  platCoinDropRateStage2: 0
   goldCoinDropRateStage3: 0
-  silverCoinDropRateStage3: 0
+  platCoinDropRateStage3: 0
   gachaChancePercent: 0
   gachaChanceDisplay: 
   isGachaOnly: 1
@@ -42,8 +43,7 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 0
   isEvolved: 0
-  isFinalEvol: 1
-  evolutionLevel: 0
+  evolutionLevel: 1
   evolutionRequirements: []
   monsterSpine: []
   monsIconImg: []

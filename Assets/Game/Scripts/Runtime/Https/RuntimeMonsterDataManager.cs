@@ -61,7 +61,7 @@ public class RuntimeMonsterDataManager : MonoBehaviour
             public float timeEvolveDays;
             public string gachaChance;
             public float gachaChanceDecimal;
-            public float silverCoinHour;
+            public float platCoinHour;
             public float goldCoinHour;
             public float priceBuy;
             public float priceSell;
@@ -72,7 +72,7 @@ public class RuntimeMonsterDataManager : MonoBehaviour
     #region Unity Lifecycle
     private void Start()
     {
-        LoadLocalData(); // Load cached data first
+        LoadLocalData(); 
         
         if (updateOnGameStart)
         {
@@ -208,7 +208,7 @@ public class RuntimeMonsterDataManager : MonoBehaviour
                 timeEvolveDays = ParseFloat(values[6]),
                 gachaChance = values[7],
                 gachaChanceDecimal = ParseGachaChance(values[7]),
-                silverCoinHour = ParseFloat(values[8]),
+                platCoinHour = ParseFloat(values[8]),
                 goldCoinHour = ParseFloat(values[9]),
                 priceBuy = ParseFloat(values[10]),
                 priceSell = ParseFloat(values[11])
@@ -219,7 +219,7 @@ public class RuntimeMonsterDataManager : MonoBehaviour
                 fullness = ParseFloatWithDefault(values, 12, monster.stage1.fullness * 1.5f),
                 hp = ParseFloatWithDefault(values, 13, monster.stage1.hp * 2f),
                 timeEvolveDays = ParseFloatWithDefault(values, 14, monster.stage1.timeEvolveDays),
-                silverCoinHour = ParseFloatWithDefault(values, 15, monster.stage1.silverCoinHour),
+                platCoinHour = ParseFloatWithDefault(values, 15, monster.stage1.platCoinHour),
                 goldCoinHour = ParseFloatWithDefault(values, 16, monster.stage1.goldCoinHour * 3f),
                 priceSell = ParseFloatWithDefault(values, 17, monster.stage1.priceSell * 2f)
             };
@@ -229,7 +229,7 @@ public class RuntimeMonsterDataManager : MonoBehaviour
                 fullness = ParseFloatWithDefault(values, 18, monster.stage2.fullness * 1.2f),
                 hp = ParseFloatWithDefault(values, 19, monster.stage2.hp * 1.4f),
                 timeEvolveDays = 0,
-                silverCoinHour = ParseFloatWithDefault(values, 20, monster.stage2.silverCoinHour),
+                platCoinHour = ParseFloatWithDefault(values, 20, monster.stage2.platCoinHour),
                 goldCoinHour = ParseFloatWithDefault(values, 21, monster.stage2.goldCoinHour * 2f),
                 priceSell = ParseFloatWithDefault(values, 22, monster.stage2.priceSell * 2f)
             };

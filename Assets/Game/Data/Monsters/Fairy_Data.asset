@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Fairy_Data
   m_EditorClassIdentifier: 
   monsterName: Fairy
+  monsterId: 
   id: fairy
   monType: 4
   poopType: 10
@@ -20,19 +21,19 @@ MonoBehaviour:
   moveSpd: 80
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 0
-  startingHunger: 50
+  baseHappiness: 0
+  baseHunger: 50
   hungerDepleteRate: 0.05
   maxNutritionStage1: 600
   maxNutritionStage2: 1800
   maxNutritionStage3: 4500
   poopRate: 20
   goldCoinDropRateStage1: 120
-  silverCoinDropRateStage1: 24
+  platCoinDropRateStage1: 24
   goldCoinDropRateStage2: 120
-  silverCoinDropRateStage2: 72
+  platCoinDropRateStage2: 72
   goldCoinDropRateStage3: 120
-  silverCoinDropRateStage3: 120
+  platCoinDropRateStage3: 120
   gachaChancePercent: 0.001
   gachaChanceDisplay: 0.10%
   isGachaOnly: 1
@@ -42,8 +43,7 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  isFinalEvol: 0
-  evolutionLevel: 0
+  evolutionLevel: 1
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 2592000
@@ -53,10 +53,6 @@ MonoBehaviour:
     minInteractions: 100
     evolutionName: Fairy Stage 2
     description: Evolve to Fairy Stage 2
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 2592000
@@ -66,10 +62,6 @@ MonoBehaviour:
     minInteractions: 200
     evolutionName: Fairy Stage 3
     description: Evolve to Fairy Stage 3
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine: []
   monsIconImg: []

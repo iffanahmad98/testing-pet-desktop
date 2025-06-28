@@ -13,26 +13,27 @@ MonoBehaviour:
   m_Name: Daoon
   m_EditorClassIdentifier: 
   monsterName: Daoon
+  monsterId: 
   id: 001
   monType: 0
   poopType: 1
-  maxHealth: 100
+  hp: 100
   moveSpd: 100
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 50
-  startingHunger: 100
+  baseHappiness: 50
+  baseHunger: 100
   hungerDepleteRate: 0
   maxNutritionStage1: 0
   maxNutritionStage2: 0
   maxNutritionStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 2
-  silverCoinDropRateStage1: 60
+  platCoinDropRateStage1: 60
   goldCoinDropRateStage2: 0
-  silverCoinDropRateStage2: 0
+  platCoinDropRateStage2: 0
   goldCoinDropRateStage3: 0
-  silverCoinDropRateStage3: 0
+  platCoinDropRateStage3: 0
   gachaChancePercent: 0
   gachaChanceDisplay: 
   isGachaOnly: 0
@@ -42,7 +43,6 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  isFinalEvol: 0
   evolutionLevel: 1
   evolutionRequirements:
   - targetEvolutionLevel: 2
@@ -53,13 +53,9 @@ MonoBehaviour:
     minInteractions: 1
     evolutionName: Evolution
     description: Evolution requirements
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 2849b090bc78ec149b91dec4e919ce91, type: 2}
+  - {fileID: 11400000, guid: 40204d5f924819744b182f7945b5fa64, type: 2}
   - {fileID: 11400000, guid: 9b1d37462fd210f468969d0747f6b097, type: 2}
   monsIconImg: []
   evolutionAnimationSets:

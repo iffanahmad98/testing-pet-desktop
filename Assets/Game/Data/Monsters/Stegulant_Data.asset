@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Stegulant_Data
   m_EditorClassIdentifier: 
   monsterName: Stegulant
+  monsterId: 
   id: stegulant
   monType: 2
   poopType: 10
@@ -20,19 +21,19 @@ MonoBehaviour:
   moveSpd: 100
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 0
-  startingHunger: 50
+  baseHappiness: 0
+  baseHunger: 50
   hungerDepleteRate: 0.05
   maxNutritionStage1: 60
   maxNutritionStage2: 180
   maxNutritionStage3: 216.00002
   poopRate: 20
   goldCoinDropRateStage1: 120
-  silverCoinDropRateStage1: 6
+  platCoinDropRateStage1: 6
   goldCoinDropRateStage2: 120
-  silverCoinDropRateStage2: 18
+  platCoinDropRateStage2: 18
   goldCoinDropRateStage3: 240
-  silverCoinDropRateStage3: 18
+  platCoinDropRateStage3: 18
   gachaChancePercent: 0.015
   gachaChanceDisplay: 1.50%
   isGachaOnly: 1
@@ -42,8 +43,7 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  isFinalEvol: 0
-  evolutionLevel: 0
+  evolutionLevel: 1
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 1209600
@@ -53,10 +53,6 @@ MonoBehaviour:
     minInteractions: 40
     evolutionName: Stegulant Stage 2
     description: Evolve to Stegulant Stage 2
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 1209600
@@ -66,10 +62,6 @@ MonoBehaviour:
     minInteractions: 80
     evolutionName: Stegulant Stage 3
     description: Evolve to Stegulant Stage 3
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine: []
   monsIconImg: []

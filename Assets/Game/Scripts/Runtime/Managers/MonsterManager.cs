@@ -539,8 +539,8 @@ public class MonsterManager : MonoBehaviour
             var saveData = new MonsterSaveData
             {
                 monsterId = monster.monsterID,
-                lastHunger = monster.StatsHandler.CurrentHunger,
-                lastHappiness = monster.StatsHandler.CurrentHappiness,
+                currentHunger = monster.StatsHandler.CurrentHunger,
+                currentHappiness = monster.StatsHandler.CurrentHappiness,
                 lastLowHungerTime = monster.GetLowHungerTime(),
                 isSick = monster.IsSick,
                 evolutionLevel = monster.evolutionLevel,

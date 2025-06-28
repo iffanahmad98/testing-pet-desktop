@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Valilith_Data
   m_EditorClassIdentifier: 
   monsterName: Valilith
+  monsterId: 
   id: valilith
   monType: 0
   poopType: 1
@@ -20,19 +21,19 @@ MonoBehaviour:
   moveSpd: 120
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 0
-  startingHunger: 50
+  baseHappiness: 0
+  baseHunger: 50
   hungerDepleteRate: 0.05
   maxNutritionStage1: 18
   maxNutritionStage2: 54
   maxNutritionStage3: 64.8
   poopRate: 20
   goldCoinDropRateStage1: 60
-  silverCoinDropRateStage1: 2
+  platCoinDropRateStage1: 2
   goldCoinDropRateStage2: 60
-  silverCoinDropRateStage2: 6
+  platCoinDropRateStage2: 6
   goldCoinDropRateStage3: 120
-  silverCoinDropRateStage3: 6
+  platCoinDropRateStage3: 6
   gachaChancePercent: 0.08
   gachaChanceDisplay: 8.00%
   isGachaOnly: 0
@@ -42,8 +43,7 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  isFinalEvol: 0
-  evolutionLevel: 0
+  evolutionLevel: 1
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 604800
@@ -53,10 +53,6 @@ MonoBehaviour:
     minInteractions: 25
     evolutionName: Valilith Stage 2
     description: Evolve to Valilith Stage 2
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 604800
@@ -66,10 +62,6 @@ MonoBehaviour:
     minInteractions: 50
     evolutionName: Valilith Stage 3
     description: Evolve to Valilith Stage 3
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine: []
   monsIconImg: []

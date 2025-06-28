@@ -78,8 +78,8 @@ public class MonsterDataSOEditor : Editor
         
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Base Values", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("startingHunger"));      // <-- FIXED
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("startingHappiness"));   // <-- FIXED
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHunger"));      
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHappiness"));   
         
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Drop Rates", EditorStyles.boldLabel);
@@ -88,7 +88,7 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.LabelField("Stage 1:", EditorStyles.miniBoldLabel);
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage1"), new GUIContent("Gold Coin Rate (minutes)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRateStage1"), new GUIContent("Silver Coin Rate (minutes)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("platCoinDropRateStage1"), new GUIContent("Platinum Coin Rate (minutes)")); // Changed from Silver to Platinum
         EditorGUI.indentLevel--;
         
         // Stage 2 rates
@@ -96,11 +96,11 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.LabelField("Stage 2:", EditorStyles.miniBoldLabel);
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage2"), new GUIContent("Gold Coin Rate (minutes)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRateStage2"), new GUIContent("Silver Coin Rate (minutes)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("platCoinDropRateStage2"), new GUIContent("Platinum Coin Rate (minutes)")); // Changed from Silver to Platinum
         
         // Show fallback info
         var goldStage2 = serializedObject.FindProperty("goldCoinDropRateStage2").floatValue;
-        var silverStage2 = serializedObject.FindProperty("silverCoinDropRateStage2").floatValue;
+        var silverStage2 = serializedObject.FindProperty("platCoinDropRateStage2").floatValue;
         if (goldStage2 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 gold rate as fallback", MessageType.Info);
         if (silverStage2 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 silver rate as fallback", MessageType.Info);
         EditorGUI.indentLevel--;
@@ -110,11 +110,11 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.LabelField("Stage 3:", EditorStyles.miniBoldLabel);
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage3"), new GUIContent("Gold Coin Rate (minutes)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("silverCoinDropRateStage3"), new GUIContent("Silver Coin Rate (minutes)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("platCoinDropRateStage3"), new GUIContent("Platinum Coin Rate (minutes)"));
         
         // Show fallback info
         var goldStage3 = serializedObject.FindProperty("goldCoinDropRateStage3").floatValue;
-        var silverStage3 = serializedObject.FindProperty("silverCoinDropRateStage3").floatValue;
+        var silverStage3 = serializedObject.FindProperty("platCoinDropRateStage3").floatValue;
         if (goldStage3 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 gold rate as fallback", MessageType.Info);
         if (silverStage3 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 silver rate as fallback", MessageType.Info);
         EditorGUI.indentLevel--;
@@ -164,7 +164,6 @@ public class MonsterDataSOEditor : Editor
         if (canEvolve)
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("isEvolved"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("isFinalEvol"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionLevel"));
             
             EditorGUILayout.Space(3);

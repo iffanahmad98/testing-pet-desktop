@@ -22,7 +22,7 @@ public class MonsterEvolutionHandler
     private int _foodConsumed;
     private int _interactionCount;
 
-    public bool CanEvolve => _controller?.MonsterData != null && _controller.MonsterData.canEvolve && !_controller.MonsterData.isFinalEvol;
+    public bool CanEvolve => _controller?.MonsterData != null && _controller.MonsterData.canEvolve;
     public float TimeSinceCreation => _timeSinceCreation;
     public int FoodConsumed => _foodConsumed;
     public int InteractionCount => _interactionCount;
