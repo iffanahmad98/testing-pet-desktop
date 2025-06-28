@@ -59,7 +59,6 @@ public class GachaManager : MonoBehaviour
     }
     public void RollGacha()
     {
-        Debug.Log("Rolling gacha...");
         if (ServiceLocator.Get<MonsterManager>().coinCollected < gachaCost)
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);

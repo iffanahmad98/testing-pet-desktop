@@ -89,9 +89,7 @@ public class MonsterManager : MonoBehaviour
     #region Monster Management
     public void SellMonster(MonsterDataSO monsterData)
     {
-        if (monsterData == null) return;
-
-        int sellPrice = monsterData.GetSellPrice(activeMonsters.Find(m => m.MonsterData.id == monsterData.id)?.evolutionLevel ?? 0);
+        int sellPrice = monsterData.GetSellPrice(activeMonsters.Find(m => m.MonsterData.id == monsterData.id)?.evolutionLevel ?? 1);
         coinCollected += sellPrice;
         SaveSystem.SaveCoin(coinCollected);
         OnCoinChanged?.Invoke(coinCollected);
@@ -197,7 +195,7 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    public void BuyMons(int cost = 10)
+    public void BuyMons(int cost = 0)
     {
         if (SpentCoin(cost)) SpawnMonster();
     }

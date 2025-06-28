@@ -57,9 +57,6 @@ public class GachaResultPanel : MonoBehaviour
             return;
         }
 
-        spawnBtn.onClick.RemoveAllListeners();
-        sellBtn.onClick.RemoveAllListeners();
-
         canvasGroup = root.GetComponent<CanvasGroup>() ?? root.AddComponent<CanvasGroup>();
         chestCanvas = chest.GetComponent<CanvasGroup>() ?? chest.AddComponent<CanvasGroup>();
         eggCanvas = egg.GetComponent<CanvasGroup>() ?? egg.AddComponent<CanvasGroup>();
@@ -136,6 +133,8 @@ public class GachaResultPanel : MonoBehaviour
         seq.AppendCallback(() =>
         {
             shineVFX.gameObject.SetActive(false);
+            sellBtn.onClick.RemoveAllListeners();
+            spawnBtn.onClick.RemoveAllListeners();
             sellBtn.onClick.AddListener(() =>
             {
                 onSell?.Invoke();

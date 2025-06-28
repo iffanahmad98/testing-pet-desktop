@@ -363,15 +363,7 @@ public class SettingsManager : MonoBehaviour
         Debug.Log($"Language changed to: {selectedLanguage}");
     }
     #endregion
-
-    #region Utility Methods
-    private void UpdateValueText(TextMeshProUGUI textComponent, float value, string format)
-    {
-        if (textComponent != null)
-            textComponent.text = value.ToString(format);
-    }
-    #endregion
-
+    
     private void RepositionMonstersAfterScaling()
     {
         if (gameManager?.activeMonsters == null) return;

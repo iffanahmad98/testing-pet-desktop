@@ -26,7 +26,7 @@ public static class SaveSystem
         LoadPlayerConfig();
         _sessionStartTime = DateTime.Now;
 
-        Debug.Log(_playerConfig.lastLoginTime);
+        Debug.Log($"Last login time: {_playerConfig.lastLoginTime}");
         // Handle first-time login
         if (_playerConfig.lastLoginTime == default)
         {
@@ -204,7 +204,6 @@ public static class SaveSystem
                 string json = File.ReadAllText(path);
                 _playerConfig = JsonUtility.FromJson<PlayerConfig>(json);
                 _playerConfig.SyncFromSerializable();
-                Debug.Log("Game data loaded successfully");
             }
             catch (Exception e)
             {
@@ -279,7 +278,6 @@ public static class SaveSystem
             Debug.LogWarning("PlayerConfig was null, creating new one.");
             CreateNewPlayerConfig();
         }
-        Debug.Log(_playerConfig.settings.bgmVolume);
         return _playerConfig;
     }
 
