@@ -71,7 +71,7 @@ public class MonsterDataSOEditor : Editor
         if (!showStats) return;
 
         EditorGUI.indentLevel++;
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealth"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("hp"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("moveSpd"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("foodDetectionRange"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("eatDistance"));

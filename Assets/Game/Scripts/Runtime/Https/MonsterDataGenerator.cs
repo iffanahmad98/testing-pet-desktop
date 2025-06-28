@@ -71,7 +71,7 @@ public class MonsterDataGenerator
                 values = newValues;
             }
             
-            if (values.Length < 11 || string.IsNullOrEmpty(values[0])) 
+            if (values.Length < 23 || string.IsNullOrEmpty(values[0])) // Changed from 11 to 23
             {
                 Debug.Log($"⏭️ Skipping line {i}: insufficient data ({values.Length} columns)");
                 continue;
@@ -100,38 +100,39 @@ public class MonsterDataGenerator
             monster.name = values[0].Trim();
             monster.type = ParseMonsterType(values[1].Trim());
             monster.pupType = ParsePupType(values[2].Trim());
+            // Skip values[3] - this is the empty Picture column
             
             monster.stage1 = new StageData
             {
-                fullness = ParseFloat(values[3]),
-                hp = ParseFloat(values[4]),
-                timeEvolveDays = ParseFloat(values[5]),
-                gachaChance = values[6],
-                gachaChanceDecimal = ParseGachaChance(values[6]),
-                goldCoinHour = ParseFloat(values[7]),
-                silverCoinHour = ParseFloat(values[8]),
-                priceBuy = ParseFloat(values[9]),
-                priceSell = ParseFloat(values[10])
+                fullness = ParseFloat(values[4]),     // Column 5: Fullness
+                hp = ParseFloat(values[5]),           // Column 6: HP
+                timeEvolveDays = ParseFloat(values[6]), // Column 7: Time Evolve
+                gachaChance = values[7],              // Column 8: Chance Gatcha
+                gachaChanceDecimal = ParseGachaChance(values[7]),
+                silverCoinHour = ParseFloat(values[8]), // Column 9: Platinum Coin
+                goldCoinHour = ParseFloat(values[9]),   // Column 10: Gold Coin
+                priceBuy = ParseFloat(values[10]),    // Column 11: Price Buy
+                priceSell = ParseFloat(values[11])    // Column 12: Price Sell
             };
             
             monster.stage2 = new StageData
             {
-                fullness = ParseFloatWithDefault(values, 11, monster.stage1.fullness * 1.5f),
-                hp = ParseFloatWithDefault(values, 12, monster.stage1.hp * 2f),
-                timeEvolveDays = ParseFloatWithDefault(values, 13, monster.stage1.timeEvolveDays),
-                goldCoinHour = ParseFloatWithDefault(values, 14, monster.stage1.goldCoinHour * 3f),
-                silverCoinHour = ParseFloatWithDefault(values, 15, monster.stage1.silverCoinHour),
-                priceSell = ParseFloatWithDefault(values, 16, monster.stage1.priceSell * 2f)
+                fullness = ParseFloatWithDefault(values, 12, monster.stage1.fullness * 1.5f),  // Column 13
+                hp = ParseFloatWithDefault(values, 13, monster.stage1.hp * 2f),               // Column 14
+                timeEvolveDays = ParseFloatWithDefault(values, 14, monster.stage1.timeEvolveDays), // Column 15
+                silverCoinHour = ParseFloatWithDefault(values, 15, monster.stage1.silverCoinHour), // Column 16: Platinum
+                goldCoinHour = ParseFloatWithDefault(values, 16, monster.stage1.goldCoinHour * 3f), // Column 17: Gold
+                priceSell = ParseFloatWithDefault(values, 17, monster.stage1.priceSell * 2f)   // Column 18
             };
             
             monster.stage3 = new StageData
             {
-                fullness = ParseFloatWithDefault(values, 17, monster.stage2.fullness * 1.2f),
-                hp = ParseFloatWithDefault(values, 18, monster.stage2.hp * 1.4f),
+                fullness = ParseFloatWithDefault(values, 18, monster.stage2.fullness * 1.2f),  // Column 19
+                hp = ParseFloatWithDefault(values, 19, monster.stage2.hp * 1.4f),             // Column 20
                 timeEvolveDays = 0,
-                goldCoinHour = ParseFloatWithDefault(values, 19, monster.stage2.goldCoinHour * 2f),
-                silverCoinHour = ParseFloatWithDefault(values, 20, monster.stage2.silverCoinHour),
-                priceSell = ParseFloatWithDefault(values, 21, monster.stage2.priceSell * 2f)
+                silverCoinHour = ParseFloatWithDefault(values, 20, monster.stage2.silverCoinHour), // Column 21: Platinum
+                goldCoinHour = ParseFloatWithDefault(values, 21, monster.stage2.goldCoinHour * 2f), // Column 22: Gold
+                priceSell = ParseFloatWithDefault(values, 22, monster.stage2.priceSell * 2f)   // Column 23
             };
             
             ApplyDefaultEvolutionLogic(monster);
@@ -255,7 +256,7 @@ public class MonsterDataGenerator
     {
         asset.monsterName = csvData.name;
         asset.monType = csvData.type;
-        asset.maxHealth = csvData.stage1.hp;
+        asset.hp = csvData.stage1.hp;
         asset.maxNutritionStage1 = csvData.stage1.fullness;
         
         // NEW: Map stage-specific hunger values
@@ -369,6 +370,20 @@ public class MonsterDataGenerator
         asset.hungerHappinessThreshold = 20f;
         asset.hungerHappinessDrainRate = 2f;
         asset.evolutionLevel = 1; 
+        
+        // ADD: Map poop type from CSV pupType
+        asset.poopType = csvData.pupType == "Sparkle" ? PoopType.Sparkle : PoopType.Normal;
+        
+        // ADD: Generate unique ID if not exists
+        if (string.IsNullOrEmpty(asset.id))
+        {
+            asset.id = csvData.name.ToLower().Replace(" ", "_");
+        }
+        
+        // ADD: Set evolution flags properly
+        asset.isEvolved = false; // Always start as base form
+        asset.canEvolve = csvData.stage2 != null;
+        asset.isFinalEvol = csvData.stage3 == null && csvData.stage2 != null;
     }
     
     private static EvolutionRequirement CreateEvolutionRequirement(MonsterCSVData csvData, int targetLevel, float timeEvolveDays)
@@ -405,8 +420,8 @@ public class MonsterDataGenerator
                 break;
         }
         
-        req.evolutionName = $"{csvData.name} Stage {targetLevel + 1}";
-        req.description = $"Evolve to {csvData.name} Stage {targetLevel + 1}";
+        req.evolutionName = $"{csvData.name} Stage {targetLevel}";
+        req.description = $"Evolve to {csvData.name} Stage {targetLevel}";
         
         return req;
     }

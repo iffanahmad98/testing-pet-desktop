@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Zankylous_Data
+  m_EditorClassIdentifier: 
+  monsterName: Zankylous
+  id: zankylous
+  monType: 2
+  poopType: 10
+  hp: 50
+  moveSpd: 100
+  foodDetectionRange: 200
+  eatDistance: 5
+  startingHappiness: 0
+  startingHunger: 50
+  hungerDepleteRate: 0.05
+  maxNutritionStage1: 80
+  maxNutritionStage2: 240
+  maxNutritionStage3: 288
+  poopRate: 20
+  goldCoinDropRateStage1: 120
+  silverCoinDropRateStage1: 6
+  goldCoinDropRateStage2: 120
+  silverCoinDropRateStage2: 18
+  goldCoinDropRateStage3: 240
+  silverCoinDropRateStage3: 18
+  gachaChancePercent: 0.015
+  gachaChanceDisplay: 1.50%
+  isGachaOnly: 1
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 3
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  isFinalEvol: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 1555200
+    minCurrentHappiness: 85
+    minCurrentHunger: 75
+    minFoodConsumed: 20
+    minInteractions: 40
+    evolutionName: Zankylous Stage 2
+    description: Evolve to Zankylous Stage 2
+    resetHappinessProgress: 1
+    resetHungerProgress: 1
+    resetFoodProgress: 1
+    resetInteractionProgress: 1
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 1555200
+    minCurrentHappiness: 90
+    minCurrentHunger: 80
+    minFoodConsumed: 40
+    minInteractions: 80
+    evolutionName: Zankylous Stage 3
+    description: Evolve to Zankylous Stage 3
+    resetHappinessProgress: 1
+    resetHungerProgress: 1
+    resetFoodProgress: 1
+    resetInteractionProgress: 1
+    progressRetentionPercentage: 0
+  monsterSpine: []
+  monsIconImg: []
+  evolutionAnimationSets: []
+  evolutionBehaviors: []
+  monsterPrice: 0
+  sellPriceStage1: 720
+  sellPriceStage2: 1440
+  sellPriceStage3: 2880
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

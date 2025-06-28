@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Name_Data
+  m_EditorClassIdentifier: 
+  monsterName: Name
+  id: name
+  monType: 0
+  poopType: 1
+  hp: 0
+  moveSpd: 120
+  foodDetectionRange: 200
+  eatDistance: 5
+  startingHappiness: 0
+  startingHunger: 50
+  hungerDepleteRate: 0.05
+  maxNutritionStage1: 0
+  maxNutritionStage2: 0
+  maxNutritionStage3: 0
+  poopRate: 20
+  goldCoinDropRateStage1: 0
+  silverCoinDropRateStage1: 0
+  goldCoinDropRateStage2: 0
+  silverCoinDropRateStage2: 0
+  goldCoinDropRateStage3: 0
+  silverCoinDropRateStage3: 0
+  gachaChancePercent: 0
+  gachaChanceDisplay: 
+  isGachaOnly: 1
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 2
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 0
+  isEvolved: 0
+  isFinalEvol: 1
+  evolutionLevel: 0
+  evolutionRequirements: []
+  monsterSpine: []
+  monsIconImg: []
+  evolutionAnimationSets: []
+  evolutionBehaviors: []
+  monsterPrice: 0
+  sellPriceStage1: 0
+  sellPriceStage2: 0
+  sellPriceStage3: 0
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

@@ -601,25 +601,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
     }
 
-    // // Method to evolve the monster (increases the instance level)
-    // public void EvolveToNextLevel()
-    // {
-    //     if (monsterData != null && evolutionLevel < 3) // Assuming max 3 levels
-    //     {
-    //         evolutionLevel++;
-
-    //         // Update visuals for new evolution level
-    //         _visualHandler?.UpdateMonsterVisuals();
-
-    //         // Update ID to reflect new level
-    //         string baseName = monsterData.monsterName;
-    //         gameObject.name = $"{baseName}_Lv{evolutionLevel}_{monsterID}";
-
-    //         // Save the new evolution level
-    //         SaveMonData();
-    //     }
-    // }
-
     public int GetCurrentSellPrice() => monsterData?.GetSellPrice(evolutionLevel) ?? 0;
     public void CheckEvolutionAfterInteraction() => _evolutionHandler?.OnInteraction();
     public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
