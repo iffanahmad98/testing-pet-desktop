@@ -56,12 +56,14 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         }
 
         // Enter placement mode using PlacementManager
+
         ServiceLocator.Get<PlacementManager>().StartPlacement(
             prefabToPlace,
             canvasParent,
             OnConfirmPlacement,
             OnCancelPlacement,
-            allowMultiple: true,
+            allowMultiple: itemData.category == ItemType.Food, // Allow multiple placement for food
+            isMedicine: itemData.category == ItemType.Medicine,
             previewSprite: itemData.itemImgs[0]
         );
 

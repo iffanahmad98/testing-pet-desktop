@@ -17,6 +17,7 @@ public class MonsterManager : MonoBehaviour
 
     [Header("Game Settings")]
     public RectTransform gameArea;
+    public RectTransform groundRect; // For food placement
     public Canvas mainCanvas;
     public MonsterDatabaseSO monsterDatabase;
 
@@ -53,6 +54,7 @@ public class MonsterManager : MonoBehaviour
     {
         ServiceLocator.Register(this);
         InitializePools();
+        SaveSystem.Initialize();
     }
 
     private void InitializePools()
@@ -124,6 +126,7 @@ public class MonsterManager : MonoBehaviour
         }
         else
             RegisterActiveMonster(controller);
+
     }
 
     private GameObject CreateMonster(MonsterDataSO monsterData = null)
@@ -288,7 +291,7 @@ public class MonsterManager : MonoBehaviour
 
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {
-                consumable.Initialize(data);
+                consumable.Initialize(data, groundRect);
             }
 
             // Register into the correct active list
@@ -515,6 +518,7 @@ public class MonsterManager : MonoBehaviour
     #region Save and Load
     private void LoadGame()
     {
+
         coinCollected = SaveSystem.LoadCoin();
         poopCollected = SaveSystem.LoadPoop();
         savedMonIDs = SaveSystem.LoadSavedMonIDs();
@@ -538,20 +542,24 @@ public class MonsterManager : MonoBehaviour
         {
             var saveData = new MonsterSaveData
             {
-                monsterId = monster.monsterID,
+
+                instanceId = monster.monsterID,
+                monsterId = monster.MonsterData.id,
                 currentHunger = monster.StatsHandler.CurrentHunger,
                 currentHappiness = monster.StatsHandler.CurrentHappiness,
-                lastLowHungerTime = monster.GetLowHungerTime(),
-                isSick = monster.IsSick,
-                evolutionLevel = monster.evolutionLevel,
-                timeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
+                currentHealth = monster.StatsHandler.CurrentHP,
+                currentEvolutionLevel = monster.evolutionLevel,
+
+                // Evolution data
+                timeCreated = monster.timeCreated,
+                totalTimeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
                 nutritionCount = monster.GetEvolutionFoodConsumed(),
-                interactionCount = monster.GetEvolutionInteractionCount()
+                currentInteraction = monster.GetEvolutionInteractionCount()
             };
             SaveSystem.SaveMon(saveData);
         }
         SaveSystem.SaveMonIDs(savedMonIDs);
-        SaveSystem.Flush();
+        // SaveSystem.Flush();
     }
 
     private void SaveGameData()

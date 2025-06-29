@@ -8,14 +8,16 @@ public class MonsterDataSO : ScriptableObject
     [Header("Basic Info")]
     public string monsterName;
     public string monsterId;
-    public string id; 
+    public string id;
 
     [Header("Classification")]
     public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)
     public PoopType poopType = PoopType.Normal; // Type of poop this monster produces
 
     [Header("Stats")]
-    public float hp = 100f;        // Maximum health
+    public float maxHealthStage1;
+    public float maxHealthStage2;
+    public float maxHealthStage3;
     public float moveSpd = 100f;       // Move speed
     public float foodDetectionRange = 200f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
@@ -25,6 +27,9 @@ public class MonsterDataSO : ScriptableObject
     public float maxNutritionStage1 = 0f;          // Stage 1 hunger (keep existing)
     public float maxNutritionStage2 = 0f;          // Stage 2 hunger
     public float maxNutritionStage3 = 0f;          // Stage 3 hunger
+    public float maxFullnessStage1 = 0f; // Stage 1 fullness (keep existing)
+    public float maxFullnessStage2 = 0f; // Stage 2 fullness
+    public float maxFullnessStage3 = 0f; // Stage 3 fullness
 
 
     [Header("Drop Rates")]
@@ -51,6 +56,10 @@ public class MonsterDataSO : ScriptableObject
     public bool canEvolve = true;
     public bool isEvolved = false;
     public int evolutionLevel = 1;
+
+    public int timeToEvolveStage1 = 0; // Time to evolve from Stage 1 to Stage 2 (in days)
+    public int timeToEvolveStage2 = 0; // Time to evolve from Stage 2 to Stage 3 (in days)
+
 
     [Header("Evolution Requirements - Embedded")]
     public EvolutionRequirement[] evolutionRequirements;
@@ -105,7 +114,7 @@ public class MonsterDataSO : ScriptableObject
         }
     }
 
-    public float GetPlatinumCoinDropRate(int evolutionLevel) 
+    public float GetPlatinumCoinDropRate(int evolutionLevel)
     {
         switch (evolutionLevel)
         {
@@ -126,23 +135,46 @@ public class MonsterDataSO : ScriptableObject
             default: return maxNutritionStage1;
         }
     }
+    public float GetMaxHealth(int evolutionLevel)
+    {
+        switch (evolutionLevel)
+        {
+            case 1: return maxHealthStage1 > 0 ? maxHealthStage1 : 100f; // Default to 100 if not set
+            case 2: return maxHealthStage2 > 0 ? maxHealthStage2 : maxHealthStage1 * 2f;
+            case 3: return maxHealthStage3 > 0 ? maxHealthStage3 : maxHealthStage2 * 1.5f;
+            default: return maxHealthStage1;
+        }
+    }
 }
 
 [Serializable]
 public class MonsterSaveData
 {
-    [Header("Basic Info")]
-    public string monsterId;
+    [Header("Identity")]
+    public string instanceId;               // Unique per instance
+    public string monsterId;               // Refers to MonsterDataSO.id
+    [Header("Core Stats")]
+    public float currentHealth;
     public float currentHunger;
     public float currentHappiness;
-    public float lastLowHungerTime;
-    public bool isSick;
+    // public float currentFullness;
 
     [Header("Evolution Data")]
-    public int evolutionLevel;
-    public float timeSinceCreation;
+    public int currentEvolutionLevel;
+    public int currentInteraction;
     public int nutritionCount;
-    public int interactionCount;
+    public float totalTimeSinceCreation;
+    public string timeCreated;
+    // public EvolutionProgressData evolutionProgress;
+}
+[Serializable]
+public class EvolutionProgressData
+{
+    [Tooltip("Total time alive in days")]
+    public float totalDaysSinceCreation;
+
+    [Tooltip("Has reached maximum fullness (per-evolutionLevel)")]
+    public bool isFullnessMaxed;
 }
 
 [Serializable]
@@ -150,10 +182,10 @@ public class EvolutionRequirement
 {
     [Header("Target Evolution")]
     public int targetEvolutionLevel = 2;
-    
+
     [Header("Time Requirements")]
-    public float minTimeAlive = 3f; 
-    
+    public float minTimeAlive = 3f;
+
     [Header("Current Status Requirements (Dynamic)")]
     [Range(0f, 100f)] public float minCurrentHappiness = 50f;
     [Range(0f, 100f)] public float minCurrentHunger = 50f;
@@ -164,7 +196,7 @@ public class EvolutionRequirement
 
     [Header("Custom Conditions")]
     public Func<MonsterController, bool> customCondition;
-    
+
     [Header("Evolution Info")]
     public string evolutionName = "Evolution";
     public string description = "Evolution requirements";

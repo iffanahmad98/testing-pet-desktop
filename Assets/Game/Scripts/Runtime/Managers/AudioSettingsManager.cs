@@ -82,11 +82,10 @@ public class AudioSettingsManager : MonoBehaviour, ISettingsSavable
     }
     public void LoadSettings()
     {
-        var settings = SaveSystem.GetPlayerConfig().settings;
 
-        cachedMaster = settings.masterVolume;
-        cachedBGM = settings.bgmVolume;
-        cachedSFX = settings.sfxVolume;
+        cachedMaster = PlayerPrefs.GetFloat(VOLUME_PREFIX + masterVolumeParam, 1f);
+        cachedBGM = PlayerPrefs.GetFloat(VOLUME_PREFIX + bgmVolumeParam, 1f);
+        cachedSFX = PlayerPrefs.GetFloat(VOLUME_PREFIX + sfxVolumeParam, 1f);
 
         if (masterSlider != null)
         {
@@ -109,15 +108,16 @@ public class AudioSettingsManager : MonoBehaviour, ISettingsSavable
 
     public void SaveSettings()
     {
-        var settings = SaveSystem.GetPlayerConfig().settings;
 
-        settings.masterVolume = masterSlider.value;
-        settings.bgmVolume = bgmSlider.value;
-        settings.sfxVolume = sfxSlider.value;
+        PlayerPrefs.SetFloat(VOLUME_PREFIX + masterVolumeParam, masterSlider.value);
+        PlayerPrefs.SetFloat(VOLUME_PREFIX + bgmVolumeParam, bgmSlider.value);
+        PlayerPrefs.SetFloat(VOLUME_PREFIX + sfxVolumeParam, sfxSlider.value);
 
-        cachedMaster = settings.masterVolume;
-        cachedBGM = settings.bgmVolume;
-        cachedSFX = settings.sfxVolume;
+        cachedMaster = masterSlider.value;
+        cachedBGM = bgmSlider.value;
+        cachedSFX = sfxSlider.value;
+
+        PlayerPrefs.Save();
 
         Debug.Log("Audio Settings Saved");
     }

@@ -38,28 +38,28 @@ public class MonsterDataSOEditor : Editor
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterName"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("id"));
-        
+
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Classification", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("poopType")); // Move this here
-        
+
         // Pricing Section
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Pricing & Gacha", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterPrice"), new GUIContent("Buy Price"));
-        
+
         // Sell prices
         EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage1"), new GUIContent("Sell Price (Stage 1)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage2"), new GUIContent("Sell Price (Stage 2)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage3"), new GUIContent("Sell Price (Stage 3)"));
-        
+
         // NEW: Gacha data
         EditorGUILayout.Space(2);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChancePercent"), new GUIContent("Gacha Chance (Decimal)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChanceDisplay"), new GUIContent("Gacha Chance (Display)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("isGachaOnly"), new GUIContent("Gacha Only"));
-        
+
         EditorGUILayout.Space(3);
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
@@ -71,58 +71,63 @@ public class MonsterDataSOEditor : Editor
         if (!showStats) return;
 
         EditorGUI.indentLevel++;
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("hp"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealthStage1"), new GUIContent("Max Health (Stage 1)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealthStage2"), new GUIContent("Max Health (Stage 2)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealthStage3"), new GUIContent("Max Health (Stage 3)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("moveSpd"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("foodDetectionRange"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("eatDistance"));
-        
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxFullnessStage1"), new GUIContent("Max Fullness (Stage 1)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxFullnessStage2"), new GUIContent("Max Fullness (Stage 2)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxFullnessStage3"), new GUIContent("Max Fullness (Stage 3)"));
+
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Base Values", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHunger"));      
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHappiness"));   
-        
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHunger"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("baseHappiness"));
+
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Drop Rates", EditorStyles.boldLabel);
-        
+
         // Stage 1 rates (always shown)
         EditorGUILayout.LabelField("Stage 1:", EditorStyles.miniBoldLabel);
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage1"), new GUIContent("Gold Coin Rate (minutes)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("platCoinDropRateStage1"), new GUIContent("Platinum Coin Rate (minutes)")); // Changed from Silver to Platinum
         EditorGUI.indentLevel--;
-        
+
         // Stage 2 rates
         EditorGUILayout.Space(2);
         EditorGUILayout.LabelField("Stage 2:", EditorStyles.miniBoldLabel);
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage2"), new GUIContent("Gold Coin Rate (minutes)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("platCoinDropRateStage2"), new GUIContent("Platinum Coin Rate (minutes)")); // Changed from Silver to Platinum
-        
+
         // Show fallback info
         var goldStage2 = serializedObject.FindProperty("goldCoinDropRateStage2").floatValue;
         var silverStage2 = serializedObject.FindProperty("platCoinDropRateStage2").floatValue;
         if (goldStage2 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 gold rate as fallback", MessageType.Info);
         if (silverStage2 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 silver rate as fallback", MessageType.Info);
         EditorGUI.indentLevel--;
-        
+
         // Stage 3 rates
         EditorGUILayout.Space(2);
         EditorGUILayout.LabelField("Stage 3:", EditorStyles.miniBoldLabel);
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("goldCoinDropRateStage3"), new GUIContent("Gold Coin Rate (minutes)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("platCoinDropRateStage3"), new GUIContent("Platinum Coin Rate (minutes)"));
-        
+
         // Show fallback info
         var goldStage3 = serializedObject.FindProperty("goldCoinDropRateStage3").floatValue;
         var silverStage3 = serializedObject.FindProperty("platCoinDropRateStage3").floatValue;
         if (goldStage3 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 gold rate as fallback", MessageType.Info);
         if (silverStage3 <= 0) EditorGUILayout.HelpBox("Will use Stage 1 silver rate as fallback", MessageType.Info);
         EditorGUI.indentLevel--;
-        
+
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Other Rates", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("poopRate"), new GUIContent("Poop Rate (minutes)"));
-        
+
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }
@@ -133,7 +138,7 @@ public class MonsterDataSOEditor : Editor
         if (!showBehavior) return;
 
         EditorGUI.indentLevel++;
-        
+
         // Hunger & Happiness
         EditorGUILayout.LabelField("Hunger & Happiness", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("maxNutritionStage1"), new GUIContent("Max Hunger (Stage 1)"));
@@ -144,7 +149,7 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("pokeHappinessValue"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerHappinessThreshold"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hungerHappinessDrainRate"));
-        
+
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }
@@ -155,17 +160,19 @@ public class MonsterDataSOEditor : Editor
         if (!showEvolution) return;
 
         EditorGUI.indentLevel++;
-        
+
         // Basic Evolution Settings
         EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("canEvolve"));
-        
+
         var canEvolve = serializedObject.FindProperty("canEvolve").boolValue;
         if (canEvolve)
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("isEvolved"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionLevel"));
-            
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage1"), new GUIContent("Time to Evolve Stage 2 (days)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage2"), new GUIContent("Time to Evolve Stage 3 (days)"));
+
             EditorGUILayout.Space(3);
             EditorGUILayout.LabelField("Requirements & Behaviors", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionRequirements"));
@@ -175,7 +182,7 @@ public class MonsterDataSOEditor : Editor
         {
             EditorGUILayout.HelpBox("Evolution is disabled for this monster.", MessageType.Info);
         }
-        
+
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }
@@ -187,7 +194,7 @@ public class MonsterDataSOEditor : Editor
 
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterSpine"), true);
-        
+
         EditorGUILayout.Space(3);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionAnimationSets"), true);
         EditorGUI.indentLevel--;
@@ -200,10 +207,10 @@ public class MonsterDataSOEditor : Editor
         if (!showVisuals) return;
 
         EditorGUI.indentLevel++;
-        
+
         // Use the CORRECT property name from MonsterDataSO
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsIconImg"), new GUIContent("Monster Icons"), true);
-        
+
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);
     }
@@ -215,19 +222,19 @@ public class MonsterDataSOEditor : Editor
 
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("idleSounds"), true);
-        
+
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Event Sounds", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("happySound"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("eatSound"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("hurtSound"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("interactionSound"));
-        
+
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Special Event Sounds", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("evolveSound"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("deathSound"));
-        
+
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);  // Add this line for consistency
     }

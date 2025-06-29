@@ -12,6 +12,5 @@ public class ItemDataSO : ScriptableObject
 
     [Header("Stats")]
     public int price;
-    public int fullness;         // Optional: use this as an alternate to nutritionValue
-    public float nutritionValue; // If used as food
+    public float nutritionValue; // If used as food & medicine
 }

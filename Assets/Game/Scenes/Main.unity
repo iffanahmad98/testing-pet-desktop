@@ -3397,6 +3397,7 @@ MonoBehaviour:
   poolContainer: {fileID: 880935774}
   initialPoolSize: 20
   gameArea: {fileID: 17609072}
+  groundRect: {fileID: 543336148951506079}
   mainCanvas: {fileID: 1457136190}
   monsterDatabase: {fileID: 11400000, guid: e5208434c48913e4e82c7661db33630a, type: 2}
   foodPlacementIndicator: {fileID: 227051101}
@@ -6525,6 +6526,22 @@ PrefabInstance:
     - target: {fileID: 5542770341639879192, guid: a43834ebe78e0cf47b0a0bdc1d8682dc, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.5685005
+      objectReference: {fileID: 0}
+    - target: {fileID: 5703014766898741038, guid: a43834ebe78e0cf47b0a0bdc1d8682dc, type: 3}
+      propertyPath: m_ChildControlWidth
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5703014766898741038, guid: a43834ebe78e0cf47b0a0bdc1d8682dc, type: 3}
+      propertyPath: m_ChildControlHeight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5703014766898741038, guid: a43834ebe78e0cf47b0a0bdc1d8682dc, type: 3}
+      propertyPath: m_ChildForceExpandWidth
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5703014766898741038, guid: a43834ebe78e0cf47b0a0bdc1d8682dc, type: 3}
+      propertyPath: m_ChildForceExpandHeight
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6781048192964218706, guid: a43834ebe78e0cf47b0a0bdc1d8682dc, type: 3}
       propertyPath: m_AnchorMax.y

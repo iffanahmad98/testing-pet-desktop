@@ -79,7 +79,6 @@ public class SettingsManager : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register(this);
-        SaveSystem.Initialize();
     }
 
     private void Start()
@@ -363,7 +362,7 @@ public class SettingsManager : MonoBehaviour
         Debug.Log($"Language changed to: {selectedLanguage}");
     }
     #endregion
-    
+
     private void RepositionMonstersAfterScaling()
     {
         if (gameManager?.activeMonsters == null) return;
@@ -414,56 +413,57 @@ public class SettingsManager : MonoBehaviour
     }
     private void LoadSavedSettings()
     {
-        var settings = SaveSystem.GetPlayerConfig().settings;
 
         // Cache saved values for Cancel
-        savedGameAreaWidth = settings.gameAreaWidth;
-        savedGameAreaHeight = settings.gameAreaHeight;
-        savedGameAreaX = settings.gameAreaX;
-        savedGameAreaY = settings.gameAreaY;
-        savedUIScale = settings.uiScale;
-        savedLanguageIndex = settings.languageIndex;
-        savedScreenState = settings.screenState;
+        savedGameAreaWidth = PlayerPrefs.GetFloat("GameAreaWidth", DEFAULT_GAME_AREA_WIDTH);
+        savedGameAreaHeight = PlayerPrefs.GetFloat("GameAreaHeight", DEFAULT_GAME_AREA_HEIGHT);
+        savedGameAreaX = PlayerPrefs.GetFloat("GameAreaX", 0f);
+        savedGameAreaY = PlayerPrefs.GetFloat("GameAreaY", -500f);
+        savedUIScale = PlayerPrefs.GetFloat("UIScale", DEFAULT_UI_SCALE);
+        savedLanguageIndex = PlayerPrefs.GetInt("Language", 0);
+        savedScreenState = PlayerPrefs.GetInt("ScreenState", 0);
+        Debug.Log($"Loaded settings: Width={savedGameAreaWidth}, Height={savedGameAreaHeight}, X={savedGameAreaX}, Y={savedGameAreaY}, UIScale={savedUIScale}, LanguageIndex={savedLanguageIndex}, ScreenState={savedScreenState}");
 
         // Apply values to game area and UI
-        UpdateGameAreaWidth(settings.gameAreaWidth);
-        UpdateGameAreaHorizontalPosition(settings.gameAreaX);
-        UpdateGameAreaVerticalPosition(settings.gameAreaY);
-        UpdateUIScale(settings.uiScale);
-        ApplyScreenLayout(settings.screenState);
+        UpdateGameAreaWidth(savedGameAreaWidth);
+        UpdateGameAreaHeight(savedGameAreaHeight);
+        UpdateGameAreaHorizontalPosition(savedGameAreaX);
+        UpdateGameAreaVerticalPosition(savedGameAreaY);
+        UpdateUIScale(savedUIScale);
+        ApplyScreenLayout(savedScreenState);
 
         // Update IncrementSettingControl UI fields
-        widthControl.SetValueWithoutNotify(settings.gameAreaWidth);
-        heightControl.SetValueWithoutNotify(settings.gameAreaHeight);
-        horizontalPositionControl.SetValueWithoutNotify(settings.gameAreaX);
-        verticalPositionControl.SetValueWithoutNotify(settings.gameAreaY);
+        widthControl.SetValueWithoutNotify(savedGameAreaWidth);
+        heightControl.SetValueWithoutNotify(savedGameAreaHeight);
+        horizontalPositionControl.SetValueWithoutNotify(savedGameAreaX);
+        verticalPositionControl.SetValueWithoutNotify(savedGameAreaY);
 
         // Set dropdown value without triggering change callback
-        if (languageDropdown != null && settings.languageIndex < languageDropdown.options.Count)
+        if (languageDropdown != null && savedLanguageIndex < languageDropdown.options.Count)
         {
-            languageDropdown.SetValueWithoutNotify(settings.languageIndex);
+            languageDropdown.SetValueWithoutNotify(savedLanguageIndex);
         }
 
         // Also update screenState field (used in ApplyScreenLayout logic)
-        screenState = settings.screenState;
+        screenState = savedScreenState;
     }
 
 
     private void OnSaveSettings()
     {
-        var settings = SaveSystem.GetPlayerConfig().settings;
-        Debug.Log(settings);
 
-        settings.gameAreaWidth = gameArea.sizeDelta.x;
-        settings.gameAreaX = gameArea.anchoredPosition.x;
-        settings.gameAreaY = gameArea.anchoredPosition.y;
-        settings.uiScale = uiScale;
+        PlayerPrefs.SetFloat("GameAreaWidth", gameArea.sizeDelta.x);
+        PlayerPrefs.SetFloat("GameAreaHeight", gameArea.sizeDelta.y);
+        PlayerPrefs.SetFloat("GameAreaX", gameArea.anchoredPosition.x);
+        PlayerPrefs.SetFloat("GameAreaY", gameArea.anchoredPosition.y);
+        PlayerPrefs.SetFloat("UIScale", uiScale);
+        PlayerPrefs.SetInt("Language", languageDropdown.value);
+        PlayerPrefs.SetInt("ScreenState", screenState);
         // settings.languageIndex = languageDropdown.value;
-        settings.screenState = screenState;
         foreach (var module in savableSettingsModules)
             module.SaveSettings(); // Save each module's settings
+        PlayerPrefs.Save();
 
-        SaveSystem.SaveAll(); // This will serialize PlayerConfig to file
     }
 
 

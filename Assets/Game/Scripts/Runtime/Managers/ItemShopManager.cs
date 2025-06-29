@@ -75,7 +75,7 @@ public class ItemShopManager : MonoBehaviour
         itemNameText.text = item.itemName;
         itemPriceText.text = $"Price: {item.price}";
         itemDescText.text = item.description;
-        itemFullnessText.text = $"Fullness: {item.fullness}";
+        itemFullnessText.text = $"Fullness: {item.nutritionValue}";
         itemInfoIcon.sprite = item.itemImgs[0];
         itemInfoIcon.enabled = item.itemImgs[0] != null;
     }

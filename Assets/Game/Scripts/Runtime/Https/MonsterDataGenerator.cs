@@ -17,51 +17,51 @@ public class MonsterDataGenerator
             GenerateFromCSV(csvContent);
         }
     }
-    
+
     public static void GenerateFromCSV(string csvContent)
     {
         var monsters = ParseCSV(csvContent);
-        
+
         foreach (var monster in monsters)
         {
             UpdateOrCreateMonsterDataSO(monster);
         }
-        
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }
-    
+
     #endregion
-    
+
     #region CSV Parsing
-    
+
     private static List<MonsterCSVData> ParseCSV(string csvContent)
     {
         var monsters = new List<MonsterCSVData>();
-        
+
         // Handle different line endings
         csvContent = csvContent.Replace("\r\n", "\n").Replace("\r", "\n");
         string[] lines = csvContent.Split('\n');
-        
+
         Debug.Log($"🔍 ParseCSV: Total lines = {lines.Length}");
-        
+
         for (int i = 4; i < lines.Length; i++)
         {
             string line = lines[i].Trim();
-            
-            if (string.IsNullOrEmpty(line) || 
-                line.StartsWith(";;;;;;") || 
+
+            if (string.IsNullOrEmpty(line) ||
+                line.StartsWith(";;;;;;") ||
                 line.StartsWith(",,,,,,") ||  // NEW: Skip Google Sheets empty lines
                 line.Contains("100,00%") ||
                 line.Contains("100.00%") ||  // NEW: Handle decimal format
-                line.Contains("*Kalau")) 
+                line.Contains("*Kalau"))
             {
                 Debug.Log($"⏭️ Skipping line {i}: {line.Substring(0, Mathf.Min(30, line.Length))}...");
                 continue;
             }
-            
+
             string[] values = line.Split(',');  // NEW: Use comma instead of semicolon
-            
+
             // NEW: Handle Google Sheets format with leading empty column
             if (values.Length > 0 && string.IsNullOrEmpty(values[0]))
             {
@@ -70,15 +70,15 @@ public class MonsterDataGenerator
                 System.Array.Copy(values, 1, newValues, 0, values.Length - 1);
                 values = newValues;
             }
-            
+
             if (values.Length < 23 || string.IsNullOrEmpty(values[0])) // Changed from 11 to 23
             {
                 Debug.Log($"⏭️ Skipping line {i}: insufficient data ({values.Length} columns)");
                 continue;
             }
-            
+
             Debug.Log($"✅ Processing: {values[0]} ({values.Length} columns)");
-            
+
             var monster = ParseMonsterFromCSV(values);
             if (monster != null)
             {
@@ -86,22 +86,22 @@ public class MonsterDataGenerator
                 Debug.Log($"🎉 Added: {monster.name} ({monster.type})");
             }
         }
-        
+
         Debug.Log($"📊 Final result: {monsters.Count} monsters parsed");
         return monsters;
     }
-    
+
     private static MonsterCSVData ParseMonsterFromCSV(string[] values)
     {
         try
         {
             var monster = new MonsterCSVData();
-            
+
             monster.name = values[0].Trim();
             monster.type = ParseMonsterType(values[1].Trim());
             monster.pupType = ParsePupType(values[2].Trim());
             // Skip values[3] - this is the empty Picture column
-            
+
             monster.stage1 = new StageData
             {
                 fullness = ParseFloat(values[4]),     // Column 5: Fullness
@@ -114,7 +114,7 @@ public class MonsterDataGenerator
                 priceBuy = ParseFloat(values[10]),    // Column 11: Price Buy
                 priceSell = ParseFloat(values[11])    // Column 12: Price Sell
             };
-            
+
             monster.stage2 = new StageData
             {
                 fullness = ParseFloatWithDefault(values, 12, monster.stage1.fullness * 1.5f),  // Column 13
@@ -124,7 +124,7 @@ public class MonsterDataGenerator
                 goldCoinHour = ParseFloatWithDefault(values, 16, monster.stage1.goldCoinHour * 3f), // Column 17: Gold
                 priceSell = ParseFloatWithDefault(values, 17, monster.stage1.priceSell * 2f)   // Column 18
             };
-            
+
             monster.stage3 = new StageData
             {
                 fullness = ParseFloatWithDefault(values, 18, monster.stage2.fullness * 1.2f),  // Column 19
@@ -134,9 +134,9 @@ public class MonsterDataGenerator
                 goldCoinHour = ParseFloatWithDefault(values, 21, monster.stage2.goldCoinHour * 2f), // Column 22: Gold
                 priceSell = ParseFloatWithDefault(values, 22, monster.stage2.priceSell * 2f)   // Column 23
             };
-            
+
             ApplyDefaultEvolutionLogic(monster);
-            
+
             return monster;
         }
         catch (System.Exception e)
@@ -145,39 +145,39 @@ public class MonsterDataGenerator
             return null;
         }
     }
-    
+
     #endregion
-    
+
     #region Data Type Parsing
-    
+
     private static float ParseFloat(string value)
     {
         if (string.IsNullOrEmpty(value)) return 0f;
-        
+
         value = value.Replace(',', '.').Trim();
-        
+
         if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float result))
             return result;
-            
+
         return 0f;
     }
-    
+
     private static float ParseFloatWithDefault(string[] values, int index, float defaultValue)
     {
         if (index >= values.Length || string.IsNullOrEmpty(values[index]))
             return defaultValue;
-            
+
         float parsed = ParseFloat(values[index]);
         return parsed > 0 ? parsed : defaultValue;
     }
-    
+
     private static MonsterType ParseMonsterType(string type)
     {
         if (string.IsNullOrEmpty(type)) return MonsterType.Common;
-        
+
         if (System.Enum.TryParse<MonsterType>(type.Trim(), true, out var result))
             return result;
-            
+
         string lowerType = type.ToLower().Trim();
         switch (lowerType)
         {
@@ -187,13 +187,13 @@ public class MonsterDataGenerator
             default: return MonsterType.Common;
         }
     }
-    
+
     private static string ParsePupType(string pupType)
     {
         if (string.IsNullOrEmpty(pupType)) return "Normal";
-        
+
         pupType = pupType.Trim();
-        
+
         if (pupType.Equals("Spakle", System.StringComparison.OrdinalIgnoreCase) ||
             pupType.Equals("Sparkle", System.StringComparison.OrdinalIgnoreCase) ||
             pupType.Equals("Spakle ", System.StringComparison.OrdinalIgnoreCase) ||
@@ -201,34 +201,34 @@ public class MonsterDataGenerator
         {
             return "Sparkle";
         }
-        
+
         if (pupType.Equals("Normal", System.StringComparison.OrdinalIgnoreCase) ||
             pupType.Equals("normal", System.StringComparison.OrdinalIgnoreCase))
         {
             return "Normal";
         }
-        
+
         return "Normal";
     }
-    
+
     private static float ParseGachaChance(string gachaChance)
     {
         if (string.IsNullOrEmpty(gachaChance)) return 0f;
-        
+
         string cleanValue = gachaChance.Replace("%", "").Replace(',', '.').Trim();
-        
+
         if (float.TryParse(cleanValue, NumberStyles.Float, CultureInfo.InvariantCulture, out float result))
         {
             return result / 100f;
         }
-        
+
         return 0f;
     }
-    
+
     #endregion
-    
+
     #region Data Logic
-    
+
     private static void ApplyDefaultEvolutionLogic(MonsterCSVData monster)
     {
         if (monster.stage2.hp <= 0)
@@ -237,35 +237,37 @@ public class MonsterDataGenerator
             monster.stage3 = null;
             return;
         }
-        
+
         if (monster.stage3.hp <= 0)
         {
             monster.stage3 = null;
             return;
         }
-        
+
         if (monster.stage2.timeEvolveDays <= 0)
             monster.stage2.timeEvolveDays = monster.stage1.timeEvolveDays;
     }
-    
+
     #endregion
-    
+
     #region Data Mapping
-    
+
     private static void MapCSVToMonsterData(MonsterCSVData csvData, MonsterDataSO asset)
     {
         asset.monsterName = csvData.name;
         asset.monType = csvData.type;
-        asset.hp = csvData.stage1.hp;
+        asset.maxHealthStage1 = csvData.stage1.hp;
+        asset.maxHealthStage2 = csvData.stage2 != null ? csvData.stage2.hp : csvData.stage1.hp * 2f;
+        asset.maxHealthStage3 = csvData.stage3 != null ? csvData.stage3.hp : csvData.stage2 != null ? csvData.stage2.hp * 1.4f : csvData.stage1.hp * 3f;
         asset.maxNutritionStage1 = csvData.stage1.fullness;
-        
+
         // NEW: Map stage-specific hunger values
         if (csvData.stage2 != null)
             asset.maxNutritionStage2 = csvData.stage2.fullness;
-        
+
         if (csvData.stage3 != null)
             asset.maxNutritionStage3 = csvData.stage3.fullness;
-        
+
         // Map coin drop rates for all stages
         asset.goldCoinDropRateStage1 = csvData.stage1.goldCoinHour;
         asset.platCoinDropRateStage1 = csvData.stage1.platCoinHour; // Updated from silverCoinHour
@@ -275,43 +277,43 @@ public class MonsterDataGenerator
             asset.goldCoinDropRateStage2 = csvData.stage2.goldCoinHour;
             asset.platCoinDropRateStage2 = csvData.stage2.platCoinHour; // Updated from silverCoinHour
         }
-        
+
         if (csvData.stage3 != null)
         {
             asset.goldCoinDropRateStage3 = csvData.stage3.goldCoinHour;
             asset.platCoinDropRateStage3 = csvData.stage3.platCoinHour; // Updated from silverCoinHour
         }
-        
+
         asset.monsterPrice = (int)csvData.stage1.priceBuy;
-        
+
         // NEW: Map gacha data
         asset.gachaChancePercent = csvData.stage1.gachaChanceDecimal;
         asset.gachaChanceDisplay = csvData.stage1.gachaChance;
         asset.isGachaOnly = csvData.stage1.priceBuy <= 0;
-        
+
         // Map sell prices for each stage
         asset.sellPriceStage1 = (int)csvData.stage1.priceSell;
         asset.sellPriceStage2 = csvData.stage2 != null ? (int)csvData.stage2.priceSell : 0;
         asset.sellPriceStage3 = csvData.stage3 != null ? (int)csvData.stage3.priceSell : 0;
-        
+
         asset.canEvolve = csvData.stage2 != null;
-        
+
         if (csvData.stage3 != null)
             asset.evolutionLevel = 0;
         else if (csvData.stage2 != null)
             asset.evolutionLevel = 0;
         else
             asset.evolutionLevel = 0;
-        
+
         // FIX: Embed evolution requirements directly
         if (csvData.stage2 != null)
         {
             var requirements = new List<EvolutionRequirement>();
-            
+
             // Stage 1 → Stage 2 (Level 1 → Level 2)
             var req1 = CreateEvolutionRequirement(csvData, 2, csvData.stage1.timeEvolveDays); // Changed from 1 to 2
             requirements.Add(req1);
-            
+
             if (csvData.stage3 != null)
             {
                 // Stage 2 → Stage 3 (Level 2 → Level 3)
@@ -324,7 +326,7 @@ public class MonsterDataGenerator
                 req2.description = $"Evolve to {csvData.name} Stage 3";
                 requirements.Add(req2);
             }
-            
+
             asset.evolutionRequirements = requirements.ToArray();
         }
         else
@@ -332,7 +334,7 @@ public class MonsterDataGenerator
             asset.evolutionRequirements = new EvolutionRequirement[0];
         }
     }
-    
+
     private static void SetMonsterDataDefaults(MonsterCSVData csvData, MonsterDataSO asset)
     {
         switch (csvData.type)
@@ -358,7 +360,7 @@ public class MonsterDataGenerator
                 asset.pokeHappinessValue = 2f;
                 break;
         }
-        
+
         asset.hungerDepleteRate = 0.05f;
         asset.poopRate = 20f;
         asset.baseHunger = 50f;
@@ -368,28 +370,28 @@ public class MonsterDataGenerator
         asset.areaHappinessRate = 0.2f;
         asset.hungerHappinessThreshold = 20f;
         asset.hungerHappinessDrainRate = 2f;
-        asset.evolutionLevel = 1; 
-        
+        asset.evolutionLevel = 1;
+
         // ADD: Map poop type from CSV pupType
         asset.poopType = csvData.pupType == "Sparkle" ? PoopType.Sparkle : PoopType.Normal;
-        
+
         // ADD: Generate unique ID if not exists
         if (string.IsNullOrEmpty(asset.id))
         {
             asset.id = csvData.name.ToLower().Replace(" ", "_");
         }
-        
+
         // ADD: Set evolution flags properly
         asset.isEvolved = false; // Always start as base form
         asset.canEvolve = csvData.stage2 != null;
     }
-    
+
     private static EvolutionRequirement CreateEvolutionRequirement(MonsterCSVData csvData, int targetLevel, float timeEvolveDays)
     {
         var req = new EvolutionRequirement();
         req.targetEvolutionLevel = targetLevel; // Now 2 or 3 instead of 1 or 2
         req.minTimeAlive = timeEvolveDays * 24 * 60 * 60;
-        
+
         switch (csvData.type)
         {
             case MonsterType.Legend:
@@ -417,27 +419,27 @@ public class MonsterDataGenerator
                 req.minInteractions = 25;
                 break;
         }
-        
+
         req.evolutionName = $"{csvData.name} Stage {targetLevel}";
         req.description = $"Evolve to {csvData.name} Stage {targetLevel}";
-        
+
         return req;
     }
-    
+
     #endregion
-    
+
     #region ScriptableObject Creation
 
     private static void UpdateOrCreateMonsterDataSO(MonsterCSVData csvData)
     {
         string assetPath = $"Assets/Game/Data/Monsters/{csvData.name}_Data.asset";
         var existingAsset = AssetDatabase.LoadAssetAtPath<MonsterDataSO>(assetPath);
-        
+
         MonsterDataSO asset = existingAsset ?? ScriptableObject.CreateInstance<MonsterDataSO>();
-        
+
         // FIX: Call the mapping method that embeds evolution requirements
         MapCSVToMonsterData(csvData, asset);
-        
+
         if (existingAsset == null)
         {
             SetMonsterDataDefaults(csvData, asset);
@@ -459,7 +461,7 @@ public class MonsterDataGenerator
         var updater = Object.FindFirstObjectByType<MonsterDataUpdater>();
         if (updater == null)
         {
-            if (EditorUtility.DisplayDialog("Missing Component", 
+            if (EditorUtility.DisplayDialog("Missing Component",
                 "No MonsterDataUpdater found in scene. Create one?", "Create", "Cancel"))
             {
                 CreateMonsterDataUpdater();
@@ -470,15 +472,15 @@ public class MonsterDataGenerator
                 return;
             }
         }
-        
+
         if (string.IsNullOrEmpty(updater.googleSheetURL))
         {
-            EditorUtility.DisplayDialog("Missing URL", 
+            EditorUtility.DisplayDialog("Missing URL",
                 "Please set the Google Sheets URL in the MonsterDataUpdater component first!", "OK");
             Selection.activeObject = updater;
             return;
         }
-        
+
         EditorCoroutineUtility.StartCoroutine(FetchAndGenerateCoroutine(updater.googleSheetURL), updater);
     }
 
@@ -491,18 +493,18 @@ public class MonsterDataGenerator
     [MenuItem("Tools/Monster Data/🗑️ Clear All Monster Assets", priority = 10)]
     public static void ClearAllMonsterAssets()
     {
-        if (!EditorUtility.DisplayDialog("Clear Monster Assets", 
+        if (!EditorUtility.DisplayDialog("Clear Monster Assets",
             "Delete all existing monster data assets?", "Delete", "Cancel"))
             return;
-            
+
         string[] guids = AssetDatabase.FindAssets("t:MonsterDataSO", new[] { "Assets/Game/Data/Monsters" });
-        
+
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             AssetDatabase.DeleteAsset(path);
         }
-        
+
         AssetDatabase.Refresh();
         Debug.Log($"✅ Cleared {guids.Length} monster data assets");
         EditorUtility.DisplayDialog("Cleared", $"Deleted {guids.Length} assets", "OK");
@@ -513,7 +515,7 @@ public class MonsterDataGenerator
         GameObject go = new GameObject("MonsterDataUpdater");
         var updater = go.AddComponent<MonsterDataUpdater>();
         updater.updateOnGameStart = false; // Don't auto-update in editor
-        
+
         Debug.Log("✅ Created MonsterDataUpdater GameObject");
     }
 
@@ -521,35 +523,35 @@ public class MonsterDataGenerator
     {
         Debug.Log($"🔄 Fetching CSV from: {url}");
         EditorUtility.DisplayProgressBar("Fetching Data", "Connecting to Google Sheets...", 0.3f);
-        
+
         using (UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequest.Get(url))
         {
             request.timeout = 15;
             yield return request.SendWebRequest();
-            
+
             EditorUtility.DisplayProgressBar("Fetching Data", "Processing data...", 0.8f);
-            
+
             if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
             {
                 Debug.Log($"✅ CSV downloaded successfully! ({request.downloadHandler.text.Length} characters)");
-                
+
                 // Generate assets
                 GenerateFromCSV(request.downloadHandler.text);
-                
+
                 // Count generated assets
                 string[] guids = AssetDatabase.FindAssets("t:MonsterDataSO", new[] { "Assets/Game/Data/Monsters" });
                 Debug.Log($"✅ Generated {guids.Length} monster data assets successfully!");
-                
-                EditorUtility.DisplayDialog("Success!", 
+
+                EditorUtility.DisplayDialog("Success!",
                     $"Successfully fetched and generated {guids.Length} monster data assets!", "OK");
             }
             else
             {
                 Debug.LogError($"❌ Failed to fetch CSV: {request.error}");
-                EditorUtility.DisplayDialog("Error", 
+                EditorUtility.DisplayDialog("Error",
                     $"Failed to fetch data:\n{request.error}", "OK");
             }
-            
+
             EditorUtility.ClearProgressBar();
         }
     }

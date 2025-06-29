@@ -55,6 +55,12 @@ public class MonsterEvolutionHandler
         if (!CanEvolve) return;
         _timeSinceCreation += deltaTime;
     }
+    public void ResetEvolutionTracking()
+    {
+        _timeSinceCreation = 0f;
+        _foodConsumed = 0;
+        _interactionCount = 0;
+    }
 
     public void OnFoodConsumed()
     {
@@ -110,7 +116,7 @@ public class MonsterEvolutionHandler
 
     private IEnumerator EvolutionSequence()
     {
-        Debug.Log($"[Evolution] { _controller.MonsterData.monsterName } evolution started.");
+        Debug.Log($"[Evolution] {_controller.MonsterData.monsterName} evolution started.");
 
         var originalPos = _skeletonGraphic.rectTransform.anchoredPosition;
         var originalScale = _skeletonGraphic.rectTransform.localScale.x;
@@ -121,15 +127,15 @@ public class MonsterEvolutionHandler
         // Get the next evolution skeleton asset
         var monsterData = _controller.MonsterData;
         var monsterPos = _controller.GetComponent<RectTransform>().anchoredPosition;
-        int index = _targetLevel- 1;
-        SkeletonDataAsset nextSkeleton = 
+        int index = _targetLevel - 1;
+        SkeletonDataAsset nextSkeleton =
             (monsterData != null && monsterData.monsterSpine != null && index >= 0 && index < monsterData.monsterSpine.Length)
             ? monsterData.monsterSpine[index]
             : null;
         // Get references to required components
         var evolveCam = MainCanvas.MonsterCamera;
-        var spineGraphic = _skeletonGraphic; 
-        var evolutionParticle = _controller.UI.evolutionVFX; 
+        var spineGraphic = _skeletonGraphic;
+        var evolutionParticle = _controller.UI.evolutionVFX;
         var whiteFlashMaterial = _controller.UI.evolutionMaterial;
 
         int _remaining = 0;
@@ -169,10 +175,7 @@ public class MonsterEvolutionHandler
             () =>
             {
                 _controller.evolutionLevel = _targetLevel;
-                UpdateMonsterID(_targetLevel);
-                _controller.SaveMonData();
-                // _foodConsumed = 0;
-                // _interactionCount = 0;
+                ResetMonsterData();
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
                 sequenceDone = true;
             },
@@ -191,7 +194,7 @@ public class MonsterEvolutionHandler
                 yield return new WaitForSeconds(0.1f); // stagger the fade 
             }
         }
-        
+
         //turn coin, poop, and food collection visible
         foreach (var coin in _controller.MonsterManager._activeCoins)
         {
@@ -253,4 +256,31 @@ public class MonsterEvolutionHandler
 
         return Mathf.Clamp01((timeProgress + foodProgress + interactionProgress + happinessProgress + hungerProgress) / 5f);
     }
+    public void ResetMonsterData()
+    {
+        // Refresh Monster ID (already done during evolution)
+        UpdateMonsterID(_targetLevel);
+
+        // Reset tracking
+        ResetEvolutionTracking();
+
+        // Reload max HP and max Hunger for the new evolution level
+        float newMaxHP = _controller.MonsterData.GetMaxHealth(_targetLevel);
+        float newMaxHunger = _controller.MonsterData.GetMaxHunger(_targetLevel);
+
+        // Reset and clamp stats
+        _controller.StatsHandler.Initialize(
+            initialHealth: newMaxHP,
+            initialHunger: newMaxHunger,
+            initialHappiness: _controller.MonsterData.baseHappiness,
+            maxHP: newMaxHP
+        );
+
+        // Update visuals (e.g. spine, icons, etc.)
+        // _controller.UpdateVisuals();
+
+        // Save the refreshed data
+        _controller.SaveMonData();
+    }
+
 }

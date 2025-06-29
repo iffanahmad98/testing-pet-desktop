@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,19 +16,25 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
     private Vector2 dragOffset;
     public bool IsBeingDragged { get; private set; }
     public event System.Action OnPlaced;
+    [SerializeField] private float dropSpeed = 10f;
+    [SerializeField] private float overlapDepth = 10f; // How deep into the ground it sinks visually
+
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
     }
 
-    public void Initialize(ItemDataSO data)
+    public void Initialize(ItemDataSO data, RectTransform groundRect = null)
     {
         itemData = data;
         nutritionValue = data.nutritionValue;
         isRotten = false;
         UpdateFoodImage();
+
+        StartCoroutine(DropUntilOnGround(groundRect));
     }
+
     public void PlaceFood() // Call this when valid placement is confirmed
     {
         OnPlaced?.Invoke();
@@ -113,4 +120,40 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
 
     public bool IsClaimedBy(MonsterController monster) => claimedBy == monster;
     public bool IsClaimed => claimedBy != null;
+    private IEnumerator DropUntilOnGround(RectTransform groundRect = null)
+    {
+        yield return null; // Ensure UI is initialized
+
+        while (true)
+        {
+            rectTransform.anchoredPosition += Vector2.down * dropSpeed * Time.deltaTime;
+
+            if (IsOverlappingGroundWithOffset(rectTransform, groundRect, overlapDepth))
+            {
+                break;
+            }
+
+            yield return null;
+        }
+    }
+    private bool IsOverlappingGroundWithOffset(RectTransform food, RectTransform ground, float depthOffset)
+    {
+        Rect foodRect = GetWorldRect(food);
+        Rect groundRectWorld = GetWorldRect(ground);
+
+        // Lower the foodRect down by 'depthOffset' pixels to simulate visual overlap
+        foodRect.position = new Vector2(foodRect.position.x, foodRect.position.y - depthOffset);
+
+        return foodRect.Overlaps(groundRectWorld);
+    }
+
+
+    private Rect GetWorldRect(RectTransform rt)
+    {
+        Vector3[] corners = new Vector3[4];
+        rt.GetWorldCorners(corners);
+        Vector2 size = corners[2] - corners[0];
+        return new Rect(corners[0], size);
+    }
+
 }
