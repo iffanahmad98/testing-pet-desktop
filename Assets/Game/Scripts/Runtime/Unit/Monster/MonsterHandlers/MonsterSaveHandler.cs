@@ -27,9 +27,6 @@ public class MonsterSaveHandler
         };
 
         SaveSystem.SaveMon(data);
-
-        // Save current evolution level
-        PlayerPrefs.SetInt($"{_controller.monsterID}_evolutionLevel", _controller.evolutionLevel);
     }
 
     public void LoadData(float maxHP)
@@ -39,9 +36,7 @@ public class MonsterSaveHandler
             // Initialize stats handler with loaded data
             _controller.StatsHandler.Initialize(data.currentHealth, data.currentHunger, data.currentHappiness, maxHP);
 
-            // Load evolution level (default to 1 if not found)
-            int savedLevel = PlayerPrefs.GetInt($"{_controller.monsterID}_evolutionLevel", 1);
-            _controller.evolutionLevel = savedLevel;
+            _controller.evolutionLevel = data.currentEvolutionLevel > 0 ? data.currentEvolutionLevel : 1;
 
             // Load evolution data
             _controller.LoadEvolutionData(data.totalTimeSinceCreation, data.timeCreated, data.nutritionCount, data.currentInteraction);

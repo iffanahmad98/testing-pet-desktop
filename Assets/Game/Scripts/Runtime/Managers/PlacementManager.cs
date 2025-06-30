@@ -18,6 +18,23 @@ public class PlacementManager : MonoBehaviour
 
     private bool allowMultiplePlacement = false;
     private bool isPlacingMedicine = false;
+    [Header("Placement Prefabs")]
+    [SerializeField] private GameObject foodPrefab;
+    [SerializeField] private GameObject medicinePrefab;
+
+    [Header("Placement Canvas")]
+    [SerializeField] private RectTransform canvasParent;
+    public RectTransform GetCanvasParent() => canvasParent;
+
+    public GameObject GetPrefabForItemType(ItemType type)
+    {
+        return type switch
+        {
+            ItemType.Food => foodPrefab,
+            ItemType.Medicine => medicinePrefab,
+            _ => null
+        };
+    }
 
     private void Awake()
     {

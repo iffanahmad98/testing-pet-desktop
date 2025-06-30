@@ -9,25 +9,18 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     public Image iconImage;
     public TextMeshProUGUI amountText;
 
-    [Header("Prefab Mapping")]
-    [SerializeField] private GameObject foodPrefab;
-    [SerializeField] private GameObject medicinePrefab;
-    [SerializeField] private RectTransform canvasParent;
-
     private ItemDataSO itemData;
     private int itemAmount;
 
-    public void Initialize(ItemDataSO data, int amount, GameObject food, GameObject medicine, RectTransform canvas)
+    public void Initialize(ItemDataSO data, int amount)
     {
         itemData = data;
         itemAmount = amount;
-        foodPrefab = food;
-        medicinePrefab = medicine;
-        canvasParent = canvas;
 
         iconImage.sprite = itemData.itemImgs[0];
         amountText.text = $"{amount} pcs";
     }
+
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -40,14 +33,9 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 
         if (itemAmount <= 0) return;
 
-        // Determine which prefab to use
-        GameObject prefabToPlace = itemData.category switch
-        {
-            ItemType.Food => foodPrefab,
-            ItemType.Medicine => medicinePrefab,
-            _ => null
-        };
-
+        var placementManager = ServiceLocator.Get<PlacementManager>();
+        GameObject prefabToPlace = placementManager.GetPrefabForItemType(itemData.category);
+        RectTransform canvas = placementManager.GetCanvasParent();
 
         if (prefabToPlace == null)
         {
@@ -55,13 +43,11 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        // Enter placement mode using PlacementManager
-
         float healingValue = itemData.nutritionValue;
 
-        ServiceLocator.Get<PlacementManager>().StartPlacement(
+        placementManager.StartPlacement(
             prefabToPlace,
-            canvasParent,
+            canvas,
             itemData.category == ItemType.Medicine
                 ? (Vector2 _) => HandleMedicineDirectApply(healingValue)
                 : OnConfirmPlacement,
@@ -70,10 +56,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             isMedicine: itemData.category == ItemType.Medicine,
             previewSprite: itemData.itemImgs[0]
         );
-
-
-
     }
+
 
     private void OnConfirmPlacement(Vector2 position)
     {

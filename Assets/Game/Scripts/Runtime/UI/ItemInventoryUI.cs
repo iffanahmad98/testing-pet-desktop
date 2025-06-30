@@ -11,10 +11,6 @@ public class InventoryUI : MonoBehaviour
     [Header("Config")]
     [SerializeField] private int defaultSlotCount = 6;
     [SerializeField] private float slotWidth = 110f;
-    [Header("Prefabs")]
-    [SerializeField] private GameObject foodPrefab;
-    [SerializeField] private GameObject medicinePrefab;
-    [SerializeField] private RectTransform canvasParent;
 
 
     private void OnEnable()
@@ -47,7 +43,7 @@ public class InventoryUI : MonoBehaviour
             if (itemData != null)
             {
                 var slot = Instantiate(slotPrefab, contentParent);
-                slot.Initialize(itemData, entry.amount, foodPrefab, medicinePrefab, canvasParent);
+                slot.Initialize(itemData, entry.amount);
 
             }
         }
