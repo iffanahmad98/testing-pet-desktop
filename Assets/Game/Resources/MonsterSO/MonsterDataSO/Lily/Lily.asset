@@ -16,23 +16,28 @@ MonoBehaviour:
   id: 005
   monType: 0
   poopType: 1
-  maxHealth: 100
   moveSpd: 100
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 50
-  startingHunger: 100
+  baseHappiness: 50
+  baseHunger: 100
   hungerDepleteRate: 0
+  maxHealthStage1: 0
+  maxHealthStage2: 0
+  maxHealthStage3: 0
   maxNutritionStage1: 0
   maxNutritionStage2: 0
   maxNutritionStage3: 0
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 2
-  silverCoinDropRateStage1: 60
+  platCoinDropRateStage1: 60
   goldCoinDropRateStage2: 0
-  silverCoinDropRateStage2: 0
+  platCoinDropRateStage2: 0
   goldCoinDropRateStage3: 0
-  silverCoinDropRateStage3: 0
+  platCoinDropRateStage3: 0
   gachaChancePercent: 0
   gachaChanceDisplay: 
   isGachaOnly: 0
@@ -42,8 +47,9 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  isFinalEvol: 0
   evolutionLevel: 1
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 3
@@ -53,15 +59,13 @@ MonoBehaviour:
     minInteractions: 1
     evolutionName: Evolution
     description: Evolution requirements
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine:
   - {fileID: 11400000, guid: 7f020e0b978c0344ca2b540dffc3956a, type: 2}
   - {fileID: 11400000, guid: 993477a849bcbd347a4bb389a2381cbe, type: 2}
-  monsIconImg: []
+  monsIconImg:
+  - {fileID: -2148649362934530082, guid: 57567b1ed57efb8468c0b7f3bd2547a8, type: 3}
+  - {fileID: -8720360651694892489, guid: e4fa1088ff4393643b31890e2a4d039f, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -79,7 +83,7 @@ MonoBehaviour:
     - walking
   evolutionBehaviors:
   - evolutionLevel: 1
-    behaviorConfig: {fileID: 11400000, guid: 7dcf75493ffa68942a44898732172b8a, type: 2}
+    behaviorConfig: {fileID: 0}
   - evolutionLevel: 2
     behaviorConfig: {fileID: 11400000, guid: 58177c3580604f741b08b43c296f186c, type: 2}
   monsterPrice: 10
