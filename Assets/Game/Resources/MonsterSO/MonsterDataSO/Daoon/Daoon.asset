@@ -13,20 +13,24 @@ MonoBehaviour:
   m_Name: Daoon
   m_EditorClassIdentifier: 
   monsterName: Daoon
-  monsterId: 
   id: 001
   monType: 0
   poopType: 1
-  hp: 100
   moveSpd: 100
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 50
   baseHunger: 100
   hungerDepleteRate: 0
+  maxHealthStage1: 0
+  maxHealthStage2: 0
+  maxHealthStage3: 0
   maxNutritionStage1: 0
   maxNutritionStage2: 0
   maxNutritionStage3: 0
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 2
   platCoinDropRateStage1: 60
@@ -44,6 +48,8 @@ MonoBehaviour:
   canEvolve: 1
   isEvolved: 0
   evolutionLevel: 1
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 3
@@ -57,7 +63,9 @@ MonoBehaviour:
   monsterSpine:
   - {fileID: 11400000, guid: 40204d5f924819744b182f7945b5fa64, type: 2}
   - {fileID: 11400000, guid: 9b1d37462fd210f468969d0747f6b097, type: 2}
-  monsIconImg: []
+  monsIconImg:
+  - {fileID: -4078501215650015726, guid: b6a615c8f6ecdcc45b9fd500b8194682, type: 3}
+  - {fileID: -7243669765313445238, guid: a886f843ac9ea224fbc40cc214382215, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:

@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using System;
 using Spine.Unity;
 using System.Collections;
+using Microsoft.Unity.VisualStudio.Editor;
 
 public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
@@ -174,6 +175,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             ServiceLocator.Get<MonsterManager>() != null &&
             GetComponent<MonsterStateMachine>() != null);
 
+
         // Now create StateMachine-dependent handlers
         _stateMachine = GetComponent<MonsterStateMachine>();
         _monsterManager = ServiceLocator.Get<MonsterManager>();
@@ -216,9 +218,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     private IEnumerator FinalizeInitialization()
     {
-        // Initialize UI
-        UI.Init();
-
         // Set initial values
         SetRandomTarget();
 
@@ -227,6 +226,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             _visualHandler?.ApplyMonsterVisuals();
             _foodHandler?.Initialize(monsterData);
+            UI.Initialize(_statsHandler, this);
         }
 
         // Subscribe to events only after everything is ready
@@ -271,8 +271,10 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             return; // Skip movement, interactions, etc.
         }
 
-        _interactionHandler?.UpdateTimers(Time.deltaTime);
         _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
+        _interactionHandler?.UpdateTimers(Time.deltaTime);
+        _interactionHandler?.UpdateOutsideInteraction();
+
         HandleMovement();
 
         // Update emoji visibility if hovering
@@ -671,12 +673,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     #endregion
 
     #region Visual Effects
-    public void UpdateVisuals() => _visualHandler?.UpdateMonsterVisuals();
-
-    public void DropPoop(PoopType type = PoopType.Normal)
-    {
-        _visualHandler?.SpawnPoopWithAnimation(type);
-    }
+    public void UpdateVisuals() => _visualHandler?.ApplyMonsterVisuals();
+    public void DropPoop(PoopType type = PoopType.Normal) => _visualHandler?.SpawnPoopWithAnimation(type);
 
     public void DropCoin(CoinType type)
     {
@@ -684,5 +682,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         Vector2 targetPosition = _visualHandler?.GetRandomPositionOutsideBounds() ?? GetRandomPositionAroundMonster();
         ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
     }
+
+    public Sprite GetMonsterIcon() => _visualHandler?.GetMonsterIcon();
     #endregion
 }

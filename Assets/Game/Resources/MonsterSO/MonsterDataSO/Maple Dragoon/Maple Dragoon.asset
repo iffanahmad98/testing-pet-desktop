@@ -16,23 +16,28 @@ MonoBehaviour:
   id: 002
   monType: 0
   poopType: 1
-  maxHealth: 100
   moveSpd: 100
   foodDetectionRange: 200
   eatDistance: 5
-  startingHappiness: 50
-  startingHunger: 100
+  baseHappiness: 50
+  baseHunger: 100
   hungerDepleteRate: 0
+  maxHealthStage1: 0
+  maxHealthStage2: 0
+  maxHealthStage3: 0
   maxNutritionStage1: 0
   maxNutritionStage2: 0
   maxNutritionStage3: 0
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 2
-  silverCoinDropRateStage1: 60
+  platCoinDropRateStage1: 60
   goldCoinDropRateStage2: 0
-  silverCoinDropRateStage2: 0
+  platCoinDropRateStage2: 0
   goldCoinDropRateStage3: 0
-  silverCoinDropRateStage3: 0
+  platCoinDropRateStage3: 0
   gachaChancePercent: 0
   gachaChanceDisplay: 
   isGachaOnly: 0
@@ -42,8 +47,9 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  isFinalEvol: 0
   evolutionLevel: 1
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 3
@@ -53,10 +59,6 @@ MonoBehaviour:
     minInteractions: 2
     evolutionName: Evolution
     description: Evolution requirements
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 2
     minTimeAlive: 3
@@ -66,16 +68,15 @@ MonoBehaviour:
     minInteractions: 2
     evolutionName: Evolution
     description: Evolution requirements
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine:
   - {fileID: 11400000, guid: 844e7ddc6f21e0a408193025ff42062a, type: 2}
   - {fileID: 11400000, guid: f3e97bc450fb3e348a29276e071b4eaf, type: 2}
   - {fileID: 11400000, guid: 3e5da015d7c18894390480d4a63202c1, type: 2}
-  monsIconImg: []
+  monsIconImg:
+  - {fileID: -358280743505770438, guid: 1206dd07a433f7b4b8f620e9e54fc256, type: 3}
+  - {fileID: -1021857481065555673, guid: e637c32d7698f334785328b830869e16, type: 3}
+  - {fileID: 7508866945510553269, guid: 52023d3539576ab4191b6901161fae23, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -102,7 +103,7 @@ MonoBehaviour:
     - flying
   evolutionBehaviors:
   - evolutionLevel: 1
-    behaviorConfig: {fileID: 11400000, guid: c9e0e5a6d58c2c442b63e7a40f62080c, type: 2}
+    behaviorConfig: {fileID: 0}
   - evolutionLevel: 2
     behaviorConfig: {fileID: 11400000, guid: 6599e5efe0a16a340a1a2bb4442c12f3, type: 2}
   - evolutionLevel: 3
