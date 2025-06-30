@@ -57,15 +57,20 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 
         // Enter placement mode using PlacementManager
 
+        float healingValue = itemData.nutritionValue;
+
         ServiceLocator.Get<PlacementManager>().StartPlacement(
             prefabToPlace,
             canvasParent,
-            OnConfirmPlacement,
+            itemData.category == ItemType.Medicine
+                ? (Vector2 _) => HandleMedicineDirectApply(healingValue)
+                : OnConfirmPlacement,
             OnCancelPlacement,
-            allowMultiple: itemData.category == ItemType.Food, // Allow multiple placement for food
+            allowMultiple: itemData.category == ItemType.Food,
             isMedicine: itemData.category == ItemType.Medicine,
             previewSprite: itemData.itemImgs[0]
         );
+
 
 
     }
@@ -90,6 +95,29 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             Destroy(gameObject); // Remove slot if no items left
         }
     }
+    private void HandleMedicineDirectApply(float healingValue)
+    {
+        MonsterController monster = ServiceLocator.Get<PlacementManager>().TryGetMonsterUnderCursor();
+
+        if (monster != null)
+        {
+            monster.GiveMedicine(healingValue);
+            itemAmount--;
+            amountText.text = $"{itemAmount} pcs";
+            SaveSystem.UpdateItemData(itemData.itemID, itemAmount);
+
+            if (itemAmount <= 0)
+            {
+                ServiceLocator.Get<PlacementManager>().CancelPlacement();
+                Destroy(gameObject);
+            }
+        }
+        else
+        {
+            ServiceLocator.Get<UIManager>()?.ShowMessage("Place medicine on a sick monster!", 1f);
+        }
+    }
+
 
 
     private void OnCancelPlacement()

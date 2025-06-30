@@ -91,11 +91,11 @@ public static class SaveSystem
         return _playerConfig.LoadMonsterData(monsterId, out data);
     }
 
-    public static void DeleteMon(string monsterID)
+    public static void DeleteMon(string instanceID)
     {
-        if (string.IsNullOrEmpty(monsterID)) return;
+        if (string.IsNullOrEmpty(instanceID)) return;
 
-        _playerConfig.DeleteMonster(monsterID);
+        _playerConfig.DeleteMonster(instanceID);
         SaveAll(); // Ensure the config is persisted
     }
 

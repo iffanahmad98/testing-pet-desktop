@@ -70,8 +70,9 @@ public class MedicineController : MonoBehaviour, IPointerDownHandler, IDragHandl
         IsBeingDragged = false;
 
         MonsterController targetMonster = TryFindMonsterUnderPointer(eventData);
+        Debug.Log($"[MedicineController] Placing medicine on monster: {targetMonster?.name}");
 
-        if (targetMonster != null && targetMonster.StatsHandler.IsSick)
+        if (targetMonster != null)
         {
             // Heal sick monster
             targetMonster.GiveMedicine(nutritionValue);

@@ -609,11 +609,12 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void CheckEvolutionAfterInteraction() => _evolutionHandler?.OnInteraction();
     public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
     public float GetEvolutionTimeSinceCreation() => _evolutionHandler?.TimeSinceCreation ?? 0f;
+    public string GetEvolutionTimeCreated() => _evolutionHandler?.TimeCreated ?? DateTime.UtcNow.ToString("o"); // ISO 8601 format
     public int GetEvolutionFoodConsumed() => _evolutionHandler?.FoodConsumed ?? 0;
     public int GetEvolutionInteractionCount() => _evolutionHandler?.InteractionCount ?? 0;
-    public void LoadEvolutionData(float timeSinceCreation, int foodConsumed, int interactionCount)
+    public void LoadEvolutionData(float timeSinceCreation, string timeCreated, int foodConsumed, int interactionCount)
     {
-        _evolutionHandler?.LoadEvolutionData(timeSinceCreation, foodConsumed, interactionCount);
+        _evolutionHandler?.LoadEvolutionData(timeSinceCreation, timeCreated, foodConsumed, interactionCount);
     }
     #endregion
 
@@ -627,12 +628,26 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void TreatSickness() => _statsHandler?.TreatSickness();
     public void GiveMedicine(float healingValue)
     {
-        _statsHandler.Heal(healingValue);
-        if (_statsHandler?.IsSick == true)
+        if (_statsHandler == null)
         {
-            TreatSickness();
+            Debug.LogWarning($"[MonsterController] {monsterID} has no stats handler assigned.");
+            return;
         }
+
+        if (_statsHandler.IsSick)
+        {
+            TreatSickness(); // This will internally cure and reset states
+            Debug.Log($"[MonsterController] {monsterID} was sick and has been treated.");
+        }
+        else
+        {
+            Debug.Log($"[MonsterController] {monsterID} is not sick. Applying heal only.");
+        }
+
+        _statsHandler.Heal(healingValue);
+        Debug.Log($"[MonsterController] {monsterID} received medicine, healing value: {healingValue}");
     }
+
     #endregion
 
     #region Interaction Handling

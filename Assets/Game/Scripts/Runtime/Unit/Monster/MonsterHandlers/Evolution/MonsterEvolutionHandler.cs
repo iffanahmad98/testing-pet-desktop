@@ -19,11 +19,13 @@ public class MonsterEvolutionHandler
 
     // Evolution tracking
     private float _timeSinceCreation;
+    private string _timeCreated;
     private int _foodConsumed;
     private int _interactionCount;
 
     public bool CanEvolve => _controller?.MonsterData != null && _controller.MonsterData.canEvolve;
     public float TimeSinceCreation => _timeSinceCreation;
+    public string TimeCreated => _timeCreated;
     public int FoodConsumed => _foodConsumed;
     public int InteractionCount => _interactionCount;
 
@@ -43,8 +45,9 @@ public class MonsterEvolutionHandler
             .ToArray();
     }
 
-    public void LoadEvolutionData(float timeSinceCreation, int foodConsumed, int interactionCount)
+    public void LoadEvolutionData(float timeSinceCreation, string timeCreated, int foodConsumed, int interactionCount)
     {
+        _timeCreated = timeCreated;
         _timeSinceCreation = timeSinceCreation;
         _foodConsumed = foodConsumed;
         _interactionCount = interactionCount;
@@ -57,6 +60,7 @@ public class MonsterEvolutionHandler
     }
     public void ResetEvolutionTracking()
     {
+        _timeCreated = DateTime.UtcNow.ToString("o"); // ISO 8601 format
         _timeSinceCreation = 0f;
         _foodConsumed = 0;
         _interactionCount = 0;

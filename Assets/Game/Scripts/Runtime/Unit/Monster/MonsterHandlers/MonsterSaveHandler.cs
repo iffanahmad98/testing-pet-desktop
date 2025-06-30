@@ -20,7 +20,7 @@ public class MonsterSaveHandler
             currentEvolutionLevel = _controller.evolutionLevel,
 
             // Evolution data
-            timeCreated = _controller.timeCreated,
+            timeCreated = _controller.GetEvolutionTimeCreated(),
             totalTimeSinceCreation = _controller.GetEvolutionTimeSinceCreation(),
             nutritionCount = _controller.GetEvolutionFoodConsumed(),
             currentInteraction = _controller.GetEvolutionInteractionCount()
@@ -44,7 +44,7 @@ public class MonsterSaveHandler
             _controller.evolutionLevel = savedLevel;
 
             // Load evolution data
-            _controller.LoadEvolutionData(data.totalTimeSinceCreation, data.nutritionCount, data.currentInteraction);
+            _controller.LoadEvolutionData(data.totalTimeSinceCreation, data.timeCreated, data.nutritionCount, data.currentInteraction);
         }
         else
         {
