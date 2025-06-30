@@ -37,6 +37,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private Action<float> _hungerChangedHandler;
     private Action<float> _happinessChangedHandler;
     private Action<bool> _sickChangedHandler;
+    private Action<float> _healthChangedHandler;
     private Action<bool> _hoverChangedHandler;
 
     // Stats & state properties
@@ -47,6 +48,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public event Action<float> OnHungerChanged;
     public event Action<bool> OnSickChanged;
     public event Action<float> OnHappinessChanged;
+    public event Action<float> OnHealthChanged;
     public event Action<bool> OnHoverChanged;
     public event Action<MonsterController> OnMonsterFullyInitialized;
 
@@ -333,15 +335,25 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             OnSickChanged?.Invoke(isSick); // Forward to external subscribers
         };
 
+        _healthChangedHandler = (health) =>
+        {
+            UI.UpdateHealthDisplay(health);
+            OnHealthChanged?.Invoke(health); // Forward to external subscribers
+        };
+
         _hoverChangedHandler = (hovered) =>
         {
             UI.UpdateHungerDisplay(StatsHandler.CurrentHunger, hovered);
             UI.UpdateHappinessDisplay(StatsHandler.CurrentHappiness, hovered);
+            UI.UpdateHealthDisplay(StatsHandler.CurrentHP);
+            UI.UpdateSickStatusDisplay(StatsHandler.IsSick, hovered);
         };
 
         _statsHandler.OnHungerChanged += _hungerChangedHandler;
         _statsHandler.OnHappinessChanged += _happinessChangedHandler;
         _statsHandler.OnSickChanged += _sickChangedHandler;
+        _statsHandler.OnHealthChanged += _healthChangedHandler;
+
         OnHoverChanged += _hoverChangedHandler;
     }
 
@@ -357,6 +369,9 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
             if (_sickChangedHandler != null)
                 _statsHandler.OnSickChanged -= _sickChangedHandler;
+
+            if (_healthChangedHandler != null)
+                _statsHandler.OnHealthChanged -= _healthChangedHandler;
         }
 
         if (_hoverChangedHandler != null)
