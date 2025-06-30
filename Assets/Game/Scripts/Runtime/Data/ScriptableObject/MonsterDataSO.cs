@@ -7,7 +7,6 @@ public class MonsterDataSO : ScriptableObject
 {
     [Header("Basic Info")]
     public string monsterName;
-    public string monsterId;
     public string id;
 
     [Header("Classification")]
@@ -15,15 +14,15 @@ public class MonsterDataSO : ScriptableObject
     public PoopType poopType = PoopType.Normal; // Type of poop this monster produces
 
     [Header("Stats")]
-    public float maxHealthStage1;
-    public float maxHealthStage2;
-    public float maxHealthStage3;
     public float moveSpd = 100f;       // Move speed
     public float foodDetectionRange = 200f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
     public float baseHappiness = 50f;            // Add base happiness
     public float baseHunger = 100f;               // Add base hunger
     public float hungerDepleteRate = 0.001f;  // How fast hunger depletes
+    public float maxHealthStage1;
+    public float maxHealthStage2;
+    public float maxHealthStage3;
     public float maxNutritionStage1 = 0f;          // Stage 1 hunger (keep existing)
     public float maxNutritionStage2 = 0f;          // Stage 2 hunger
     public float maxNutritionStage3 = 0f;          // Stage 3 hunger

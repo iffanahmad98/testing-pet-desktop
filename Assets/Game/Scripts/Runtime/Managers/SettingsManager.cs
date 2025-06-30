@@ -15,27 +15,26 @@ public class SettingsManager : MonoBehaviour
     public CanvasScaler canvasScaler;
     private MonsterManager gameManager;
 
-    [Header("Game Area Incremental Control")]
-    public IncrementSettingControl widthControl;
-    public IncrementSettingControl heightControl;
-    public IncrementSettingControl horizontalPositionControl;
-    public IncrementSettingControl verticalPositionControl;
+    [Header("Game Area Controls")]
+    public SliderSettingControl widthControl;
+    public SliderSettingControl heightControl;
+    public SliderSettingControl horizontalPositionControl;
+    public SliderSettingControl verticalPositionControl;
 
     [Header("UI Size")]
     public Button uiSizeIncreaseButton;
     public Button uiSizeDecreaseButton;
     public Button uiSizeResetButton;
-
-    [Header("Switch Screen")]
-    public Button switchScreenLeftButton;
-    public Button switchScreenRightButton;
-    public Button switchScreenResetButton;
+    
+    [Header("Pet Size")]
+    public Button petSizeIncreaseButton;
+    public Button petSizeDecreaseButton;
+    public Button petSizeResetButton;
 
     [Header("Settings Control Buttons")]
     public Button saveButton;
     public Button cancelButton;
     public Button newGameButton;
-
 
     [Header("Language Settings")]
     public TMP_Dropdown languageDropdown;
@@ -49,12 +48,15 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private Button closeButton;
 
     private float uiScale = 1f; // optionally make this persistent
-    private int screenState = 0; // 0 = Center, -1 = Left, 1 = Right
+    private float petScale = 1f; // pet scaling factor
 
     private const float MIN_SIZE = 270f;
     private const float DEFAULT_GAME_AREA_WIDTH = 1920f;
     private const float DEFAULT_GAME_AREA_HEIGHT = 1080f;
     private const float DEFAULT_UI_SCALE = 1f;
+    private const float DEFAULT_PET_SCALE = 1f;
+    private const float MIN_PET_SCALE = 0.25f;
+    private const float MAX_PET_SCALE = 1.5f;
     private const float MONSTER_BOUNDS_PADDING = 50f;
     private float maxScreenWidth;
     private float maxScreenHeight;
@@ -71,10 +73,9 @@ public class SettingsManager : MonoBehaviour
     private float savedGameAreaX;
     private float savedGameAreaY;
     private float savedUIScale;
+    private float savedPetScale;
     private int savedLanguageIndex;
-    private int savedScreenState;
     private List<ISettingsSavable> savableSettingsModules = new List<ISettingsSavable>();
-
 
     private void Awake()
     {
@@ -86,7 +87,6 @@ public class SettingsManager : MonoBehaviour
         gameManager = ServiceLocator.Get<MonsterManager>();
         InitializeGameAreaSettings();
         InitializeLanguageSettings();
-
 
         // Discover all savable modules in scene
         savableSettingsModules.AddRange(
@@ -100,7 +100,6 @@ public class SettingsManager : MonoBehaviour
         ServiceLocator.Unregister<SettingsManager>();
     }
 
-
     private void InitializeGameAreaSettings()
     {
         if (!ValidateGameAreaReferences()) return;
@@ -109,8 +108,6 @@ public class SettingsManager : MonoBehaviour
         InitializeGameAreaConfig();
         RegisterButtonCallbacks();
     }
-
-
 
     private void InitializeLanguageSettings()
     {
@@ -174,10 +171,8 @@ public class SettingsManager : MonoBehaviour
         // Load saved values or defaults to avoid null/zero on cancel
         LoadSavedSettings();
 
-
         RegisterGameAreaCallbacks();
     }
-
 
     #region Callback Registration
     private void RegisterGameAreaCallbacks()
@@ -186,39 +181,49 @@ public class SettingsManager : MonoBehaviour
         heightControl.onValueChanged += UpdateGameAreaHeight;
         horizontalPositionControl.onValueChanged += UpdateGameAreaHorizontalPosition;
         verticalPositionControl.onValueChanged += UpdateGameAreaVerticalPosition;
-
     }
+    
     private void RegisterButtonCallbacks()
     {
+        // UI Scale buttons
         uiSizeIncreaseButton.onClick.AddListener(() => AdjustUIScale(0.05f));
         uiSizeDecreaseButton.onClick.AddListener(() => AdjustUIScale(-0.05f));
         uiSizeResetButton.onClick.AddListener(() => ResetUIScale());
-        switchScreenLeftButton.onClick.AddListener(SwitchScreenLeft);
-        switchScreenRightButton.onClick.AddListener(SwitchScreenRight);
-        switchScreenResetButton.onClick.AddListener(ResetScreenLayout);
+        
+        // Pet Scale buttons
+        if (petSizeIncreaseButton != null)
+            petSizeIncreaseButton.onClick.AddListener(() => AdjustPetScale(0.05f));
+        if (petSizeDecreaseButton != null)
+            petSizeDecreaseButton.onClick.AddListener(() => AdjustPetScale(-0.05f));
+        if (petSizeResetButton != null)
+            petSizeResetButton.onClick.AddListener(() => ResetPetScale());
+            
+        // Other buttons
         saveButton.onClick.AddListener(OnSaveSettings);
         cancelButton.onClick.AddListener(OnCancelSettings);
         newGameButton.onClick.AddListener(OnNewGame);
         closeButton.onClick.AddListener(OnClickCloseButton);
     }
 
-
-
     private void UnregisterAllCallbacks()
     {
         uiSizeIncreaseButton.onClick.RemoveAllListeners();
         uiSizeDecreaseButton.onClick.RemoveAllListeners();
         uiSizeResetButton.onClick.RemoveAllListeners();
-        switchScreenLeftButton.onClick.RemoveAllListeners();
-        switchScreenRightButton.onClick.RemoveAllListeners();
-        switchScreenResetButton.onClick.RemoveAllListeners();
+        
+        if (petSizeIncreaseButton != null)
+            petSizeIncreaseButton.onClick.RemoveAllListeners();
+        if (petSizeDecreaseButton != null)
+            petSizeDecreaseButton.onClick.RemoveAllListeners();
+        if (petSizeResetButton != null)
+            petSizeResetButton.onClick.RemoveAllListeners();
+            
         saveButton.onClick.RemoveAllListeners();
         cancelButton.onClick.RemoveAllListeners();
         newGameButton.onClick.RemoveAllListeners();
 
         // Language
         languageDropdown?.onValueChanged.RemoveListener(OnLanguageChanged);
-
     }
     #endregion
 
@@ -230,9 +235,6 @@ public class SettingsManager : MonoBehaviour
         size.x = value;
         gameArea.sizeDelta = size;
 
-        // UpdateValueText(widthValueText, value, DECIMAL_FORMAT);
-        // if (widthInputField != null) widthInputField.text = value.ToString(DECIMAL_FORMAT);
-
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
             RepositionMonstersAfterScaling();
@@ -241,7 +243,6 @@ public class SettingsManager : MonoBehaviour
 
         OnGameAreaChanged?.Invoke();
     }
-
 
     public void UpdateGameAreaHeight(float value)
     {
@@ -279,6 +280,7 @@ public class SettingsManager : MonoBehaviour
         pos.x = value;
         gameArea.anchoredPosition = pos;
     }
+    
     public void UpdateGameAreaVerticalPosition(float value)
     {
         if (gameArea == null) return;
@@ -287,64 +289,61 @@ public class SettingsManager : MonoBehaviour
         pos.y = value;
         gameArea.anchoredPosition = pos;
     }
-    public void AdjustGameAreaSize(float delta)
-    {
-        if (gameArea == null) return;
-
-        float currentHeight = gameArea.sizeDelta.y;
-        float newHeight = Mathf.Clamp(currentHeight + delta, MIN_SIZE, maxScreenHeight);
-
-        UpdateGameAreaHeight(newHeight);
-    }
 
     public void AdjustUIScale(float delta)
     {
         uiScale = Mathf.Clamp(uiScale + delta, 0.5f, 2f);
         canvasScaler.scaleFactor = uiScale;
     }
-    public void ResetGameAreaSize()
-    {
-
-        UpdateGameAreaHeight(DEFAULT_GAME_AREA_HEIGHT);
-    }
 
     public void ResetUIScale()
     {
         UpdateUIScale(DEFAULT_UI_SCALE);
     }
-    public void SwitchScreenLeft()
-    {
-        screenState--;
-        ApplyScreenLayout(screenState);
-    }
-
-    public void SwitchScreenRight()
-    {
-        screenState++;
-        ApplyScreenLayout(screenState);
-    }
-
-    public void ResetScreenLayout()
-    {
-        screenState = 0;
-        ApplyScreenLayout(screenState);
-    }
-
-    private void ApplyScreenLayout(int layoutId)
-    {
-        // Your logic to adjust RectTransform layout or canvas anchoring
-        Debug.Log("Applying screen layout: " + layoutId);
-
-        // Example:
-        // layoutId = -1 => left, 0 => center, 1 => right
-        // Adjust anchoring, pivot, or camera accordingly
-    }
-
 
     public void UpdateUIScale(float value)
     {
         if (canvasScaler != null)
             canvasScaler.scaleFactor = value;
+    }
+    
+    // Pet scaling methods
+    public void AdjustPetScale(float delta)
+    {
+        petScale = Mathf.Clamp(petScale + delta, MIN_PET_SCALE, MAX_PET_SCALE);
+        ApplyPetScaleToAllMonsters();
+    }
+
+    public void ResetPetScale()
+    {
+        UpdatePetScale(DEFAULT_PET_SCALE);
+    }
+
+    public void UpdatePetScale(float value)
+    {
+        petScale = Mathf.Clamp(value, MIN_PET_SCALE, MAX_PET_SCALE);
+        ApplyPetScaleToAllMonsters();
+    }
+
+    private void ApplyPetScaleToAllMonsters()
+    {
+        if (gameManager?.activeMonsters == null) return;
+        
+        foreach (var monster in gameManager.activeMonsters)
+        {
+            if (monster != null)
+            {
+                monster.transform.localScale = Vector3.one * petScale;
+            }
+        }
+    }
+    
+    public void ApplyCurrentPetScaleToMonster(MonsterController monster)
+    {
+        if (monster != null)
+        {
+            monster.transform.localScale = Vector3.one * petScale;
+        }
     }
     #endregion
 
@@ -411,18 +410,19 @@ public class SettingsManager : MonoBehaviour
             }
         }
     }
+    
     private void LoadSavedSettings()
     {
-
         // Cache saved values for Cancel
         savedGameAreaWidth = PlayerPrefs.GetFloat("GameAreaWidth", DEFAULT_GAME_AREA_WIDTH);
         savedGameAreaHeight = PlayerPrefs.GetFloat("GameAreaHeight", DEFAULT_GAME_AREA_HEIGHT);
         savedGameAreaX = PlayerPrefs.GetFloat("GameAreaX", 0f);
         savedGameAreaY = PlayerPrefs.GetFloat("GameAreaY", -500f);
         savedUIScale = PlayerPrefs.GetFloat("UIScale", DEFAULT_UI_SCALE);
+        savedPetScale = PlayerPrefs.GetFloat("PetScale", DEFAULT_PET_SCALE);
         savedLanguageIndex = PlayerPrefs.GetInt("Language", 0);
-        savedScreenState = PlayerPrefs.GetInt("ScreenState", 0);
-        Debug.Log($"Loaded settings: Width={savedGameAreaWidth}, Height={savedGameAreaHeight}, X={savedGameAreaX}, Y={savedGameAreaY}, UIScale={savedUIScale}, LanguageIndex={savedLanguageIndex}, ScreenState={savedScreenState}");
+        
+        Debug.Log($"Loaded settings: Width={savedGameAreaWidth}, Height={savedGameAreaHeight}, X={savedGameAreaX}, Y={savedGameAreaY}, UIScale={savedUIScale}, LanguageIndex={savedLanguageIndex}");
 
         // Apply values to game area and UI
         UpdateGameAreaWidth(savedGameAreaWidth);
@@ -430,9 +430,9 @@ public class SettingsManager : MonoBehaviour
         UpdateGameAreaHorizontalPosition(savedGameAreaX);
         UpdateGameAreaVerticalPosition(savedGameAreaY);
         UpdateUIScale(savedUIScale);
-        ApplyScreenLayout(savedScreenState);
+        UpdatePetScale(savedPetScale);
 
-        // Update IncrementSettingControl UI fields
+        // Update SliderSettingControl UI fields
         widthControl.SetValueWithoutNotify(savedGameAreaWidth);
         heightControl.SetValueWithoutNotify(savedGameAreaHeight);
         horizontalPositionControl.SetValueWithoutNotify(savedGameAreaX);
@@ -443,29 +443,23 @@ public class SettingsManager : MonoBehaviour
         {
             languageDropdown.SetValueWithoutNotify(savedLanguageIndex);
         }
-
-        // Also update screenState field (used in ApplyScreenLayout logic)
-        screenState = savedScreenState;
     }
-
 
     private void OnSaveSettings()
     {
-
         PlayerPrefs.SetFloat("GameAreaWidth", gameArea.sizeDelta.x);
         PlayerPrefs.SetFloat("GameAreaHeight", gameArea.sizeDelta.y);
         PlayerPrefs.SetFloat("GameAreaX", gameArea.anchoredPosition.x);
         PlayerPrefs.SetFloat("GameAreaY", gameArea.anchoredPosition.y);
         PlayerPrefs.SetFloat("UIScale", uiScale);
+        PlayerPrefs.SetFloat("PetScale", petScale);
         PlayerPrefs.SetInt("Language", languageDropdown.value);
-        PlayerPrefs.SetInt("ScreenState", screenState);
-        // settings.languageIndex = languageDropdown.value;
+        
         foreach (var module in savableSettingsModules)
             module.SaveSettings(); // Save each module's settings
+            
         PlayerPrefs.Save();
-
     }
-
 
     private void OnCancelSettings()
     {
@@ -480,9 +474,7 @@ public class SettingsManager : MonoBehaviour
         verticalPositionControl.SetValueWithoutNotify(savedGameAreaY);
 
         UpdateUIScale(savedUIScale);
-        // languageDropdown.value = savedLanguageIndex;
-        screenState = savedScreenState;
-        ApplyScreenLayout(screenState);
+        UpdatePetScale(savedPetScale);
 
         foreach (var module in savableSettingsModules)
             module.RevertSettings();
@@ -498,6 +490,7 @@ public class SettingsManager : MonoBehaviour
             module.SaveSettings(); // optionally save before new game
         // gameManager?.StartNewGame(); // Or your scene load logic
     }
+    
     private void OnClickCloseButton()
     {
         settingPanel.SetActive(false); // Hide settings panel

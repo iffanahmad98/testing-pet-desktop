@@ -18,6 +18,8 @@ public class MonsterUIHandler
     [Header("Emoji Expression")]
     public GameObject Expression;
     public Animator emojiAnimator;
+
+    [Header("Info Card Components")]
     private TextMeshProUGUI hungerText;
     private TextMeshProUGUI happinessText;
     private TextMeshProUGUI sickStatusText;
@@ -46,6 +48,7 @@ public class MonsterUIHandler
         // _hungerInfoCg.alpha = 0f;
         // _happinessInfoCg.alpha = 0f;
         // _sickStatusInfoCg.alpha = 0f;
+        
         _expressionCg.alpha = 0f;
     }
 

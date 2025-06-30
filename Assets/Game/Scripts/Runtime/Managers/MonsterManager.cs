@@ -127,6 +127,12 @@ public class MonsterManager : MonoBehaviour
         else
             RegisterActiveMonster(controller);
 
+        // Apply current pet scale to newly spawned monster
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
+        {
+            settingsManager.ApplyCurrentPetScaleToMonster(controller);
+        }
     }
 
     private GameObject CreateMonster(MonsterDataSO monsterData = null)

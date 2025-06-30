@@ -138,8 +138,8 @@ public class MonsterEvolutionHandler
         var evolutionParticle = _controller.UI.evolutionVFX;
         var whiteFlashMaterial = _controller.UI.evolutionMaterial;
 
-        int _remaining = 0;
         // turn other monsters invisible
+        int _remaining = 0;
         foreach (var monster in _controller.MonsterManager.activeMonsters)
         {
             _remaining = _controller.MonsterManager.activeMonsters.Count - 1; // -1 for self
@@ -275,9 +275,6 @@ public class MonsterEvolutionHandler
             initialHappiness: _controller.MonsterData.baseHappiness,
             maxHP: newMaxHP
         );
-
-        // Update visuals (e.g. spine, icons, etc.)
-        // _controller.UpdateVisuals();
 
         // Save the refreshed data
         _controller.SaveMonData();
