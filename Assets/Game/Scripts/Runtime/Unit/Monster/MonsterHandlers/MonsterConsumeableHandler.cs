@@ -59,21 +59,21 @@ public class MonsterConsumableHandler
         }
 
         // Check medicine
-        // foreach (MedicineController med in _controller.MonsterManager.activeMedicines)
-        // {
-        //     if (med == null) continue;
-        //     Vector2 medPos = med.GetComponent<RectTransform>().anchoredPosition;
-        //     float sqrDist = (medPos - pos).sqrMagnitude;
+        foreach (MedicineController med in _controller.MonsterManager.activeMedicines)
+        {
+            if (med == null) continue;
+            Vector2 medPos = med.GetComponent<RectTransform>().anchoredPosition;
+            float sqrDist = (medPos - pos).sqrMagnitude;
 
-        //     if (sqrDist < _detectionRangeSqr && sqrDist < closestSqr)
-        //     {
-        //         if (med.TryClaim(_controller))
-        //         {
-        //             closestSqr = sqrDist;
-        //             NearestConsumable = med;
-        //         }
-        //     }
-        // }
+            if (sqrDist < _detectionRangeSqr && sqrDist < closestSqr)
+            {
+                if (med.TryClaim(_controller))
+                {
+                    closestSqr = sqrDist;
+                    NearestConsumable = med;
+                }
+            }
+        }
 
         _cachedConsumableDistanceSqr = NearestConsumable != null ? closestSqr : float.MaxValue;
         IsNearConsumable = _cachedConsumableDistanceSqr < _consumeDistanceSqr;
@@ -136,6 +136,7 @@ public class MonsterConsumableHandler
             {
                 _controller.GiveMedicine(nutrition);
                 _controller.MonsterManager.activeMedicines.Remove(med);
+                _controller.UI.PlayHealingVFX(_controller);
             }
 
             _controller.MonsterManager.DespawnToPool(((MonoBehaviour)NearestConsumable).gameObject);

@@ -557,7 +557,7 @@ public class MonsterManager : MonoBehaviour
                 currentEvolutionLevel = monster.evolutionLevel,
 
                 // Evolution data
-                timeCreated = monster.timeCreated,
+                timeCreated = monster.GetEvolutionTimeCreated(),
                 totalTimeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
                 nutritionCount = monster.GetEvolutionFoodConsumed(),
                 currentInteraction = monster.GetEvolutionInteractionCount()

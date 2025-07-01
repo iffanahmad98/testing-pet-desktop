@@ -18,6 +18,23 @@ public class PlacementManager : MonoBehaviour
 
     private bool allowMultiplePlacement = false;
     private bool isPlacingMedicine = false;
+    [Header("Placement Prefabs")]
+    [SerializeField] private GameObject foodPrefab;
+    [SerializeField] private GameObject medicinePrefab;
+
+    [Header("Placement Canvas")]
+    [SerializeField] private RectTransform canvasParent;
+    public RectTransform GetCanvasParent() => canvasParent;
+
+    public GameObject GetPrefabForItemType(ItemType type)
+    {
+        return type switch
+        {
+            ItemType.Food => foodPrefab,
+            ItemType.Medicine => medicinePrefab,
+            _ => null
+        };
+    }
 
     private void Awake()
     {
@@ -29,7 +46,14 @@ public class PlacementManager : MonoBehaviour
         ServiceLocator.Unregister<PlacementManager>();
     }
 
-    public void StartPlacement(GameObject prefab, RectTransform area, System.Action<Vector2> onPlace, System.Action onCancel = null, bool allowMultiple = false, Sprite previewSprite = null, bool isMedicine = false)
+    public void StartPlacement(
+        GameObject prefab,
+        RectTransform area,
+        System.Action<Vector2> onPlace,
+        System.Action onCancel = null,
+        bool allowMultiple = false,
+        Sprite previewSprite = null,
+        bool isMedicine = false)
     {
         CancelPlacement(); // Clear previous
 
@@ -72,7 +96,9 @@ public class PlacementManager : MonoBehaviour
             }
             else
             {
-                string msg = isPlacingMedicine ? "Only usable on sick monsters!" : "Can't place outside the game area!";
+                string msg = isPlacingMedicine
+                    ? "Only usable on monsters!"
+                    : "Can't place outside the game area!";
                 ServiceLocator.Get<UIManager>()?.ShowMessage(msg, 1f);
             }
         }
@@ -101,6 +127,18 @@ public class PlacementManager : MonoBehaviour
 
     private bool IsOverSickMonster()
     {
+        return TryGetMonsterUnderCursor() != null;
+    }
+
+    private void UpdatePreviewVisual(bool isValid)
+    {
+        if (currentPreview.TryGetComponent<Image>(out var img))
+        {
+            img.color = isValid ? validColor : invalidColor;
+        }
+    }
+    public MonsterController TryGetMonsterUnderCursor()
+    {
         PointerEventData pointer = new PointerEventData(EventSystem.current)
         {
             position = Input.mousePosition
@@ -112,23 +150,12 @@ public class PlacementManager : MonoBehaviour
         foreach (var result in raycastResults)
         {
             MonsterController monster = result.gameObject.GetComponentInParent<MonsterController>();
-            Debug.Log($"Checking monster: {monster?.name} with sick status {monster?.StatsHandler.IsSick} and HP {monster?.StatsHandler.CurrentHunger}");
-            if (monster != null && monster.StatsHandler.IsSick)
+            if (monster != null)
             {
-                return true;
+                return monster;
             }
         }
 
-        return false;
+        return null;
     }
-
-    private void UpdatePreviewVisual(bool isValid)
-    {
-        if (currentPreview.TryGetComponent<Image>(out var img))
-        {
-            img.color = isValid ? validColor : invalidColor;
-        }
-    }
-
-    public bool IsPlacing => currentPreview != null;
 }

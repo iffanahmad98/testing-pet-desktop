@@ -3,18 +3,17 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MedicineController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler, IConsumable
+public class MedicineController : MonoBehaviour, IPointerUpHandler, IConsumable
 {
     private ItemDataSO itemData;
-    public event System.Action OnPlaced;
-    public MonsterController claimedBy;
     public float nutritionValue;
+
+    public MonsterController claimedBy;
+    public event System.Action OnPlaced;
 
     [SerializeField] private Image medicineImage;
 
     private RectTransform rectTransform;
-    private Vector2 dragOffset;
-    public bool IsBeingDragged { get; private set; }
 
     private void Awake()
     {
@@ -24,8 +23,12 @@ public class MedicineController : MonoBehaviour, IPointerDownHandler, IDragHandl
     public void Initialize(ItemDataSO data, RectTransform groundRect = null)
     {
         itemData = data;
+        nutritionValue = data.nutritionValue;
 
-        medicineImage.sprite = itemData.itemImgs[0]; // Only 1 image needed
+        if (medicineImage != null && itemData.itemImgs.Length > 0)
+        {
+            medicineImage.sprite = itemData.itemImgs[0];
+        }
     }
 
     public void Consume(MonsterController monster = null)
@@ -40,61 +43,42 @@ public class MedicineController : MonoBehaviour, IPointerDownHandler, IDragHandl
         OnPlaced?.Invoke();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        IsBeingDragged = true;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            rectTransform.parent as RectTransform,
-            eventData.position,
-            eventData.pressEventCamera,
-            out dragOffset);
-        dragOffset = rectTransform.anchoredPosition - dragOffset;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!IsBeingDragged) return;
-
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            rectTransform.parent as RectTransform,
-            eventData.position,
-            eventData.pressEventCamera,
-            out Vector2 localPos))
-        {
-            rectTransform.anchoredPosition = localPos + dragOffset;
-        }
-    }
-
     public void OnPointerUp(PointerEventData eventData)
     {
-        IsBeingDragged = false;
-
-        MonsterController targetMonster = TryFindMonsterUnderPointer(eventData);
-
-        if (targetMonster != null && targetMonster.StatsHandler.IsSick)
+        if (!ServiceLocator.Get<MonsterManager>().IsPositionInGameArea(rectTransform.anchoredPosition))
         {
-            // Heal sick monster
-            targetMonster.GiveMedicine(nutritionValue);
-            ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
-        }
-        else
-        {
-            // Invalid placement: not on a monster or monster isn't sick
             ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
         }
     }
-    private MonsterController TryFindMonsterUnderPointer(PointerEventData eventData)
+
+    // Food-style claiming logic (optional if needed)
+    public bool TryClaim(MonsterController monster)
     {
-        var results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        foreach (var result in results)
+        if (claimedBy == null)
         {
-            var monster = result.gameObject.GetComponentInParent<MonsterController>();
-            if (monster != null)
-                return monster;
+            claimedBy = monster;
+            return true;
         }
-        return null;
+        return claimedBy == monster;
     }
 
+    public void ReleaseClaim(MonsterController monster)
+    {
+        if (claimedBy == monster)
+        {
+            claimedBy = null;
+        }
+        else if (claimedBy != null)
+        {
+            Debug.LogWarning($"[FoodController] {monster.name} tried to release but {claimedBy.name} owns it");
+        }
+    }
+
+    public void ForceReleaseClaim()
+    {
+        claimedBy = null;
+    }
+
+    public bool IsClaimedBy(MonsterController monster) => claimedBy == monster;
+    public bool IsClaimed => claimedBy != null;
 }

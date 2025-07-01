@@ -56,8 +56,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private MonsterSaveHandler _saveHandler;
     public MonsterSaveHandler SaveHandler => _saveHandler;
     private MonsterVisualHandler _visualHandler;
-    private MonsterFoodHandler _foodHandler;
-    public MonsterFoodHandler FoodHandler => _foodHandler;
+    private MonsterConsumableHandler _consumableHandler;
+    public MonsterConsumableHandler ConsumableHandler => _consumableHandler;
     private MonsterInteractionHandler _interactionHandler;
     private MonsterBoundsHandler _boundHandler;
     public MonsterBoundsHandler BoundHandler => _boundHandler;
@@ -210,7 +210,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             _boundHandler = new MonsterBoundsHandler(_monsterManager, _rectTransform);
             _movementHandler = new MonsterMovementHandler(this, _rectTransform, _monsterSpineGraphic);
             _separationBehavior = new MonsterSeparationHandler(this, _rectTransform);
-            _foodHandler = new MonsterFoodHandler(this, _rectTransform);
+            _consumableHandler = new MonsterConsumableHandler(this, _rectTransform);
         }
         else
         {
@@ -227,7 +227,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (monsterData != null)
         {
             _visualHandler?.ApplyMonsterVisuals();
-            _foodHandler?.Initialize(monsterData);
+            _consumableHandler?.Initialize(monsterData);
             UI.Initialize(_statsHandler, this);
         }
 
@@ -284,7 +284,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             UI.UpdateEmojiVisibility(IsSick);
         }
-        _statsHandler?.UpdateHealth(Time.deltaTime);
     }
 
     private void OnEnable()
@@ -420,7 +419,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             _rectTransform.anchoredPosition = newPos;
         }
 
-        bool isEating = _foodHandler?.IsCurrentlyEating ?? false;
+        bool isEating = _consumableHandler?.IsCurrentlyConsuming ?? false;
         if (isEating) return;
 
         bool isMovementState = _stateMachine?.CurrentState == MonsterState.Walking ||
@@ -431,15 +430,15 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             bool isGroundMovement = _stateMachine?.CurrentState != MonsterState.Flying;
 
-            if (isGroundMovement && _foodHandler?.NearestFood == null)
+            if (isGroundMovement && _consumableHandler?.NearestConsumable == null)
             {
-                _foodHandler?.FindNearestFood();
+                _consumableHandler?.FindNearestConsumable();
             }
 
             // Handle food logic only for ground movement
-            if (isGroundMovement && _foodHandler?.NearestFood != null)
+            if (isGroundMovement && _consumableHandler?.NearestConsumable != null)
             {
-                _foodHandler?.HandleFoodLogic(ref _targetPosition);
+                _consumableHandler?.HandleConsumableLogic(ref _targetPosition);
             }
 
             _targetPosition = _separationBehavior.ApplySeparationToTarget(_targetPosition);
@@ -504,7 +503,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             ServiceLocator.Get<MonsterManager>().SortMonstersByDepth();
         }
 
-        bool isPursuingFood = _foodHandler?.NearestFood != null;
+        bool isPursuingFood = _consumableHandler?.NearestConsumable != null;
         float distanceToTarget = Vector2.Distance(_rectTransform.anchoredPosition, _targetPosition);
         if (distanceToTarget < 10f && !isPursuingFood && isMovementState)
         {
@@ -587,7 +586,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         // Only initialize handlers if they exist and we're ready
         if (_initState >= InitializationState.HandlersCreated)
         {
-            _foodHandler?.Initialize(monsterData);
+            _consumableHandler?.Initialize(monsterData);
             _visualHandler?.ApplyMonsterVisuals();
         }
 
@@ -626,11 +625,12 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void CheckEvolutionAfterInteraction() => _evolutionHandler?.OnInteraction();
     public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
     public float GetEvolutionTimeSinceCreation() => _evolutionHandler?.TimeSinceCreation ?? 0f;
+    public string GetEvolutionTimeCreated() => _evolutionHandler?.TimeCreated ?? DateTime.UtcNow.ToString("o"); // ISO 8601 format
     public int GetEvolutionFoodConsumed() => _evolutionHandler?.FoodConsumed ?? 0;
     public int GetEvolutionInteractionCount() => _evolutionHandler?.InteractionCount ?? 0;
-    public void LoadEvolutionData(float timeSinceCreation, int foodConsumed, int interactionCount)
+    public void LoadEvolutionData(float timeSinceCreation, string timeCreated, int foodConsumed, int interactionCount)
     {
-        _evolutionHandler?.LoadEvolutionData(timeSinceCreation, foodConsumed, interactionCount);
+        _evolutionHandler?.LoadEvolutionData(timeSinceCreation, timeCreated, foodConsumed, interactionCount);
     }
     #endregion
 
@@ -644,12 +644,25 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void TreatSickness() => _statsHandler?.TreatSickness();
     public void GiveMedicine(float healingValue)
     {
-        _statsHandler.Heal(healingValue);
-        if (_statsHandler?.IsSick == true)
+        if (_statsHandler == null)
         {
-            TreatSickness();
+            Debug.LogWarning($"[MonsterController] {monsterID} has no stats handler assigned.");
+            return;
         }
+
+        if (_statsHandler.IsSick)
+        {
+            TreatSickness(); // This will internally cure and reset states
+            Debug.Log($"[MonsterController] {monsterID} was sick and has been treated.");
+        }
+        else
+        {
+            Debug.Log($"[MonsterController] {monsterID} is not sick. Applying heal only.");
+        }
+
+        _statsHandler.Heal(healingValue);
     }
+
     #endregion
 
     #region Interaction Handling

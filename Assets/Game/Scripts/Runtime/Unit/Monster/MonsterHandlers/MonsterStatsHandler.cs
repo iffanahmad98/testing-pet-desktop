@@ -7,11 +7,11 @@ public class MonsterStatsHandler
     private float _currentHappiness;
     private bool _isSick;
     private float _lowHungerTime;
-    private float _currentHP = 100f;
+    private float _currentHP;
 
     private float _maxHP = 100f;
-    private const float SICKNESS_THRESHOLD_HP = 40f;
-    private const float HP_DRAIN_PER_MINUTE = 50f;
+    private const float SICKNESS_THRESHOLD_HP = 0.4f;
+    private const float HP_DRAIN_PER_MINUTE = 10f;
 
     private const float SICK_HUNGER_THRESHOLD = 30f;
     private const float SICK_THRESHOLD_TIME = 1f;
@@ -19,8 +19,8 @@ public class MonsterStatsHandler
     // Properties
     public float CurrentHunger => _currentHunger;
     public float CurrentHappiness => _currentHappiness;
-    public bool IsSick => _currentHP < SICKNESS_THRESHOLD_HP;
     public float CurrentHP => _currentHP;
+    public bool IsSick => _currentHP < SICKNESS_THRESHOLD_HP * _maxHP;
 
     public float LowHungerTime => _lowHungerTime;
 
@@ -64,6 +64,7 @@ public class MonsterStatsHandler
         _currentHappiness = Mathf.Clamp(initialHappiness, 0f, 100f);
         _maxHP = maxHP;
         _currentHP = Mathf.Clamp(initialHealth, 0f, _maxHP);
+
     }
 
     public void SetHunger(float value)

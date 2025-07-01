@@ -91,11 +91,11 @@ public static class SaveSystem
         return _playerConfig.LoadMonsterData(monsterId, out data);
     }
 
-    public static void DeleteMon(string monsterID)
+    public static void DeleteMon(string instanceID)
     {
-        if (string.IsNullOrEmpty(monsterID)) return;
+        if (string.IsNullOrEmpty(instanceID)) return;
 
-        _playerConfig.DeleteMonster(monsterID);
+        _playerConfig.DeleteMonster(instanceID);
         SaveAll(); // Ensure the config is persisted
     }
 
@@ -225,7 +225,7 @@ public static class SaveSystem
         {
             Debug.Log($"Player was away for {timeSinceLastLogin.TotalHours} hours");
             // Handle long absence (e.g., update monster states)
-            HandleLongAbsence(timeSinceLastLogin);
+            // HandleLongAbsence(timeSinceLastLogin);
         }
     }
 

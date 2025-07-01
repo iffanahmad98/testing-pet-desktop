@@ -91,9 +91,9 @@ public class PlayerConfig
     }
 
 
-    public void DeleteMonster(string monsterId)
+    public void DeleteMonster(string instanceId)
     {
-        monsters.RemoveAll(m => m.monsterId == monsterId);
+        monsters.RemoveAll(m => m.instanceId == instanceId);
     }
 
     public List<string> GetAllMonsterIDs()
