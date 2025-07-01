@@ -4,25 +4,44 @@ using UnityEngine.UI;
 public class UITabManager : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject[] tabPanels;
-
+    public Tab[] tabs;
     [Header("Buttons (Optional)")]
     public Button[] tabButtons;
-
-    private int currentTab = 0;
-
+    private int currentIndex = 0;
     void Start()
     {
-        ShowTab(currentTab); // Tampilkan tab pertama
-    }
-
-    public void ShowTab(int tabIndex)
-    {
-        for (int i = 0; i < tabPanels.Length; i++)
+        for (int i = 0; i < tabs.Length; i++)
         {
-            tabPanels[i].SetActive(i == tabIndex);
+            int index = i; // capture index for lambda
+            tabs[i].button.onClick.AddListener(() => OnTabClicked(index));
         }
 
-        currentTab = tabIndex;
+        OnTabClicked(0); // buka tab pertama secara default
     }
+
+    public void OnTabClicked(int index)
+    {
+        for (int i = 0; i < tabs.Length; i++)
+        {
+            bool isActive = (i == index);
+            tabs[i].tabImage.sprite = isActive ? tabs[i].activeSprite : tabs[i].idleSprite;
+            if (isActive)
+            {
+                tabs[i].panel.transform.SetAsLastSibling();
+            }
+            // tabs[i].panel.SetActive(isActive);
+        }
+
+        currentIndex = index;
+    }
+}
+
+[System.Serializable]
+public class Tab
+{
+    public Button button;
+    public Image tabImage;
+    public Sprite activeSprite;
+    public Sprite idleSprite;
+    public GameObject panel;
 }

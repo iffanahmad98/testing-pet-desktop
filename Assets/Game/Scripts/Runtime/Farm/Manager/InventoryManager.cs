@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Linq;
 using MagicalGarden.Farm;
 using MagicalGarden.Manager;
+using TMPro;
 
 namespace MagicalGarden.Inventory
 {
@@ -12,8 +14,26 @@ namespace MagicalGarden.Inventory
         public static InventoryManager Instance;
         public GameObject dropFlyIcon;
         public List<InventoryItem> items = new List<InventoryItem>();
-        public InventoryUI inventoryUI;
+        public GameObject uiInventory;
+        public InventoryUI inventoryFertilizerUI;
+        public InventoryUI inventorySeedUI;
+        public InventoryUI inventoryHarvestUI;
 
+        [Header("Information Panel Item")]
+        public TextMeshProUGUI descFull;
+        public Image imageItem;
+        public GameObject descAddFertilizer;
+        public GameObject descAddCrop;
+        public GameObject descAddSeed;
+
+        [Header("Information Panel Item Fertilizer")]
+        public TextMeshProUGUI descTime;
+        public TextMeshProUGUI descPoopNormal;
+        public TextMeshProUGUI descPoopMytic;
+        [Header("Information Panel Item Seed")]
+        public TextMeshProUGUI descCount;
+        public TextMeshProUGUI descWateringHour;
+        public TextMeshProUGUI descLiveHour;
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -38,7 +58,8 @@ namespace MagicalGarden.Inventory
 
 
             items.Add(new InventoryItem(itemData, amount));
-
+            RefreshAllInventoryUI();
+            FertilizerManager.Instance.RefreshAllFertilizerUI();
         }
 
         public bool RemoveItem(ItemData itemData, int amount)
@@ -51,8 +72,33 @@ namespace MagicalGarden.Inventory
             {
                 items.Remove(item);
             }
-            inventoryUI.RefreshUI();
+            RefreshAllInventoryUI();
             return true;
+        }
+
+        public void RefreshAllInventoryUI()
+        {
+            inventoryFertilizerUI.RefreshUI();
+            inventoryHarvestUI.RefreshUI();
+            inventorySeedUI.RefreshUI();
+        }
+
+        public void SetInformationItem(string desc, Sprite image, ItemType _type)
+        {
+            descFull.text = desc;
+            imageItem.sprite = image;
+            if (_type == ItemType.Fertilizer)
+            {
+
+            }
+            else if (_type == ItemType.Crop)
+            {
+
+            }
+            else if (_type == ItemType.Seed || _type == ItemType.MonsterSeed)
+            {
+
+            }
         }
 
         public bool HasItem(ItemData itemData, int amount = 1)
@@ -92,10 +138,45 @@ namespace MagicalGarden.Inventory
         {
             return items.Where(i => i.itemData.itemType == type).ToList();
         }
-
+        public void SetDescAdditionalFertilizer(string time, string countPoopNormal, string countPoopRare)
+        {
+            descTime.text = time + " Hours";
+            descPoopNormal.text = countPoopNormal + " pcs";
+            descPoopMytic.text = countPoopRare + " pcs";
+        }
+        public void SetDescAdditionalSeed(string hourWatering, string hoursGrow)
+        {
+            descWateringHour.text = hourWatering + " hour";
+            descLiveHour.text = hoursGrow + " hours";
+        }
         public void InventoryToogle()
         {
-            inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
+            uiInventory.SetActive(!uiInventory.activeSelf);
+        }
+        
+        public void DisableAllDescriptions()
+        {
+            descAddFertilizer.SetActive(false);
+            descAddCrop.SetActive(false);
+            descAddSeed.SetActive(false);
+        }
+
+        public void ShowOnlyFertilizer()
+        {
+            DisableAllDescriptions();
+            descAddFertilizer.SetActive(true);
+        }
+
+        public void ShowOnlyCrop()
+        {
+            DisableAllDescriptions();
+            descAddCrop.SetActive(true);
+        }
+
+        public void ShowOnlySeed()
+        {
+            DisableAllDescriptions();
+            descAddSeed.SetActive(true);
         }
     }
     public enum ItemType

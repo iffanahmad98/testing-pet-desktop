@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using MagicalGarden.Manager;
 using MagicalGarden.Farm;
+using DG.Tweening;
 
 namespace MagicalGarden.Shop
 {
@@ -13,6 +14,7 @@ namespace MagicalGarden.Shop
         [Header("UI References")]
         public Image itemIcon;
         public TextMeshProUGUI titleText;
+        public TextMeshProUGUI priceText;
         public Button buyButton;
         private SheetData currentItemData;
 
@@ -47,13 +49,16 @@ namespace MagicalGarden.Shop
 
         void OnBuy()
         {
+            transform.DOKill();
+            transform.localScale = Vector3.one; 
+            transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 10, 1);
             var itemData = PlantManager.Instance.GetItemById(currentItemData.seedName.ToLower());
 
             if (itemData != null)
             {
                 InventoryManager.Instance.AddItem(itemData, 1);
                 CoinManager.Instance.SpendCoins(10);
-                InventoryManager.Instance.inventoryUI.RefreshUI();
+                InventoryManager.Instance.RefreshAllInventoryUI();
 
                 Debug.Log($"✅ Bought seed: {itemData.itemId}");
             }

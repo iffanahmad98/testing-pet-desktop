@@ -113,8 +113,15 @@ namespace MagicalGarden.Manager
             {
                 string name = guestNames[UnityEngine.Random.Range(0, guestNames.Length)];
                 string type = types[UnityEngine.Random.Range(0, types.Length)];
-                int stayDuration = UnityEngine.Random.Range(1, 4);
-                GuestRequest newRequest = new GuestRequest(name, type, stayDuration, GetRandomRarity());
+                int party = UnityEngine.Random.Range(1, 5);
+                int price = UnityEngine.Random.Range(100, 301);
+
+                //random
+                int days = UnityEngine.Random.Range(2, 6);
+                int minutes = UnityEngine.Random.Range(0, 60);
+                TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
+                
+                GuestRequest newRequest = new GuestRequest(name, type, party, price, stayDuration, GetRandomRarity());
                 todayGuestRequests.Add(newRequest);
             }
             DisplayGuestRequests();
@@ -129,8 +136,8 @@ namespace MagicalGarden.Manager
             {
                 var guestItem = Instantiate(prefabGuestItem, content);
                 string rarityText = request.rarity.ToString().ToUpper(); // Tambahan
-                string desc = $"Nama: {request.guestName}\nTipe: {request.type}\nDurasi: {request.stayDurationDays} hari\nRarity: {rarityText}";
-                guestItem.GetComponent<GuestItem>().Setup(request, null, desc);
+                // string desc = $"Nama: {request.guestName}\nTipe: {request.type}\nDurasi: {request.stayDurationDays} hari\nRarity: {rarityText}";
+                guestItem.GetComponent<GuestItem>().Setup(request, null);
             }
         }
         private void FindHotelTiles()
@@ -243,8 +250,8 @@ namespace MagicalGarden.Manager
                 if (saved.guest == null) continue;
 
                 DateTime checkInDate = DateTime.Parse(saved.checkInDate);
-                int stayedDays = (today - checkInDate).Days;
-                if (stayedDays >= saved.guest.stayDurationDays)
+                TimeSpan stayedDuration = today - checkInDate;
+                if (stayedDuration >= saved.guest.stayDurationDays)
                 {
                     int coinReward = 100;
                     if (saved.guest.rarity == GuestRarity.Rare) coinReward = 200;

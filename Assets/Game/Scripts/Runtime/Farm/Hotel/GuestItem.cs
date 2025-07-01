@@ -1,11 +1,7 @@
 using UnityEngine;
 using TMPro;
-using MagicalGarden.Inventory;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using MagicalGarden.Manager;
-using MagicalGarden.Farm;
-using System;
 using MagicalGarden.AI;
 
 namespace MagicalGarden.Hotel
@@ -14,22 +10,34 @@ namespace MagicalGarden.Hotel
     {
         [Header("UI References")]
         public Image guestIcon;
-        public TextMeshProUGUI descText;
-        public Button acceptButton;
+        public TextMeshProUGUI titleText;
+        public TextMeshProUGUI descPartyText;
+        public TextMeshProUGUI descPriceText;
+        public TextMeshProUGUI descTimeText;
         private GuestRequest guest;
 
-        public void Setup(GuestRequest guest, Image image, string desc)
+        [Header("Type")]
+        public GameObject vipObject;
+        public GameObject regObject;
+        public GameObject checkInBtn;
+        public GameObject confirmBtn;
+        public GameObject declineBtn;
+
+        public void Setup(GuestRequest guest, Image image)
         {
             guestIcon = image;
-            descText.text = desc;
+            titleText.text = guest.guestName;
+            descPartyText.text = guest.party.ToString();
+            descPriceText.text = guest.price.ToString();
+            descTimeText.text = guest.GetStayDurationString();
 
-            acceptButton.onClick.RemoveAllListeners();
-            acceptButton.onClick.AddListener(() =>
+            checkInBtn.GetComponent<Button>().onClick.RemoveAllListeners();
+            checkInBtn.GetComponent<Button>().onClick.AddListener(() =>
             {
                 HotelRoom room = HotelManager.Instance.AssignGuestToAvailableRoom(guest);
                 if (room != null)
                 {
-                    
+
                     var guestPrefab = HotelManager.Instance.GetRandomGuestPrefab();
                     var guest = Instantiate(guestPrefab, HotelManager.Instance.guestSpawnPoint.position, Quaternion.identity);
                     guest.GetComponent<PetMonsterHotel>().destinationTile.x = room.hotelPosition.x;

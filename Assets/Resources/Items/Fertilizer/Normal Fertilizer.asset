@@ -14,11 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: normal_fertilizer
   displayName: Normal Fertilizer
-  icon: {fileID: -724857223870557020, guid: be4687671f40bc848ae31f79fe710e5a, type: 3}
+  icon: {fileID: -2728695741774458460, guid: 9aae9190ec8a2d84082852db685f8fb5, type: 3}
   itemType: 3
   rarity: 0
   isStackable: 1
   description: 
   stageTiles: []
+  stageWilted: {fileID: 0}
+  markHarvest: {fileID: 0}
   dropItems: []
   boost: 15
+  timeUse: 2
+  recipeCountPopNormal: 5
+  recipeCountPopRare: 3
+  needHourWatering: 0
+  needHourGrow: 0

@@ -14,11 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: mana_nectar
   displayName: Mana Nectar
-  icon: {fileID: -724857223870557020, guid: be4687671f40bc848ae31f79fe710e5a, type: 3}
+  icon: {fileID: 6792268176742309110, guid: 0d2aeb12f032ef445a5ee2050688288c, type: 3}
   itemType: 3
   rarity: 1
   isStackable: 1
   description: 
   stageTiles: []
+  stageWilted: {fileID: 0}
+  markHarvest: {fileID: 0}
   dropItems: []
   boost: 30
+  timeUse: 3
+  recipeCountPopNormal: 2
+  recipeCountPopRare: 2
+  needHourWatering: 0
+  needHourGrow: 0

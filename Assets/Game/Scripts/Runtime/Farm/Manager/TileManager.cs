@@ -2,6 +2,7 @@ using MagicalGarden.Farm;
 using MagicalGarden.Inventory;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -90,7 +91,10 @@ namespace MagicalGarden.Manager
         }
         void Update()
         {
+            
             if (disableTileSelect) return;
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
             // if (Input.GetMouseButtonDown(0))
             // {
             //     Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -185,10 +189,12 @@ namespace MagicalGarden.Manager
 
                         break;
                     case TileAction.Water:
+                        CursorIconManager.Instance.PlayPourAnimation("watering");
                         PlantManager.Instance.PlantWaterAt(cellPos);
                         tilemapWater.SetTile(cellPos, tileWater);
                         break;
                     case TileAction.Fertilizer:
+                        CursorIconManager.Instance.PlayPourAnimation("ferti_normal");
                         PlantManager.Instance.PlantFertilizeAt(cellPos, currentItemdata);
                         break;
                     case TileAction.Remove:

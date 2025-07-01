@@ -12,6 +12,9 @@ namespace MagicalGarden.Hotel
         [Header("Guest Info")]
         public string guestName;
         public string type;
+        public int party;
+        public int price;
+        public int durationStay;
         public GuestRarity rarity = GuestRarity.Normal;
         [Range(0, 100)]
         public int happiness = 100;
@@ -26,7 +29,7 @@ namespace MagicalGarden.Hotel
         [Header("Happiness")]
         public Image fillHappiness;
         public Image fillExpired;
-        public int stayDurationDays;
+        public TimeSpan stayDurationDays;
         [Header("Button")]
         public GameObject giftBtn;
         public GameObject roomServiceBtn;
@@ -59,16 +62,29 @@ namespace MagicalGarden.Hotel
             type = request.type;
             stayDurationDays = request.stayDurationDays;
             rarity = request.rarity;
-            dayRemaining.text = "Day " + stayDurationDays;
+            dayRemaining.text = FormatStayDuration(stayDurationDays);
             happiness = 0;
             SetHappiness(happiness);
             string rarityText = request.rarity.ToString().ToUpper(); // Tambahan
-            string desc = $"Nama: {request.guestName}\nTipe: {request.type}\nDurasi: {request.stayDurationDays} hari\nRarity: {rarityText}";
+            string desc = $"Nama: {request.guestName}\nTipe: {request.type}\nDurasi: {FormatStayDuration(request.stayDurationDays)}\nRarity: {rarityText}";
             descGuest.text = desc;
             if (checkInDate == DateTime.MinValue)
             {
                 checkInDate = TimeManager.Instance.currentTime.Date;
             }
+        }
+        private string FormatStayDuration(TimeSpan duration)
+        {
+            List<string> parts = new();
+
+            if (duration.Days > 0)
+                parts.Add($"{duration.Days}d");
+            if (duration.Hours > 0)
+                parts.Add($"{duration.Hours}hr");
+            if (duration.Minutes > 0)
+                parts.Add($"{duration.Minutes}m");
+
+            return string.Join(" ", parts);
         }
 
         void Update()
@@ -89,7 +105,7 @@ namespace MagicalGarden.Hotel
         {
             // Buat permintaan acak: RoomService, Food, atau Gift
             var randomType = (GuestRequestType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(GuestRequestType)).Length);
-            var newRequest = new HotelRoomRequest(randomType, 30f); // 30 detik waktu fulfill
+            var newRequest = new HotelRoomRequest(randomType, TimeSpan.FromSeconds(30));
 
             currentRoom.AddRequest(newRequest);
             ActivateBtn(randomType);
@@ -100,7 +116,7 @@ namespace MagicalGarden.Hotel
         }
         public GuestRequest ToRequest()
         {
-            return new GuestRequest(guestName, type, stayDurationDays, rarity);
+            return new GuestRequest(guestName, type, party, price, stayDurationDays, rarity);
         }
         void ResetBtn()
         {
@@ -143,14 +159,14 @@ namespace MagicalGarden.Hotel
             {
                 if (!request.isFulfilled)
                 {
-                    request.timeRemaining -= deltaTime;
+                    request.timeRemaining -= TimeSpan.FromSeconds(deltaTime);
                     if (fillExpired != null)
                     {
-                        float percent = Mathf.Clamp01(request.timeRemaining / 30f);
+                        float percent = Mathf.Clamp01((float)(request.timeRemaining.TotalSeconds / 30f));
                         fillExpired.fillAmount = percent;
                     }
 
-                    if (request.timeRemaining <= 0f)
+                    if (request.timeRemaining <= TimeSpan.Zero)
                         expired.Add(request);
                 }
             }

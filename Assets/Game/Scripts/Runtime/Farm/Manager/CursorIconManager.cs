@@ -10,6 +10,9 @@ namespace MagicalGarden.Farm
         public Sprite wateringIconImage;
         public Sprite removeIconImage;
         public Sprite harvestIconImage;
+        [Header("Pour Prefab")]
+        public GameObject pourAnimPrefab;
+        Sprite currentSprite;
 
         private RectTransform iconRect;
 
@@ -54,6 +57,29 @@ namespace MagicalGarden.Farm
         {
             seedIconImage.sprite = null;
             seedIconImage.gameObject.SetActive(false);
+        }
+
+        public void PlayPourAnimation(string animationStateName)
+        {
+            if (pourAnimPrefab == null) return;
+            currentSprite = seedIconImage.sprite;
+            HideSeedIcon();
+            GameObject animObj = Instantiate(pourAnimPrefab, seedIconImage.canvas.transform);
+            animObj.transform.position = Input.mousePosition;
+            Animator anim = animObj.GetComponent<Animator>();
+            if (anim != null)
+            {
+                anim.Play(animationStateName, 0, 0);
+            }
+            float animDuration = 1f;
+            Destroy(animObj, animDuration);
+            Invoke(nameof(RestoreSeedIcon), animDuration);
+
+
+        }
+        void RestoreSeedIcon()
+        {
+            ShowSeedIcon(currentSprite);
         }
     }
 }

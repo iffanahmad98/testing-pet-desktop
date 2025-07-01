@@ -34,6 +34,7 @@ namespace MagicalGarden.Farm
         public Vector3Int cellPosition;
         public ItemData itemData;
         public Image markHarvest;
+        private Tween currentTween;
         public abstract List<GrowthStage> GetGrowthRequirements();
         public abstract Monster GetMonster();
 
@@ -47,7 +48,7 @@ namespace MagicalGarden.Farm
 
             if (status == PlantStatus.Mati || IsReadyToHarvest())
                 return;
-            
+
             DateTime now = PlantManager.Instance?.simulatedNow ?? DateTime.Now;
             double hoursSinceWatered = (now - lastWateredTime).TotalHours;
 
@@ -88,7 +89,7 @@ namespace MagicalGarden.Farm
                 {
                     UpdateStage(); // final stage
                     markHarvest.sprite = itemData.markHarvest;
-                    markHarvest.gameObject.SetActive(true);
+                    AnimateHarvestIcon();
                     Debug.Log($"[{seedName}] Siap panen! Final stage tercapai di posisi {cellPosition}");
                 }
                 ResetStageProgress();
@@ -187,7 +188,7 @@ namespace MagicalGarden.Farm
                     break;
             }
         }
-        
+
 
         public virtual void Harvest()
         {
@@ -197,7 +198,9 @@ namespace MagicalGarden.Farm
                 GatchaMonsterEgg(TileManager.Instance.tilemapSeed.CellToWorld(cellPosition));
                 markHarvest.gameObject.SetActive(false);
 
-            } else {
+            }
+            else
+            {
                 foreach (var drop in itemData.dropItems)
                 {
                     if (UnityEngine.Random.value <= drop.dropChance)
@@ -211,7 +214,7 @@ namespace MagicalGarden.Farm
                     }
                 }
 
-                InventoryManager.Instance.inventoryUI.RefreshUI();
+                InventoryManager.Instance.RefreshAllInventoryUI();
                 markHarvest.gameObject.SetActive(false);
                 Clear();
             }
@@ -246,18 +249,18 @@ namespace MagicalGarden.Farm
             // PlantManager.Instance.cameraMove.ResetZoom(0.5f);
         }
 
-        private void AnimateDrop(ItemData item, Vector3 worldPos)
-        {
-            var inventorySlot = InventoryManager.Instance.inventoryUI.GetSlotForItem(item);
+        // private void AnimateDrop(ItemData item, Vector3 worldPos)
+        // {
+        //     var inventorySlot = InventoryManager.Instance.inventoryUI.GetSlotForItem(item);
 
-            if (inventorySlot == null) return;
+        //     if (inventorySlot == null) return;
 
-            var prefab = InventoryManager.Instance.dropFlyIcon;
-            var instance = Instantiate(prefab, worldPos, Quaternion.identity);
+        //     var prefab = InventoryManager.Instance.dropFlyIcon;
+        //     var instance = Instantiate(prefab, worldPos, Quaternion.identity);
 
-            var fly = instance.GetComponent<FlyToInventory>();
-            fly.Init(item.icon, worldPos, inventorySlot.GetComponent<RectTransform>());
-        }
+        //     var fly = instance.GetComponent<FlyToInventory>();
+        //     fly.Init(item.icon, worldPos, inventorySlot.GetComponent<RectTransform>());
+        // }
 
         public virtual void Clear()
         {
@@ -279,8 +282,26 @@ namespace MagicalGarden.Farm
         //         cellPosition = this.cellPosition
         //     };
         // }
-        
+
 
         public virtual void ApplyWeatherEffect() { }
+
+        private void AnimateHarvestIcon()
+        {
+            if (markHarvest == null) return;
+
+            currentTween?.Kill();
+
+            markHarvest.color = new Color(1, 1, 1, 0);
+            markHarvest.transform.localScale = Vector3.one * 0.8f;
+            markHarvest.gameObject.SetActive(true);
+
+            // Animasi bounce terasa (scale naik lebih besar lalu balik ke 1)
+            Sequence seq = DOTween.Sequence();
+            seq.Append(markHarvest.DOFade(1f, 0.2f));
+            seq.Join(markHarvest.transform.DOScale(1.2f, 0.15f).SetEase(Ease.OutBack)); // scale lebih besar dulu
+            seq.Append(markHarvest.transform.DOScale(1f, 0.1f).SetEase(Ease.OutQuad));  // kembali ke normal
+            currentTween = seq;
+        }
     }
 }

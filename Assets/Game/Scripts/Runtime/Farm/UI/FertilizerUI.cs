@@ -5,6 +5,7 @@ using MagicalGarden.Inventory;
 using System.Linq;
 using TMPro;
 using System;
+using UnityEditor.PackageManager;
 
 namespace MagicalGarden.Farm.UI
 {
@@ -15,6 +16,10 @@ namespace MagicalGarden.Farm.UI
         public TextMeshProUGUI progressText;
 
         public List<FertilizerRecipe> allRecipes;
+        public TextMeshProUGUI gardenRemaining;
+        public TextMeshProUGUI manaRemaining;
+        public TextMeshProUGUI moonlightRemaining;
+        public TextMeshProUGUI spiritRemaining;
         private FertilizerTask activeTask;
 
         private void Start()
@@ -49,24 +54,63 @@ namespace MagicalGarden.Farm.UI
             return $"{result}\nWaktu: {time}\nBahan:\n{ingredients}";
         }
 
-        public void OnStartButtonPressed()
+        // public void OnStartButtonPressed()
+        // {
+        //     int index = recipeDropdown.value;
+        //     var selectedRecipe = allRecipes[index];
+        //     if (FertilizerManager.Instance.IsHasActiveTask())
+        //     {
+        //         return;
+        //     }
+
+        //     if (InventoryManager.Instance.HasItems(selectedRecipe.ingredients))
+        //     {
+        //         FertilizerManager.Instance.StartCrafting(selectedRecipe, selectedRecipe.type);
+        //         StartProgressUI(selectedRecipe);
+        //         Debug.Log("Mulai membuat pupuk!");
+        //     }
+        //     else
+        //     {
+        //         progressText.text = "Bahan tidak mencukupi!";
+        //     }
+        // }
+        public void OnStartBtnGarden() => OnStartButtonPressed(FertilizerType.Garden);
+        public void OnStartBtnMana() => OnStartButtonPressed(FertilizerType.Mana);
+        public void OnStartBtnMoon() => OnStartButtonPressed(FertilizerType.Moon);
+        public void OnStartBtnSpirit() => OnStartButtonPressed(FertilizerType.Spirit);
+        public void OnStartButtonPressed(FertilizerType type)
         {
+            var recipeList = allRecipes.Where(r => r.type == type).ToList();
             int index = recipeDropdown.value;
-            var selectedRecipe = allRecipes[index];
+            if (index >= recipeList.Count) return;
+
+            var selectedRecipe = recipeList[index];
             if (FertilizerManager.Instance.IsHasActiveTask())
-            {
                 return;
-            }
 
             if (InventoryManager.Instance.HasItems(selectedRecipe.ingredients))
             {
-                FertilizerManager.Instance.StartCrafting(selectedRecipe);
+                FertilizerManager.Instance.StartCrafting(selectedRecipe, type);
                 StartProgressUI(selectedRecipe);
-                Debug.Log("Mulai membuat pupuk!");
             }
             else
             {
-                progressText.text = "Bahan tidak mencukupi!";
+                Debug.LogError("bahan tidak cukup");
+            }
+            switch (type)
+            {
+                case FertilizerType.Garden:
+                    progressText = gardenRemaining;
+                    break;
+                case FertilizerType.Mana:
+                    progressText = manaRemaining;
+                    break;
+                case FertilizerType.Moon:
+                    progressText = moonlightRemaining;
+                    break;
+                case FertilizerType.Spirit:
+                    progressText = spiritRemaining;
+                    break;
             }
         }
         private void StartProgressUI(FertilizerRecipe recipe)
@@ -88,8 +132,7 @@ namespace MagicalGarden.Farm.UI
             TimeSpan remaining = activeTask.duration - elapsed;
             if (remaining.TotalSeconds < 0) remaining = TimeSpan.Zero;
 
-            progressText.text = $"{activeTask.recipe.outputItem.item.displayName}\n" +
-                                $"Sisa: {remaining:hh\\:mm\\:ss} ({progress * 100:0}%)";
+            progressText.text = $"{remaining:hh\\:mm\\:ss}";
 
             if (progress >= 1f)
             {

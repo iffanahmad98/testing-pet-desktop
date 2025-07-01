@@ -6,10 +6,10 @@ namespace MagicalGarden.Hotel
     public class HotelRoomRequest
     {
         public GuestRequestType requestType;
-        public float timeRemaining;
+        public TimeSpan timeRemaining;
         public bool isFulfilled;
 
-        public HotelRoomRequest(GuestRequestType type, float duration)
+        public HotelRoomRequest(GuestRequestType type, TimeSpan duration)
         {
             requestType = type;
             timeRemaining = duration;

@@ -31,7 +31,7 @@ namespace MagicalGarden.Hotel
                 multiplier = 2;
             }
 
-            int totalRequest = Mathf.Clamp(guest.stayDurationDays * multiplier, 1, 6);
+            int totalRequest = Mathf.Clamp(Mathf.CeilToInt((float)guest.stayDurationDays.TotalHours / 12f), 1, 6);
             for (int i = 0; i < totalRequest; i++)
             {
                 var type = (GuestRequestType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(GuestRequestType)).Length);
@@ -45,7 +45,7 @@ namespace MagicalGarden.Hotel
         {
             guest = newGuest;
             roomRequests.Clear();
-            int totalRequest = Mathf.Clamp(guest.stayDurationDays, 1, 3); // max 3
+            int totalRequest = Mathf.Clamp(Mathf.CeilToInt((float)guest.stayDurationDays.TotalDays), 1, 3);
             for (int i = 0; i < totalRequest; i++)
             {
                 var type = (GuestRequestType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(GuestRequestType)).Length);

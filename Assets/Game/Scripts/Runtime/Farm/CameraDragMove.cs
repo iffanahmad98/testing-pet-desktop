@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 namespace MagicalGarden.Farm
 {
@@ -29,6 +30,8 @@ namespace MagicalGarden.Farm
 
         void Update()
         {
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
             HandleDrag();
             HandleZoom();
         }

@@ -69,14 +69,15 @@ namespace MagicalGarden.Farm
             InventoryManager.Instance.AddItem(Resources.Load<ItemData>("Items/Seeds/Strawberry"), 8);
             InventoryManager.Instance.AddItem(Resources.Load<ItemData>("Items/Seeds/Watermelon"), 8);
             InventoryManager.Instance.AddItem(Resources.Load<ItemData>("Items/Seeds/MonsterSeed"), 2);
+            InventoryManager.Instance.AddItem(Resources.Load<ItemData>("Items/Harvests/Strawberry_harvest"), 2);
             InventoryManager.Instance.AddItem(normalfertilizer, 10);
             InventoryManager.Instance.AddItem(manaNectar, 10);
             InventoryManager.Instance.AddItem(moonlightPollen, 10);
             InventoryManager.Instance.AddItem(spiritsap, 10);
-            InventoryManager.Instance.AddItem(pupNormal, 10);
-            InventoryManager.Instance.AddItem(pupRare, 10);
+            InventoryManager.Instance.AddItem(pupNormal, 5);
+            InventoryManager.Instance.AddItem(pupRare, 5);
             CoinManager.Instance.AddCoins(1000);
-            InventoryManager.Instance.inventoryUI.RefreshUI();
+            InventoryManager.Instance.RefreshAllInventoryUI();
             // DebugPlantReadyHarvest(new Vector2Int(0, 0), tomatoSeed);
 
         }

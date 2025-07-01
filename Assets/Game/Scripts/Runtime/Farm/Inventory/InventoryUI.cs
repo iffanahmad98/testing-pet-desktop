@@ -9,18 +9,22 @@ namespace MagicalGarden.Inventory
         public GameObject slotPrefab;
         public GameObject dropFlyIcon;
         public Transform itemContainer;
+        public GridContentResizer gridContentResizer;
+        public List<ItemType> itemTypes;
 
         private List<InventorySlot> slotList = new List<InventorySlot>();
 
         private void OnEnable()
         {
-
+            RefreshUI();
         }
 
         public void RefreshUI()
         {
-            var items = InventoryManager.Instance.items;
-
+            if (InventoryManager.Instance == null) return;
+            gridContentResizer.Refresh(itemContainer.childCount);
+            var allItems = InventoryManager.Instance.items;
+            var items = allItems.FindAll(item => itemTypes.Contains(item.itemData.itemType));
             // Expand slot jika perlu
             while (slotList.Count < items.Count)
             {

@@ -52,17 +52,19 @@ namespace MagicalGarden.Manager
             {
                 Debug.Log("✅ Berhasil ambil data dari GSheet");
                 string rawJson = www.downloadHandler.text;
-                
-                try
-                {
-                    itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
+                itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
                     Debug.Log($"📦 Jumlah item: {itemList.Count}");
                     OnDataLoaded?.Invoke();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("❌ Gagal parsing JSON: " + e.Message);
-                }
+                // try
+                // {
+                //     itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
+                //     Debug.Log($"📦 Jumlah item: {itemList.Count}");
+                //     OnDataLoaded?.Invoke();
+                // }
+                // catch (Exception e)
+                // {
+                //     Debug.LogError("❌ Gagal parsing JSON: " + e.Message);
+                // }
             }
             else
             {
