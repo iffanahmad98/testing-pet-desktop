@@ -7,7 +7,7 @@ public class MonsterStatsHandler
     private float _currentHappiness;
     private bool _isSick;
     private float _lowHungerTime;
-    private float _currentHP = 100f;
+    private float _currentHP;
 
     private float _maxHP = 100f;
     private const float SICKNESS_THRESHOLD_HP = 0.4f;
@@ -19,8 +19,8 @@ public class MonsterStatsHandler
     // Properties
     public float CurrentHunger => _currentHunger;
     public float CurrentHappiness => _currentHappiness;
-    public bool IsSick => _currentHP < SICKNESS_THRESHOLD_HP * _maxHP;
     public float CurrentHP => _currentHP;
+    public bool IsSick => _currentHP < SICKNESS_THRESHOLD_HP * _maxHP;
 
     public float LowHungerTime => _lowHungerTime;
 

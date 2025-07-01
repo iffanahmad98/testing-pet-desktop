@@ -225,7 +225,7 @@ public static class SaveSystem
         {
             Debug.Log($"Player was away for {timeSinceLastLogin.TotalHours} hours");
             // Handle long absence (e.g., update monster states)
-            HandleLongAbsence(timeSinceLastLogin);
+            // HandleLongAbsence(timeSinceLastLogin);
         }
     }
 

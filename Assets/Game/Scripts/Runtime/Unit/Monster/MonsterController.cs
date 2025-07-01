@@ -282,7 +282,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         {
             UI.UpdateEmojiVisibility(IsSick);
         }
-        _statsHandler?.UpdateHealth(Time.deltaTime);
     }
 
     private void OnEnable()
@@ -648,6 +647,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
         _statsHandler.Heal(healingValue);
         Debug.Log($"[MonsterController] {monsterID} received medicine, healing value: {healingValue}");
+        _stateMachine?.ChangeState(MonsterState.Eating);
     }
 
     #endregion
