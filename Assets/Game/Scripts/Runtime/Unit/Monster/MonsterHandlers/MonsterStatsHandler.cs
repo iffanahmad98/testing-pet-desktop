@@ -28,6 +28,7 @@ public class MonsterStatsHandler
     public event System.Action<float> OnHungerChanged;
     public event System.Action<float> OnHappinessChanged;
     public event System.Action<bool> OnSickChanged;
+    public event System.Action<float> OnHealthChanged;
 
     public MonsterStatsHandler(MonsterController controller)
     {
@@ -51,6 +52,7 @@ public class MonsterStatsHandler
 
         OnHungerChanged?.Invoke(_currentHunger);
         OnHappinessChanged?.Invoke(_currentHappiness);
+        OnHealthChanged?.Invoke(_currentHP);
         OnSickChanged?.Invoke(_isSick);
     }
 
@@ -145,7 +147,7 @@ public class MonsterStatsHandler
 
         if (avg < 60f)
         {
-            float hpLoss = (HP_DRAIN_PER_MINUTE / 60f) * deltaTime;
+            float hpLoss = HP_DRAIN_PER_MINUTE / 60f * deltaTime;
             SetHP(_currentHP - hpLoss);
         }
     }
@@ -155,12 +157,14 @@ public class MonsterStatsHandler
         float clamped = Mathf.Clamp(value, 0f, _maxHP);
         if (Mathf.Approximately(clamped, _currentHP)) return;
         _currentHP = clamped;
-        OnSickChanged?.Invoke(IsSick); // notify UI/state
+        OnSickChanged?.Invoke(IsSick);
+        OnHealthChanged?.Invoke(_currentHP);
     }
 
     public void Heal(float amount)
     {
         SetHP(_currentHP + amount);
+        OnHealthChanged?.Invoke(_currentHP);
     }
 
 
