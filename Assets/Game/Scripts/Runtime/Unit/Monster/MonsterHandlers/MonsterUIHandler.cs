@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using Coffee.UIExtensions;
 using DG.Tweening;
+using System.Collections;
 
 [System.Serializable]
 public class MonsterUIHandler
@@ -14,7 +15,7 @@ public class MonsterUIHandler
     [Header("VFX")]
     public UIParticle evolutionVFX;
     public Material evolutionMaterial;
-    // public UIParticle healingVFX;
+    public UIParticle healingVFX;
     // public UIParticle sickVFX;
 
     [Header("Emoji Expression")]
@@ -171,10 +172,37 @@ public class MonsterUIHandler
             monsterInfoPanel.DOFade(0f, 0.5f).SetEase(Ease.InOutQuad).SetDelay(4f);
         });
     }
-    
+
     public void HideMonsterInfo()
     {
         monsterInfoPanel.DOKill();
         monsterInfoPanel.DOFade(0f, 0.5f).SetEase(Ease.InOutQuad);
     }
+    public void PlayParticleWithDuration(GameObject particleObject, float duration, MonsterController controller)
+    {
+        if (particleObject == null) return;
+
+        particleObject.SetActive(false); // reset
+        particleObject.SetActive(true);
+
+        // Disable after delay
+        if (controller != null)
+        {
+            controller.StartCoroutine(DeactivateAfterDelay(particleObject, duration));
+        }
+    }
+    public void PlayHealingVFX(MonsterController controller)
+    {
+        if (healingVFX != null)
+        {
+            PlayParticleWithDuration(healingVFX.gameObject, 2f, controller);
+        }
+    }
+
+    private IEnumerator DeactivateAfterDelay(GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (obj != null) obj.SetActive(false);
+    }
+
 }

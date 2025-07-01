@@ -21,12 +21,10 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         amountText.text = $"{amount} pcs";
     }
 
-
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
-            // Cancel placement if any
             ServiceLocator.Get<PlacementManager>().CancelPlacement();
             return;
         }
@@ -43,21 +41,16 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        float healingValue = itemData.nutritionValue;
-
         placementManager.StartPlacement(
             prefabToPlace,
             canvas,
-            itemData.category == ItemType.Medicine
-                ? (Vector2 _) => HandleMedicineDirectApply(healingValue)
-                : OnConfirmPlacement,
+            OnConfirmPlacement,
             OnCancelPlacement,
             allowMultiple: itemData.category == ItemType.Food,
             isMedicine: itemData.category == ItemType.Medicine,
             previewSprite: itemData.itemImgs[0]
         );
     }
-
 
     private void OnConfirmPlacement(Vector2 position)
     {
@@ -79,30 +72,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             Destroy(gameObject); // Remove slot if no items left
         }
     }
-    private void HandleMedicineDirectApply(float healingValue)
-    {
-        MonsterController monster = ServiceLocator.Get<PlacementManager>().TryGetMonsterUnderCursor();
-
-        if (monster != null)
-        {
-            monster.GiveMedicine(healingValue);
-            itemAmount--;
-            amountText.text = $"{itemAmount} pcs";
-            SaveSystem.UpdateItemData(itemData.itemID, itemAmount);
-
-            if (itemAmount <= 0)
-            {
-                ServiceLocator.Get<PlacementManager>().CancelPlacement();
-                Destroy(gameObject);
-            }
-        }
-        else
-        {
-            ServiceLocator.Get<UIManager>()?.ShowMessage("Place medicine on a sick monster!", 1f);
-        }
-    }
-
-
 
     private void OnCancelPlacement()
     {

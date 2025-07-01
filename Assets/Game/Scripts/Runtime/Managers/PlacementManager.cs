@@ -97,7 +97,7 @@ public class PlacementManager : MonoBehaviour
             else
             {
                 string msg = isPlacingMedicine
-                    ? "Only usable on sick monsters!"
+                    ? "Only usable on monsters!"
                     : "Can't place outside the game area!";
                 ServiceLocator.Get<UIManager>()?.ShowMessage(msg, 1f);
             }
