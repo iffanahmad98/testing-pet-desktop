@@ -147,11 +147,11 @@ public class UIManager : MonoBehaviour
         settingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
         InventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
-        // catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
+        catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
         closeShopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, false));
-        // closeCatalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, false));
+        closeCatalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, false));
     }
 
     private void UnregisterButtonListeners()
@@ -180,7 +180,7 @@ public class UIManager : MonoBehaviour
         SettingPanel.SetActive(false);
         ShopPanel.SetActive(false);
         InventoryPanel.SetActive(false);
-        // CataloguePanel?.SetActive(false);
+        CataloguePanel?.SetActive(false);
     }
 
     public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f)

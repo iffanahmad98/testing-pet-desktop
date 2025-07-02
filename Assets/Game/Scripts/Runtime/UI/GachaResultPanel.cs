@@ -46,6 +46,9 @@ public class GachaResultPanel : MonoBehaviour
     private CanvasGroup monsterCanvas;
     private Animator chestAnimator;
     private Animator eggAnimator;
+    
+    private UIAnimator chestAnimatorUI;
+    private UIAnimator eggAnimatorUI;
 
     private void Start()
     {
@@ -61,8 +64,9 @@ public class GachaResultPanel : MonoBehaviour
         chestCanvas = chest.GetComponent<CanvasGroup>() ?? chest.AddComponent<CanvasGroup>();
         eggCanvas = egg.GetComponent<CanvasGroup>() ?? egg.AddComponent<CanvasGroup>();
         monsterCanvas = monsterDisplay.GetComponent<CanvasGroup>() ?? monsterDisplay.AddComponent<CanvasGroup>();
-        chestAnimator = chest.GetComponent<Animator>() ?? chest.AddComponent<Animator>();
-        eggAnimator = egg.GetComponent<Animator>() ?? egg.AddComponent<Animator>();
+        chestAnimatorUI = chest.GetComponent<UIAnimator>() ?? chest.AddComponent<UIAnimator>();
+        eggAnimatorUI = egg.GetComponent<UIAnimator>() ?? egg.AddComponent<UIAnimator>();
+
 
         // Reset all states
         ResetAllStates();
@@ -91,11 +95,9 @@ public class GachaResultPanel : MonoBehaviour
         seq.JoinCallback(() =>
         {
             chest.SetActive(true);
-            chestAnimator.Rebind();
-            chestAnimator.Update(0f);
-            chestAnimator.Play("chest", 0, 0f);
+            chestAnimatorUI?.Play();
         });
-        seq.AppendInterval(GetClipLength(chestAnimator, "chest"));
+        seq.AppendInterval(chestAnimatorUI?.TotalDuration * 2f ?? 0.5f);
         seq.Append(chestCanvas.DOFade(0, 0.2f).SetEase(fadeOutChestEase));
         // 3. Egg: set active, fade in + scale punch, play animator, on last frame play shineVFX
         seq.Append(eggCanvas.DOFade(1, 0.2f).SetEase(fadeInEggEase));
@@ -103,11 +105,9 @@ public class GachaResultPanel : MonoBehaviour
         seq.JoinCallback(() =>
         {
             egg.SetActive(true);
-            eggAnimator.Rebind();
-            eggAnimator.Update(0f);
-            eggAnimator.Play("egg", 0, 0f);
+            eggAnimatorUI?.Play();
         });
-        seq.AppendInterval(GetClipLength(eggAnimator, "egg"));
+        seq.AppendInterval(eggAnimatorUI?.TotalDuration * 2f ?? 0.5f);
         seq.JoinCallback(() =>
         {
             shineVFX.gameObject.SetActive(true);
@@ -160,12 +160,10 @@ public class GachaResultPanel : MonoBehaviour
 
         // Hide and reset chest
         chest.SetActive(false);
-        chestAnimator.ResetTrigger("Open");
         if (chestCanvas != null) chestCanvas.alpha = 0f;
 
         // Hide and reset egg
-        eggAnimator.ResetTrigger("Crack");
-        var eggCanvas = egg.GetComponent<CanvasGroup>();
+        egg.SetActive(false);
         if (eggCanvas != null) eggCanvas.alpha = 0f;
 
         // Hide and reset monster display

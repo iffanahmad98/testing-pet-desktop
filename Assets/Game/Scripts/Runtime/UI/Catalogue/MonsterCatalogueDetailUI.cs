@@ -1,16 +1,25 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
 
 public class MonsterCatalogueDetailUI : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [Header("UI Elements")]
+    public CanvasGroup monsterDetailPanel;
+    public Image monsterImage;
+    public TextMeshProUGUI monsterNameText;
+    public TextMeshProUGUI monsterTypeText;
+    public TextMeshProUGUI monsterEvolutionText;
+    public Slider monsterFullnessSlider;
+    public Slider monsterHappinessSlider;
+    public Slider monsterEvolutionProgressSlider;
+    public TextMeshProUGUI monsterSellPriceText;
+    public TextMeshProUGUI monsterEarningText;
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+
     }
+    
 }

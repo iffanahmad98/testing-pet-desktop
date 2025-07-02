@@ -1,16 +1,18 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
 
 public class MonsterCatalogueItemUI : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [Header("UI Elements")]
+    public Image monsterImage;
+    public GameObject selectedOverlay;
+    public Sprite LockedIcon;
+    public Sprite AddIcon;
 
-    // Update is called once per frame
-    void Update()
+    public void SetupItem(MonsterDataSO monsterData)
     {
-        
+
     }
 }

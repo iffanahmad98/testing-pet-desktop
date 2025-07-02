@@ -11,6 +11,7 @@ public class MonsterUIHandler
     [Header("UI Elements")]
     public Image monsterImage;
     public CanvasGroup monsterInfoPanel;
+    public TextMeshProUGUI monsterNameText;
 
     [Header("VFX")]
     public UIParticle evolutionVFX;
@@ -66,6 +67,11 @@ public class MonsterUIHandler
                 UpdateSickStatusDisplay(isSick, true);
                 UpdateHealthDisplay(statsHandler.CurrentHP);
             };
+        }
+
+        if (monsterController != null)
+        {
+            monsterNameText.text = monsterController.MonsterData.monsterName;
         }
     }
 
