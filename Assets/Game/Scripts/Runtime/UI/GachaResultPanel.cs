@@ -107,13 +107,12 @@ public class GachaResultPanel : MonoBehaviour
             egg.SetActive(true);
             eggAnimatorUI?.Play();
         });
-        seq.AppendInterval(eggAnimatorUI?.TotalDuration * 2f ?? 0.5f);
+        seq.AppendInterval(eggAnimatorUI?.TotalDuration * 1.25f ?? 0.5f);
         seq.JoinCallback(() =>
         {
             shineVFX.gameObject.SetActive(true);
             shineVFX.Play();
         });
-        seq.AppendInterval(1.5f);
         seq.Append(eggCanvas.DOFade(0, 0.2f).SetEase(fadeOutEggEase));
         // 4. Show monster info 
         seq.AppendCallback(() =>
