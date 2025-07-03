@@ -171,6 +171,12 @@ public class MonsterUIHandler
 
     public void ShowMonsterInfo()
     {
+        if (monsterInfoPanel.alpha > 0f)
+        {
+            HideMonsterInfo(); 
+            return;
+        }
+
         monsterInfoPanel.DOKill();
         monsterInfoPanel.alpha = 0f;
         monsterInfoPanel.DOFade(1f, 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>

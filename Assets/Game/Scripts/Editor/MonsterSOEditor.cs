@@ -208,8 +208,30 @@ public class MonsterDataSOEditor : Editor
 
         EditorGUI.indentLevel++;
 
-        // Use the CORRECT property name from MonsterDataSO
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("monsIconImg"), new GUIContent("Monster Icons"), true);
+        // Add header for better organization
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Icon Categories", EditorStyles.boldLabel);
+        
+        // Detail icons section
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Detail Icons:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("DetailsIcon"), new GUIContent("Details Icons", "Icons used in detail panels and information screens"));
+        EditorGUI.indentLevel--;
+        
+        // Catalogue icons section
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Catalogue Icons:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("CatalogueIcon"), new GUIContent("Catalogue Icons", "Icons used in listings and catalogue views"));
+        EditorGUI.indentLevel--;
+
+        // Keep existing monster icons for backward compatibility
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Card Icons:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("CardIcon"), new GUIContent("Card Icons", "General purpose monster icons"));
+        EditorGUI.indentLevel--;
 
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);

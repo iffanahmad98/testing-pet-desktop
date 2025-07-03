@@ -156,11 +156,11 @@ public class MonsterEvolutionHandler
         }
 
         //turn coin, poop, and food collection invisible
-        foreach (var coin in _controller.MonsterManager._activeCoins)
+        foreach (var coin in _controller.MonsterManager.activeCoins)
         {
             coin.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
         }
-        foreach (var poop in _controller.MonsterManager._activePoops)
+        foreach (var poop in _controller.MonsterManager.activePoops)
         {
             poop.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
         }
@@ -200,11 +200,11 @@ public class MonsterEvolutionHandler
         }
 
         //turn coin, poop, and food collection visible
-        foreach (var coin in _controller.MonsterManager._activeCoins)
+        foreach (var coin in _controller.MonsterManager.activeCoins)
         {
             coin.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
         }
-        foreach (var poop in _controller.MonsterManager._activePoops)
+        foreach (var poop in _controller.MonsterManager.activePoops)
         {
             poop.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
         }

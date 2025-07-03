@@ -74,13 +74,13 @@ public class MonsterVisualHandler
 
     private void UpdateIconImage(int evolutionLevel)
     {
-        if (_controller?.MonsterData?.monsIconImg == null) return;
+        if (_controller?.MonsterData?.CardIcon == null) return;
 
         int iconIndex = evolutionLevel - 1;
 
-        if (iconIndex >= 0 && iconIndex < _controller.MonsterData.monsIconImg.Length)
+        if (iconIndex >= 0 && iconIndex < _controller.MonsterData.CardIcon.Length)
         {
-            _currentIcon = _controller.MonsterData.monsIconImg[iconIndex];
+            _currentIcon = _controller.MonsterData.CardIcon[iconIndex];
         }
     }
 

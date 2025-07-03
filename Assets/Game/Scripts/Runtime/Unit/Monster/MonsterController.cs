@@ -172,54 +172,65 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     private IEnumerator ContinueInitializationWhenReady()
     {
-        // Wait for external dependencies
+        // First wait for dependencies
         yield return new WaitUntil(() =>
             ServiceLocator.Get<MonsterManager>() != null &&
             GetComponent<MonsterStateMachine>() != null);
 
-
-        // Now create StateMachine-dependent handlers
+        // Get references
         _stateMachine = GetComponent<MonsterStateMachine>();
         _monsterManager = ServiceLocator.Get<MonsterManager>();
-
-        // Wait one more frame for StateMachine to complete its Start()
+        
+        // Wait just once, not twice
         yield return null;
-
+        
+        // Create handlers
         CreateDependentHandlers();
+        
+        // NEW: Add explicit wait for animation system if needed
+        if (_visualHandler != null)
+            yield return StartCoroutine(WaitForAnimationSystem());
+        
         _initState = InitializationState.DataLoaded;
-
-        // Final initialization phase
         yield return StartCoroutine(FinalizeInitialization());
+    }
+    
+    private IEnumerator WaitForAnimationSystem()
+    {
+        int attempts = 0;
+        while (_monsterSpineGraphic == null || _monsterSpineGraphic.AnimationState == null)
+        {
+            if (attempts > 10) break; // Safety timeout
+
+            if (_monsterSpineGraphic != null && _monsterSpineGraphic.skeletonDataAsset != null)
+                _monsterSpineGraphic.Initialize(true);
+                
+            yield return new WaitForSeconds(0.1f);
+            attempts++;
+        }
     }
 
     private void CreateDependentHandlers()
     {
-        // Create handlers that need StateMachine
-        if (_stateMachine != null)
+        // Check once and handle error case clearly
+        if (_rectTransform == null || _monsterManager == null || _monsterSpineGraphic == null)
         {
-            _interactionHandler = new MonsterInteractionHandler(this, _stateMachine);
-        }
-        else
-        {
-            Debug.LogError($"[MonsterController] {monsterID} cannot create interaction handler - StateMachine is null");
+            Debug.LogError($"[MonsterController] {monsterID} cannot create movement handlers - missing dependencies");
+            return;
         }
 
-        // Create handlers that need components
-        if (_rectTransform != null && _monsterManager != null && _monsterSpineGraphic != null)
-        {
-            _boundHandler = new MonsterBoundsHandler(_monsterManager, _rectTransform);
-            _movementHandler = new MonsterMovementHandler(this, _rectTransform, _monsterSpineGraphic);
-            _separationBehavior = new MonsterSeparationHandler(this, _rectTransform);
-            _consumableHandler = new MonsterConsumableHandler(this, _rectTransform);
-        }
-        else
-        {
-            Debug.LogError($"[MonsterController] {monsterID} cannot create movement handlers - rectTransform: {_rectTransform != null}, gameManager: {_monsterManager != null}, spineGraphic: {_monsterSpineGraphic != null}");
-        }
+        // Then create all handlers without repeated null checks
+        _boundHandler = new MonsterBoundsHandler(_monsterManager, _rectTransform);
+        _movementHandler = new MonsterMovementHandler(this, _rectTransform, _monsterSpineGraphic);
+        _separationBehavior = new MonsterSeparationHandler(this, _rectTransform);
+        _consumableHandler = new MonsterConsumableHandler(this, _rectTransform);
     }
 
     private IEnumerator FinalizeInitialization()
     {
+        // Create interaction handler here (needs StateMachine which is loaded earlier)
+        _interactionHandler = new MonsterInteractionHandler(this, _stateMachine);
+
         // Set initial values
         SetRandomTarget();
 
@@ -621,6 +632,15 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
     }
 
+    public Sprite GetEvolutionIcon(MonsterIconType iconType = MonsterIconType.Card)
+    {
+        if (monsterData == null)
+        {
+            Debug.LogWarning($"[MonsterController] {monsterID} has no monster data assigned.");
+            return null;
+        }
+        return monsterData.GetEvolutionIcon(evolutionLevel, iconType);
+    }
     public int GetCurrentSellPrice() => monsterData?.GetSellPrice(evolutionLevel) ?? 0;
     public void CheckEvolutionAfterInteraction() => _evolutionHandler?.OnInteraction();
     public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;

@@ -23,7 +23,6 @@ public static class SaveSystem
     public static int LoadPoop() => _playerConfig.poops;
     public static void Initialize()
     {
-
         LoadPlayerConfig();
         _sessionStartTime = DateTime.Now;
 
@@ -44,31 +43,6 @@ public static class SaveSystem
         SavePlayerConfig();
     }
 
-
-    // Pets
-    // public static void SaveMon(MonsterSaveData data)
-    // {
-    //     string key = $"Pet{data.monsterId}";
-    //     string json = JsonUtility.ToJson(data);
-    //     PlayerPrefs.SetString(key, json);
-
-    //     // Save the ID to the master list
-    //     SaveMonsterIDToList(data.monsterId);
-    //     PlayerPrefs.Save();
-    // }
-
-    // public static bool LoadMon(string petID, out MonsterSaveData data)
-    // {
-    //     string key = $"Pet{petID}";
-    //     if (PlayerPrefs.HasKey(key))
-    //     {
-    //         data = JsonUtility.FromJson<MonsterSaveData>(PlayerPrefs.GetString(key));
-    //         return true;
-    //     }
-
-    //     data = null;
-    //     return false;
-    // }
     public static void SaveMon(MonsterSaveData data)
     {
         if (data == null || string.IsNullOrEmpty(data.monsterId))
@@ -99,52 +73,6 @@ public static class SaveSystem
         SaveAll(); // Ensure the config is persisted
     }
 
-
-    // public static void DeleteMon(string monsterID)
-    // {
-    //     // Delete the monster data
-    //     string key = $"Pet{monsterID}";
-    //     PlayerPrefs.DeleteKey(key);
-
-    //     // Remove from master list
-    //     List<string> existingIDs = LoadSavedMonIDs();
-    //     if (existingIDs.Contains(monsterID))
-    //     {
-    //         existingIDs.Remove(monsterID);
-    //         SaveMonIDs(existingIDs);
-    //     }
-
-    //     PlayerPrefs.Save();
-    // }
-
-    // private static void SaveMonsterIDToList(string monsterID)
-    // {
-    //     List<string> existingIDs = LoadSavedMonIDs();
-    //     if (!existingIDs.Contains(monsterID))
-    //     {
-    //         existingIDs.Add(monsterID);
-    //         SaveMonIDs(existingIDs);
-    //     }
-    // }
-
-    // public static void SaveMonIDs(List<string> ids)
-    // {
-    //     PlayerPrefs.SetString(MonsterKey, string.Join(",", ids));
-    // }
-
-    // public static List<string> LoadSavedMonIDs()
-    // {
-    //     string csv = PlayerPrefs.GetString(MonsterKey, "");
-    //     return string.IsNullOrEmpty(csv)
-    //         ? new List<string>()
-    //         : new List<string>(csv.Split(','));
-    // }
-    // public static void DeleteMon(string monsterID)
-    // {
-    //     _playerConfig.DeleteMonster(monsterID);
-    //     SavePlayerConfig();
-    // }
-
     public static void SaveMonIDs(List<string> ids)
     {
         _playerConfig.SetAllMonsterIDs(ids);
@@ -159,27 +87,10 @@ public static class SaveSystem
 
     public static void Flush() => PlayerPrefs.Save();
 
-    // public static void ResetSaveData()
-    // {
-    //     PlayerPrefs.SetInt(CoinKey, 100);
-    //     PlayerPrefs.SetInt(PoopKey, 0);
-    //     PlayerPrefs.SetString(MonsterKey, "");
-
-    //     // Clear all pet data
-    //     var keys = PlayerPrefs.GetString(MonsterKey, "").Split(',');
-    //     foreach (var key in keys)
-    //     {
-    //         if (!string.IsNullOrEmpty(key))
-    //             PlayerPrefs.DeleteKey($"Pet{key}");
-    //     }
-
-    //     PlayerPrefs.Save();
-    // }
     public static void ResetSaveData()
     {
-        PlayerPrefs.SetInt(CoinKey, 100);
-        PlayerPrefs.SetInt(PoopKey, 0);
-
+        SaveCoin(100);
+        SavePoop(0);
         _playerConfig.ClearAllMonsterData();
         SavePlayerConfig();
     }
@@ -285,8 +196,6 @@ public static class SaveSystem
         }
     }
 
-
-
     private static void SavePlayerConfig()
     {
         string path = Path.Combine(Application.persistentDataPath, SaveFileName);
@@ -304,8 +213,6 @@ public static class SaveSystem
         }
     }
 
-
-
     private static void CreateNewPlayerConfig()
     {
         _playerConfig = new PlayerConfig();
@@ -313,7 +220,6 @@ public static class SaveSystem
         _playerConfig.SyncToSerializable();
         Debug.Log("Created new game data");
     }
-
 
     public static void DeleteAllSaveData()
     {

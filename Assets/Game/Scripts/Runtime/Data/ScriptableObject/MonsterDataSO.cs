@@ -67,7 +67,9 @@ public class MonsterDataSO : ScriptableObject
     public SkeletonDataAsset[] monsterSpine;
 
     [Header("Images")]
-    public Sprite[] monsIconImg;
+    public Sprite[] CardIcon;
+    public Sprite[] DetailsIcon;
+    public Sprite[] CatalogueIcon;
 
     [Header("Evolution Animations")]
     public EvolutionAnimationSet[] evolutionAnimationSets;
@@ -90,6 +92,34 @@ public class MonsterDataSO : ScriptableObject
     public AudioClip deathSound;     // Played when monster dies
     public AudioClip interactionSound; // Played when player interacts
 
+
+    public Sprite GetEvolutionIcon(int evolutionLevel, MonsterIconType iconType)
+    {
+        switch (evolutionLevel)
+        {
+            case 1:
+                if (iconType == MonsterIconType.Card && CardIcon.Length > 0) return CardIcon[0];
+                if (iconType == MonsterIconType.Catalogue && CatalogueIcon.Length > 0) return CatalogueIcon[0];
+                if (iconType == MonsterIconType.Detail && DetailsIcon.Length > 0) return DetailsIcon[0];
+                break;
+            case 2:
+                if (iconType == MonsterIconType.Card && CardIcon.Length > 1) return CardIcon[1];
+                if (iconType == MonsterIconType.Catalogue && CatalogueIcon.Length > 1) return CatalogueIcon[1];
+                if (iconType == MonsterIconType.Detail && DetailsIcon.Length > 1) return DetailsIcon[1];
+                break;
+            case 3:
+                if (iconType == MonsterIconType.Card && CardIcon.Length > 2) return CardIcon[2];
+                if (iconType == MonsterIconType.Catalogue && CatalogueIcon.Length > 2) return CatalogueIcon[2];
+                if (iconType == MonsterIconType.Detail && DetailsIcon.Length > 2) return DetailsIcon[2];
+                break;
+            default:
+                if (iconType == MonsterIconType.Card && CardIcon.Length > 0) return CardIcon[0];
+                if (iconType == MonsterIconType.Catalogue && CatalogueIcon.Length > 0) return CatalogueIcon[0];
+                if (iconType == MonsterIconType.Detail && DetailsIcon.Length > 0) return DetailsIcon[0];
+                return null; // Default to first icon if not found
+        }
+        return null; // Return null if no icon found for the specified evolution level and type
+    }
 
     public int GetSellPrice(int currentEvolutionLevel)
     {
@@ -216,5 +246,12 @@ public class EvolutionBehaviorConfig
 {
     public int evolutionLevel;
     public MonsterBehaviorConfigSO behaviorConfig;
+}
+
+public enum MonsterIconType
+{
+    Card,
+    Catalogue,
+    Detail
 }
 

@@ -17,7 +17,7 @@ public class MonsterManager : MonoBehaviour
 
     [Header("Game Settings")]
     public RectTransform gameArea;
-    public RectTransform groundRect; // For food placement
+    public RectTransform groundRect; 
     public Canvas mainCanvas;
     public MonsterDatabaseSO monsterDatabase;
 
@@ -38,9 +38,10 @@ public class MonsterManager : MonoBehaviour
 
     public int poopCollected;
     public int coinCollected;
+    public int maxMonstersSlots = 5;
     public List<MonsterController> activeMonsters = new List<MonsterController>();
-    public List<GameObject> _activeCoins = new List<GameObject>();
-    public List<GameObject> _activePoops = new List<GameObject>();
+    public List<GameObject> activeCoins = new List<GameObject>();
+    public List<GameObject> activePoops = new List<GameObject>();
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     private List<string> savedMonIDs = new List<string>();
@@ -331,10 +332,10 @@ public class MonsterManager : MonoBehaviour
         var coin = GetPooledObject(_coinPool, coinPrefab);
         if (coin != null)
         {
-            _activeCoins.Add(coin);
+            activeCoins.Add(coin);
             SetupPooledObject(coin, gameArea, startPosition);
             coin.GetComponent<CoinController>().Initialize(type);
-            _activeCoins.Add(coin);
+            activeCoins.Add(coin);
 
             // Start arc animation coroutine
             StartCoroutine(AnimateCoinArc(coin.transform, startPosition, targetPosition));
@@ -510,13 +511,13 @@ public class MonsterManager : MonoBehaviour
         else if (obj.TryGetComponent<CoinController>(out _))
         {
             _coinPool.Enqueue(obj);
-            _activeCoins.Remove(obj);
+            activeCoins.Remove(obj);
         }
         else if (obj.name.Contains("Poop"))
         {
             _poopPool.Enqueue(obj);
             CollectPoop();
-            _activePoops.Remove(obj);
+            activePoops.Remove(obj);
         }
     }
     #endregion
@@ -599,7 +600,7 @@ public class MonsterManager : MonoBehaviour
     public bool IsPositionClearOfObjects(Vector2 position, float radius = 40f)
     {
         // Check coins
-        foreach (var coin in _activeCoins)
+        foreach (var coin in activeCoins)
         {
             if (coin != null && coin.activeInHierarchy)
             {
@@ -613,7 +614,7 @@ public class MonsterManager : MonoBehaviour
         }
 
         // Check poop
-        foreach (var poop in _activePoops)
+        foreach (var poop in activePoops)
         {
             if (poop != null && poop.activeInHierarchy)
             {
