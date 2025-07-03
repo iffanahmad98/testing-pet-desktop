@@ -20,6 +20,7 @@ public class MonsterManager : MonoBehaviour
     public RectTransform groundRect; 
     public Canvas mainCanvas;
     public MonsterDatabaseSO monsterDatabase;
+    public MonsterDatabaseSO npcMonsterDatabase;
 
     [Header("Food Placement Settings")]
     public GameObject foodPlacementIndicator;
@@ -40,6 +41,7 @@ public class MonsterManager : MonoBehaviour
     public int coinCollected;
     public int maxMonstersSlots = 5;
     public List<MonsterController> activeMonsters = new List<MonsterController>();
+    public List<MonsterController> npcMonsters = new List<MonsterController>();
     public List<GameObject> activeCoins = new List<GameObject>();
     public List<GameObject> activePoops = new List<GameObject>();
     public List<FoodController> activeFoods = new List<FoodController>();
@@ -640,5 +642,50 @@ public class MonsterManager : MonoBehaviour
 #endif
 
     void OnDestroy() => ServiceLocator.Unregister<MonsterManager>();
+    #endregion
+
+    #region NPC Monster Management
+    public void SpawnNPCMonster(MonsterDataSO monsterData, Vector2 position)
+    {
+        if (monsterData == null)
+        {
+            if (monsterDatabase != null && monsterDatabase.monsters.Count > 0)
+            {
+                monsterData = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
+            }
+            else
+            {
+                Debug.LogError("No monster data provided and no database available.");
+                return;
+            }
+        }
+
+        // Use the regular monster prefab, not a special NPC prefab
+        GameObject npcObj = Instantiate(monsterPrefab, gameArea);
+        var controller = npcObj.GetComponent<MonsterController>();
+        
+        // Flag it as an NPC
+        controller.isNPC = true;
+        
+        // Generate a unique ID for the NPC
+        string npcID = $"NPC_{monsterData.id}_{System.Guid.NewGuid().ToString("N").Substring(0, 8)}";
+        controller.monsterID = npcID;
+        
+        // Set up the monster with data
+        controller.SetMonsterData(monsterData);
+        
+        // Position the NPC
+        npcObj.GetComponent<RectTransform>().anchoredPosition = position;
+        
+        // Track the NPC
+        npcMonsters.Add(controller);
+
+        // Apply current pet scale
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
+        {
+            settingsManager.ApplyCurrentPetScaleToMonster(controller);
+        }
+    }
     #endregion
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "BiomeDatabaseSO", menuName = "Scriptable Objects/BiomeDatabaseSO")]
+[CreateAssetMenu(fileName = "BiomeDatabase", menuName = "Database/BiomeDatabase")]
 public class BiomeDatabaseSO : ScriptableObject
 {
     public List<BiomeDataSO> allBiomes;
