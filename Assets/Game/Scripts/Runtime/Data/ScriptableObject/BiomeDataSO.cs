@@ -3,7 +3,13 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Biome", menuName = "Biome/Biome Data")]
 public class BiomeDataSO : ScriptableObject
 {
+
+    [Header("Metadata")]
+    public string biomeID = "biome_default";
     public string biomeName = "New Biome";
+    public string description = "Description here.";
+    public int price = 777;
+    public Sprite thumbnail; // Used in shop card UI
 
     [Header("Sky Layer")]
     public Sprite skyBackground;

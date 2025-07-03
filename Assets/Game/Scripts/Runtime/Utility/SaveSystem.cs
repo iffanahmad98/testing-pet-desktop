@@ -171,6 +171,7 @@ public static class SaveSystem
     }
 
     #endregion
+
     #region File Operations
     private static void LoadPlayerConfig()
     {
@@ -246,6 +247,113 @@ public static class SaveSystem
         SaveAll();
     }
     #endregion
+    #region Item Data Operation
+    public static bool TryBuyItem(ItemDataSO itemData)
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, cannot buy item.");
+            return false;
+        }
+
+        if (itemData == null)
+        {
+            Debug.LogWarning("ItemData is null.");
+            return false;
+        }
+
+        int playerCoins = _playerConfig.coins;
+        int itemPrice = itemData.price;
+
+        if (playerCoins < itemPrice)
+        {
+            Debug.Log($"Not enough coins to buy {itemData.itemName}. Needed: {itemPrice}, Owned: {playerCoins}");
+            return false;
+        }
+
+        // Deduct coins
+        _playerConfig.coins -= itemPrice;
+
+        // Add item to inventory
+        _playerConfig.AddItem(itemData.itemID, 1);
+
+        // Save changes
+        SaveAll();
+
+        Debug.Log($"Purchased {itemData.itemName} for {itemPrice} coins. Remaining: {_playerConfig.coins}");
+
+        return true;
+    }
+    #endregion
+    #region Biome Operations
+
+    public static bool TryBuyBiome(string biomeID, int price)
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, cannot buy biome.");
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(biomeID))
+        {
+            Debug.LogWarning("Invalid biome ID.");
+            return false;
+        }
+
+        if (_playerConfig.HasBiome(biomeID))
+        {
+            Debug.Log($"Biome {biomeID} already owned.");
+            return true;
+        }
+
+        if (_playerConfig.coins < price)
+        {
+            Debug.Log($"Not enough coins to buy biome {biomeID}. Needed: {price}, Owned: {_playerConfig.coins}");
+            return false;
+        }
+
+        _playerConfig.coins -= price;
+        _playerConfig.AddOwnedBiome(biomeID);
+        SaveAll();
+        Debug.Log($"Bought biome {biomeID} for {price} coins. Remaining: {_playerConfig.coins}");
+        return true;
+    }
+
+    public static void AddOwnedBiome(string biomeID)
+    {
+        if (string.IsNullOrEmpty(biomeID)) return;
+        _playerConfig.AddOwnedBiome(biomeID);
+        SaveAll();
+    }
+
+    public static bool IsBiomeOwned(string biomeID)
+    {
+        return _playerConfig.HasBiome(biomeID);
+    }
+
+    public static string GetActiveBiome()
+    {
+        return _playerConfig.activeBiomeID;
+    }
+
+    public static void SetActiveBiome(string biomeID)
+    {
+        if (_playerConfig.HasBiome(biomeID))
+        {
+            _playerConfig.SetActiveBiome(biomeID);
+            SaveAll();
+        }
+        else
+        {
+            Debug.LogWarning($"Attempted to set biome '{biomeID}' as active but it's not owned.");
+        }
+    }
+
+    #endregion
+
+
+
 
     public static PlayerConfig GetPlayerConfig()
     {

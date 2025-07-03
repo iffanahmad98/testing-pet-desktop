@@ -17,6 +17,9 @@ public class PlayerConfig
 
     public List<MonsterSaveData> monsters = new(); // Now using List for full JsonUtility support
     public List<OwnedItemData> ownedItems = new();
+    public string activeBiomeID = "default_biome";
+    public List<string> ownedBiomes = new();
+
 
     // Serialization Sync
     public void SyncToSerializable()
@@ -111,6 +114,24 @@ public class PlayerConfig
     {
         monsters.Clear();
     }
+    // Biome Logic
+    public void AddOwnedBiome(string biomeID)
+    {
+        if (!ownedBiomes.Contains(biomeID))
+            ownedBiomes.Add(biomeID);
+    }
+
+    public bool HasBiome(string biomeID)
+    {
+        return ownedBiomes.Contains(biomeID);
+    }
+
+    public void SetActiveBiome(string biomeID)
+    {
+        if (HasBiome(biomeID))
+            activeBiomeID = biomeID;
+    }
+
 }
 
 
@@ -120,3 +141,4 @@ public class OwnedItemData
     public string itemID;
     public int amount;
 }
+

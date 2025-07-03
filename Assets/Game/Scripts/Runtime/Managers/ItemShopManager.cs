@@ -54,6 +54,7 @@ public class ItemShopManager : MonoBehaviour
             ItemCardUI card = obj.GetComponent<ItemCardUI>();
             card.Setup(item);
             card.OnSelected = OnItemSelected;
+            card.OnBuy = OnItemBuy;
         }
 
         ClearItemInfo(); // Reset info panel
@@ -69,6 +70,24 @@ public class ItemShopManager : MonoBehaviour
 
         ShowItemInfo(card.itemData);
     }
+    private void OnItemBuy(ItemCardUI card)
+    {
+        var item = card.itemData;
+
+        if (SaveSystem.TryBuyItem(item))
+        {
+            OnItemSelected(card);
+
+            // Success message
+            ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
+        }
+        else
+        {
+            // Failure message
+            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {item.itemName}!", 2f);
+        }
+    }
+
 
     private void ShowItemInfo(ItemDataSO item)
     {
@@ -76,8 +95,11 @@ public class ItemShopManager : MonoBehaviour
         itemPriceText.text = $"Price: {item.price}";
         itemDescText.text = item.description;
         itemFullnessText.text = $"Fullness: {item.nutritionValue}";
-        itemInfoIcon.sprite = item.itemImgs[0];
-        itemInfoIcon.enabled = item.itemImgs[0] != null;
+        if (itemInfoIcon != null)
+        {
+            itemInfoIcon.sprite = item.itemImgs[0];
+            itemInfoIcon.enabled = item.itemImgs[0] != null;
+        }
     }
 
     private void ClearItemGrid()
@@ -94,7 +116,10 @@ public class ItemShopManager : MonoBehaviour
         itemPriceText.text = "";
         itemDescText.text = "";
         itemFullnessText.text = "";
-        itemInfoIcon.sprite = null;
-        itemInfoIcon.enabled = false;
+        if (itemInfoIcon != null)
+        {
+            itemInfoIcon.sprite = null;
+            itemInfoIcon.enabled = false;
+        }
     }
 }

@@ -52,8 +52,8 @@ public class InventoryUI : MonoBehaviour
     {
         var playerConfig = SaveSystem.PlayerConfig;
 
-        playerConfig.AddItem("1", 3);
-        playerConfig.AddItem("2", 2);
+        playerConfig.AddItem("IF01", 3);
+        playerConfig.AddItem("IM01", 2);
 
         SaveSystem.SaveAll(); // Save changes
     }
