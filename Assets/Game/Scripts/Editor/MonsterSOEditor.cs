@@ -6,28 +6,204 @@ using UnityEngine;
 public class MonsterDataSOEditor : Editor
 {
     // Organize foldouts by category and set sensible defaults
-    private bool showBasicInfo = false;        // Changed from true to false
-    private bool showStats = false;            // Changed from true to false
-    private bool showBehavior = false;          // Combine happiness + poop
-    private bool showEvolution = false;         // Less frequently edited
-    private bool showAnimations = false;        // Technical details - collapsed by default
-    private bool showAudio = false;             // Less frequently edited
-    private bool showVisuals = false;           // Less frequently edited
+    private bool showBasicInfo = false;
+    private bool showStats = false;
+    private bool showBehavior = false;
+    private bool showEvolution = false;
+    private bool showAnimations = false;
+    private bool showAudio = false;
+    private bool showVisuals = false;
+    
+    // NPC Mode toggle
+    private bool isNPCMode = false;
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-        // More compact header
-        DrawBasicInfo();
-        DrawStats();
-        DrawBehaviorSettings();
-        DrawEvolutionSettings();
-        DrawAnimationSettings();
-        DrawVisualSettings();
-        DrawAudioSettings();
+        // Force the toggle to be visible with a more direct GUI approach
+        EditorGUILayout.Space(5);
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.LabelField("MODE:", GUILayout.Width(50));
+        isNPCMode = EditorGUILayout.ToggleLeft("NPC Monster", isNPCMode, EditorStyles.boldLabel);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space(5);
+        
+        // Draw a separator line
+        EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+        // Draw appropriate sections based on mode
+        if (isNPCMode)
+        {
+            DrawNPCModeEditor();
+        }
+        else
+        {
+            // Regular pet monster editor
+            DrawBasicInfo();
+            DrawStats();
+            DrawBehaviorSettings();
+            DrawEvolutionSettings();
+            DrawAnimationSettings();
+            DrawVisualSettings();
+            DrawAudioSettings();
+        }
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawNPCModeEditor()
+    {
+        // Draw a header to indicate NPC Mode is active
+        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.LabelField("NPC MONSTER PROPERTIES", EditorStyles.boldLabel);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        
+        // Draw Basic Info section
+        DrawNPCBasicInfo();
+        
+        // Draw Visual Settings (simplified)
+        DrawNPCVisualSettings();
+        
+        // Draw Animation Settings
+        DrawAnimationSettings(); // Reuse standard animation settings
+        
+        // Draw Behavior Settings (simplified)
+        DrawNPCBehaviorSettings();
+        
+        // Draw Evolution Settings (simplified)
+        DrawNPCEvolutionSettings();
+        
+        // Draw Audio Settings (simplified)
+        DrawNPCAudioSettings();
+    }
+
+    private void DrawNPCBasicInfo()
+    {
+        showBasicInfo = EditorGUILayout.Foldout(showBasicInfo, "Basic Info", true);
+        if (!showBasicInfo) return;
+
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterName"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("id"));
+        
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Classification", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));
+        
+        // NPC movement speed - important for NPC behavior
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Movement", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("moveSpd"), new GUIContent("Move Speed"));
+        
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCVisualSettings()
+    {
+        showVisuals = EditorGUILayout.Foldout(showVisuals, "Visual Assets", true);
+        if (!showVisuals) return;
+
+        EditorGUI.indentLevel++;
+        
+        // Icons for NPC display
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Icon Categories", EditorStyles.boldLabel);
+        
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Detail Icons:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("DetailsIcon"), new GUIContent("Details Icons"));
+        EditorGUI.indentLevel--;
+        
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField("Card Icons:", EditorStyles.miniBoldLabel);
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("CardIcon"), new GUIContent("Card Icons"));
+        EditorGUI.indentLevel--;
+
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCBehaviorSettings()
+    {
+        showBehavior = EditorGUILayout.Foldout(showBehavior, "Behavior Settings", true);
+        if (!showBehavior) return;
+
+        EditorGUI.indentLevel++;
+        
+        // Only show behavior configs for NPCs
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionBehaviors"), true);
+        
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCEvolutionSettings()
+    {
+        showEvolution = EditorGUILayout.Foldout(showEvolution, "Evolution System", true);
+        if (!showEvolution) return;
+
+        EditorGUI.indentLevel++;
+
+        // Basic Evolution Settings
+        EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("canEvolve"));
+
+        var canEvolve = serializedObject.FindProperty("canEvolve").boolValue;
+        if (canEvolve)
+        {
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionLevel"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage1"), 
+                new GUIContent("Time to Evolve Stage 2 (days)", "For NPCs, this is the time-based evolution trigger"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage2"), 
+                new GUIContent("Time to Evolve Stage 3 (days)", "For NPCs, this is the time-based evolution trigger"));
+
+            // For NPCs we only show time-based evolution requirements
+            EditorGUILayout.HelpBox("NPC evolution uses time-based evolution only.", MessageType.Info);
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Evolution is disabled for this NPC monster.", MessageType.Info);
+        }
+
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCAudioSettings()
+    {
+        showAudio = EditorGUILayout.Foldout(showAudio, "Audio Settings", true);
+        if (!showAudio) return;
+
+        EditorGUI.indentLevel++;
+        
+        // Idle sounds (random ambient sounds)
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("idleSounds"), true);
+
+        EditorGUILayout.Space(3);
+        
+        // Only include relevant sound events for NPCs
+        EditorGUILayout.LabelField("Event Sounds", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("interactionSound"), 
+            new GUIContent("Interaction Sound"));
+        
+        // Evolution sounds
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Special Event Sounds", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("evolveSound"), 
+            new GUIContent("Evolve Sound"));
+
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space(5);
     }
 
     private void DrawBasicInfo()

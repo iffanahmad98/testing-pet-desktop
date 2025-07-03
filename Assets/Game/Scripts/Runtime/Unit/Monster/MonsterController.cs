@@ -3,10 +3,12 @@ using UnityEngine.EventSystems;
 using System;
 using Spine.Unity;
 using System.Collections;
-using Microsoft.Unity.VisualStudio.Editor;
 
-public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    [Header("Monster Type")]
+    public bool isNPC = false;  // Flag to identify NPC monsters
+
     #region Enums & Constants
     private enum InitializationState
     {
@@ -276,6 +278,13 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private void Update()
     {
         if (!IsFullyInitialized) return;
+
+        // Skip stat-based updates for NPCs
+        if (!isNPC)
+        {
+            StatsHandler?.UpdateSickStatus(Time.deltaTime);
+            StatsHandler?.UpdateHealth(Time.deltaTime);
+        }
 
         // ADD: Skip all updates during evolution except evolution tracking
         if (_evolutionHandler?.IsEvolving == true)
@@ -609,7 +618,18 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
 
     public void SaveMonData() => _saveHandler?.SaveData();
-    public void LoadMonData() => _saveHandler?.LoadData(monsterData.GetMaxHealth(evolutionLevel));
+    public void LoadMonData()
+    {
+        if (!isNPC)
+        {
+            // Load stats for pet monsters
+            _saveHandler?.LoadData(monsterData.GetMaxHealth(evolutionLevel));
+        }
+        else
+        {
+            // NPCs just need basic initialization
+        }
+    }
     #endregion
 
     #region Evolution Functionality

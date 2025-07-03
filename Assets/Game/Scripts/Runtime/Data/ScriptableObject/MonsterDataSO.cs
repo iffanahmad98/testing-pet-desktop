@@ -71,7 +71,7 @@ public class MonsterDataSO : ScriptableObject
             case 3:
                 return "Flourish";
             default:
-                return "Special";
+                return "Other";
         }
     }
 
@@ -195,8 +195,8 @@ public class MonsterDataSO : ScriptableObject
 public class MonsterSaveData
 {
     [Header("Identity")]
-    public string instanceId;               // Unique per instance
-    public string monsterId;               // Refers to MonsterDataSO.id
+    public string instanceId;              
+    public string monsterId;               
     [Header("Core Stats")]
     public float currentHealth;
     public float currentHunger;

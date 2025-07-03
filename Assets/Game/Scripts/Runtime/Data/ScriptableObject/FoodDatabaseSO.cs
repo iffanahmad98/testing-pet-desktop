@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "FoodDatabase", menuName = "Food/Food Database")]
+[CreateAssetMenu(fileName = "FoodDatabase", menuName = "Database/FoodDatabase")]
 public class FoodDatabaseSO : ScriptableObject
 {
     public List<FoodDataSO> allFoods;
