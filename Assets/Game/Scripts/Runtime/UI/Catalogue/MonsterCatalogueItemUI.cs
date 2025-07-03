@@ -102,7 +102,7 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
     private void HandleMonsterItemClick()
     {
         // Set selected state
-        SetSelected(true);
+        SetSelected(!isSelected);
         
         // Notify parent list to handle selection
         if (parentListUI != null)
@@ -113,7 +113,14 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
         // Update details panel
         if (monsterCatalogueDetailUI != null && monsterController != null)
         {
-            monsterCatalogueDetailUI.SetDetails(monsterController);
+            if (isSelected)
+            {
+                monsterCatalogueDetailUI.SetDetails(monsterController);
+            }
+            else
+            {
+                monsterCatalogueDetailUI.SetDetails(null); // Clear details when deselected
+            }
         }
         else
         {
@@ -157,7 +164,6 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
         selectedOverlay.SetActive(isSelected);
     }
 
-    // Add these methods to your MonsterCatalogueItemUI class
     public MonsterCatalogueItemType GetItemType()
     {
         return itemType;
