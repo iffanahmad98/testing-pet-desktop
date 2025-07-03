@@ -59,6 +59,21 @@ public class MonsterDataSO : ScriptableObject
     public int timeToEvolveStage1 = 0; // Time to evolve from Stage 1 to Stage 2 (in days)
     public int timeToEvolveStage2 = 0; // Time to evolve from Stage 2 to Stage 3 (in days)
 
+    // Helper method to get evolution stage name
+    public string GetEvolutionStageName(int level)
+    {
+        switch (level)
+        {
+            case 1:
+                return "Buds";
+            case 2:
+                return "Bloom";
+            case 3:
+                return "Flourish";
+            default:
+                return "Special";
+        }
+    }
 
     [Header("Evolution Requirements - Embedded")]
     public EvolutionRequirement[] evolutionRequirements;

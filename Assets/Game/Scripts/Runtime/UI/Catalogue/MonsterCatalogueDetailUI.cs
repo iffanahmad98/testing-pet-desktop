@@ -17,6 +17,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public Slider monsterEvolutionProgressSlider;
     public TextMeshProUGUI monsterSellPriceText;
     public TextMeshProUGUI monsterEarningText;
+    public GameObject[] monsterEvolutionProgressImg;
+    public Button closeButton;
+    public Button markFavoriteButton;
 
     public void SetDetails(MonsterController monsterController = null)
     {
@@ -43,12 +46,12 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             monsterImage.sprite = monsterController.GetEvolutionIcon(MonsterIconType.Detail); // Set the sprite for the monster
             monsterNameText.text = monsterController.MonsterData.monsterName;
             monsterTypeText.text = monsterController.MonsterData.monType.ToString();
-            monsterEvolutionText.text = $"Evolution Level: {_evolveLvl}";
+            monsterEvolutionText.text = $"Stage {monsterController.MonsterData.GetEvolutionStageName(_evolveLvl)} with progress { _evolveLvl - 1f / monsterController.MonsterData.evolutionRequirements.Length}";
             monsterFullnessSlider.value = monsterController.StatsHandler.CurrentHunger; //hunger or fullness nutrition going to ask later
             monsterHappinessSlider.value = monsterController.StatsHandler.CurrentHappiness;
-            monsterEvolutionProgressSlider.value = (float)_evolveLvl / (monsterController.MonsterData.evolutionRequirements.Length + 1);
+            monsterEvolutionProgressSlider.value = (_evolveLvl - 1f) / monsterController.MonsterData.evolutionRequirements.Length;
             monsterSellPriceText.text = $"{monsterController.MonsterData.GetSellPrice(_evolveLvl)}";
-            monsterEarningText.text = $"{1 / monsterController.MonsterData.GetGoldCoinDropRate(_evolveLvl)} hourly";
+            monsterEarningText.text = $"{(1 / monsterController.MonsterData.GetGoldCoinDropRate(_evolveLvl) / 60).ToString("F2")} / MIN";
         }
     }
     
