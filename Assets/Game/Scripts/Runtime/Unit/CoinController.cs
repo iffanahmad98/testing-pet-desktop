@@ -1,22 +1,13 @@
-using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-[System.Serializable]
-public class Coin
-{
-    public CoinType coinType;
-    public float onSpawnRate;
-    public float offSpawnRate;
-    public bool InGame = true;
-    public Sprite coinImg;
-}
 
 public class CoinController : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField] CoinType type;
     [SerializeField] float rate;
     [SerializeField] int value;
+    public CoinType Type => type;
 
     private Animator animator;
 
@@ -32,12 +23,12 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
         if (coinType == CoinType.Platinum)
         {
             animator.SetTrigger("Silver");
-            transform.localScale = Vector3.one; // Scale down gold coins
+            transform.localScale = Vector3.one; 
         }
         if (coinType == CoinType.Gold)
         {
             animator.SetTrigger("Gold");
-            transform.localScale = Vector3.one * 0.7f; // Scale up platinum coins
+            transform.localScale = Vector3.one * 0.7f;
         }
     }
 

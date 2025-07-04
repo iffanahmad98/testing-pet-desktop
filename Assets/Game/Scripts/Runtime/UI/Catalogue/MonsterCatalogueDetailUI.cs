@@ -44,7 +44,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         if (monsterController == null)
         {
             // Hide the detail panel if no monster is provided
-            canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.OutCubic).OnComplete(() => 
+            canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
             {
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
@@ -56,14 +56,14 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         {
             // Ensure the detail panel is active before setting details
             canvasGroup.alpha = 0f; // Reset alpha to 0 before fading in
-            canvasGroup.DOFade(1f, 0.2f).SetEase(Ease.OutCubic).OnComplete(() => 
+            canvasGroup.DOFade(1f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
             {
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
                 layoutElement.ignoreLayout = false; // Allow layout updates
             });
 
-            var _evolveLvl = monsterController.MonsterData.evolutionLevel;
+            var _evolveLvl = monsterController.evolutionLevel;
 
             // Example setup, replace with actual data retrieval logic
             canvasGroup.alpha = 1f;
@@ -73,7 +73,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             monsterEvolutionText.text = $"Stage {monsterController.MonsterData.GetEvolutionStageName(_evolveLvl)}";
             monsterFullnessSlider.value = monsterController.StatsHandler.CurrentHunger; //hunger or fullness nutrition going to ask later
             monsterHappinessSlider.value = monsterController.StatsHandler.CurrentHappiness;
-            monsterEvolutionProgressSlider.value = (_evolveLvl - 1f) / monsterController.MonsterData.evolutionRequirements.Length;
+            monsterEvolutionProgressSlider.value = (_evolveLvl - 1f) / 3f;
             monsterSellPriceText.text = $"{monsterController.MonsterData.GetSellPrice(_evolveLvl)}";
             monsterEarningText.text = $"{(1 / monsterController.MonsterData.GetGoldCoinDropRate(_evolveLvl) / 60).ToString("F2")} / MIN";
         }

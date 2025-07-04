@@ -1,17 +1,20 @@
 using UnityEngine;
-using UnityEngine.UI;
 
-public class InventoryUI : MonoBehaviour
+public class ItemInventoryUI : MonoBehaviour
 {
     [SerializeField] private Transform contentParent; // The layout parent (e.g. Horizontal Layout Group)
     [SerializeField] private ItemSlotUI slotPrefab;
     [SerializeField] private ItemDatabaseSO itemDatabase;
     [SerializeField] private RectTransform contentRectTransform; // RectTransform of contentParent
+    public ItemDatabaseSO ItemDatabase => itemDatabase;
 
     [Header("Config")]
     [SerializeField] private int defaultSlotCount = 6;
     [SerializeField] private float slotWidth = 110f;
 
+    private void Awake() {
+        ServiceLocator.Register(this);
+    }
 
     private void OnEnable()
     {
@@ -27,6 +30,11 @@ public class InventoryUI : MonoBehaviour
 
         AddStarterItems();
         var ownedItems = SaveSystem.PlayerConfig.ownedItems;
+        if (ownedItems == null || ownedItems.Count == 0)
+        {
+            Debug.LogWarning("No items found in inventory, adding starter items.");
+            AddStarterItems();
+        }
 
         // Set content width dynamically
         int extraItems = Mathf.Max(0, ownedItems.Count - defaultSlotCount);
@@ -43,7 +51,7 @@ public class InventoryUI : MonoBehaviour
             if (itemData != null)
             {
                 var slot = Instantiate(slotPrefab, contentParent);
-                slot.Initialize(itemData, entry.amount);
+                slot.Initialize(itemData, entry.type,entry.amount);
 
             }
         }
@@ -52,8 +60,8 @@ public class InventoryUI : MonoBehaviour
     {
         var playerConfig = SaveSystem.PlayerConfig;
 
-        playerConfig.AddItem("IF01", 3);
-        playerConfig.AddItem("IM01", 2);
+        playerConfig.AddItem("IF01", ItemType.Food, 3);
+        playerConfig.AddItem("IM01", ItemType.Medicine, 2);
 
         SaveSystem.SaveAll(); // Save changes
     }

@@ -35,7 +35,7 @@ public class PlayerConfig
     }
 
     // Inventory Logic
-    public void AddItem(string itemID, int amount)
+    public void AddItem(string itemID, ItemType type, int amount)
     {
         if (amount == 0 || string.IsNullOrEmpty(itemID)) return;
 
@@ -139,6 +139,7 @@ public class PlayerConfig
 public class OwnedItemData
 {
     public string itemID;
+    public ItemType type; 
     public int amount;
 }
 

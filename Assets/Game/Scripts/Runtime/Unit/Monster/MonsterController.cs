@@ -6,8 +6,9 @@ using System.Collections;
 
 public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("Monster Type")]
+    [Header("NPC Settings")]
     public bool isNPC = false;  // Flag to identify NPC monsters
+    private NPCPetCaretakerHandler _npcHandler;
 
     #region Enums & Constants
     private enum InitializationState
@@ -150,6 +151,12 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
         // ADD: Safety timeout in case initialization gets stuck
         StartCoroutine(InitializationTimeout());
+
+        // If this is an NPC, initialize the caretaker handler
+        if (isNPC)
+        {
+            _npcHandler = new NPCPetCaretakerHandler(this);
+        }
     }
 
     private void CreateHandlersInOrder()
@@ -302,6 +309,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         // Update emoji visibility if hovering
         if (_isHovered)
         {
+            if (isNPC) return;
             UI.UpdateEmojiVisibility(IsSick);
         }
     }
@@ -403,6 +411,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     {
         if (monsterData == null) return;
         if (_evolutionHandler != null && _evolutionHandler.IsEvolving) return;
+        // if (isNPC) return; 
 
         // NEW: Check if we should use relaxed bounds for very small areas, Only update movement every 3rd frame for tiny areas
         bool useRelaxedBounds = _boundHandler?.IsMovementAreaTooSmall() ?? false;
@@ -556,6 +565,11 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     }
 
     public Vector2 GetTargetPosition() => _targetPosition;
+    public void SetTargetPosition(Vector2 position)
+    {
+        _targetPosition = position;
+        _lastTargetChangeTime = Time.time; // Reset cooldown
+    }
 
     private Vector2 GetRandomPositionAroundMonster()
     {
@@ -750,7 +764,6 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         Vector2 targetPosition = _visualHandler?.GetRandomPositionOutsideBounds() ?? GetRandomPositionAroundMonster();
         ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
     }
-
     public Sprite GetMonsterIcon() => _visualHandler?.GetMonsterIcon();
     #endregion
 }

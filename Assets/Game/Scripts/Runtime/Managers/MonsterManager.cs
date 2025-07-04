@@ -337,7 +337,6 @@ public class MonsterManager : MonoBehaviour
             activeCoins.Add(coin);
             SetupPooledObject(coin, gameArea, startPosition);
             coin.GetComponent<CoinController>().Initialize(type);
-            activeCoins.Add(coin);
 
             // Start arc animation coroutine
             StartCoroutine(AnimateCoinArc(coin.transform, startPosition, targetPosition));
@@ -645,7 +644,7 @@ public class MonsterManager : MonoBehaviour
     #endregion
 
     #region NPC Monster Management
-    public void SpawnNPCMonster(MonsterDataSO monsterData, Vector2 position)
+    public void SpawnNPCMonster(MonsterDataSO monsterData)
     {
         if (monsterData == null)
         {
@@ -663,6 +662,7 @@ public class MonsterManager : MonoBehaviour
         // Use the regular monster prefab, not a special NPC prefab
         GameObject npcObj = Instantiate(monsterPrefab, gameArea);
         var controller = npcObj.GetComponent<MonsterController>();
+        var movementBounds = new MonsterBoundsHandler(this, npcObj.GetComponent<RectTransform>());
         
         // Flag it as an NPC
         controller.isNPC = true;
@@ -675,8 +675,8 @@ public class MonsterManager : MonoBehaviour
         controller.SetMonsterData(monsterData);
         
         // Position the NPC
-        npcObj.GetComponent<RectTransform>().anchoredPosition = position;
-        
+        npcObj.GetComponent<RectTransform>().anchoredPosition = movementBounds.GetRandomSpawnTarget();
+
         // Track the NPC
         npcMonsters.Add(controller);
 

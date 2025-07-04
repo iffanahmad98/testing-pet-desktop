@@ -235,7 +235,7 @@ public static class SaveSystem
         _playerConfig.lastLoginTime = DateTime.Now;
         Debug.Log("All game data deleted");
     }
-    public static void UpdateItemData(string itemID, int amount)
+    public static void UpdateItemData(string itemID, ItemType category, int amount)
     {
         if (_playerConfig == null)
         {
@@ -243,7 +243,7 @@ public static class SaveSystem
             return;
         }
 
-        _playerConfig.AddItem(itemID, amount);
+        _playerConfig.AddItem(itemID, category, amount);
         SaveAll();
     }
     #endregion
@@ -275,7 +275,7 @@ public static class SaveSystem
         _playerConfig.coins -= itemPrice;
 
         // Add item to inventory
-        _playerConfig.AddItem(itemData.itemID, 1);
+        _playerConfig.AddItem(itemData.itemID, itemData.category, 1);
 
         // Save changes
         SaveAll();
