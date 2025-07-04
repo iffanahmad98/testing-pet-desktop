@@ -10,6 +10,7 @@ public class SaveSystemEditor : Editor
             "Are you sure you want to reset all save data? This action cannot be undone.", 
             "Reset", "Cancel"))
         {
+            SaveSystem.DeleteAllSaveData();
             SaveSystem.ResetSaveData();
             Debug.Log("Save data has been reset successfully.");
         }

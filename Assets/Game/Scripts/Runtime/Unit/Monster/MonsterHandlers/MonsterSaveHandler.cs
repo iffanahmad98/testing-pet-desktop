@@ -43,7 +43,7 @@ public class MonsterSaveHandler
         }
         else
         {
-            Debug.LogError($"No saved data found for monster ID: {_controller.monsterID}");
+            Debug.LogWarning($"No saved data found for monster ID: {_controller.monsterID}, createing new monster.");
         }
 
         ApplyMonsterDataStats();
