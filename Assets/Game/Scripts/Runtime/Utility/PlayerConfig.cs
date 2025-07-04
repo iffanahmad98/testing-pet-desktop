@@ -19,6 +19,10 @@ public class PlayerConfig
     public List<OwnedItemData> ownedItems = new();
     public string activeBiomeID = "default_biome";
     public List<string> ownedBiomes = new();
+    public bool isSkyEnabled = true;
+    public bool isCloudEnabled = true;
+    public bool isAmbientEnabled = true;
+
 
 
     // Serialization Sync
@@ -42,7 +46,7 @@ public class PlayerConfig
         var item = ownedItems.Find(i => i.itemID == itemID);
         if (item == null)
         {
-            ownedItems.Add(new OwnedItemData { itemID = itemID, amount = Mathf.Max(0, amount) });
+            ownedItems.Add(new OwnedItemData { itemID = itemID, type = type, amount = Mathf.Max(0, amount) });
         }
         else
         {
@@ -139,7 +143,7 @@ public class PlayerConfig
 public class OwnedItemData
 {
     public string itemID;
-    public ItemType type; 
+    public ItemType type;
     public int amount;
 }
 

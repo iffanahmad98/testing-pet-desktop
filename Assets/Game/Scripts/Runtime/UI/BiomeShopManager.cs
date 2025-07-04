@@ -10,6 +10,10 @@ public class BiomeShopManager : MonoBehaviour
     public Transform cardParent;
     public GameObject biomeCardPrefab;
 
+    [Header("Toggle References")]
+    public ToggleIconButton skyToggleButton;
+    public ToggleIconButton cloudToggleButton;
+
     [Header("Info Panel")]
     public TMP_Text biomeNameText;
     public TMP_Text biomePriceText;
@@ -21,6 +25,8 @@ public class BiomeShopManager : MonoBehaviour
     private BiomeCardUI selectedCard;
     private float originalBiomeParentHeight;
     private RectTransform biomeParentRect;
+    BiomeManager biomeManager;
+
     private void Awake()
     {
         biomeParentRect = biomeParent.GetComponent<RectTransform>();
@@ -32,6 +38,26 @@ public class BiomeShopManager : MonoBehaviour
     private void Start()
     {
         RefreshBiomeCards();
+
+        biomeManager = ServiceLocator.Get<BiomeManager>();
+
+        // Load saved state and apply to toggles
+        bool isSkyEnabled = SaveSystem.IsSkyEnabled();
+        bool isCloudEnabled = SaveSystem.IsCloudEnabled();
+
+        skyToggleButton.SetState(isSkyEnabled);
+        cloudToggleButton.SetState(isCloudEnabled);
+
+        // Subscribe to UI toggle changes
+        skyToggleButton.OnToggleChanged += ToggleSkyLayer;
+        cloudToggleButton.OnToggleChanged += ToggleCloudLayer;
+
+        // Apply immediately to BiomeManager (if needed)
+        if (biomeManager != null)
+        {
+            biomeManager.SetSkyLayerActive(isSkyEnabled);
+            biomeManager.ToggleClouds(isCloudEnabled); // Ensure this accepts bool
+        }
     }
 
     private void RefreshBiomeCards()
@@ -80,8 +106,12 @@ public class BiomeShopManager : MonoBehaviour
 
     private void OnBiomeApply(BiomeCardUI card)
     {
-        SaveSystem.SetActiveBiome(card.BiomeData.biomeID);
+        var biomeID = card.BiomeData.biomeID;
+
+        SaveSystem.SetActiveBiome(biomeID);
         SaveSystem.SaveAll();
+
+        biomeManager?.ChangeBiomeByID(biomeID);
 
         ServiceLocator.Get<UIManager>().ShowMessage($"Applied '{card.BiomeData.biomeName}' biome!");
 
@@ -91,8 +121,10 @@ public class BiomeShopManager : MonoBehaviour
 
     private void OnBiomeCancel(BiomeCardUI card)
     {
-        SaveSystem.SetActiveBiome(""); // Clear active biome (default)
+        SaveSystem.SetActiveBiome("default_biome"); // Clear active biome (default)
         SaveSystem.SaveAll();
+
+        biomeManager?.ChangeBiomeByID("default_biome");
 
         ServiceLocator.Get<UIManager>().ShowMessage($"Cancelled '{card.BiomeData.biomeName}' biome.");
 
@@ -103,20 +135,24 @@ public class BiomeShopManager : MonoBehaviour
     private void OnBiomeBuy(BiomeCardUI card)
     {
         var biome = card.BiomeData;
+
         if (SaveSystem.TryBuyBiome(biome.biomeID, biome.price))
         {
             SaveSystem.SetActiveBiome(biome.biomeID);
-            ServiceLocator.Get<UIManager>().ShowMessage($"Bought and applied '{biome.biomeName}'!");
+            biomeManager?.ChangeBiomeByID(biome.biomeID);
+
+            ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought and applied '{biome.biomeName}'!");
         }
         else
         {
-            ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins to buy biome!");
+            ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy biome!");
         }
 
         SaveSystem.SaveAll();
         RefreshBiomeCards();
-        OnBiomeSelected(card); // Auto-select after buying
+        OnBiomeSelected(card);
     }
+
 
     private void ShowBiomeInfo(BiomeDataSO biome)
     {
@@ -131,4 +167,17 @@ public class BiomeShopManager : MonoBehaviour
         biomePriceText.text = "";
         biomeDescText.text = "";
     }
+    private void ToggleSkyLayer(bool isOn)
+    {
+        biomeManager.ToggleLayer(ref biomeManager.skyLayer, isOn);
+        ServiceLocator.Get<UIManager>()?.ShowMessage("Sky: " + (isOn ? "ON" : "OFF"));
+    }
+
+    private void ToggleCloudLayer(bool isOn)
+    {
+        biomeManager.ToggleClouds(isOn);
+        ServiceLocator.Get<UIManager>()?.ShowMessage("Clouds: " + (isOn ? "ON" : "OFF"));
+    }
+
+
 }

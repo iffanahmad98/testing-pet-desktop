@@ -280,7 +280,7 @@ public static class SaveSystem
         // Save changes
         SaveAll();
 
-        Debug.Log($"Purchased {itemData.itemName} for {itemPrice} coins. Remaining: {_playerConfig.coins}");
+        Debug.Log($"Purchased {itemData.itemName} and {itemData.category}for {itemPrice} coins. Remaining: {_playerConfig.coins}");
 
         return true;
     }
@@ -348,6 +348,38 @@ public static class SaveSystem
         {
             Debug.LogWarning($"Attempted to set biome '{biomeID}' as active but it's not owned.");
         }
+    }
+    public static void SetSkyEnabled(bool enabled)
+    {
+        _playerConfig.isSkyEnabled = enabled;
+        SaveAll();
+    }
+
+    public static bool IsSkyEnabled()
+    {
+        return _playerConfig.isSkyEnabled;
+    }
+
+    public static void SetCloudEnabled(bool enabled)
+    {
+        _playerConfig.isCloudEnabled = enabled;
+        SaveAll();
+    }
+
+    public static bool IsCloudEnabled()
+    {
+        return _playerConfig.isCloudEnabled;
+    }
+
+    public static void SetAmbientEnabled(bool enabled)
+    {
+        _playerConfig.isAmbientEnabled = enabled;
+        SaveAll();
+    }
+
+    public static bool IsAmbientEnabled()
+    {
+        return _playerConfig.isAmbientEnabled;
     }
 
     #endregion

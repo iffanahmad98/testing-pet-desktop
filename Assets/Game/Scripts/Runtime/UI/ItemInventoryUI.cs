@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class ItemInventoryUI : MonoBehaviour
@@ -12,28 +13,41 @@ public class ItemInventoryUI : MonoBehaviour
     [SerializeField] private int defaultSlotCount = 6;
     [SerializeField] private float slotWidth = 110f;
 
-    private void Awake() {
+    private void Awake()
+    {
         ServiceLocator.Register(this);
     }
 
     private void OnEnable()
     {
-        PopulateInventory();
+        StartPopulateInventory();
     }
 
-
-    public void PopulateInventory()
+    public void StartPopulateInventory()
     {
+        StartCoroutine(PopulateInventoryCoroutine());
+    }
+
+    private IEnumerator PopulateInventoryCoroutine()
+    {
+
         // Clear previous
         foreach (Transform child in contentParent)
             Destroy(child.gameObject);
 
-        AddStarterItems();
-        var ownedItems = SaveSystem.PlayerConfig.ownedItems;
-        if (ownedItems == null || ownedItems.Count == 0)
+        yield return null; // Wait a frame for UI clearing
+
+        var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
+
+        if (ownedItems == null)
+        {
+            Debug.LogError("ownedItems is null. Aborting inventory population.");
+            yield break;
+        }
+
+        if (ownedItems.Count == 0)
         {
             Debug.LogWarning("No items found in inventory, adding starter items.");
-            AddStarterItems();
         }
 
         // Set content width dynamically
@@ -43,27 +57,23 @@ public class ItemInventoryUI : MonoBehaviour
 
         contentRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, baseWidth + extraWidth);
 
+        yield return null; // Wait a frame after resizing
+
         // Populate slots
         foreach (var entry in ownedItems)
         {
             ItemDataSO itemData = itemDatabase.GetItem(entry.itemID);
             Debug.Log($"Adding item: {itemData?.itemName} (ID: {entry.itemID}, Amount: {entry.amount})");
+
             if (itemData != null)
             {
                 var slot = Instantiate(slotPrefab, contentParent);
-                slot.Initialize(itemData, entry.type,entry.amount);
-
+                slot.Initialize(itemData, entry.type, entry.amount);
             }
+
+            // Optional: yield to avoid UI stutter if many items
+            yield return null;
         }
-    }
-    void AddStarterItems()
-    {
-        var playerConfig = SaveSystem.PlayerConfig;
-
-        playerConfig.AddItem("IF01", ItemType.Food, 3);
-        playerConfig.AddItem("IM01", ItemType.Medicine, 2);
-
-        SaveSystem.SaveAll(); // Save changes
     }
 
 }

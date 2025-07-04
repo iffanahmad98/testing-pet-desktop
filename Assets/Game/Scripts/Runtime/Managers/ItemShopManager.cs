@@ -12,6 +12,8 @@ public class ItemShopManager : MonoBehaviour
     [Header("Item Display")]
     public GameObject itemCardPrefab;
     public Transform itemGridParent;
+    [Header("Inventory Reference")]
+    public ItemInventoryUI itemInventoryUI;
 
     [Header("Item Info Panel")]
     public TMP_Text itemNameText;
@@ -19,6 +21,7 @@ public class ItemShopManager : MonoBehaviour
     public TMP_Text itemDescText;
     public TMP_Text itemFullnessText;
     public Image itemInfoIcon;
+
 
     [Header("Data")]
     public List<ItemDataSO> allItems; // Replace with your actual item source
@@ -31,7 +34,10 @@ public class ItemShopManager : MonoBehaviour
         {
             tabController.OnTabChanged += OnTabChanged;
             tabController.OnTabSelected(0); // Default tab
+            // itemInventoryUI.StartPopulateInventory();
+
         }
+
     }
 
     private void OnTabChanged(int tabIndex)
@@ -41,7 +47,6 @@ public class ItemShopManager : MonoBehaviour
         ItemType category = (ItemType)System.Enum.Parse(typeof(ItemType), tabCategories[tabIndex]);
         ShowItemsByCategory(category);
     }
-
     private void ShowItemsByCategory(ItemType category)
     {
         ClearItemGrid();
@@ -78,6 +83,7 @@ public class ItemShopManager : MonoBehaviour
         {
             OnItemSelected(card);
 
+            itemInventoryUI.StartPopulateInventory();
             // Success message
             ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
         }
