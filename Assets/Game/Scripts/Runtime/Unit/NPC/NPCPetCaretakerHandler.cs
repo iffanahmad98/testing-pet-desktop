@@ -255,7 +255,7 @@ public class NPCPetCaretakerHandler
         pet.IncreaseHappiness(5f);
         
         // Check for evolution
-        pet.CheckEvolutionAfterInteraction();
+        pet.CheckEvolveAfterInteraction();
         
         // Play interaction animation on NPC
         _controller.StateMachine?.ChangeState(MonsterState.Jumping);

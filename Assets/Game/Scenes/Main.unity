@@ -857,6 +857,22 @@ CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 8858662029795217612, guid: d99416e737d56c14dba2c1f1c5481046, type: 3}
   m_PrefabInstance: {fileID: 95553319876513910}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &136858485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136858474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0286c10e8bfc484eb736f4e6ff13f82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.25
+  ease: 25
+  csf: {fileID: 0}
+  rt: {fileID: 0}
 --- !u!1 &165527692
 GameObject:
   m_ObjectHideFlags: 0
@@ -6357,7 +6373,6 @@ MonoBehaviour:
   cloudPrefab: {fileID: 6060185123384472328, guid: 3db6bfa90acd040479a343d591068b10, type: 3}
   poolSize: 20
   poolContainer: {fileID: 683402741}
-  spawnHeightRatio: 0.5
   spawnMargin: 50
   minDistanceBetweenClouds: 150
   minTimeBetweenSpawns: 1.5
@@ -7152,6 +7167,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1661784527}
     - target: {fileID: 7040603436469939251, guid: d99416e737d56c14dba2c1f1c5481046, type: 3}
+      propertyPath: CataloguePanel
+      value: 
+      objectReference: {fileID: 136858474}
+    - target: {fileID: 7040603436469939251, guid: d99416e737d56c14dba2c1f1c5481046, type: 3}
       propertyPath: monsterDetailLayoutElement
       value: 
       objectReference: {fileID: 1661784527}
@@ -7218,7 +7237,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8227343946690199710, guid: d99416e737d56c14dba2c1f1c5481046, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 136858485}
   m_SourcePrefab: {fileID: 100100000, guid: d99416e737d56c14dba2c1f1c5481046, type: 3}
 --- !u!1 &376856614487449542 stripped
 GameObject:

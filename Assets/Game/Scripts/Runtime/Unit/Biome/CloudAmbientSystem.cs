@@ -14,7 +14,7 @@ public class CloudAmbientSystem : MonoBehaviour
     [SerializeField] private Transform poolContainer;
     
     [Header("Spawn Settings")]
-    [SerializeField] private float spawnHeightRatio = 0.5f; // Top half of the sky
+    // [SerializeField] private float spawnHeightRatio = 0.5f; // Top half of the sky
     [SerializeField] private float spawnMargin = 50f; // Margin from edges
     [SerializeField] private float minDistanceBetweenClouds = 250f; // INCREASED from 150 to 250
     [SerializeField] private float minTimeBetweenSpawns = 3.0f; // INCREASED from 1.5 to 3.0

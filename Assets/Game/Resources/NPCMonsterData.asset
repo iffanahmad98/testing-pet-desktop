@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterName: Mushkino
   id: 000
-  monType: 0
+  monType: 5
   poopType: 1
   moveSpd: 100
   foodDetectionRange: 200
@@ -45,7 +45,7 @@ MonoBehaviour:
   pokeHappinessValue: 5
   hungerHappinessThreshold: 50
   hungerHappinessDrainRate: 0.1
-  canEvolve: 1
+  canEvolve: 0
   isEvolved: 0
   evolutionLevel: 1
   timeToEvolveStage1: 0
@@ -53,22 +53,14 @@ MonoBehaviour:
   evolutionRequirements: []
   monsterSpine:
   - {fileID: 11400000, guid: 91cac1279ab1871408a25730754e6e9a, type: 2}
-  - {fileID: 11400000, guid: a30c459719fe39e4da8c8322ee918a6e, type: 2}
   CardIcon:
-  - {fileID: 1937041300548807071, guid: 1d4dba39ebcf6f940b187a3b19e71640, type: 3}
-  - {fileID: -7483330500224199394, guid: c26656583b9690847b88c750eaad52b2, type: 3}
+  - {fileID: 1937041300548807071, guid: de0e873b20b588d4e8be4384dee094f8, type: 3}
   DetailsIcon:
+  - {fileID: 1937041300548807071, guid: 1d4dba39ebcf6f940b187a3b19e71640, type: 3}
+  CatalogueIcon:
   - {fileID: 1937041300548807071, guid: 4ca7bf1adad9f3f4f81633ce860771da, type: 3}
-  - {fileID: -7483330500224199394, guid: 0d724d95f92439d459461066aa2f992f, type: 3}
-  CatalogueIcon: []
   evolutionAnimationSets:
   - evolutionLevel: 1
-    availableAnimations:
-    - idle
-    - walking
-    - running
-    - jumping
-  - evolutionLevel: 2
     availableAnimations:
     - idle
     - walking

@@ -31,7 +31,7 @@ public class MonsterFoodHandler
     
     public void FindNearestFood()
     {
-        if (!_controller.IsLoaded || _isInternallyEating) return;
+        if (_isInternallyEating) return;
         
         if (Time.time - _lastEatingTime < EATING_COOLDOWN)
         {

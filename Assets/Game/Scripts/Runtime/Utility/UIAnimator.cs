@@ -16,7 +16,7 @@ public class UIAnimator : MonoBehaviour
 
     private Image image;
     private int currentFrame;
-    private float timer;
+    // private float timer;
     private bool isPlaying;
     private Coroutine animationCoroutine;  // Add this field to track the coroutine
     
@@ -143,7 +143,7 @@ public class UIAnimator : MonoBehaviour
     public void ResetAnimation()
     {
         currentFrame = 0;
-        timer = 0f;
+        // timer = 0f;
         UpdateSprite();
     }
     

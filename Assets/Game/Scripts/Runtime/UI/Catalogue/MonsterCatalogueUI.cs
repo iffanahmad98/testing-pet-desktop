@@ -10,5 +10,6 @@ public class MonsterCatalogueUI : MonoBehaviour
     public Button SwitchGameAreaBtn;
     public Button CloseMonsterDetailsBtn;
     public Button CloseMonsterListBtn;
+    public UISmoothFitter smoothFitter;
  
 }

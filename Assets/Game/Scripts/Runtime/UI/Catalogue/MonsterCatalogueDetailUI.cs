@@ -7,6 +7,8 @@ using System.Linq;
 public class MonsterCatalogueDetailUI : MonoBehaviour
 {
     [Header("UI Elements")]
+    public GameObject CataloguePanel;
+    public UISmoothFitter smoothFitter;
     public CanvasGroup canvasGroup;
     public LayoutElement layoutElement;
     public Image monsterImage;
@@ -26,8 +28,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     {
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false; 
-        layoutElement.ignoreLayout = true; 
+        canvasGroup.blocksRaycasts = false;
+        layoutElement.ignoreLayout = true;
+        smoothFitter = CataloguePanel.GetComponent<UISmoothFitter>(); 
     }
 
     public void SetDetails(MonsterController monsterController = null)
@@ -44,6 +47,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         if (monsterController == null)
         {
             // Hide the detail panel if no monster is provided
+            smoothFitter.Kick();
             canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
             {
                 canvasGroup.interactable = false;
@@ -56,6 +60,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         {
             // Ensure the detail panel is active before setting details
             canvasGroup.alpha = 0f; // Reset alpha to 0 before fading in
+            smoothFitter.Kick();
             canvasGroup.DOFade(1f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
             {
                 canvasGroup.interactable = true;
@@ -71,9 +76,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             monsterNameText.text = monsterController.MonsterData.monsterName;
             monsterTypeText.text = monsterController.MonsterData.monType.ToString();
             monsterEvolutionText.text = $"Stage {monsterController.MonsterData.GetEvolutionStageName(_evolveLvl)}";
-            monsterFullnessSlider.value = monsterController.StatsHandler.CurrentHunger; //hunger or fullness nutrition going to ask later
-            monsterHappinessSlider.value = monsterController.StatsHandler.CurrentHappiness;
-            monsterEvolutionProgressSlider.value = (_evolveLvl - 1f) / 3f;
+            monsterFullnessSlider.value = Mathf.Clamp01(monsterController.StatsHandler.CurrentHunger * 0.01f);
+            monsterHappinessSlider.value = Mathf.Clamp01(monsterController.StatsHandler.CurrentHappiness * 0.01f);
+            monsterEvolutionProgressSlider.value = (_evolveLvl - 1f) / 2f;
             monsterSellPriceText.text = $"{monsterController.MonsterData.GetSellPrice(_evolveLvl)}";
             monsterEarningText.text = $"{(1 / monsterController.MonsterData.GetGoldCoinDropRate(_evolveLvl) / 60).ToString("F2")} / MIN";
         }

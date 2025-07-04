@@ -126,7 +126,7 @@ public class MonsterInteractionHandler
     private IEnumerator DelayedEvolutionTrigger()
     {
         yield return new WaitForSeconds(0.5f);
-        _controller.CheckEvolutionAfterInteraction();
+        _controller.CheckEvolveAfterInteraction();
     }
 
     public void OnPointerEnter(PointerEventData e)
