@@ -23,13 +23,13 @@ public class MonsterDetailPanel : MonoBehaviour
 
         nameText.text = data.monsterName;
         typeText.text = $"Type: {data.monType}";
-        fullnessSlider.value = data.startingHunger / 100f;
-        happinessSlider.value = data.startingHappiness / 100f;
+        fullnessSlider.value = data.baseHunger / 100f;
+        happinessSlider.value = data.baseHappiness / 100f;
         evolvingSlider.value = data.evolutionLevel / 3f; // Adjust max stage
         stageText.text = $"Stage {data.evolutionLevel + 1}";
-        monsterImage.sprite = data.monsIconImg[data.isEvolved ? 1 : 0];
+        monsterImage.sprite = data.CardIcon[data.isEvolved ? 1 : 0];
         sellPriceText.text = $"{data.monsterPrice / 2} coins";
-        earningRateText.text = $"{(data.startingHappiness * 0.01f):0.0} coin/min";
+        earningRateText.text = $"{(data.baseHappiness * 0.01f):0.0} coin/min";
     }
 
     public void SetVisible(bool show)

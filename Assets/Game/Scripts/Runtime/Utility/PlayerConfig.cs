@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class PlayerConfig
 {
-    public int coins = 100;
-    public int poop = 0;
+    public int coins = 10000;
+    public int poops = 0;
 
     public string lastLoginTimeString;
     public string totalPlayTimeString;
@@ -14,14 +15,10 @@ public class PlayerConfig
     [NonSerialized] public DateTime lastLoginTime;
     [NonSerialized] public TimeSpan totalPlayTime;
 
-    public List<string> monsterIDs = new List<string>();
-    public Dictionary<string, MonsterSaveData> monsters = new Dictionary<string, MonsterSaveData>();
-    public SettingsData settings = new SettingsData();
-    public bool notificationsEnabled = true;
+    public List<MonsterSaveData> monsters = new(); // Now using List for full JsonUtility support
+    public List<OwnedItemData> ownedItems = new();
 
-    // 🔹 New: List of owned items
-    public List<OwnedItemData> ownedItems = new List<OwnedItemData>();
-
+    // Serialization Sync
     public void SyncToSerializable()
     {
         lastLoginTimeString = lastLoginTime.ToString("o");
@@ -34,25 +31,28 @@ public class PlayerConfig
         TimeSpan.TryParse(totalPlayTimeString, out totalPlayTime);
     }
 
+    // Inventory Logic
     public void AddItem(string itemID, int amount)
     {
+        if (amount == 0 || string.IsNullOrEmpty(itemID)) return;
+
         var item = ownedItems.Find(i => i.itemID == itemID);
         if (item == null)
         {
             ownedItems.Add(new OwnedItemData { itemID = itemID, amount = Mathf.Max(0, amount) });
         }
-        else if (amount <= 0)
-        {
-            item.amount = Mathf.Max(0, item.amount + amount);
-        }
         else
         {
-            return; // No change if amount is zero or negative
+            item.amount = Mathf.Max(0, item.amount + amount);
+            if (item.amount == 0)
+                ownedItems.Remove(item);
         }
     }
 
     public void RemoveItem(string itemID, int amount)
     {
+        if (amount <= 0 || string.IsNullOrEmpty(itemID)) return;
+
         var existing = ownedItems.Find(i => i.itemID == itemID);
         if (existing != null)
         {
@@ -64,29 +64,59 @@ public class PlayerConfig
 
     public int GetItemAmount(string itemID)
     {
-        var existing = ownedItems.Find(i => i.itemID == itemID);
-        return existing?.amount ?? 0;
+        return ownedItems.Find(i => i.itemID == itemID)?.amount ?? 0;
+    }
+
+    // Monster Save Logic
+    public void SaveMonsterData(MonsterSaveData data)
+    {
+        if (data == null || string.IsNullOrEmpty(data.instanceId)) return;
+
+        var existing = monsters.Find(m => m.instanceId == data.instanceId);
+        if (existing != null)
+        {
+            int index = monsters.IndexOf(existing);
+            monsters[index] = data;
+        }
+        else
+        {
+            monsters.Add(data);
+        }
+    }
+
+    public bool LoadMonsterData(string instanceId, out MonsterSaveData data)
+    {
+        data = monsters.Find(m => m.instanceId == instanceId);
+        return data != null;
+    }
+
+
+    public void DeleteMonster(string instanceId)
+    {
+        monsters.RemoveAll(m => m.instanceId == instanceId);
+    }
+
+    public List<string> GetAllMonsterIDs()
+    {
+        return monsters.Select(m => m.instanceId).ToList();
+    }
+
+
+    public void SetAllMonsterIDs(List<string> ids)
+    {
+        monsters = monsters.Where(m => ids.Contains(m.instanceId)).ToList();
+    }
+
+    public void ClearAllMonsterData()
+    {
+        monsters.Clear();
     }
 }
 
-[Serializable]
-public class SettingsData
-{
-    public float gameAreaWidth = 1920f;
-    public float gameAreaHeight = 1080f;
-    public float gameAreaX = 0f;
-    public float gameAreaY = 0f;
-    public float uiScale = 1f;
-    public int languageIndex = 0;
-    public int screenState = 0;
 
-    public float masterVolume = 1f;
-    public float bgmVolume = 1f;
-    public float sfxVolume = 1f;
-}
 [Serializable]
 public class OwnedItemData
 {
-    public string itemID; // You can use the ItemDataSO.name or a unique ID
+    public string itemID;
     public int amount;
 }

@@ -4,27 +4,31 @@ using TMPro;
 using Coffee.UIExtensions;
 using DG.Tweening;
 using System.Collections;
+using Spine.Unity;
 
 public class GachaResultPanel : MonoBehaviour
 {
     [Header("Core Elements")]
     public GameObject root;
-    public Image monsterImage;
     public TextMeshProUGUI monsterNameText;
     public TextMeshProUGUI rarityText;
+    private MonsterDataSO monsterData;
 
     [Header("Display Objects")]
     public GameObject chest;
     public GameObject egg;
     public GameObject monsterDisplay;
+    public SkeletonGraphic monsterSkeletonGraphic;
+    public Material monsterMaterial; 
 
     [Header("Effects")]
     public UIParticle shineVFX;
     public UIParticle confettiVFX;
 
     [Header("Buttons")]
-    public Button backButton;
-    public Button rollAgainButton;
+    public Button spawnBtn;
+    public Button sellBtn;
+    public TextMeshProUGUI sellPriceText;
 
     [Header("Tween Eases")]
     public Ease fadeInRootEase = Ease.OutQuad;
@@ -36,44 +40,43 @@ public class GachaResultPanel : MonoBehaviour
     public Ease fadeInMonsterEase = Ease.OutQuad;
     public Ease punchMonsterEase = Ease.OutElastic;
 
-    private System.Action onFinishGacha;
-
     private CanvasGroup canvasGroup;
     private CanvasGroup chestCanvas;
     private CanvasGroup eggCanvas;
     private CanvasGroup monsterCanvas;
     private Animator chestAnimator;
     private Animator eggAnimator;
+    
+    private UIAnimator chestAnimatorUI;
+    private UIAnimator eggAnimatorUI;
 
     private void Start()
     {
         // Ensure all necessary components are present
         if (root == null || chest == null || egg == null || monsterDisplay == null ||
-            monsterNameText == null || rarityText == null || backButton == null || rollAgainButton == null)
+            monsterNameText == null || rarityText == null)
         {
             Debug.LogError("GachaResultPanel: Missing required UI elements!");
             return;
         }
 
-        backButton.onClick.RemoveAllListeners();
-        backButton.onClick.AddListener(() => HideResultPanel());
-
         canvasGroup = root.GetComponent<CanvasGroup>() ?? root.AddComponent<CanvasGroup>();
         chestCanvas = chest.GetComponent<CanvasGroup>() ?? chest.AddComponent<CanvasGroup>();
         eggCanvas = egg.GetComponent<CanvasGroup>() ?? egg.AddComponent<CanvasGroup>();
         monsterCanvas = monsterDisplay.GetComponent<CanvasGroup>() ?? monsterDisplay.AddComponent<CanvasGroup>();
-        chestAnimator = chest.GetComponent<Animator>() ?? chest.AddComponent<Animator>();
-        eggAnimator = egg.GetComponent<Animator>() ?? egg.AddComponent<Animator>();
+        chestAnimatorUI = chest.GetComponent<UIAnimator>() ?? chest.AddComponent<UIAnimator>();
+        eggAnimatorUI = egg.GetComponent<UIAnimator>() ?? egg.AddComponent<UIAnimator>();
+
 
         // Reset all states
         ResetAllStates();
 
     }
 
-    public void Show(MonsterDataSO monster, System.Action onRollAgain, System.Action onComplete)
+    public void Show(MonsterDataSO monster, System.Action onSell, System.Action onSpawn)
     {
         ResetAllStates();
-        onFinishGacha = onComplete;
+        monsterData = monster;
 
         Sequence seq = DOTween.Sequence();
 
@@ -92,11 +95,9 @@ public class GachaResultPanel : MonoBehaviour
         seq.JoinCallback(() =>
         {
             chest.SetActive(true);
-            chestAnimator.Rebind();
-            chestAnimator.Update(0f);
-            chestAnimator.Play("chest", 0, 0f);
+            chestAnimatorUI?.Play();
         });
-        seq.AppendInterval(GetClipLength(chestAnimator, "chest"));
+        seq.AppendInterval(chestAnimatorUI?.TotalDuration * 2f ?? 0.5f);
         seq.Append(chestCanvas.DOFade(0, 0.2f).SetEase(fadeOutChestEase));
         // 3. Egg: set active, fade in + scale punch, play animator, on last frame play shineVFX
         seq.Append(eggCanvas.DOFade(1, 0.2f).SetEase(fadeInEggEase));
@@ -104,22 +105,25 @@ public class GachaResultPanel : MonoBehaviour
         seq.JoinCallback(() =>
         {
             egg.SetActive(true);
-            eggAnimator.Rebind();
-            eggAnimator.Update(0f);
-            eggAnimator.Play("egg", 0, 0f);
+            eggAnimatorUI?.Play();
         });
-        seq.AppendInterval(GetClipLength(eggAnimator, "egg"));
+        seq.AppendInterval(eggAnimatorUI?.TotalDuration * 1.25f ?? 0.5f);
         seq.JoinCallback(() =>
         {
-            shineVFX?.gameObject.SetActive(true);
-            shineVFX?.Play();
+            shineVFX.gameObject.SetActive(true);
+            shineVFX.Play();
         });
         seq.Append(eggCanvas.DOFade(0, 0.2f).SetEase(fadeOutEggEase));
         // 4. Show monster info 
         seq.AppendCallback(() =>
         {
             monsterNameText.text = monster.monsterName;
+            monsterSkeletonGraphic.skeletonDataAsset = monster.monsterSpine[0];
+            monsterSkeletonGraphic.material = monsterMaterial;
+            monsterSkeletonGraphic.startingAnimation = monsterSkeletonGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";
+            monsterSkeletonGraphic.Initialize(true);
             rarityText.text = monster.monType.ToString().ToUpperInvariant();
+            sellPriceText.text = monster.sellPriceStage1.ToString();
         });
         // 5. Monster display: fade in + scale punch
         seq.Append(monsterCanvas.DOFade(1, 0.2f).SetEase(fadeInMonsterEase));
@@ -128,9 +132,19 @@ public class GachaResultPanel : MonoBehaviour
         seq.AppendCallback(() =>
         {
             shineVFX.gameObject.SetActive(false);
-            rollAgainButton.onClick.RemoveAllListeners();
-            rollAgainButton.onClick.AddListener(() => onRollAgain?.Invoke());
-            onFinishGacha?.Invoke();
+            sellBtn.onClick.RemoveAllListeners();
+            spawnBtn.onClick.RemoveAllListeners();
+            sellBtn.onClick.AddListener(() =>
+            {
+                onSell?.Invoke();
+                HideResultPanel();
+            });
+            spawnBtn.onClick.AddListener(() =>
+            {
+                onSpawn?.Invoke();
+                HideResultPanel();
+            });
+            
         });
         seq.Play();
     }
@@ -145,12 +159,10 @@ public class GachaResultPanel : MonoBehaviour
 
         // Hide and reset chest
         chest.SetActive(false);
-        chestAnimator.ResetTrigger("Open");
         if (chestCanvas != null) chestCanvas.alpha = 0f;
 
         // Hide and reset egg
-        eggAnimator.ResetTrigger("Crack");
-        var eggCanvas = egg.GetComponent<CanvasGroup>();
+        egg.SetActive(false);
         if (eggCanvas != null) eggCanvas.alpha = 0f;
 
         // Hide and reset monster display
@@ -159,8 +171,8 @@ public class GachaResultPanel : MonoBehaviour
         monsterCanvas.blocksRaycasts = false;
 
         // Stop effects
-        shineVFX?.Stop();
-        confettiVFX?.Stop();
+        shineVFX.Stop();
+        confettiVFX.Stop();
     }
 
     private void HideResultPanel()
@@ -186,7 +198,6 @@ public class GachaResultPanel : MonoBehaviour
         else
         {
             root.SetActive(false);
-            onFinishGacha?.Invoke();
         }
     }
     

@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     #region Inspector Fields
 
     [Header("UI Panels")]
+    public TextMeshProUGUI playerCoin;
     public GameObject UIFloatMenuPanel;
     public CanvasGroup UIFloatMenuCanvasGroup;
     public GameObject SettingPanel;
@@ -34,12 +35,6 @@ public class UIManager : MonoBehaviour
     public Button catalogueButton;
     public Button closeCatalogueButton;
 
-    [Header("Temporary UI Elements")]
-    public TextMeshProUGUI poopCounterText;
-    public TextMeshProUGUI coinCounterText;
-    public Button spawnPetButton;
-    public Button spawnFoodButton;
-    public Button gachaButton;
     public TextMeshProUGUI messageText;
 
     [Header("Animation Settings")]
@@ -120,9 +115,6 @@ public class UIManager : MonoBehaviour
         var monster = ServiceLocator.Get<MonsterManager>();
         if (monster != null)
         {
-            spawnPetButton?.onClick.AddListener(() => monster.BuyMons());
-            // spawnFoodButton?.onClick.AddListener(StartFoodPlacement);
-
             monster.OnCoinChanged += UpdateCoinCounterValue;
             monster.OnPoopChanged += UpdatePoopCounterValue;
             monster.OnCoinChanged?.Invoke(monster.coinCollected);
@@ -135,9 +127,6 @@ public class UIManager : MonoBehaviour
         var monster = ServiceLocator.Get<MonsterManager>();
         if (monster != null)
         {
-            spawnPetButton?.onClick.RemoveAllListeners();
-            // spawnFoodButton?.onClick.RemoveAllListeners();
-
             monster.OnCoinChanged -= UpdateCoinCounterValue;
             monster.OnPoopChanged -= UpdatePoopCounterValue;
         }
@@ -158,11 +147,11 @@ public class UIManager : MonoBehaviour
         settingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
         InventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
-        // catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
+        catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
         closeShopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, false));
-        // closeCatalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, false));
+        closeCatalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, false));
     }
 
     private void UnregisterButtonListeners()
@@ -191,7 +180,7 @@ public class UIManager : MonoBehaviour
         SettingPanel.SetActive(false);
         ShopPanel.SetActive(false);
         InventoryPanel.SetActive(false);
-        // CataloguePanel?.SetActive(false);
+        CataloguePanel?.SetActive(false);
     }
 
     public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f)
@@ -495,18 +484,14 @@ public class UIManager : MonoBehaviour
 
     private void UpdateCoinCounterValue(int newCoinAmount)
     {
-        coinCounterText.text = $"Coin : {newCoinAmount}";
+        // coinCounterText.text = $"Coin : {newCoinAmount}";
+        playerCoin.text = $"{newCoinAmount}";
     }
 
     private void UpdatePoopCounterValue(int newPoopAmount)
     {
-        poopCounterText.text = $"Poop : {newPoopAmount}";
+        // poopCounterText.text = $"Poop : {newPoopAmount}";
     }
-
-    // public void StartFoodPlacement()
-    // {
-    //     ServiceLocator.Get<MonsterManager>().StartFoodPurchase(0);
-    // }
 
     #endregion
 

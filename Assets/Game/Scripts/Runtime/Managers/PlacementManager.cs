@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class PlacementManager : MonoBehaviour
 {
@@ -15,6 +17,24 @@ public class PlacementManager : MonoBehaviour
     [SerializeField] private Color invalidColor = Color.red;
 
     private bool allowMultiplePlacement = false;
+    private bool isPlacingMedicine = false;
+    [Header("Placement Prefabs")]
+    [SerializeField] private GameObject foodPrefab;
+    [SerializeField] private GameObject medicinePrefab;
+
+    [Header("Placement Canvas")]
+    [SerializeField] private RectTransform canvasParent;
+    public RectTransform GetCanvasParent() => canvasParent;
+
+    public GameObject GetPrefabForItemType(ItemType type)
+    {
+        return type switch
+        {
+            ItemType.Food => foodPrefab,
+            ItemType.Medicine => medicinePrefab,
+            _ => null
+        };
+    }
 
     private void Awake()
     {
@@ -26,15 +46,14 @@ public class PlacementManager : MonoBehaviour
         ServiceLocator.Unregister<PlacementManager>();
     }
 
-    /// <summary>
-    /// Starts item placement mode.
-    /// </summary>
-    /// <param name="prefab">Prefab to place</param>
-    /// <param name="area">Game area (RectTransform)</param>
-    /// <param name="onPlace">Callback when placement is confirmed</param>
-    /// <param name="onCancel">Callback when placement is canceled</param>
-    /// <param name="allowMultiple">If true, placement mode stays active after placing</param>
-    public void StartPlacement(GameObject prefab, RectTransform area, System.Action<Vector2> onPlace, System.Action onCancel = null, bool allowMultiple = false, Sprite previewSprite = null)
+    public void StartPlacement(
+        GameObject prefab,
+        RectTransform area,
+        System.Action<Vector2> onPlace,
+        System.Action onCancel = null,
+        bool allowMultiple = false,
+        Sprite previewSprite = null,
+        bool isMedicine = false)
     {
         CancelPlacement(); // Clear previous
 
@@ -45,14 +64,14 @@ public class PlacementManager : MonoBehaviour
         this.onConfirmPlace = onPlace;
         this.onCancel = onCancel;
         this.allowMultiplePlacement = allowMultiple;
+        this.isPlacingMedicine = isMedicine;
 
-        // 👇 Set preview sprite if provided
+        // Set preview sprite if provided
         if (previewSprite != null && currentPreview.TryGetComponent<Image>(out var image))
         {
             image.sprite = previewSprite;
         }
     }
-
 
     private void Update()
     {
@@ -61,7 +80,7 @@ public class PlacementManager : MonoBehaviour
         RectTransformUtility.ScreenPointToLocalPointInRectangle(gameArea, Input.mousePosition, null, out var pos);
         previewRect.anchoredPosition = pos;
 
-        bool isValid = IsInsideGameArea(pos);
+        bool isValid = isPlacingMedicine ? IsOverSickMonster() : IsInsideGameArea(pos);
         UpdatePreviewVisual(isValid);
 
         if (Input.GetMouseButtonDown(0))
@@ -74,11 +93,13 @@ public class PlacementManager : MonoBehaviour
                 {
                     CancelPlacement();
                 }
-                // else: do nothing, just let it keep following mouse
             }
             else
             {
-                ServiceLocator.Get<UIManager>()?.ShowMessage("Can't place outside the game area!", 1f);
+                string msg = isPlacingMedicine
+                    ? "Only usable on monsters!"
+                    : "Can't place outside the game area!";
+                ServiceLocator.Get<UIManager>()?.ShowMessage(msg, 1f);
             }
         }
         else if (Input.GetMouseButtonDown(1))
@@ -104,6 +125,11 @@ public class PlacementManager : MonoBehaviour
         return rect.Contains(localPos);
     }
 
+    private bool IsOverSickMonster()
+    {
+        return TryGetMonsterUnderCursor() != null;
+    }
+
     private void UpdatePreviewVisual(bool isValid)
     {
         if (currentPreview.TryGetComponent<Image>(out var img))
@@ -111,6 +137,25 @@ public class PlacementManager : MonoBehaviour
             img.color = isValid ? validColor : invalidColor;
         }
     }
+    public MonsterController TryGetMonsterUnderCursor()
+    {
+        PointerEventData pointer = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
 
-    public bool IsPlacing => currentPreview != null;
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointer, raycastResults);
+
+        foreach (var result in raycastResults)
+        {
+            MonsterController monster = result.gameObject.GetComponentInParent<MonsterController>();
+            if (monster != null)
+            {
+                return monster;
+            }
+        }
+
+        return null;
+    }
 }

@@ -3,6 +3,9 @@ using System;
 using System.Linq;
 using System.Collections;
 using Spine.Unity;
+using CartoonFX;
+using System.Collections.Generic;
+using DG.Tweening;
 
 [Serializable]
 public class MonsterEvolutionHandler
@@ -16,11 +19,13 @@ public class MonsterEvolutionHandler
 
     // Evolution tracking
     private float _timeSinceCreation;
+    private string _timeCreated;
     private int _foodConsumed;
     private int _interactionCount;
 
-    public bool CanEvolve => _controller?.MonsterData != null && _controller.MonsterData.canEvolve && !_controller.MonsterData.isFinalEvol;
+    public bool CanEvolve => _controller?.MonsterData != null && _controller.MonsterData.canEvolve;
     public float TimeSinceCreation => _timeSinceCreation;
+    public string TimeCreated => _timeCreated;
     public int FoodConsumed => _foodConsumed;
     public int InteractionCount => _interactionCount;
 
@@ -40,8 +45,9 @@ public class MonsterEvolutionHandler
             .ToArray();
     }
 
-    public void LoadEvolutionData(float timeSinceCreation, int foodConsumed, int interactionCount)
+    public void LoadEvolutionData(float timeSinceCreation, string timeCreated, int foodConsumed, int interactionCount)
     {
+        _timeCreated = timeCreated;
         _timeSinceCreation = timeSinceCreation;
         _foodConsumed = foodConsumed;
         _interactionCount = interactionCount;
@@ -51,6 +57,13 @@ public class MonsterEvolutionHandler
     {
         if (!CanEvolve) return;
         _timeSinceCreation += deltaTime;
+    }
+    public void ResetEvolutionTracking()
+    {
+        _timeCreated = DateTime.UtcNow.ToString("o"); // ISO 8601 format
+        _timeSinceCreation = 0f;
+        _foodConsumed = 0;
+        _interactionCount = 0;
     }
 
     public void OnFoodConsumed()
@@ -107,7 +120,7 @@ public class MonsterEvolutionHandler
 
     private IEnumerator EvolutionSequence()
     {
-        Debug.Log($"[Evolution] { _controller.MonsterData.monsterName } evolution started.");
+        Debug.Log($"[Evolution] {_controller.MonsterData.monsterName} evolution started.");
 
         var originalPos = _skeletonGraphic.rectTransform.anchoredPosition;
         var originalScale = _skeletonGraphic.rectTransform.localScale.x;
@@ -117,20 +130,48 @@ public class MonsterEvolutionHandler
 
         // Get the next evolution skeleton asset
         var monsterData = _controller.MonsterData;
-        int index = _targetLevel- 1;
-        SkeletonDataAsset nextSkeleton = 
+        var monsterPos = _controller.GetComponent<RectTransform>().anchoredPosition;
+        int index = _targetLevel - 1;
+        SkeletonDataAsset nextSkeleton =
             (monsterData != null && monsterData.monsterSpine != null && index >= 0 && index < monsterData.monsterSpine.Length)
             ? monsterData.monsterSpine[index]
             : null;
         // Get references to required components
-        var mainCamera = Camera.main;
-        var spineGraphic = _skeletonGraphic; 
-        var evolutionParticle = _controller.UI.evolutionVFX; 
-        var whiteFlashMaterial = _controller.UI.evolutionMaterial; 
+        var evolveCam = MainCanvas.MonsterCamera;
+        var spineGraphic = _skeletonGraphic;
+        var evolutionParticle = _controller.UI.evolutionVFX;
+        var whiteFlashMaterial = _controller.UI.evolutionMaterial;
+
+        // turn other monsters invisible
+        int _remaining = 0;
+        foreach (var monster in _controller.MonsterManager.activeMonsters)
+        {
+            _remaining = _controller.MonsterManager.activeMonsters.Count - 1; // -1 for self
+            if (monster != _controller)
+            {
+                monster.transform.GetChild(0).GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+                _remaining--;
+                yield return new WaitForSeconds(0.1f); // stagger the fade 
+            }
+        }
+
+        //turn coin, poop, and food collection invisible
+        foreach (var coin in _controller.MonsterManager.activeCoins)
+        {
+            coin.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+        }
+        foreach (var poop in _controller.MonsterManager.activePoops)
+        {
+            poop.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+        }
+        foreach (var food in _controller.MonsterManager.activeFoods)
+        {
+            food.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+        }
 
         bool sequenceDone = false;
         MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
-            mainCamera,
+            evolveCam,
             spineGraphic,
             evolutionParticle,
             whiteFlashMaterial,
@@ -138,18 +179,40 @@ public class MonsterEvolutionHandler
             () =>
             {
                 _controller.evolutionLevel = _targetLevel;
-                UpdateMonsterID(_targetLevel);
-                _controller.SaveMonData();
-                _foodConsumed = 0;
-                _interactionCount = 0;
+                ResetMonsterData();
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
                 sequenceDone = true;
-            }
+            },
+            monsterPos
         );
-
-        
-
         yield return new WaitUntil(() => sequenceDone);
+
+        // turn other monsters visible
+        foreach (var monster in _controller.MonsterManager.activeMonsters)
+        {
+            _remaining = _controller.MonsterManager.activeMonsters.Count - 1; // -1 for self
+            if (monster != _controller)
+            {
+                monster.transform.GetChild(0).GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+                _remaining--;
+                yield return new WaitForSeconds(0.1f); // stagger the fade 
+            }
+        }
+
+        //turn coin, poop, and food collection visible
+        foreach (var coin in _controller.MonsterManager.activeCoins)
+        {
+            coin.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+        }
+        foreach (var poop in _controller.MonsterManager.activePoops)
+        {
+            poop.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+        }
+        foreach (var food in _controller.MonsterManager.activeFoods)
+        {
+            food.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+        }
+
         yield return new WaitForSeconds(0.5f);
         _isEvolving = false;
     }
@@ -197,4 +260,28 @@ public class MonsterEvolutionHandler
 
         return Mathf.Clamp01((timeProgress + foodProgress + interactionProgress + happinessProgress + hungerProgress) / 5f);
     }
+    public void ResetMonsterData()
+    {
+        // Refresh Monster ID (already done during evolution)
+        UpdateMonsterID(_targetLevel);
+
+        // Reset tracking
+        ResetEvolutionTracking();
+
+        // Reload max HP and max Hunger for the new evolution level
+        float newMaxHP = _controller.MonsterData.GetMaxHealth(_targetLevel);
+        float newMaxHunger = _controller.MonsterData.GetMaxHunger(_targetLevel);
+
+        // Reset and clamp stats
+        _controller.StatsHandler.Initialize(
+            initialHealth: newMaxHP,
+            initialHunger: newMaxHunger,
+            initialHappiness: _controller.MonsterData.baseHappiness,
+            maxHP: newMaxHP
+        );
+
+        // Save the refreshed data
+        _controller.SaveMonData();
+    }
+
 }

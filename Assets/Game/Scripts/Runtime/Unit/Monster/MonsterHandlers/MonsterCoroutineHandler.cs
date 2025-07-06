@@ -10,16 +10,16 @@ public class MonsterCoroutineHandler
     private Coroutine _poopCoroutine;
     private Coroutine _goldCoinCoroutine;
     private Coroutine _silverCoinCoroutine;
-    
+
     public MonsterCoroutineHandler(MonsterController controller)
     {
         _controller = controller;
     }
-    
+
     public void StartAllCoroutines()
     {
         float goldCoinInterval = (float)TimeSpan.FromHours(_controller.MonsterData.goldCoinDropRateStage1).TotalSeconds;
-        float silverCoinInterval = (float)TimeSpan.FromHours(_controller.MonsterData.silverCoinDropRateStage1).TotalSeconds;
+        float silverCoinInterval = (float)TimeSpan.FromHours(_controller.MonsterData.platCoinDropRateStage1).TotalSeconds;
         float poopInterval = (float)TimeSpan.FromMinutes(_controller.MonsterData.poopRate).TotalSeconds;
 
 
@@ -29,7 +29,7 @@ public class MonsterCoroutineHandler
         _goldCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(goldCoinInterval, CoinType.Platinum));
         _silverCoinCoroutine = _controller.StartCoroutine(CoinCoroutine(silverCoinInterval, CoinType.Gold));
     }
-    
+
     public void StopAllCoroutines()
     {
         if (_hungerCoroutine != null) _controller.StopCoroutine(_hungerCoroutine);
@@ -38,7 +38,7 @@ public class MonsterCoroutineHandler
         if (_goldCoinCoroutine != null) _controller.StopCoroutine(_goldCoinCoroutine);
         if (_silverCoinCoroutine != null) _controller.StopCoroutine(_silverCoinCoroutine);
     }
-    
+
     private IEnumerator HungerRoutine(float interval)
     {
         while (true)
@@ -47,12 +47,13 @@ public class MonsterCoroutineHandler
             {
                 float newHunger = Mathf.Clamp(_controller.StatsHandler.CurrentHunger - _controller.MonsterData.hungerDepleteRate, 0f, 100f);
                 _controller.StatsHandler.SetHunger(newHunger);
+                _controller.StatsHandler.UpdateHealth(interval);
                 _controller.StatsHandler.UpdateSickStatus(interval);
             }
             yield return new WaitForSeconds(interval);
         }
     }
-    
+
     private IEnumerator HappinessRoutine(float interval)
     {
         while (true)
@@ -75,7 +76,7 @@ public class MonsterCoroutineHandler
                 float newHappiness = Mathf.Clamp(_controller.StatsHandler.CurrentHappiness - 2f, 0f, 100f);
                 _controller.StatsHandler.SetHappiness(newHappiness);
             }
-            
+            _controller.StatsHandler.UpdateHealth(interval);
             yield return new WaitForSeconds(interval);
         }
     }
@@ -107,7 +108,7 @@ public class MonsterCoroutineHandler
     private IEnumerator CoinCoroutine(float delay, CoinType type)
     {
         // delay = 20f;
-        
+
         yield return new WaitForSeconds(delay);
         while (true)
         {

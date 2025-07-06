@@ -7,56 +7,50 @@ public class MonsterSaveHandler
     {
         _controller = controller;
     }
-    
+
     public void SaveData()
     {
         var data = new MonsterSaveData
         {
-            monsterId = _controller.monsterID,
-            lastHunger = _controller.StatsHandler.CurrentHunger,
-            lastHappiness = _controller.StatsHandler.CurrentHappiness,
-            evolutionLevel = _controller.evolutionLevel,
-            
-            // Sick status data
-            isSick = _controller.StatsHandler.IsSick,
-            lastLowHungerTime = _controller.StatsHandler.LowHungerTime,
+            instanceId = _controller.monsterID,
+            monsterId = _controller.MonsterData.id,
+            currentHunger = _controller.StatsHandler.CurrentHunger,
+            currentHappiness = _controller.StatsHandler.CurrentHappiness,
+            currentHealth = _controller.StatsHandler.CurrentHP,
+            currentEvolutionLevel = _controller.evolutionLevel,
 
             // Evolution data
-            timeSinceCreation = _controller.GetEvolutionTimeSinceCreation(),
+            timeCreated = _controller.GetEvolutionTimeCreated(),
+            totalTimeSinceCreation = _controller.GetEvolutionTimeSinceCreation(),
             nutritionCount = _controller.GetEvolutionFoodConsumed(),
-            interactionCount = _controller.GetEvolutionInteractionCount()
+            currentInteraction = _controller.GetEvolutionInteractionCount()
         };
-        
+
         SaveSystem.SaveMon(data);
-        
-        // Save current evolution level
-        PlayerPrefs.SetInt($"{_controller.monsterID}_evolutionLevel", _controller.evolutionLevel);    
     }
-    
-    public void LoadData()
+
+    public void LoadData(float maxHP)
     {
         if (SaveSystem.LoadMon(_controller.monsterID, out var data))
         {
             // Initialize stats handler with loaded data
-            _controller.StatsHandler.Initialize(data.lastHunger, data.lastHappiness, data.isSick, data.lastLowHungerTime);
+            _controller.StatsHandler.Initialize(data.currentHealth, data.currentHunger, data.currentHappiness, maxHP);
 
-            // Load evolution level (default to 1 if not found)
-            int savedLevel = PlayerPrefs.GetInt($"{_controller.monsterID}_evolutionLevel", 1);
-            _controller.evolutionLevel = savedLevel;
+            _controller.evolutionLevel = data.currentEvolutionLevel > 0 ? data.currentEvolutionLevel : 1;
 
             // Load evolution data
-            _controller.LoadEvolutionData(data.timeSinceCreation, data.nutritionCount, data.interactionCount);
+            _controller.LoadEvolutionData(data.totalTimeSinceCreation, data.timeCreated, data.nutritionCount, data.currentInteraction);
         }
         else
         {
             Debug.LogError($"No saved data found for monster ID: {_controller.monsterID}");
         }
-        
+
         ApplyMonsterDataStats();
         // Apply visuals after loading
         _controller.UpdateVisuals();
     }
-    
+
     private void ApplyMonsterDataStats()
     {
         var monsterData = _controller.MonsterData;

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
+using TMPro;
 
 [System.Serializable]
 public class RarityWeight
@@ -28,12 +29,18 @@ public class GachaManager : MonoBehaviour
     };
     [Header("UI References")]
     public GachaResultPanel gachaResultPanel;
+    public TextMeshProUGUI playerGoldCoinText;
 
 
     private void Awake()
     {
         ServiceLocator.Register(this);
         ValidateConfiguration();
+    }
+
+    void Start()
+    {
+        playerGoldCoinText.text = $"{SaveSystem.LoadCoin()}";
     }
 
     private void ValidateConfiguration()
@@ -52,7 +59,6 @@ public class GachaManager : MonoBehaviour
     }
     public void RollGacha()
     {
-        Debug.Log("Rolling gacha...");
         if (ServiceLocator.Get<MonsterManager>().coinCollected < gachaCost)
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);
@@ -71,7 +77,7 @@ public class GachaManager : MonoBehaviour
         // Only spend coins AFTER we confirm we can spawn a monster
         if (ServiceLocator.Get<MonsterManager>().SpentCoin(gachaCost))
         {
-            ShowGachaResult(selectedMonster, () => SpawnMonster(selectedMonster));
+            ShowGachaResult(selectedMonster, () => SellMonster(selectedMonster), () => SpawnMonster(selectedMonster));
         }
     }
 
@@ -111,15 +117,20 @@ public class GachaManager : MonoBehaviour
 
     private void SpawnMonster(MonsterDataSO monsterData)
     {
-        // Pass the monster data instead of just ID
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
     }
 
-    private void ShowGachaResult(MonsterDataSO monster, System.Action onComplete)
+    private void SellMonster(MonsterDataSO monsterData)
+    {
+        ServiceLocator.Get<MonsterManager>().SellMonster(monsterData);
+        playerGoldCoinText.text = $"{ServiceLocator.Get<MonsterManager>().coinCollected}";
+    }
+
+    private void ShowGachaResult(MonsterDataSO monster, System.Action onSellComplete, System.Action onSpawnComplete)
     {
         if (gachaResultPanel != null)
         {
-            gachaResultPanel.Show(monster, RollGacha, onComplete);
+            gachaResultPanel.Show(monster, onSellComplete, onSpawnComplete);
         }
     }
 

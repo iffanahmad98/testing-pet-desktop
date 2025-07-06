@@ -17,6 +17,7 @@ public class MonsterManager : MonoBehaviour
 
     [Header("Game Settings")]
     public RectTransform gameArea;
+    public RectTransform groundRect; 
     public Canvas mainCanvas;
     public MonsterDatabaseSO monsterDatabase;
 
@@ -29,26 +30,21 @@ public class MonsterManager : MonoBehaviour
     public bool enableDepthSorting = true;
     private float lastSortTime = 0f;
     private float sortInterval = 0.1f;
-    private Camera _mainCamera;
-    private RectTransform _foodIndicatorRT;
-    private Image _foodIndicatorImage;
 
     private Queue<GameObject> _foodPool = new Queue<GameObject>();
     private Queue<GameObject> _medicinePool = new Queue<GameObject>();
     private Queue<GameObject> _poopPool = new Queue<GameObject>();
     private Queue<GameObject> _coinPool = new Queue<GameObject>();
 
-    private List<GameObject> _activeCoins = new List<GameObject>();
-    private List<GameObject> _activePoops = new List<GameObject>();
-    [HideInInspector] public List<MonsterController> activeMonsters = new List<MonsterController>();
-    [HideInInspector] public int poopCollected;
-    [HideInInspector] public int coinCollected;
+    public int poopCollected;
+    public int coinCollected;
+    public int maxMonstersSlots = 5;
+    public List<MonsterController> activeMonsters = new List<MonsterController>();
+    public List<GameObject> activeCoins = new List<GameObject>();
+    public List<GameObject> activePoops = new List<GameObject>();
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     private List<string> savedMonIDs = new List<string>();
-
-    private bool isInPlacementMode = false;
-    private int pendingFoodCost = 0;
 
     public System.Action<int> OnCoinChanged;
     public System.Action<int> OnPoopChanged;
@@ -59,14 +55,7 @@ public class MonsterManager : MonoBehaviour
     {
         ServiceLocator.Register(this);
         InitializePools();
-        CacheComponents();
-    }
-
-    private void CacheComponents()
-    {
-        _mainCamera = mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCanvas.worldCamera;
-        _foodIndicatorRT = foodPlacementIndicator.GetComponent<RectTransform>();
-        _foodIndicatorImage = foodPlacementIndicator.GetComponent<Image>();
+        SaveSystem.Initialize();
     }
 
     private void InitializePools()
@@ -101,6 +90,14 @@ public class MonsterManager : MonoBehaviour
     #endregion
 
     #region Monster Management
+    public void SellMonster(MonsterDataSO monsterData)
+    {
+        int sellPrice = monsterData.GetSellPrice(activeMonsters.Find(m => m.MonsterData.id == monsterData.id)?.evolutionLevel ?? 1);
+        coinCollected += sellPrice;
+        SaveSystem.SaveCoin(coinCollected);
+        OnCoinChanged?.Invoke(coinCollected);
+    }
+
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
     {
         GameObject monster = CreateMonster(monsterData);
@@ -130,6 +127,13 @@ public class MonsterManager : MonoBehaviour
         }
         else
             RegisterActiveMonster(controller);
+
+        // Apply current pet scale to newly spawned monster
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
+        {
+            settingsManager.ApplyCurrentPetScaleToMonster(controller);
+        }
     }
 
     private GameObject CreateMonster(MonsterDataSO monsterData = null)
@@ -201,7 +205,7 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    public void BuyMons(int cost = 10)
+    public void BuyMons(int cost = 0)
     {
         if (SpentCoin(cost)) SpawnMonster();
     }
@@ -294,7 +298,7 @@ public class MonsterManager : MonoBehaviour
 
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {
-                consumable.Initialize(data);
+                consumable.Initialize(data, groundRect);
             }
 
             // Register into the correct active list
@@ -328,9 +332,10 @@ public class MonsterManager : MonoBehaviour
         var coin = GetPooledObject(_coinPool, coinPrefab);
         if (coin != null)
         {
-            _activeCoins.Add(coin);
+            activeCoins.Add(coin);
             SetupPooledObject(coin, gameArea, startPosition);
             coin.GetComponent<CoinController>().Initialize(type);
+            activeCoins.Add(coin);
 
             // Start arc animation coroutine
             StartCoroutine(AnimateCoinArc(coin.transform, startPosition, targetPosition));
@@ -506,13 +511,13 @@ public class MonsterManager : MonoBehaviour
         else if (obj.TryGetComponent<CoinController>(out _))
         {
             _coinPool.Enqueue(obj);
-            _activeCoins.Remove(obj);
+            activeCoins.Remove(obj);
         }
         else if (obj.name.Contains("Poop"))
         {
             _poopPool.Enqueue(obj);
             CollectPoop();
-            _activePoops.Remove(obj);
+            activePoops.Remove(obj);
         }
     }
     #endregion
@@ -520,6 +525,7 @@ public class MonsterManager : MonoBehaviour
     #region Save and Load
     private void LoadGame()
     {
+
         coinCollected = SaveSystem.LoadCoin();
         poopCollected = SaveSystem.LoadPoop();
         savedMonIDs = SaveSystem.LoadSavedMonIDs();
@@ -543,20 +549,24 @@ public class MonsterManager : MonoBehaviour
         {
             var saveData = new MonsterSaveData
             {
-                monsterId = monster.monsterID,
-                lastHunger = monster.StatsHandler.CurrentHunger,
-                lastHappiness = monster.StatsHandler.CurrentHappiness,
-                lastLowHungerTime = monster.GetLowHungerTime(),
-                isSick = monster.IsSick,
-                evolutionLevel = monster.evolutionLevel,
-                timeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
+
+                instanceId = monster.monsterID,
+                monsterId = monster.MonsterData.id,
+                currentHunger = monster.StatsHandler.CurrentHunger,
+                currentHappiness = monster.StatsHandler.CurrentHappiness,
+                currentHealth = monster.StatsHandler.CurrentHP,
+                currentEvolutionLevel = monster.evolutionLevel,
+
+                // Evolution data
+                timeCreated = monster.GetEvolutionTimeCreated(),
+                totalTimeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
                 nutritionCount = monster.GetEvolutionFoodConsumed(),
-                interactionCount = monster.GetEvolutionInteractionCount()
+                currentInteraction = monster.GetEvolutionInteractionCount()
             };
             SaveSystem.SaveMon(saveData);
         }
         SaveSystem.SaveMonIDs(savedMonIDs);
-        SaveSystem.Flush();
+        // SaveSystem.Flush();
     }
 
     private void SaveGameData()
@@ -590,7 +600,7 @@ public class MonsterManager : MonoBehaviour
     public bool IsPositionClearOfObjects(Vector2 position, float radius = 40f)
     {
         // Check coins
-        foreach (var coin in _activeCoins)
+        foreach (var coin in activeCoins)
         {
             if (coin != null && coin.activeInHierarchy)
             {
@@ -604,7 +614,7 @@ public class MonsterManager : MonoBehaviour
         }
 
         // Check poop
-        foreach (var poop in _activePoops)
+        foreach (var poop in activePoops)
         {
             if (poop != null && poop.activeInHierarchy)
             {

@@ -102,9 +102,7 @@ public class CloudAmbientSystem : MonoBehaviour
     
     // Modify SpawnCloudRoutine to be more reliable
     private IEnumerator SpawnCloudRoutine()
-    {
-        Debug.Log("Cloud spawn routine started");
-        
+    {   
         // Initial wait to ensure everything is ready
         yield return new WaitForSeconds(3.0f); // Increased initial wait
         
@@ -132,8 +130,6 @@ public class CloudAmbientSystem : MonoBehaviour
                         
                         // Additional random delay variation (1-3 seconds)
                         lastSpawnTime += Random.Range(1f, 3f);
-                        
-                        Debug.Log($"Cloud spawned, active count: {activeClouds.Count}, next delay: {minTimeBetweenSpawns + extraDelay}s");
                         
                         // Wait longer after spawning to prevent rapid successive checks
                         yield return new WaitForSeconds(1.0f);
@@ -239,7 +235,7 @@ public class CloudAmbientSystem : MonoBehaviour
         // Smaller clouds move slower, larger clouds move faster
         speed *= Mathf.Lerp(0.7f, 1.3f, (scale - biomeData.cloudMinScale) / (biomeData.cloudMaxScale - biomeData.cloudMinScale));
         
-        CloudMover mover = cloud.GetComponent<CloudMover>() ?? cloud.AddComponent<CloudMover>();
+        Cloud mover = cloud.GetComponent<Cloud>() ?? cloud.AddComponent<Cloud>();
         mover.Initialize(speed, this, skyBG);
         
         // Ensure cloud is in front by setting sibling index
@@ -248,8 +244,6 @@ public class CloudAmbientSystem : MonoBehaviour
         // Activate cloud and track it
         cloud.SetActive(true);
         activeClouds.Add(cloud);
-        
-        Debug.Log($"Cloud spawned at position ({xPosition}, {randomY}), Scale: {scale}, Speed: {speed}");
     }
     
     public void ReturnToPool(GameObject cloud)
@@ -309,7 +303,7 @@ public class CloudAmbientSystem : MonoBehaviour
 }
 
 // Helper component to handle individual cloud movement
-public class CloudMover : MonoBehaviour
+public class Cloud : MonoBehaviour
 {
     private float speed;
     private CloudAmbientSystem parentSystem;
@@ -325,9 +319,6 @@ public class CloudMover : MonoBehaviour
         skyBG = skyBGRect;
         rectTransform = GetComponent<RectTransform>();
         lastPosition = rectTransform != null ? rectTransform.anchoredPosition : Vector2.zero;
-        
-        // Debug info
-        Debug.Log($"CloudMover initialized: Speed({speed}), RectTransform({rectTransform != null}), SkyBG({skyBG != null})");
     }
     
     private void Update()

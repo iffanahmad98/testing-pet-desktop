@@ -275,7 +275,7 @@ public class MonsterAnimationHandler
     public float GetAnimationDuration(string animationName)
     {
         var animation = GetAnimation(animationName);
-        return animation.Duration;
+        return animation?.Duration ?? 0f; // Safe null check with default value
     }
 
     private SkeletonData GetSkeletonData()

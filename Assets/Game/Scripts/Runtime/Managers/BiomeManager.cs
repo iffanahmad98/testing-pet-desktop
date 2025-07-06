@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 using TMPro;
+using DG.Tweening;
 
 [System.Serializable]
 public class BiomeLayer
@@ -22,6 +23,7 @@ public class BiomeManager : MonoBehaviour
     [Header("Biome Layers")]
     public BiomeLayer skyLayer;
     public BiomeLayer ambientLayer;
+    public Image groundLayerFilter;
 
     [Header("Cloud System")]
     public RectTransform skyBG;
@@ -337,6 +339,20 @@ public class BiomeManager : MonoBehaviour
                 ambientImage.sprite = biome.ambientBackground;
             }
         }
+
+        // Set ground layer filter color and alpha
+        if (groundLayerFilter != null)
+        {
+            CanvasGroup groundFilterCg = groundLayerFilter.GetComponent<CanvasGroup>();
+            if (groundFilterCg != null)
+            {
+                groundLayerFilter.color = Color.clear; // Reset to clear before applying new color
+                groundFilterCg.alpha = 0f; // Reset alpha before applying new value
+
+                groundLayerFilter.color = biome.groundFilterColor;
+                groundFilterCg.DOFade(biome.groundFilterAlpha, 0.5f).SetEase(Ease.InOutQuad);
+            }
+        }
         
         // Update cloud system
         if (cloudSystem != null)
@@ -375,6 +391,9 @@ public class BiomeManager : MonoBehaviour
                 }
             }
         }
+
+        //apply ground layer filter
+        
         
         // Invoke the biome changed event
         OnBiomeChanged?.Invoke(biome);

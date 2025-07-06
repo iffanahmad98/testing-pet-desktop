@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Aceragon_Data
+  m_EditorClassIdentifier: 
+  monsterName: Aceragon
+  monsterId: 
+  id: aceragon
+  monType: 3
+  poopType: 10
+  hp: 150
+  moveSpd: 90
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 0
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxNutritionStage1: 300
+  maxNutritionStage2: 900
+  maxNutritionStage3: 2250
+  poopRate: 20
+  goldCoinDropRateStage1: 120
+  platCoinDropRateStage1: 12
+  goldCoinDropRateStage2: 120
+  platCoinDropRateStage2: 36
+  goldCoinDropRateStage3: 120
+  platCoinDropRateStage3: 60
+  gachaChancePercent: 0.003
+  gachaChanceDisplay: 0.30%
+  isGachaOnly: 1
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 4
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 1
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 2419200
+    minCurrentHappiness: 90
+    minCurrentHunger: 80
+    minFoodConsumed: 30
+    minInteractions: 60
+    evolutionName: Aceragon Stage 2
+    description: Evolve to Aceragon Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 2419200
+    minCurrentHappiness: 95
+    minCurrentHunger: 85
+    minFoodConsumed: 60
+    minInteractions: 120
+    evolutionName: Aceragon Stage 3
+    description: Evolve to Aceragon Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine: []
+  monsIconImg: []
+  evolutionAnimationSets: []
+  evolutionBehaviors: []
+  monsterPrice: 0
+  sellPriceStage1: 960
+  sellPriceStage2: 1920
+  sellPriceStage3: 3840
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

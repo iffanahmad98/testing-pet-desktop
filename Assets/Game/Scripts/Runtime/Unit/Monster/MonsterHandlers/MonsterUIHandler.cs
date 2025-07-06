@@ -2,92 +2,117 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Coffee.UIExtensions;
+using DG.Tweening;
+using System.Collections;
 
 [System.Serializable]
 public class MonsterUIHandler
 {
     [Header("UI Elements")]
-    public GameObject hungerInfo;
-    public GameObject happinessInfo;
-    public GameObject sickStatusInfo;
+    public Image monsterImage;
+    public CanvasGroup monsterInfoPanel;
+    public TextMeshProUGUI monsterNameText;
 
-    [Header("Evolution VFX")]
+    [Header("VFX")]
     public UIParticle evolutionVFX;
     public Material evolutionMaterial;
-    
+    public UIParticle healingVFX;
+    // public UIParticle sickVFX;
+
     [Header("Emoji Expression")]
     public GameObject Expression;
     public Animator emojiAnimator;
-    private TextMeshProUGUI hungerText;
-    private TextMeshProUGUI happinessText;
-    private TextMeshProUGUI sickStatusText;
-    
-    private CanvasGroup _hungerInfoCg;
-    private CanvasGroup _happinessInfoCg;
-    private CanvasGroup _sickStatusInfoCg;
+
+    [Header("Stat Bars")]
+    public StatBarControl hungerBar;
+    public StatBarControl happinessBar;
+    public StatBarControl healthBar;
+
     private CanvasGroup _expressionCg;
-    
     private float _hoverStartTime = 0f;
     private bool _isDisplayingEmoji = false;
     private const float EMOJI_DISPLAY_DELAY = 0.8f;
 
-    public void Init()
+    public void Initialize(MonsterStatsHandler statsHandler = null, MonsterController monsterController = null)
     {
-        _hungerInfoCg = hungerInfo.GetComponent<CanvasGroup>();
-        _happinessInfoCg = happinessInfo.GetComponent<CanvasGroup>();
-        _sickStatusInfoCg = sickStatusInfo.GetComponent<CanvasGroup>();
-        _expressionCg = Expression.GetComponent<CanvasGroup>();
+        monsterInfoPanel.alpha = 0f;
 
-        hungerText = hungerInfo.GetComponentInChildren<TextMeshProUGUI>();
-        happinessText = happinessInfo.GetComponentInChildren<TextMeshProUGUI>();
-        sickStatusText = sickStatusInfo.GetComponentInChildren<TextMeshProUGUI>();
+        if (monsterImage != null && monsterController != null)
+            monsterImage.sprite = monsterController.GetMonsterIcon();
 
-        // Start hidden
-        _hungerInfoCg.alpha = 0f;
-        _happinessInfoCg.alpha = 0f;
-        _sickStatusInfoCg.alpha = 0f;
-        _expressionCg.alpha = 0f;
+        // Setup canvas group
+        if (Expression != null)
+        {
+            _expressionCg = Expression.GetComponent<CanvasGroup>();
+            _expressionCg.alpha = 0f;
+        }
+
+        // Initialize stat bars with values from stats handler or defaults
+        float hunger = statsHandler?.CurrentHunger ?? 100f;
+        float happiness = statsHandler?.CurrentHappiness ?? 100f;
+        float health = statsHandler?.CurrentHP ?? 100f;
+        float maxHealth = 100f; // Could add MaxHP property to StatsHandler
+
+        if (hungerBar != null) hungerBar.Initialize(hunger, 100f);
+        if (happinessBar != null) happinessBar.Initialize(happiness, 100f);
+        if (healthBar != null) healthBar.Initialize(health, maxHealth);
+
+        // Subscribe to events if stats handler provided
+        if (statsHandler != null)
+        {
+            statsHandler.OnHungerChanged += (hunger) => UpdateHungerDisplay(hunger, true);
+            statsHandler.OnHappinessChanged += (happiness) => UpdateHappinessDisplay(happiness, true);
+            statsHandler.OnSickChanged += (isSick) =>
+            {
+                UpdateSickStatusDisplay(isSick, true);
+                UpdateHealthDisplay(statsHandler.CurrentHP);
+            };
+        }
+
+        if (monsterController != null)
+        {
+            monsterNameText.text = monsterController.MonsterData.monsterName;
+        }
     }
 
     public void UpdateHungerDisplay(float hunger, bool showUI)
     {
-        // Always update the text content (color stays as set in inspector)
-        hungerText.text = $"Hunger: {hunger:F1}%";
-
-        // Control visibility based on hover
-        _hungerInfoCg.alpha = showUI ? 1f : 0f;
-
-        // update emoji
         if (emojiAnimator != null)
         {
-            emojiAnimator.SetFloat("Hunger", hunger); // Example threshold for hungry state
+            emojiAnimator.SetFloat("Hunger", hunger);
+        }
+
+        // Update hunger bar
+        if (hungerBar != null)
+        {
+            hungerBar.SetValue(hunger);
         }
     }
 
     public void UpdateHappinessDisplay(float happiness, bool showUI)
     {
-        // Always update the text content (color stays as set in inspector)
-        happinessText.text = $"Happiness: {happiness:F1}%";
-
-        // Control visibility based on hover
-        _happinessInfoCg.alpha = showUI ? 1f : 0f;
-
-        // update emoji
         if (emojiAnimator != null)
         {
-            emojiAnimator.SetFloat("Happiness", happiness); // Example threshold for happy state
+            emojiAnimator.SetFloat("Happiness", happiness);
+        }
+
+        // Update happiness bar
+        if (happinessBar != null)
+        {
+            happinessBar.SetValue(happiness);
+        }
+    }
+
+    public void UpdateHealthDisplay(float health)
+    {
+        if (healthBar != null)
+        {
+            healthBar.SetValue(health);
         }
     }
 
     public void UpdateSickStatusDisplay(bool isSick, bool showUI)
     {
-        // Update the sick status display based on the isSick parameter
-        sickStatusText.text = isSick ? "Status: Sick" : "Status: Healthy";
-        
-        // Always show when sick, otherwise show only on hover
-        _sickStatusInfoCg.alpha = showUI ? 1f : 0f;
-        
-        // Update emoji color based on sick status
         if (emojiAnimator != null)
         {
             emojiAnimator.SetBool("IsSick", isSick);
@@ -97,23 +122,23 @@ public class MonsterUIHandler
     public void HideAllUI()
     {
         // Hide all UI elements
-        _hungerInfoCg.alpha = 0f;
-        _happinessInfoCg.alpha = 0f;
-        _sickStatusInfoCg.alpha = 0f;
         _expressionCg.alpha = 0f;
-        
+
         // Reset hover state
         _hoverStartTime = 0f;
         _isDisplayingEmoji = false;
+
+        // Hide monster info panel
+        monsterInfoPanel.alpha = 0f;
     }
-    
+
     // Add hover tracking methods
     public void OnHoverEnter()
     {
         _hoverStartTime = Time.time;
         _isDisplayingEmoji = false;
     }
-    
+
     public void OnHoverExit()
     {
         _hoverStartTime = 0f;
@@ -123,8 +148,7 @@ public class MonsterUIHandler
             _expressionCg.alpha = 0f;
         }
     }
-    
-    // Call this from Update method in MonsterController
+
     public void UpdateEmojiVisibility(bool isSick)
     {
         if (_hoverStartTime > 0 && !_isDisplayingEmoji)
@@ -136,7 +160,6 @@ public class MonsterUIHandler
                 if (_expressionCg != null)
                 {
                     _expressionCg.alpha = 1f;
-                    // Set color based on sick status
                     if (emojiAnimator != null)
                     {
                         emojiAnimator.SetBool("IsSick", isSick);
@@ -145,4 +168,53 @@ public class MonsterUIHandler
             }
         }
     }
+
+    public void ShowMonsterInfo()
+    {
+        if (monsterInfoPanel.alpha > 0f)
+        {
+            HideMonsterInfo(); 
+            return;
+        }
+
+        monsterInfoPanel.DOKill();
+        monsterInfoPanel.alpha = 0f;
+        monsterInfoPanel.DOFade(1f, 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+        {
+            monsterInfoPanel.DOFade(0f, 0.5f).SetEase(Ease.InOutQuad).SetDelay(4f);
+        });
+    }
+
+    public void HideMonsterInfo()
+    {
+        monsterInfoPanel.DOKill();
+        monsterInfoPanel.DOFade(0f, 0.5f).SetEase(Ease.InOutQuad);
+    }
+    public void PlayParticleWithDuration(GameObject particleObject, float duration, MonsterController controller)
+    {
+        if (particleObject == null) return;
+
+        particleObject.SetActive(false); // reset
+        particleObject.SetActive(true);
+
+        // Disable after delay
+        if (controller != null)
+        {
+            controller.StartCoroutine(DeactivateAfterDelay(particleObject, duration));
+        }
+    }
+    public void PlayHealingVFX(MonsterController controller)
+    {
+        if (healingVFX != null)
+        {
+            PlayParticleWithDuration(healingVFX.gameObject, 2f, controller);
+        }
+    }
+
+    private IEnumerator DeactivateAfterDelay(GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (obj != null) obj.SetActive(false);
+    }
+
 }

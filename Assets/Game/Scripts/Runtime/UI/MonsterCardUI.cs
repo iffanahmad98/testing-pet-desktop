@@ -21,7 +21,7 @@ public class MonsterCardUI : MonoBehaviour
         nameText.text = data.monsterName;
         typeText.text = data.monType.ToString();
         priceText.text = $"{data.monsterPrice} coins";
-        monsterImage.sprite = data.monsIconImg[0];
+        monsterImage.sprite = data.CardIcon[0];
 
         selectButton.onClick.RemoveAllListeners();
         selectButton.onClick.AddListener(() => shopManager.ShowMonsterDetail(data));

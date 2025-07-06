@@ -9,7 +9,7 @@ public class MonsterStateMachine : MonoBehaviour
     private float _stateTimer;
     private float _currentStateDuration;
     private const float _defaultEatingStateDuration = 2f;
-    
+
     private MonsterController _controller;
     private MonsterAnimationHandler _animationHandler;
     public MonsterAnimationHandler AnimationHandler => _animationHandler;
@@ -38,11 +38,11 @@ public class MonsterStateMachine : MonoBehaviour
 
         if (_currentState == MonsterState.Eating)
         {
-            var foodHandler = _controller.FoodHandler;
+            var foodHandler = _controller.ConsumableHandler;
 
-            if (_stateTimer > _defaultEatingStateDuration * 4f) 
+            if (_stateTimer > _defaultEatingStateDuration * 4f)
             {
-                bool isStillEating = foodHandler?.IsCurrentlyEating ?? false;
+                bool isStillEating = foodHandler?.IsCurrentlyConsuming ?? false;
                 if (!isStillEating)
                 {
                     ChangeState(MonsterState.Idle);
@@ -53,13 +53,13 @@ public class MonsterStateMachine : MonoBehaviour
 
         if (ShouldContinueCurrentMovement())
         {
-            return; 
+            return;
         }
 
         if (_stateTimer >= _currentStateDuration && _currentState != MonsterState.Eating)
         {
             var nextState = _behaviorHandler.SelectNextState(_currentState);
-            
+
             if (IsValidStateTransition(_currentState, nextState))
             {
                 ChangeState(nextState);
@@ -75,7 +75,7 @@ public class MonsterStateMachine : MonoBehaviour
     {
         if (_controller == null) return;
         if (!_animationHandler.HasValidAnimationForState(newState)) newState = MonsterState.Idle;
-        
+
         _previousState = _currentState;
         _currentState = newState;
         _stateTimer = 0f;
@@ -90,8 +90,8 @@ public class MonsterStateMachine : MonoBehaviour
 
     private bool ShouldContinueCurrentMovement()
     {
-        if (_currentState != MonsterState.Walking && 
-            _currentState != MonsterState.Running && 
+        if (_currentState != MonsterState.Walking &&
+            _currentState != MonsterState.Running &&
             _currentState != MonsterState.Flying)
         {
             return false;
@@ -111,7 +111,7 @@ public class MonsterStateMachine : MonoBehaviour
         Vector2 currentPos = rectTransform.anchoredPosition;
         Vector2 targetPos = _controller.GetTargetPosition();
         float distanceToTarget = Vector2.Distance(currentPos, targetPos);
-        
+
         return distanceToTarget > 30f;
     }
 
@@ -122,24 +122,24 @@ public class MonsterStateMachine : MonoBehaviour
 
         Vector2 currentPos = rectTransform.anchoredPosition;
         bool isInAir = IsMonsterInAir(currentPos);
-        
+
         if ((fromState == MonsterState.Flying || fromState == MonsterState.Flapping) &&
             (toState == MonsterState.Walking || toState == MonsterState.Running || toState == MonsterState.Idle))
         {
             return !isInAir;
         }
-        
+
         if ((fromState == MonsterState.Walking || fromState == MonsterState.Running || fromState == MonsterState.Idle) &&
             (toState == MonsterState.Flying || toState == MonsterState.Flapping))
         {
             return true;
         }
-        
+
         if (isInAir && (toState == MonsterState.Idle || toState == MonsterState.Jumping || toState == MonsterState.Itching))
         {
             return true;
         }
-        
+
         return true;
     }
 
@@ -151,20 +151,20 @@ public class MonsterStateMachine : MonoBehaviour
             var groundBounds = boundsHandler.CalculateGroundBounds();
             return position.y > groundBounds.max.y + 50f;
         }
-        
+
         return position.y > -200f;
     }
 
     public bool ShouldUseHoveringBehavior()
     {
         if (_currentState != MonsterState.Flying) return false;
-        
+
         var rectTransform = GetComponent<RectTransform>();
         if (rectTransform == null) return false;
-        
+
         Vector2 currentPos = rectTransform.anchoredPosition;
         Vector2 targetPos = _controller.GetTargetPosition();
-        
+
         return Vector2.Distance(currentPos, targetPos) < 10f;
     }
 }

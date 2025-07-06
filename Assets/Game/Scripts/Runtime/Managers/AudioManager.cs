@@ -49,6 +49,7 @@ public class AudioManager : MonoBehaviour
             CreateNewAudioSourceInPool();
         }
     }
+    
     private void AssignOutputsToMixerGroups()
     {
         // Assign main sources to mixer groups

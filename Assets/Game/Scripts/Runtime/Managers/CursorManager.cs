@@ -4,7 +4,7 @@ public enum CursorType { Default, Monster, Poop }
 
 public class CursorManager : MonoBehaviour
 {
-    [SerializeField] CursorMap map;
+    [SerializeField] CursorMapConfigSO map;
     [SerializeField] Vector2 hotspot;
 
     void Awake()

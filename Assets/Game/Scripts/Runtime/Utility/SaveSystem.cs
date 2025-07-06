@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.IO;
+using Newtonsoft.Json;
+
 
 public static class SaveSystem
 {
@@ -15,18 +17,16 @@ public static class SaveSystem
     private const string PoopKey = "Poop";
     private const string MonsterKey = "MonsterIDs";
 
-    public static void SaveCoin(int money) => PlayerPrefs.SetInt(CoinKey, money);
-    public static int LoadCoin() => PlayerPrefs.GetInt(CoinKey, 100);
-    public static void SavePoop(int poop) => PlayerPrefs.SetInt(PoopKey, poop);
-    public static int LoadPoop() => PlayerPrefs.GetInt(PoopKey, 0);
-
+    public static void SaveCoin(int money) => _playerConfig.coins = money;
+    public static int LoadCoin() => _playerConfig.coins;
+    public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig
+    public static int LoadPoop() => _playerConfig.poops;
     public static void Initialize()
     {
-
         LoadPlayerConfig();
         _sessionStartTime = DateTime.Now;
 
-        Debug.Log(_playerConfig.lastLoginTime);
+        Debug.Log($"Last login time: {_playerConfig.lastLoginTime}");
         // Handle first-time login
         if (_playerConfig.lastLoginTime == default)
         {
@@ -43,90 +43,58 @@ public static class SaveSystem
         SavePlayerConfig();
     }
 
-
-    // Pets
     public static void SaveMon(MonsterSaveData data)
     {
-        string key = $"Pet{data.monsterId}";
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString(key, json);
-
-        // Save the ID to the master list
-        SaveMonsterIDToList(data.monsterId);
-        PlayerPrefs.Save();
+        if (data == null || string.IsNullOrEmpty(data.monsterId))
+        {
+            Debug.LogWarning("Tried to save null or invalid monster data.");
+            return;
+        }
+        _playerConfig.SaveMonsterData(data);
+        SaveAll(); // Make sure to save the whole config after updating
     }
 
-    public static bool LoadMon(string petID, out MonsterSaveData data)
+    public static bool LoadMon(string monsterId, out MonsterSaveData data)
     {
-        string key = $"Pet{petID}";
-        if (PlayerPrefs.HasKey(key))
+        if (string.IsNullOrEmpty(monsterId))
         {
-            data = JsonUtility.FromJson<MonsterSaveData>(PlayerPrefs.GetString(key));
-            return true;
+            data = null;
+            return false;
         }
 
-        data = null;
-        return false;
+        return _playerConfig.LoadMonsterData(monsterId, out data);
     }
 
-    public static void DeleteMon(string monsterID)
+    public static void DeleteMon(string instanceID)
     {
-        // Delete the monster data
-        string key = $"Pet{monsterID}";
-        PlayerPrefs.DeleteKey(key);
+        if (string.IsNullOrEmpty(instanceID)) return;
 
-        // Remove from master list
-        List<string> existingIDs = LoadSavedMonIDs();
-        if (existingIDs.Contains(monsterID))
-        {
-            existingIDs.Remove(monsterID);
-            SaveMonIDs(existingIDs);
-        }
-
-        PlayerPrefs.Save();
-    }
-
-    private static void SaveMonsterIDToList(string monsterID)
-    {
-        List<string> existingIDs = LoadSavedMonIDs();
-        if (!existingIDs.Contains(monsterID))
-        {
-            existingIDs.Add(monsterID);
-            SaveMonIDs(existingIDs);
-        }
+        _playerConfig.DeleteMonster(instanceID);
+        SaveAll(); // Ensure the config is persisted
     }
 
     public static void SaveMonIDs(List<string> ids)
     {
-        PlayerPrefs.SetString(MonsterKey, string.Join(",", ids));
+        _playerConfig.SetAllMonsterIDs(ids);
+        SavePlayerConfig();
     }
 
     public static List<string> LoadSavedMonIDs()
     {
-        string csv = PlayerPrefs.GetString(MonsterKey, "");
-        return string.IsNullOrEmpty(csv)
-            ? new List<string>()
-            : new List<string>(csv.Split(','));
+        return _playerConfig.GetAllMonsterIDs();
     }
+
 
     public static void Flush() => PlayerPrefs.Save();
 
     public static void ResetSaveData()
     {
-        PlayerPrefs.SetInt(CoinKey, 100);
-        PlayerPrefs.SetInt(PoopKey, 0);
-        PlayerPrefs.SetString(MonsterKey, "");
-
-        // Clear all pet data
-        var keys = PlayerPrefs.GetString(MonsterKey, "").Split(',');
-        foreach (var key in keys)
-        {
-            if (!string.IsNullOrEmpty(key))
-                PlayerPrefs.DeleteKey($"Pet{key}");
-        }
-
-        PlayerPrefs.Save();
+        SaveCoin(100);
+        SavePoop(0);
+        _playerConfig.ClearAllMonsterData();
+        SavePlayerConfig();
     }
+
 
     #region Time Tracking
     public static DateTime GetLastLoginTime()
@@ -168,7 +136,7 @@ public static class SaveSystem
         {
             Debug.Log($"Player was away for {timeSinceLastLogin.TotalHours} hours");
             // Handle long absence (e.g., update monster states)
-            HandleLongAbsence(timeSinceLastLogin);
+            // HandleLongAbsence(timeSinceLastLogin);
         }
     }
 
@@ -181,16 +149,27 @@ public static class SaveSystem
 
     private static void HandleLongAbsence(TimeSpan timeAway)
     {
-        // Update monster states based on time away
-        foreach (var monster in _playerConfig.monsters.Values)
-        {
-            // Example: reduce happiness over time
-            float hoursAway = (float)timeAway.TotalHours;
-            // monster.happiness = Mathf.Clamp01(monster.happiness - (hoursAway * 0.05f));
+        float hoursAway = (float)timeAway.TotalHours;
 
-            // You could add more effects like hunger, etc.
+        foreach (var monster in _playerConfig.monsters)
+        {
+            // Reduce happiness based on time away (example: -2% per hour)
+            monster.currentHappiness -= hoursAway * 2f;
+            monster.currentHappiness = Mathf.Clamp(monster.currentHappiness, 0f, 100f);
+
+            // Reduce hunger over time (example: 5 units/hour)
+            monster.currentHunger -= hoursAway * 5f;
+            monster.currentHunger = Mathf.Clamp(monster.currentHunger, 0f, 100f);
+
+            // Optional: Reduce health if hunger drops too low
+            if (monster.currentHunger <= 40f)
+            {
+                monster.currentHealth -= hoursAway * 2f;
+                monster.currentHealth = Mathf.Clamp(monster.currentHealth, 0f, 100f);
+            }
         }
     }
+
     #endregion
     #region File Operations
     private static void LoadPlayerConfig()
@@ -202,9 +181,8 @@ public static class SaveSystem
             try
             {
                 string json = File.ReadAllText(path);
-                _playerConfig = JsonUtility.FromJson<PlayerConfig>(json);
+                _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json);
                 _playerConfig.SyncFromSerializable();
-                Debug.Log("Game data loaded successfully");
             }
             catch (Exception e)
             {
@@ -218,15 +196,14 @@ public static class SaveSystem
         }
     }
 
-
     private static void SavePlayerConfig()
     {
         string path = Path.Combine(Application.persistentDataPath, SaveFileName);
 
         try
         {
-            _playerConfig.SyncToSerializable(); // Prepare for serialization
-            string json = JsonUtility.ToJson(_playerConfig, true);
+            _playerConfig.SyncToSerializable(); // Convert DateTime to strings, etc.
+            string json = JsonConvert.SerializeObject(_playerConfig, Formatting.Indented);
             File.WriteAllText(path, json);
             Debug.Log("Game data saved successfully");
         }
@@ -236,7 +213,6 @@ public static class SaveSystem
         }
     }
 
-
     private static void CreateNewPlayerConfig()
     {
         _playerConfig = new PlayerConfig();
@@ -244,7 +220,6 @@ public static class SaveSystem
         _playerConfig.SyncToSerializable();
         Debug.Log("Created new game data");
     }
-
 
     public static void DeleteAllSaveData()
     {
@@ -279,7 +254,6 @@ public static class SaveSystem
             Debug.LogWarning("PlayerConfig was null, creating new one.");
             CreateNewPlayerConfig();
         }
-        Debug.Log(_playerConfig.settings.bgmVolume);
         return _playerConfig;
     }
 

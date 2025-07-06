@@ -16,23 +16,28 @@ MonoBehaviour:
   id: 003
   monType: 0
   poopType: 1
-  maxHealth: 100
   moveSpd: 100
-  baseHappiness: 50
   foodDetectionRange: 200
   eatDistance: 5
+  baseHappiness: 50
+  baseHunger: 100
   hungerDepleteRate: 0
-  baseHunger: 50
-  maxHungerStage1: 0
-  maxHungerStage2: 0
-  maxHungerStage3: 0
+  maxHealthStage1: 0
+  maxHealthStage2: 0
+  maxHealthStage3: 0
+  maxNutritionStage1: 0
+  maxNutritionStage2: 0
+  maxNutritionStage3: 0
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 2
-  silverCoinDropRateStage1: 60
+  platCoinDropRateStage1: 60
   goldCoinDropRateStage2: 0
-  silverCoinDropRateStage2: 0
+  platCoinDropRateStage2: 0
   goldCoinDropRateStage3: 0
-  silverCoinDropRateStage3: 0
+  platCoinDropRateStage3: 0
   gachaChancePercent: 0
   gachaChanceDisplay: 
   isGachaOnly: 0
@@ -42,8 +47,9 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 0
   isEvolved: 0
-  isFinalEvol: 0
   evolutionLevel: 1
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 1
     minTimeAlive: 300
@@ -53,10 +59,6 @@ MonoBehaviour:
     minInteractions: 20
     evolutionName: Evolution
     description: Evolution requirements
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 1
     minTimeAlive: 300
@@ -66,10 +68,6 @@ MonoBehaviour:
     minInteractions: 20
     evolutionName: Evolution
     description: Evolution requirements
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 1
     minTimeAlive: 300
@@ -79,14 +77,18 @@ MonoBehaviour:
     minInteractions: 20
     evolutionName: Evolution
     description: Evolution requirements
-    resetHappinessProgress: 1
-    resetHungerProgress: 1
-    resetFoodProgress: 1
-    resetInteractionProgress: 1
     progressRetentionPercentage: 0
   monsterSpine:
   - {fileID: 11400000, guid: a71d729d6ee21fe4cba328438715435a, type: 2}
-  monsIconImg: []
+  CardIcon:
+  - {fileID: 5684439863312891147, guid: 0c6372fd0c182a4478efdc7590ec820b, type: 3}
+  - {fileID: 4643567241729234635, guid: 1380ccf0a36171540b495b82b1c04c3c, type: 3}
+  DetailsIcon:
+  - {fileID: 5684439863312891147, guid: 114aabb92df17404aa162272e7b2e7c2, type: 3}
+  - {fileID: 4643567241729234635, guid: b0b7347e2782ce04dac72e282a305b12, type: 3}
+  CatalogueIcon:
+  - {fileID: 5684439863312891147, guid: 7e5cb7340f6ddd344ad67cf6cafd234a, type: 3}
+  - {fileID: 4643567241729234635, guid: e57120e5a3887e94cb339661ef716b2b, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -98,7 +100,7 @@ MonoBehaviour:
     - walking
   evolutionBehaviors: []
   monsterPrice: 10
-  sellPriceStage1: 0
+  sellPriceStage1: 240
   sellPriceStage2: 0
   sellPriceStage3: 0
   idleSounds: []
