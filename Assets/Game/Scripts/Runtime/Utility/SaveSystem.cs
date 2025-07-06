@@ -339,6 +339,16 @@ public static class SaveSystem
 
     public static void SetActiveBiome(string biomeID)
     {
+        // If blank or null, clear the active biome
+        if (string.IsNullOrEmpty(biomeID))
+        {
+            _playerConfig.SetActiveBiome("");
+            SaveAll();
+            Debug.Log("Active biome cleared.");
+            return;
+        }
+
+        // Otherwise, validate ownership before setting
         if (_playerConfig.HasBiome(biomeID))
         {
             _playerConfig.SetActiveBiome(biomeID);
@@ -349,6 +359,7 @@ public static class SaveSystem
             Debug.LogWarning($"Attempted to set biome '{biomeID}' as active but it's not owned.");
         }
     }
+
     public static void SetSkyEnabled(bool enabled)
     {
         _playerConfig.isSkyEnabled = enabled;

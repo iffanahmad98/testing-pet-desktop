@@ -11,7 +11,6 @@ public class BiomeCardUI : MonoBehaviour
     public Button buyButton;
     public Button applyButton;
     public Button cancelButton;
-    public GameObject appliedIndicator;
 
     public Image thumbnail;
 
@@ -48,6 +47,17 @@ public class BiomeCardUI : MonoBehaviour
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(() => OnCancelApplied?.Invoke(this));
     }
+    public void UpdateState()
+    {
+        string currentBiomeID = SaveSystem.GetActiveBiome();
+        bool isOwned = SaveSystem.IsBiomeOwned(BiomeData.biomeID);
+        bool isApplied = currentBiomeID == BiomeData.biomeID;
+
+        applyButton.gameObject.SetActive(isOwned && !isApplied);
+        cancelButton.gameObject.SetActive(isOwned && isApplied);
+        buyButton.gameObject.SetActive(!isOwned);
+    }
+
 
     public void SetSelected(bool selected)
     {
@@ -59,4 +69,10 @@ public class BiomeCardUI : MonoBehaviour
     {
         OnSelected?.Invoke(this);
     }
+    public void SetCancelActive(bool isActive)
+    {
+        if (cancelButton != null)
+            cancelButton.gameObject.SetActive(isActive);
+    }
+
 }

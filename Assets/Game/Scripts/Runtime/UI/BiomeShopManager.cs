@@ -109,9 +109,25 @@ public class BiomeShopManager : MonoBehaviour
         var biomeID = card.BiomeData.biomeID;
 
         SaveSystem.SetActiveBiome(biomeID);
+
+        // Enable all layers when applying
+        SaveSystem.SetSkyEnabled(true);
+        SaveSystem.SetAmbientEnabled(true);
+        SaveSystem.SetCloudEnabled(true);
+
         SaveSystem.SaveAll();
 
-        biomeManager?.ChangeBiomeByID(biomeID);
+        if (biomeManager != null)
+        {
+            biomeManager.ChangeBiomeByID(biomeID);
+            biomeManager.SetSkyLayerActive(true);
+            biomeManager.SetAmbientLayerActive(true);
+            biomeManager.ToggleClouds(true);
+        }
+
+        // Also sync the UI toggle states
+        skyToggleButton.SetState(true);
+        cloudToggleButton.SetState(true);
 
         ServiceLocator.Get<UIManager>().ShowMessage($"Applied '{card.BiomeData.biomeName}' biome!");
 
@@ -119,18 +135,33 @@ public class BiomeShopManager : MonoBehaviour
         OnBiomeSelected(card); // Reselect to update info panel
     }
 
+
     private void OnBiomeCancel(BiomeCardUI card)
     {
-        SaveSystem.SetActiveBiome("default_biome"); // Clear active biome (default)
-        SaveSystem.SaveAll();
+        // Turn off toggles (UI)
+        skyToggleButton.SetState(false);
+        cloudToggleButton.SetState(false);
 
-        biomeManager?.ChangeBiomeByID("default_biome");
+        // Deactivate biome visuals
+        biomeManager?.DeactiveBiome();
+
+        // Update SaveSystem values accordingly
+        SaveSystem.SetSkyEnabled(false);
+        SaveSystem.SetCloudEnabled(false);
+        SaveSystem.SetAmbientEnabled(false);
+        SaveSystem.SetActiveBiome("");
+
+        // Persist changes
+        SaveSystem.SaveAll();
 
         ServiceLocator.Get<UIManager>().ShowMessage($"Cancelled '{card.BiomeData.biomeName}' biome.");
 
-        RefreshBiomeCards();
+        // Refresh only the card state
+        card.UpdateState();
+        selectedCard = null;
         ClearInfo();
     }
+
 
     private void OnBiomeBuy(BiomeCardUI card)
     {

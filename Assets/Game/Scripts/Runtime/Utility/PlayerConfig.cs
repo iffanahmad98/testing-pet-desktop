@@ -127,14 +127,22 @@ public class PlayerConfig
 
     public bool HasBiome(string biomeID)
     {
+        // If empty, consider it always valid for default biome logic
+        if (string.IsNullOrEmpty(biomeID))
+            return true;
+
         return ownedBiomes.Contains(biomeID);
     }
 
     public void SetActiveBiome(string biomeID)
     {
-        if (HasBiome(biomeID))
+        // Allow clearing the active biome with an empty string
+        if (string.IsNullOrEmpty(biomeID) || HasBiome(biomeID))
+        {
             activeBiomeID = biomeID;
+        }
     }
+
 
 }
 

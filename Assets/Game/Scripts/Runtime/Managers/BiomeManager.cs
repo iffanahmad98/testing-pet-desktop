@@ -102,13 +102,15 @@ public class BiomeManager : MonoBehaviour
         {
             ChangeBiomeByID(savedBiomeID);
         }
-        else if (currentBiome != null)
+        else
         {
-            ApplyBiomeData(currentBiome);
+            DeactiveBiome();
         }
+
         SetSkyLayerActive(SaveSystem.IsSkyEnabled());
         SetAmbientLayerActive(SaveSystem.IsAmbientEnabled());
         ToggleClouds(SaveSystem.IsCloudEnabled());
+
     }
 
     private void Update()
@@ -258,6 +260,11 @@ public class BiomeManager : MonoBehaviour
         var uiManager = ServiceLocator.Get<UIManager>();
         uiManager?.ShowMessage($"{layer.layerName}: {(active ? "ON" : "OFF")}", 1f);
     }
+    public void DeactiveBiome()
+    {
+        SetSkyLayerActive(false);
+        SetAmbientLayerActive(false);
+    }
 
 
     private void SetLayerActive(BiomeLayer layer, bool active)
@@ -327,6 +334,14 @@ public class BiomeManager : MonoBehaviour
     /// </summary>
     public void ChangeBiomeByID(string biomeID)
     {
+        if (string.IsNullOrEmpty(biomeID))
+        {
+            // No biome set, deactivate everything
+            DeactiveBiome();
+            currentBiome = null;
+            return;
+        }
+
         if (availableBiomes == null) return;
 
         for (int i = 0; i < availableBiomes.Length; i++)
@@ -340,6 +355,7 @@ public class BiomeManager : MonoBehaviour
 
         Debug.LogWarning($"BiomeManager: Biome with ID '{biomeID}' not found!");
     }
+
 
 
     /// <summary>
