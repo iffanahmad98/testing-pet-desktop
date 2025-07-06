@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 11449187757829863}
   - component: {fileID: 4659825678032975215}
   - component: {fileID: 3164908206299456050}
+  - component: {fileID: 8296458651350903028}
   m_Layer: 0
   m_Name: Sun Flion
   m_TagString: Untagged
@@ -66,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b235b461e03ec714ca919ac5d22a1beb, type: 2}
+  - {fileID: 2100000, guid: d96c1c534c7df7849b55c6453ae97cbc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,7 +85,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 2080473289
+  m_SortingLayerID: 1182172779
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
@@ -160,3 +161,17 @@ MonoBehaviour:
   currentTile: {x: 0, y: 0}
   destinationTile: {x: 16, y: -39}
   hotelRoomRef: {fileID: 0}
+  hotelContrRef: {fileID: 0}
+--- !u!114 &8296458651350903028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7564168235748279420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6933d486bbd9b214292fd038fc756fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: 0

@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Collider2D))]
 public class ClickableObject : MonoBehaviour
 {
     [Header("Menu")]
-    public GameObject menuToShow;
+    public UnityEvent onEnterTrigger;
 
     [Header("Hover Effect")]
     public float hoverScaleMultiplier = 1.1f;
@@ -20,6 +22,8 @@ public class ClickableObject : MonoBehaviour
 
     private void Update()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
         Vector3 targetScale = isHovered ? originalScale * hoverScaleMultiplier : originalScale;
         transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * scaleSpeed);
     }
@@ -41,17 +45,11 @@ public class ClickableObject : MonoBehaviour
 
     public void ShowMenu()
     {
-        if (menuToShow != null)
-        {
-            menuToShow.SetActive(true);
-        }
+        onEnterTrigger.Invoke();
     }
 
     public void HideMenu()
     {
-        if (menuToShow != null)
-        {
-            menuToShow.SetActive(false);
-        }
+        onEnterTrigger.Invoke();
     }
 }

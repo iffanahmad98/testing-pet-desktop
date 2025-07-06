@@ -1,10 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using System.Collections;
 using MagicalGarden.Inventory;
 using MagicalGarden.Manager;
 using System.Linq;
+using UnityEngine.Tilemaps;
 using Unity.Mathematics;
 // using System.Numerics;
 
@@ -13,16 +13,18 @@ namespace MagicalGarden.Farm
     public class PlantManager : MonoBehaviour
     {
         public static PlantManager Instance;
-        public DateTime simulatedNow = DateTime.Now;
+        [Header("Plant")]
         public GameObject plantPrefab;
         public Transform poolPlant;
+        public TileBase stageWilted;
         private Dictionary<Vector3Int, PlantController> plants = new Dictionary<Vector3Int, PlantController>();
         private int totalHarvest = 0;
-        public float updateIntervalSeconds = 60f;
         public event Action OnHarvestChanged;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         [Header("Simulated Time")]
+        public float updateIntervalSeconds = 60f;
         public float timeMultiplier = 60f; // 1 detik real = 1 menit in-game
+        public DateTime simulatedNow = DateTime.Now;
 
         [Header("Monster")]
         public GameObject monsterEggPrefab;
@@ -334,7 +336,7 @@ namespace MagicalGarden.Farm
 
                 TileManager.Instance.tilemapSeed.SetTile(data.cellPosition, item.stageTiles[data.currentStage]);
 
-                if ((PlantManager.Instance.simulatedNow - seed.lastWateredTime).TotalHours <= 1)
+                if ((simulatedNow - seed.lastWateredTime).TotalHours <= 1)
                 {
                     TileManager.Instance.tilemapWater.SetTile(data.cellPosition, TileManager.Instance.tileWater);
                 }
@@ -358,6 +360,15 @@ namespace MagicalGarden.Farm
                 {
                     float fertilizerBoost = plant.Fertilize != null ? plant.Fertilize.boost : 0;
                     seed.Update(deltaHours, fertilizerBoost);
+                    //cek status layu/mati untuk update tile
+                    if (seed.status == PlantStatus.Mati)
+                    {
+                        TileManager.Instance.tilemapSeed.SetTile(data.cellPosition, stageWilted);
+                    }
+                    if (seed.status == PlantStatus.Layu)
+                    {
+                        TileManager.Instance.tilemapSeed.SetTile(data.cellPosition, stageWilted);
+                    }
                     seed.lastUpdateTime = simulatedNow;
                 }
             }

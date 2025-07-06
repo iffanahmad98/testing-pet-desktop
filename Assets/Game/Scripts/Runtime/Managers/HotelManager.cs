@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,10 +14,14 @@ namespace MagicalGarden.Manager
     {
         public static HotelManager Instance;
         [Header("Hotel")]
+        public Transform poolHotelRoom;
+        public Vector2Int targetCheckOut;
+        public List<HotelController> hotelControllers = new List<HotelController>();
         public List<HotelRoom> hotelRooms = new();
         public HotelTile cleanTile;
         public HotelTile dirtyTile;
         public List<GameObject> guestPrefab;
+        public List<GuestStageGroup> guestStageGroup;
         public NPCHotel npcHotel;
         [Header("Guest Queue")]
         public Transform guestSpawnPoint;
@@ -26,7 +31,6 @@ namespace MagicalGarden.Manager
         public GameObject roomHotelPrefab;
         [SerializeField] private Transform content;
         [SerializeField] public Transform objectGuestPool;
-        private string[] guestNames = { "Flufflin", "Grizzle", "Lumo", "Chompy", "Zibra" };
         private string[] types = { "Fire", "Water", "Earth", "Air", "Plant" };
         public DateTime lastGeneratedDate;
 
@@ -49,18 +53,20 @@ namespace MagicalGarden.Manager
             PlayerPrefs.Save();
             Debug.Log("✅ Semua PlayerPrefs dihapus.");
 
-            FindHotelTiles();
+            FindAllHotelRoom();
             LoadLastDate();
             // LoadHotelRooms();
             LoadGuestRequests();
             CheckGenerateGuestList();
         }
         [ContextMenu("Debug: save room hotel")]
-        private void testroom() {
+        private void testroom()
+        {
             SaveHotelRooms();
         }
         [ContextMenu("Debug: delete hotel room")]
-        private void DeleteRoomHotel() {
+        private void DeleteRoomHotel()
+        {
             PlayerPrefs.DeleteKey("SavedHotelRooms");
             PlayerPrefs.Save();
         }
@@ -70,6 +76,11 @@ namespace MagicalGarden.Manager
             int randomIndex = UnityEngine.Random.Range(0, guestPrefab.Count);
             return guestPrefab[randomIndex];
         }
+
+        public GuestStageGroup GetRandomGuestStagePrefab()
+        {
+            return guestStageGroup[UnityEngine.Random.Range(0, guestStageGroup.Count)];
+        }
         GuestRarity GetRandomRarity()
         {
             int roll = UnityEngine.Random.Range(0, 100);
@@ -78,11 +89,16 @@ namespace MagicalGarden.Manager
             if (roll < 95) return GuestRarity.Mythic;
             return GuestRarity.Legend;
         }
-        public HotelRoom AssignGuestToAvailableRoom(GuestRequest guest)
+        // public HotelRoom AssignGuestToAvailableRoom_backup(GuestRequest guest)
+        // {
+            
+        //     SaveHotelRooms();
+        // }
+        public void AssignGuestToAvailableRoom(GuestRequest guest)
         {
-            List<HotelRoom> availableRooms = new List<HotelRoom>();
+            List<HotelController> availableRooms = new List<HotelController>();
 
-            foreach (var room in hotelRooms)
+            foreach (var room in hotelControllers)
             {
                 if (!room.IsOccupied)
                     availableRooms.Add(room);
@@ -91,19 +107,63 @@ namespace MagicalGarden.Manager
             if (availableRooms.Count == 0)
             {
                 Debug.LogWarning("No available rooms for guest: " + guest.guestName);
-                return null;
             }
             int randomIndex = UnityEngine.Random.Range(0, availableRooms.Count);
-            HotelRoom selectedRoom = availableRooms[randomIndex];
-            selectedRoom.gameObject.SetActive(true);
-            var guestController = selectedRoom.guest;
-            guestController.SetupFromRequest(guest);
+            HotelController hotelController = availableRooms[randomIndex];
+            hotelController.CheckInToRoom(guest);
+            Vector3 basePos = guestSpawnPoint.position;
 
-            selectedRoom.AssignGuest(guestController);
-            Vector3 worldPos = TileManager.Instance.tilemapHotel.GetCellCenterWorld(selectedRoom.hotelPosition) + new Vector3(0, 3f, 0);
-            selectedRoom.transform.position = worldPos;
-            SaveHotelRooms();
-            return selectedRoom;
+            List<int> stageList = GetStageDistribution(guest.party);
+            foreach (var stage in stageList)
+            {
+                Vector3 randomOffset = new Vector3(
+                    UnityEngine.Random.Range(-1f, 1f),
+                    UnityEngine.Random.Range(-1f, 1f),
+                    0
+                );
+                Vector3 spawnPos = basePos + randomOffset;
+
+                var prefab = guest.GuestGroup.GetPrefabByStage(stage);
+                var guestObject = Instantiate(prefab, spawnPos, Quaternion.identity);
+
+                var pet = guestObject.GetComponent<PetMonsterHotel>();
+                hotelController.AddPet(pet);
+                pet.destinationTile.x = hotelController.hotelPositionTile.x;
+                pet.destinationTile.y = hotelController.hotelPositionTile.y;
+                pet.hotelContrRef = hotelController;
+                pet.SetupPetHotel();
+            }
+        }
+
+        private List<int> GetStageDistribution(int partySize)
+        {
+            List<int> stages = new List<int>();
+
+            switch (partySize)
+            {
+                case 1:
+                    stages.Add(1);
+                    break;
+                case 2:
+                    stages.AddRange(new int[] { 1, 2 });
+                    break;
+                case 3:
+                    stages.AddRange(new int[] { 1, 2, 3 });
+                    break;
+                case 4:
+                    stages.AddRange(new int[] { 1, 2, 2, 3 });
+                    break;
+                case 5:
+                    stages.AddRange(new int[] { 1, 2, 2, 3, 3 });
+                    break;
+                default:
+                    // fallback: isi dengan stage 1
+                    for (int i = 0; i < partySize; i++)
+                        stages.Add(1);
+                    break;
+            }
+
+            return stages;
         }
         public void GenerateGuestRequestsForToday()
         {
@@ -111,17 +171,18 @@ namespace MagicalGarden.Manager
             int requestCount = UnityEngine.Random.Range(3, 6);
             for (int i = 0; i < requestCount; i++)
             {
-                string name = guestNames[UnityEngine.Random.Range(0, guestNames.Length)];
                 string type = types[UnityEngine.Random.Range(0, types.Length)];
                 int party = UnityEngine.Random.Range(1, 5);
                 int price = UnityEngine.Random.Range(100, 301);
 
                 //random
-                int days = UnityEngine.Random.Range(2, 6);
-                int minutes = UnityEngine.Random.Range(0, 60);
-                TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
-                
-                GuestRequest newRequest = new GuestRequest(name, type, party, price, stayDuration, GetRandomRarity());
+                // int days = UnityEngine.Random.Range(2, 6);
+                // int minutes = UnityEngine.Random.Range(0, 60);
+                // TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
+                TimeSpan stayDuration = new TimeSpan(0, 0, 3, 0); // 3 menit
+                var guestTemp = GetRandomGuestStagePrefab();
+                GuestRequest newRequest = new GuestRequest(guestTemp.name,guestTemp.icon, type, party, price, stayDuration, GetRandomRarity());
+                newRequest.GuestGroup = guestTemp;
                 todayGuestRequests.Add(newRequest);
             }
             DisplayGuestRequests();
@@ -137,22 +198,20 @@ namespace MagicalGarden.Manager
                 var guestItem = Instantiate(prefabGuestItem, content);
                 string rarityText = request.rarity.ToString().ToUpper(); // Tambahan
                 // string desc = $"Nama: {request.guestName}\nTipe: {request.type}\nDurasi: {request.stayDurationDays} hari\nRarity: {rarityText}";
-                guestItem.GetComponent<GuestItem>().Setup(request, null);
+                guestItem.GetComponent<GuestItem>().Setup(request);
             }
         }
-        private void FindHotelTiles()
+
+        private void FindAllHotelRoom()
         {
-            hotelRooms.Clear();
-            var mapHotel = TileManager.Instance.tilemapHotel;
-            foreach (var pos in mapHotel.cellBounds.allPositionsWithin)
+            hotelControllers.Clear();
+            foreach (Transform child in poolHotelRoom)
             {
-                if (!mapHotel.HasTile(pos)) continue;
-                var roomObj = Instantiate(roomHotelPrefab, objectGuestPool);
-                HotelRoom room = roomObj.GetComponent<HotelRoom>();
-                room.hotelPosition = pos;
-                room.CalculateWanderingArea();
-                hotelRooms.Add(room);
-                room.gameObject.SetActive(false);
+                HotelController controller = child.GetComponent<HotelController>();
+                if (controller != null)
+                {
+                    hotelControllers.Add(controller);
+                }
             }
         }
         private void CheckGenerateGuestList()
@@ -206,7 +265,7 @@ namespace MagicalGarden.Manager
                 todayGuestRequests = wrapper.guestRequests ?? new List<GuestRequest>();
             }
         }
-#region Save Hotel Room
+        #region Save Hotel Room
         public void SaveHotelRooms()
         {
             var savedRooms = new List<SavedHotelRoom>();
@@ -288,7 +347,7 @@ namespace MagicalGarden.Manager
                 }
             }
         }
-#endregion
+        #endregion
     }
     [Serializable]
     public class GuestRequestSaveWrapper
@@ -307,6 +366,34 @@ namespace MagicalGarden.Manager
     public class Wrapper<T>
     {
         public T data;
+    }
+    
+    [System.Serializable]
+    public class GuestStageGroup
+    {
+        public string name;
+        public string nameInfo;
+        public Sprite icon;
+        public GameObject stage1;
+        public GameObject stage2;
+        public GameObject stage3;
+
+        public GameObject GetPrefabByStage(int stage)
+        {
+            switch (stage)
+            {
+                case 3:
+                    if (stage3 != null) return stage3;
+                    goto case 2;
+                case 2:
+                    if (stage2 != null) return stage2;
+                    goto case 1;
+                case 1:
+                    return stage1; // bisa null, fallback terakhir
+                default:
+                    return stage1;
+            }
+        }
     }
     
 }

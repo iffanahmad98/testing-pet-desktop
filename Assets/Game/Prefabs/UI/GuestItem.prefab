@@ -441,7 +441,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4529843694803262617
 RectTransform:
   m_ObjectHideFlags: 0
@@ -800,7 +800,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 1226431076344913009, guid: 39f8de6fef0b54d4a8b88b22119c98d8, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -1405,13 +1405,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1565e68c91270434383ecb7d43bcd2e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  guestIcon: {fileID: 6208110162968957764}
+  guestIcon: {fileID: 2206005243230141079}
   titleText: {fileID: 6418652932662040243}
   descPartyText: {fileID: 1988843948041862069}
   descPriceText: {fileID: 7302663802315321342}
   descTimeText: {fileID: 9033239409868495368}
-  acceptButton: {fileID: 129862205538368871}
-  declineButton: {fileID: 4665608986161966614}
   vipObject: {fileID: 121113005600740027}
   regObject: {fileID: 5906006437865058639}
   checkInBtn: {fileID: 648058838617329828}

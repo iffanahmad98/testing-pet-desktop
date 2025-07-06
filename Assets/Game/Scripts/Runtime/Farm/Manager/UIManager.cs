@@ -2,18 +2,29 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
-using MagicalGarden.Farm.UI;
+using System.Collections;
+using MagicalGarden.Hotel;
 
 namespace MagicalGarden.Farm
 {
     public class UIManager : MonoBehaviour
     {
         public static UIManager Instance;
+        private Coroutine hideInfoCoroutine;
+        private Tween currentTween;
 
-        [Header("Plant ToolTip")]
-        public GameObject plantInfoPanel;
-        public TextMeshProUGUI plantInfoText;
-
+        [Header("Crop Information")]
+        public CropInformation plantInfoPanel;
+        public Sprite goodCropIcon;
+        public Sprite wiltCropIcon;
+        public Sprite dieCropIcon;
+        [Space(10)]
+        public Sprite gardenFertiIcon;
+        public Sprite moonFertiIcon;
+        public Sprite nectarFertiIcon;
+        public Sprite sapFertiIcon;
+        [Header("Hotel Information")]
+        public HotelInformation hotelInfoPanel;
         [Header("UI")]
         public TextMeshProUGUI coinText;
         public TextMeshProUGUI harvestText;
@@ -21,6 +32,7 @@ namespace MagicalGarden.Farm
         public GameObject fertizerUI;
         public GameObject shopUI;
         public GameObject guestUI;
+        public GameObject inventoryUI;
         public GameObject menuBar;
         private void Awake()
         {
@@ -41,15 +53,36 @@ namespace MagicalGarden.Farm
 
         public void FertilizeUIToogle()
         {
-            fertizerUI.SetActive(!fertizerUI.activeSelf);
+            ToggleUI(fertizerUI);
         }
         public void ShopUIToogle()
         {
-            shopUI.SetActive(!shopUI.activeSelf);
+            ToggleUI(shopUI);
         }
         public void GuestUIToogle()
         {
-            guestUI.SetActive(!guestUI.activeSelf);
+            ToggleUI(guestUI);
+        }
+        public void InventoryUIToogle()
+        {
+            ToggleUI(inventoryUI);
+        }
+        private void ToggleUI(GameObject targetUI)
+        {
+            // Debug.LogError("dsdsa");
+            // bool isActive = targetUI.activeSelf;
+
+            // Matikan semua UI
+            fertizerUI.SetActive(false);
+            shopUI.SetActive(false);
+            guestUI.SetActive(false);
+            inventoryUI.SetActive(false);
+
+            // Jika sebelumnya tidak aktif, nyalakan yang diklik
+            // if (!isActive)
+            // {
+                targetUI.SetActive(true);
+            // }
         }
         private void OnDestroy()
         {
@@ -89,17 +122,73 @@ namespace MagicalGarden.Farm
             }
         }
 
-#region ToolTip UI
-        public void ShowPlantInfo(string info, Vector3 screenPos)
+        #region ToolTip UI
+        public void ShowPlantInfo(PlantController plant, Vector3 screenPos)
         {
-            plantInfoPanel.SetActive(true);
-            plantInfoText.text = info;
-            transform.position = screenPos;
+            if (plantInfoPanel == null) return;
+            if (plant.seed.IsReadyToHarvest()) return;
+            plantInfoPanel.transform.gameObject.SetActive(true);
+            plantInfoPanel.transform.position = screenPos;
+            plantInfoPanel.titleCrop.text = plant.seed.itemData.itemId;
+            plantInfoPanel.cropImage.sprite = plant.seed.itemData.iconCrop;
+            if (plant.seed.status == PlantStatus.Normal)
+            {
+                plantInfoPanel.statusLifeImage.sprite = goodCropIcon;
+                plantInfoPanel.statusLifeText.text = "Good";
+            }
+            else if (plant.seed.status == PlantStatus.Layu)
+            {
+                plantInfoPanel.statusLifeImage.sprite = wiltCropIcon;
+                plantInfoPanel.statusLifeText.text = "Dry";
+            }
+            else
+            {
+                plantInfoPanel.statusLifeImage.sprite = dieCropIcon;
+                plantInfoPanel.statusLifeText.text = "Die";
+            }
+            if (plant.fertilizer == null)
+            {
+                plantInfoPanel.SetFertiInfo(false);
+            }
+            else
+            {
+                plantInfoPanel.SetFertiInfo(true);
+                plantInfoPanel.fertiTypeImage.sprite = plant.fertilizer.icon;
+                plantInfoPanel.fertiGrowthSpeedText.text = $"+{plant.fertilizer.boost}% growth speed";
+            }
+            
+            // plantInfoPanel.fertiGrowthSpeedText.text = "";
+            plantInfoPanel.waterTimeText.text = plant.GetLastWateredTimeText();
+            plantInfoPanel.lifeTimeText.text = plant.GetTimeUntilWiltOrDeathText();
+            if (hideInfoCoroutine != null)
+                StopCoroutine(hideInfoCoroutine);
+
+            currentTween?.Kill();
+
+            // Munculkan dengan animasi
+            plantInfoPanel.transform.localScale = Vector3.zero;
+            // plantInfoPanel.transform.gameObject.SetActive(true);
+
+            currentTween = plantInfoPanel.transform.DOScale(1f, 0.25f).SetEase(Ease.OutBack);
+
+            hideInfoCoroutine = StartCoroutine(AutoHidePlantInfo());
         }
 
         public void HidePlantInfo()
         {
-            plantInfoPanel.SetActive(false);
+            currentTween?.Kill();
+
+            currentTween = plantInfoPanel.transform.DOScale(0f, 0.2f)
+                .SetEase(Ease.InBack)
+                .OnComplete(() =>
+                {
+                    plantInfoPanel.transform.gameObject.SetActive(false);
+                });
+        }
+        private IEnumerator AutoHidePlantInfo()
+        {
+            yield return new WaitForSeconds(4f);
+            HidePlantInfo();
         }
 #endregion
     }

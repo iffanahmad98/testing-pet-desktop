@@ -9,6 +9,7 @@ namespace MagicalGarden.AI
     {
         public Vector2Int destinationTile;
         public HotelRoom hotelRoomRef;
+        public HotelController hotelContrRef;
         protected override IEnumerator CustomState(string stateName)
         {
             switch (stateName)
@@ -22,7 +23,7 @@ namespace MagicalGarden.AI
         }
 
         public void RunIdle()
-        { 
+        {
             StartNewCoroutine(IdleState());
         }
 
@@ -37,7 +38,7 @@ namespace MagicalGarden.AI
         {
             yield return new WaitForSeconds(1f); // ← Delay 1.5 detik sebelum mulai
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
-            Vector2Int? destinationOpt = hotelRoomRef.GetRandomWanderingTile2D();
+            Vector2Int? destinationOpt = hotelContrRef.GetRandomWanderingTile2D();
             if (!destinationOpt.HasValue)
             {
                 Debug.LogWarning("🚫 Tidak ada wandering tile tersedia!");
@@ -107,7 +108,7 @@ namespace MagicalGarden.AI
             // Jalan ke tujuan seperti biasa tapi pelan (walkOnly = true)
             yield return MoveToTarget(destination, walkOnly: true);
         }
-        public IEnumerator MoveToTarget(Vector2Int destination, bool walkOnly = false)
+        public IEnumerator MoveToTarget(Vector2Int destination, bool walkOnly = false, bool continueStateLoop = true)
         {
             if (!IsWalkableTile(destination))
             {
@@ -138,7 +139,7 @@ namespace MagicalGarden.AI
                 Vector3 rawTargetPos = GridToWorld(next);
                 Vector3 targetPos = new Vector3(rawTargetPos.x, rawTargetPos.y, transform.position.z);
                 Vector2Int direction = next - currentTile;
-                Debug.Log($"[Step {i}] currentTile: {currentTile}, next: {next}, direction: {direction}");
+                // Debug.Log($"[Step {i}] currentTile: {currentTile}, next: {next}, direction: {direction}");
                 FlipByTarget(transform.position, targetPos);
 
                 if (!walkOnly && (next - currentTile).magnitude > 1.5f)
@@ -162,12 +163,12 @@ namespace MagicalGarden.AI
                         transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
 
                         // Debug: Garis dari posisi sebelumnya ke sekarang (arah gerakan)
-                        Debug.DrawLine(prevPos, transform.position, Color.red); // hanya tampil 1 frame (0.1s)
+                        // Debug.DrawLine(prevPos, transform.position, Color.red); // hanya tampil 1 frame (0.1s)
 
-                        Debug.Log(
-                            $"Moving to Step {i}: current={transform.position}, target={targetPos}, " +
-                            $"dist={Vector3.Distance(transform.position, targetPos):F4}, speed={speed:F2}"
-                        );
+                        // Debug.Log(
+                        //     $"Moving to Step {i}: current={transform.position}, target={targetPos}, " +
+                        //     $"dist={Vector3.Distance(transform.position, targetPos):F4}, speed={speed:F2}"
+                        // );
 
                         yield return null;
                     }
@@ -179,7 +180,8 @@ namespace MagicalGarden.AI
 
             SetAnimation("idle");
             isOverridingState = false;
-            StartNewCoroutine(StateLoop());
+            if (continueStateLoop)
+                StartNewCoroutine(StateLoop()); // hanya jika diizinkan
         }
         private List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
         {
@@ -216,6 +218,31 @@ namespace MagicalGarden.AI
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
             StartNewCoroutine(WanderRoutine());
         }
-        
+
+        #region Goto Checkout hotel
+        public void RunToTargetAndDisappear(Vector2Int targetTile)
+        {
+            if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
+            StartNewCoroutine(RunToAndDestroyRoutine(targetTile));
+        }
+
+        private IEnumerator RunToAndDestroyRoutine(Vector2Int targetTile)
+        {
+            // Validasi dulu
+            if (!IsWalkableTile(targetTile))
+            {
+                Debug.LogError("❌ Target tile tidak bisa dilalui!");
+                yield break;
+            }
+
+            yield return MoveToTarget(targetTile, walkOnly: false, continueStateLoop: false);
+
+            // Delay sebelum hilang (optional)
+            yield return new WaitForSeconds(0.5f);
+
+            Debug.Log($"💨 Pet {name} sampai ke tujuan dan akan dihancurkan.");
+            Destroy(gameObject);
+        }
+        #endregion
     }
 }

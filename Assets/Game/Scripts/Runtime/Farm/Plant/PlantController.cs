@@ -113,6 +113,70 @@ namespace MagicalGarden.Farm
             return debugText;
         }
 
+        public string GetLastWateredTimeText()
+        {
+            if (seed == null) return "";
+
+            DateTime now = PlantManager.Instance != null ? PlantManager.Instance.simulatedNow : DateTime.Now;
+
+            bool neverWatered = seed.lastWateredTime == default(DateTime);
+            DateTime referenceTime = neverWatered ? seed.plantedTime : seed.lastWateredTime;
+
+            TimeSpan elapsed = now - referenceTime;
+            TimeSpan wateringThreshold = TimeSpan.FromHours(1);
+            TimeSpan remaining = wateringThreshold - elapsed;
+
+            if (neverWatered)
+                return "-";
+
+            if (remaining.TotalSeconds <= 0)
+                return "Sudah 1 jam";
+
+            return FormatTimeSpanToText(remaining);
+        }
+
+        public string GetTimeUntilWiltOrDeathText()
+        {
+            if (seed == null) return "";
+
+            DateTime now = PlantManager.Instance != null ? PlantManager.Instance.simulatedNow : DateTime.Now;
+            bool neverWatered = seed.lastWateredTime == default(DateTime);
+            DateTime referenceTime = neverWatered ? seed.plantedTime : seed.lastWateredTime;
+            double hoursSinceWatered = (now - referenceTime).TotalHours;
+
+            double waktuMenujuMati = 48 - hoursSinceWatered;
+            if (waktuMenujuMati <= 0)
+                return "-"; // sudah mati
+            return FormatHoursToText(waktuMenujuMati);
+        }
+
+        private string FormatHoursToText(double totalHours)
+        {
+            int hours = Mathf.FloorToInt((float)totalHours);
+            int minutes = Mathf.FloorToInt((float)((totalHours - hours) * 60));
+
+            if (hours > 0 && minutes > 0)
+                return $"{hours}hr {minutes}m";
+            else if (hours > 0)
+                return $"{hours}hr";
+            else
+                return $"{minutes}m";
+        }
+
+        private string FormatTimeSpanToText(TimeSpan timeSpan)
+        {
+            int hours = (int)timeSpan.TotalHours;
+            int minutes = timeSpan.Minutes;
+
+            if (hours > 0)
+                return $"{hours}hr {minutes}m";
+            else if (minutes > 0)
+                return $"{minutes}m";
+            else
+                return "0m";
+        }
+
+
         #if UNITY_EDITOR
         private void OnDrawGizmos()
         {

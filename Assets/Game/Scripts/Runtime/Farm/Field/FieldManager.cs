@@ -68,21 +68,21 @@ namespace MagicalGarden.Farm
                 for (int dy = -1; dy <= 1; dy++)
                 {
                     Vector3Int tilePos = new Vector3Int(center.x + dx, center.y + dy, 0);
-
+                    
                     if (unlocked)
                     {
                         if (tilemap.HasTile(tilePos))
                         {
                             tilemap.SetTile(tilePos, null);
-                            // Debug.Log($"[Unlock] Removed locked tile at {tilePos}");
+                            Debug.Log($"[Unlock] Removed locked tile at {tilePos}");
                         }
                     }
                     else
                     {
-                        if (!tilemap.HasTile(tilePos))
+                        if (tilemap.HasTile(tilePos))
                         {
                             tilemap.SetTile(tilePos, lockedTile);
-                            // Debug.Log($"[Lock] Set locked tile at {tilePos}");
+                            Debug.Log($"[Lock] Set locked tile at {tilePos}");
                         }
                     }
                 }

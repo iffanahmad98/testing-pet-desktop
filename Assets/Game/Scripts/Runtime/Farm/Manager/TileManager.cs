@@ -108,6 +108,7 @@ namespace MagicalGarden.Manager
             if (Input.GetMouseButtonDown(1)) // Klik kanan
             {
                 SetAction("None");
+                Farm.UIManager.Instance.HidePlantInfo();
             }
             HighlightHoverTiles();
             ActionToTile();
@@ -125,7 +126,7 @@ namespace MagicalGarden.Manager
                 {
                     tilemapHighlight.SetTile(previousCellPos, null);
                     hasPreviousTile = false;
-                    Farm.UIManager.Instance.HidePlantInfo();
+                    // Farm.UIManager.Instance.HidePlantInfo();
                 }
                 return;
             }
@@ -138,7 +139,7 @@ namespace MagicalGarden.Manager
                 {
                     tilemapHighlight.SetTile(previousCellPos, null);
                     hasPreviousTile = false;
-                    Farm.UIManager.Instance.HidePlantInfo();
+                    // Farm.UIManager.Instance.HidePlantInfo();
                 }
 
                 // Kalau mouse di atas tile tanah (soil)
@@ -154,9 +155,12 @@ namespace MagicalGarden.Manager
                 }
             }
 
-            if (tilemapSeed.HasTile(cellPos))
+            if (Input.GetMouseButtonDown(1))
             {
-                ShowPlantInfoAtHoveredTile(cellPos);
+                if (tilemapSeed.HasTile(cellPos))
+                {
+                    ShowPlantInfoAtHoveredTile(cellPos);
+                }
             }
         }
 
@@ -253,8 +257,11 @@ namespace MagicalGarden.Manager
             var plant = PlantManager.Instance.GetPlantAt(cellPos);
             if (plant != null)
             {
-                Farm.UIManager.Instance.ShowPlantInfo(plant.GetPlantStatusText(), cellPos);
-
+                // Vector3 screenPos = Camera.main.WorldToScreenPoint(plant.seed.cellPosition);
+                Vector3 worldPos = tilemapSoil.GetCellCenterWorld(cellPos);
+                worldPos.y += 1f;
+                worldPos.x -= 3f;
+                Farm.UIManager.Instance.ShowPlantInfo(plant, worldPos);
             }
         }
 
@@ -270,13 +277,25 @@ namespace MagicalGarden.Manager
         {
 #if UNITY_EDITOR
             if (tilemapSoil == null) return;
+
             foreach (var pos in tilemapSoil.cellBounds.allPositionsWithin)
             {
                 if (tilemapSoil.HasTile(pos))
                 {
                     Vector3 world = tilemapSoil.CellToWorld(pos) + new Vector3(0f, 0.5f, 0);
-                    Handles.color = Color.black;
-                    Handles.Label(world, $"({pos.x},{pos.y})");
+                    
+                    // Ubah world pos ke GUI pos
+                    Vector3 guiPos = HandleUtility.WorldToGUIPoint(world);
+
+                    // Buat style label dengan warna hitam
+                    GUIStyle style = new GUIStyle();
+                    style.normal.textColor = Color.black;
+                    style.fontSize = 12;
+                    style.alignment = TextAnchor.MiddleCenter;
+
+                    Handles.BeginGUI();
+                    GUI.Label(new Rect(guiPos.x - 50, guiPos.y - 10, 100, 20), $"({pos.x},{pos.y})", style);
+                    Handles.EndGUI();
                 }
             }
 #endif

@@ -1,4 +1,6 @@
 using System;
+using MagicalGarden.Manager;
+using UnityEngine;
 
 namespace MagicalGarden.Hotel
 {
@@ -6,14 +8,17 @@ namespace MagicalGarden.Hotel
     public class GuestRequest
     {
         public string guestName;
+        public Sprite icon;
         public int party;
         public int price;
         public string type;
         public TimeSpan stayDurationDays;
         public GuestRarity rarity = GuestRarity.Normal;
-        public GuestRequest(string name, string type, int party, int price, TimeSpan stayDuration, GuestRarity rarity = GuestRarity.Normal)
+        public GuestStageGroup GuestGroup { get; set; }
+        public GuestRequest(string name, Sprite icon, string type, int party, int price, TimeSpan stayDuration, GuestRarity rarity = GuestRarity.Normal)
         {
             guestName = name;
+            this.icon = icon;
             this.party = party;
             this.price = price;
             this.type = type;

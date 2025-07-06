@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.EventSystems;
 public class ClickManager : MonoBehaviour
 {
     public LayerMask interactableLayer;
@@ -14,6 +14,11 @@ public class ClickManager : MonoBehaviour
 
     void Update()
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -24,7 +29,6 @@ public class ClickManager : MonoBehaviour
                 var clickable = hit.GetComponent<ClickableObject>();
                 if (clickable != null)
                 {
-                    // Jika klik objek yang sama, toggle (tutup)
                     if (lastClickedObject == clickable)
                     {
                         clickable.HideMenu();
@@ -33,7 +37,6 @@ public class ClickManager : MonoBehaviour
                     }
                     else
                     {
-                        // Jika klik objek baru, tampilkan menu baru
                         if (lastClickedObject != null)
                         {
                             lastClickedObject.HideMenu();

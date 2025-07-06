@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4621145801158506574}
   - component: {fileID: 5974206256748387927}
   - component: {fileID: 5469115978593002235}
+  - component: {fileID: 7160268040168864215}
   m_Layer: 0
   m_Name: NPC Mushroom Hotel
   m_TagString: Untagged
@@ -84,7 +85,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 2080473289
+  m_SortingLayerID: 1182172779
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
@@ -160,3 +161,16 @@ MonoBehaviour:
   currentTile: {x: 0, y: 0}
   destinationTile: {x: 0, y: 0}
   hotelRoomRef: {fileID: 0}
+--- !u!114 &7160268040168864215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7969640685356409114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6933d486bbd9b214292fd038fc756fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: 0

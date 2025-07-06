@@ -116,7 +116,8 @@ namespace MagicalGarden.Hotel
         }
         public GuestRequest ToRequest()
         {
-            return new GuestRequest(guestName, type, party, price, stayDurationDays, rarity);
+            Sprite icon = null;
+            return new GuestRequest(guestName,icon, type, party, price, stayDurationDays, rarity);
         }
         void ResetBtn()
         {

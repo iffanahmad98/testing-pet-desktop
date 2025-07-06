@@ -10,6 +10,7 @@ namespace MagicalGarden.Inventory
         public string itemId;
         public string displayName;
         public Sprite icon;
+        public Sprite iconCrop;
         public ItemType itemType;
         public ItemRarity rarity;
         public bool isStackable = true;

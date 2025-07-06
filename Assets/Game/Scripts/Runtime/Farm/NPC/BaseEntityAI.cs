@@ -4,6 +4,8 @@ using System.Collections;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Manager;
 using MagicalGarden.Farm;
+using System.Collections.Generic;
+
 namespace MagicalGarden.AI
 {
     public abstract class BaseEntityAI : MonoBehaviour
@@ -17,7 +19,13 @@ namespace MagicalGarden.AI
         public Vector2Int currentTile;
         protected Coroutine stateLoopCoroutine;
         protected bool isOverridingState = false;
-
+        protected Dictionary<string, string> animationFallbacks = new Dictionary<string, string>
+        {
+            { "running", "flying" },
+            { "jumping", "jump" },
+            { "idle", "hover" },
+            // tambahkan fallback lainnya di sini
+        };
         protected Coroutine currentCoroutine;
         protected void StartNewCoroutine(IEnumerator routine)
         {
@@ -192,9 +200,30 @@ namespace MagicalGarden.AI
         }
         protected virtual void SetAnimation(string animName)
         {
-            if (currentState == animName) return;
-            currentState = animName;
-            skeleton.AnimationState.SetAnimation(0, animName, true);
+            string resolvedAnim = animName;
+
+            if (!HasAnimation(resolvedAnim))
+            {
+                if (animationFallbacks.TryGetValue(animName, out var fallbackAnim) && HasAnimation(fallbackAnim))
+                {
+                    Debug.LogWarning($"Animation '{animName}' not found. Fallback to '{fallbackAnim}'");
+                    resolvedAnim = fallbackAnim;
+                }
+                else
+                {
+                    Debug.LogWarning($"Animation '{animName}' and fallback not found. Skipping animation.");
+                    return;
+                }
+            }
+
+            if (currentState == resolvedAnim) return;
+            currentState = resolvedAnim;
+            skeleton.AnimationState.SetAnimation(0, resolvedAnim, true);
+        }
+        protected bool HasAnimation(string animName)
+        {
+            var anim = skeleton.Skeleton.Data.FindAnimation(animName);
+            return anim != null;
         }
         protected virtual bool IsWalkableTile(Vector2Int tileCoord)
         {
