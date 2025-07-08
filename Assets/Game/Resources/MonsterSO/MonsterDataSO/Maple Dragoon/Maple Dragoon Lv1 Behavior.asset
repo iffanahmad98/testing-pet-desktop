@@ -17,15 +17,17 @@ MonoBehaviour:
     fromState: 0
     toState: 1
     probability: 0.5
+    blendDuration: 0.2
     minDuration: 1
     maxDuration: 3
     requiresFood: 0
     hungerThreshold: 0
-    happinessThreshold: 49
+    happinessThreshold: 0
   - name: walk - run
     fromState: 1
     toState: 2
     probability: 0.5
+    blendDuration: 0.2
     minDuration: 1
     maxDuration: 3
     requiresFood: 0
@@ -35,6 +37,7 @@ MonoBehaviour:
     fromState: 2
     toState: 1
     probability: 0.8
+    blendDuration: 0.2
     minDuration: 1
     maxDuration: 3
     requiresFood: 0
@@ -44,6 +47,7 @@ MonoBehaviour:
     fromState: 1
     toState: 0
     probability: 0.5
+    blendDuration: 0.2
     minDuration: 1
     maxDuration: 3
     requiresFood: 0
@@ -53,6 +57,7 @@ MonoBehaviour:
     fromState: 1
     toState: 6
     probability: 0.5
+    blendDuration: 0.2
     minDuration: 1
     maxDuration: 3
     requiresFood: 0
@@ -62,6 +67,7 @@ MonoBehaviour:
     fromState: 6
     toState: 0
     probability: 0.8
+    blendDuration: 0.2
     minDuration: 1
     maxDuration: 3
     requiresFood: 0
@@ -71,6 +77,7 @@ MonoBehaviour:
     fromState: 0
     toState: 6
     probability: 0.2
+    blendDuration: 0.2
     minDuration: 1
     maxDuration: 3
     requiresFood: 0

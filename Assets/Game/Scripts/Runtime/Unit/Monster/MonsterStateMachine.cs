@@ -10,6 +10,7 @@ public class MonsterStateMachine : MonoBehaviour
     private float _currentStateDuration;
     private const float _defaultEatingStateDuration = 2f;
 
+    private SkeletonGraphic _skeletonGraphic;
     private MonsterController _controller;
     private MonsterAnimationHandler _animationHandler;
     public MonsterAnimationHandler AnimationHandler => _animationHandler;
@@ -22,9 +23,8 @@ public class MonsterStateMachine : MonoBehaviour
     private void Start()
     {
         _controller = GetComponent<MonsterController>();
-        var skeletonGraphic = GetComponentInChildren<SkeletonGraphic>();
-
-        _animationHandler = new MonsterAnimationHandler(_controller, skeletonGraphic);
+        _skeletonGraphic = GetComponentInChildren<SkeletonGraphic>();
+        _animationHandler = new MonsterAnimationHandler(_controller, _skeletonGraphic);
         _behaviorHandler = new MonsterBehaviorHandler(_controller);
 
         ChangeState(MonsterState.Idle);

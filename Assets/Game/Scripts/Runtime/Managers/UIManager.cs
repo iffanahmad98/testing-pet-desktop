@@ -177,10 +177,26 @@ public class UIManager : MonoBehaviour
     private void HideAllPanels()
     {
         UIFloatMenuPanel.SetActive(false);
-        SettingPanel.SetActive(false);
-        ShopPanel.SetActive(false);
-        InventoryPanel.SetActive(false);
-        CataloguePanel?.SetActive(false);
+        
+        // Hide Setting Panel
+        SettingCanvasGroup.alpha = 0f;
+        SettingCanvasGroup.interactable = false;
+        SettingCanvasGroup.blocksRaycasts = false;
+
+        // Hide Shop Panel
+        ShopCanvasGroup.alpha = 0f;
+        ShopCanvasGroup.interactable = false;
+        ShopCanvasGroup.blocksRaycasts = false;
+
+        // Hide Inventory Panel
+        InventoryCanvasGroup.alpha = 0f;
+        InventoryCanvasGroup.interactable = false;
+        InventoryCanvasGroup.blocksRaycasts = false;
+
+        // Hide Catalogue Panel
+        CatalogueCanvasGroup.alpha = 0f;
+        CatalogueCanvasGroup.interactable = false;
+        CatalogueCanvasGroup.blocksRaycasts = false;
     }
 
     public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f)

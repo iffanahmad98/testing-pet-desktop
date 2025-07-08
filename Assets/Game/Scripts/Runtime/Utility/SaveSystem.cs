@@ -12,15 +12,11 @@ public static class SaveSystem
     public static PlayerConfig PlayerConfig => _playerConfig;
     private static DateTime _sessionStartTime;
 
-    // Global game statss
-    private const string CoinKey = "Coin";
-    private const string PoopKey = "Poop";
-    private const string MonsterKey = "MonsterIDs";
-
     public static void SaveCoin(int money) => _playerConfig.coins = money;
     public static int LoadCoin() => _playerConfig.coins;
     public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig
     public static int LoadPoop() => _playerConfig.poops;
+
     public static void Initialize()
     {
         LoadPlayerConfig();
@@ -36,6 +32,7 @@ public static class SaveSystem
         // Check for time cheating
         CheckTimeDiscrepancy();
     }
+    
     // Save all data when application pauses/quits
     public static void SaveAll()
     {
@@ -79,11 +76,10 @@ public static class SaveSystem
         SavePlayerConfig();
     }
 
-    public static List<string> LoadSavedMonIDs()
+    public static List<string> LoadMonIDs()
     {
         return _playerConfig.GetAllMonsterIDs();
     }
-
 
     public static void Flush() => PlayerPrefs.Save();
 
@@ -92,6 +88,10 @@ public static class SaveSystem
         SaveCoin(100);
         SavePoop(0);
         _playerConfig.ClearAllMonsterData();
+        _playerConfig.ClearAllNPCMonsterData();
+        _playerConfig.ownedItems.Clear();
+        _playerConfig.ownedBiomes.Clear();
+        _playerConfig.activeBiomeID = "default_biome";
         SavePlayerConfig();
     }
 
@@ -151,7 +151,7 @@ public static class SaveSystem
     {
         float hoursAway = (float)timeAway.TotalHours;
 
-        foreach (var monster in _playerConfig.monsters)
+        foreach (var monster in _playerConfig.ownedMonsters)
         {
             // Reduce happiness based on time away (example: -2% per hour)
             monster.currentHappiness -= hoursAway * 2f;
@@ -184,6 +184,7 @@ public static class SaveSystem
                 string json = File.ReadAllText(path);
                 _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json);
                 _playerConfig.SyncFromSerializable();
+                Debug.Log("Game data loaded successfully");
             }
             catch (Exception e)
             {
@@ -247,6 +248,7 @@ public static class SaveSystem
         SaveAll();
     }
     #endregion
+    
     #region Item Data Operation
     public static bool TryBuyItem(ItemDataSO itemData)
     {
@@ -392,11 +394,33 @@ public static class SaveSystem
     {
         return _playerConfig.isAmbientEnabled;
     }
-
     #endregion
 
+    #region Game Area Operations
+    public static void SaveActiveGameAreaIndex(int areaIndex)
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, cannot save game area index.");
+            return;
+        }
 
+        _playerConfig.gameAreaIndex = areaIndex;
+        SaveAll();
+        Debug.Log($"Saved active game area index: {areaIndex}");
+    }
 
+    public static int LoadActiveGameAreaIndex()
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, returning default game area index 0.");
+            return 0;
+        }
+
+        return _playerConfig.gameAreaIndex;
+    }
+    #endregion
 
     public static PlayerConfig GetPlayerConfig()
     {

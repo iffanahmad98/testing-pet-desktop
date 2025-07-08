@@ -22,15 +22,15 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
     public GameObject unlockedOverlay;
     public GameObject addOverlay;
 
-    private MonsterController monsterController;
+    private CatalogueMonsterData catalogueMonsterData;
     private MonsterCatalogueItemType itemType;
     private MonsterCatalogueDetailUI monsterCatalogueDetailUI;
     private MonsterCatalogueListUI parentListUI;
     private bool isSelected;
 
-    public void SetupItem(MonsterController _monsterController, MonsterCatalogueItemType _itemType)
+    public void SetupItem(CatalogueMonsterData _catalogueMonsterData, MonsterCatalogueItemType _itemType)
     {
-        monsterController = _monsterController;
+        catalogueMonsterData = _catalogueMonsterData;
         itemType = _itemType;
 
         isSelected = false;
@@ -86,10 +86,14 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
 
     private void SetMonsImg()
     {
-        if (itemType == MonsterCatalogueItemType.Monster)
-            monsterImage.sprite = monsterController.GetEvolutionIcon(MonsterIconType.Catalogue);
+        if (itemType == MonsterCatalogueItemType.Monster && catalogueMonsterData != null)
+        {
+            monsterImage.sprite = catalogueMonsterData.GetMonsterIcon(MonsterIconType.Catalogue);
+        }
         else
+        {
             monsterImage.sprite = null; // Clear image for non-monster items
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -111,11 +115,11 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
         }
         
         // Update details panel
-        if (monsterCatalogueDetailUI != null && monsterController != null)
+        if (monsterCatalogueDetailUI != null && catalogueMonsterData != null)
         {
             if (isSelected)
             {
-                monsterCatalogueDetailUI.SetDetails(monsterController);
+                monsterCatalogueDetailUI.SetDetails(catalogueMonsterData);
             }
             else
             {
@@ -124,7 +128,7 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            Debug.LogWarning($"MonsterCatalogueDetailUI : {monsterCatalogueDetailUI != null} & MonsterController : {monsterController != null}");
+            Debug.LogWarning($"MonsterCatalogueDetailUI : {monsterCatalogueDetailUI != null} & CatalogueMonsterData : {catalogueMonsterData != null}");
         }
     }
     
@@ -173,5 +177,10 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
     {
         itemType = type;
         SetType(type);
+    }
+
+    public CatalogueMonsterData GetCatalogueMonsterData()
+    {
+        return catalogueMonsterData;
     }
 }

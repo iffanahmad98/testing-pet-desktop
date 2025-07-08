@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: NPCMonsterData
+  m_Name: NPCMonsterData 2
   m_EditorClassIdentifier: 
-  monsterName: Mushkino
-  id: 000
+  monsterName: Mushkina
+  id: 200
   monType: 5
   poopType: 1
-  moveSpd: 100
+  moveSpd: 400
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 50
@@ -52,11 +52,11 @@ MonoBehaviour:
   timeToEvolveStage2: 0
   evolutionRequirements: []
   monsterSpine:
-  - {fileID: 11400000, guid: 91cac1279ab1871408a25730754e6e9a, type: 2}
+  - {fileID: 11400000, guid: 923c2cc200ae29147a2686af7e282036, type: 2}
   CardIcon:
-  - {fileID: 1937041300548807071, guid: de0e873b20b588d4e8be4384dee094f8, type: 3}
+  - {fileID: -7483330500224199394, guid: 936223781fe511b4c963392a0d6db6c5, type: 3}
   DetailsIcon:
-  - {fileID: 1937041300548807071, guid: 1d4dba39ebcf6f940b187a3b19e71640, type: 3}
+  - {fileID: -7483330500224199394, guid: c26656583b9690847b88c750eaad52b2, type: 3}
   CatalogueIcon:
   - {fileID: 1937041300548807071, guid: 4ca7bf1adad9f3f4f81633ce860771da, type: 3}
   evolutionAnimationSets:
@@ -68,8 +68,6 @@ MonoBehaviour:
     - jumping
   evolutionBehaviors:
   - evolutionLevel: 1
-    behaviorConfig: {fileID: 11400000, guid: 3c0869c87e2ad4b419beda05f6631124, type: 2}
-  - evolutionLevel: 2
     behaviorConfig: {fileID: 11400000, guid: 3c0869c87e2ad4b419beda05f6631124, type: 2}
   monsterPrice: 10
   sellPriceStage1: 0

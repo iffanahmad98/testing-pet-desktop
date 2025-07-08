@@ -2,18 +2,23 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class CoinController : MonoBehaviour, IPointerDownHandler
+public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable
 {
     [SerializeField] CoinType type;
     [SerializeField] float rate;
     [SerializeField] int value;
     public CoinType Type => type;
 
+    public bool IsTargetable => gameObject.activeInHierarchy;
+    public Vector2 Position => rectTransform.anchoredPosition;
+
     private Animator animator;
+    private RectTransform rectTransform;
 
     void Awake()
     {
         animator = GetComponent<Animator>();
+        rectTransform = GetComponent<RectTransform>();
     }
 
     public void Initialize(CoinType coinType)
@@ -32,12 +37,17 @@ public class CoinController : MonoBehaviour, IPointerDownHandler
         }
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void OnCollected()
     {
         ServiceLocator.Get<MonsterManager>().OnCoinChanged?.Invoke(ServiceLocator.Get<MonsterManager>().coinCollected += value);
         SaveSystem.SaveCoin(ServiceLocator.Get<MonsterManager>().coinCollected);
         SaveSystem.Flush();
         ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        OnCollected();
     }
 }
 

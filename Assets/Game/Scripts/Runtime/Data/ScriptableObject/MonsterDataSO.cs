@@ -195,8 +195,10 @@ public class MonsterDataSO : ScriptableObject
 public class MonsterSaveData
 {
     [Header("Identity")]
-    public string instanceId;              
-    public string monsterId;               
+    public string instanceId;
+    public string monsterId;
+    public int gameAreaId;
+
     [Header("Core Stats")]
     public float currentHealth;
     public float currentHunger;
@@ -211,6 +213,7 @@ public class MonsterSaveData
     public string timeCreated;
     // public EvolutionProgressData evolutionProgress;
 }
+
 [Serializable]
 public class EvolutionProgressData
 {

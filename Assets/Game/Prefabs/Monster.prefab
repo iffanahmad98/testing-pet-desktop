@@ -89,7 +89,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 541530107878068786}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -139,7 +139,7 @@ CanvasGroup:
   m_GameObject: {fileID: 657145950826039692}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
+  m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
 --- !u!1 &1353554511215279462
@@ -865,8 +865,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isNPC: 0
+  currentHappiness: 0
+  currentHunger: 0
+  currentHealth: 0
+  maxHealth: 0
   monsterID: 
   evolutionLevel: 0
+  monsterData: {fileID: 0}
   UI:
     monsterImage: {fileID: 5656146606241970412}
     monsterInfoPanel: {fileID: 8877545203958523592}
@@ -1160,8 +1165,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

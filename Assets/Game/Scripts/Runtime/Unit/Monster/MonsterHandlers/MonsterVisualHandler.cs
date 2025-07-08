@@ -138,9 +138,9 @@ public class MonsterVisualHandler
     public Vector2 GetRandomPositionOutsideBounds()
     {
         var gameManager = ServiceLocator.Get<MonsterManager>();
-        if (gameManager != null && gameManager.gameArea != null)
+        if (gameManager != null && gameManager.gameAreaRT != null)
         {
-            var gameAreaRect = gameManager.gameArea;
+            var gameAreaRect = gameManager.gameAreaRT;
             Vector2 gameAreaSize = gameAreaRect.sizeDelta;
 
             // Calculate spawn area (outside monster but inside game area)
@@ -327,6 +327,16 @@ public class MonsterVisualHandler
 
         // Return original position if no safe position found
         return preferredPosition;
+    }
+
+    // NEW: Handle coin spawn with animation (similar to poop)
+    public void SpawnCoinWithAnimation(CoinType type)
+    {
+        Vector2 launchPosition = GetCoinLaunchPosition();
+        Vector2 targetPosition = GetRandomPositionOutsideBounds();
+        
+        // Spawn coin through MonsterManager
+        ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
     }
 
     public Sprite GetMonsterIcon() => _currentIcon;

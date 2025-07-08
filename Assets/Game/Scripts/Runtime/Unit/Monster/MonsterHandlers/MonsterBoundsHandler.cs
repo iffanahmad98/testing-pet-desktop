@@ -82,7 +82,7 @@ public class MonsterBoundsHandler
     
     private Vector2 GetConstrainedSpaceTarget()
     {
-        var gameAreaRect = _manager.gameArea;
+        var gameAreaRect = _manager.gameAreaRT;
         Vector2 size = gameAreaRect.sizeDelta;
         
         float halfWidth = _rectTransform.rect.width / 2;
@@ -107,7 +107,7 @@ public class MonsterBoundsHandler
     
     private (Vector2 min, Vector2 max) CalculateFlyingBounds()
     {
-        var gameAreaRect = _manager.gameArea;
+        var gameAreaRect = _manager.gameAreaRT;
         Vector2 size = gameAreaRect.sizeDelta;
 
         float halfWidth = _rectTransform.rect.width / 2;
@@ -154,7 +154,7 @@ public class MonsterBoundsHandler
     // Check if game area is physically too small for the monster
     public bool IsGameAreaTooSmallForMonster()
     {
-        var gameAreaRect = _manager.gameArea;
+        var gameAreaRect = _manager.gameAreaRT;
         Vector2 gameAreaSize = gameAreaRect.sizeDelta;
         
         float monsterWidth = _rectTransform.rect.width;
@@ -188,7 +188,7 @@ public class MonsterBoundsHandler
     // Safe bounds calculation that handles edge cases
     public (Vector2 min, Vector2 max) CalculateGroundBounds()
     {
-        var gameAreaRect = _manager.gameArea;
+        var gameAreaRect = _manager.gameAreaRT;
         Vector2 size = gameAreaRect.sizeDelta;
         
         float halfWidth = _rectTransform.rect.width / 2;
@@ -234,7 +234,7 @@ public class MonsterBoundsHandler
     // Better centered bounds that preserves X when possible
     private (Vector2 min, Vector2 max) GetCenteredBounds()
     {
-        var gameAreaRect = _manager.gameArea;
+        var gameAreaRect = _manager.gameAreaRT;
         Vector2 size = gameAreaRect.sizeDelta;
         
         float halfWidth = _rectTransform.rect.width / 2;

@@ -20,8 +20,6 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public Slider monsterEvolutionProgressSlider;
     public TextMeshProUGUI monsterSellPriceText;
     public TextMeshProUGUI monsterEarningText;
-    public GameObject[] monsterEvolutionProgressImg;
-    public Button closeButton;
     public Button markFavoriteButton;
 
     private void Awake()
@@ -33,7 +31,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         smoothFitter = CataloguePanel.GetComponent<UISmoothFitter>(); 
     }
 
-    public void SetDetails(MonsterController monsterController = null)
+    public void SetDetails(CatalogueMonsterData catalogueMonsterData = null)
     {
         if (canvasGroup == null || monsterImage == null || monsterNameText == null ||
             monsterTypeText == null || monsterEvolutionText == null || monsterFullnessSlider == null ||
@@ -44,7 +42,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             return;
         }
 
-        if (monsterController == null)
+        if (catalogueMonsterData == null)
         {
             // Hide the detail panel if no monster is provided
             smoothFitter.Kick();
@@ -68,20 +66,17 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
                 layoutElement.ignoreLayout = false; // Allow layout updates
             });
 
-            var _evolveLvl = monsterController.evolutionLevel;
-
-            // Example setup, replace with actual data retrieval logic
+            // Set details using CatalogueMonsterData
             canvasGroup.alpha = 1f;
-            monsterImage.sprite = monsterController.GetEvolutionIcon(MonsterIconType.Detail); // Set the sprite for the monster
-            monsterNameText.text = monsterController.MonsterData.monsterName;
-            monsterTypeText.text = monsterController.MonsterData.monType.ToString();
-            monsterEvolutionText.text = $"Stage {monsterController.MonsterData.GetEvolutionStageName(_evolveLvl)}";
-            monsterFullnessSlider.value = Mathf.Clamp01(monsterController.StatsHandler.CurrentHunger * 0.01f);
-            monsterHappinessSlider.value = Mathf.Clamp01(monsterController.StatsHandler.CurrentHappiness * 0.01f);
-            monsterEvolutionProgressSlider.value = (_evolveLvl - 1f) / 2f;
-            monsterSellPriceText.text = $"{monsterController.MonsterData.GetSellPrice(_evolveLvl)}";
-            monsterEarningText.text = $"{(1 / monsterController.MonsterData.GetGoldCoinDropRate(_evolveLvl) / 60).ToString("F2")} / MIN";
+            monsterImage.sprite = catalogueMonsterData.GetMonsterIcon(MonsterIconType.Detail);
+            monsterNameText.text = catalogueMonsterData.monsterData.monsterName;
+            monsterTypeText.text = catalogueMonsterData.monsterData.monType.ToString();
+            monsterEvolutionText.text = $"Stage {catalogueMonsterData.GetEvolutionStageName()}";
+            monsterFullnessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHunger * 0.01f);
+            monsterHappinessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHappiness * 0.01f);
+            monsterEvolutionProgressSlider.value = (catalogueMonsterData.evolutionLevel - 1f) / 2f;
+            monsterSellPriceText.text = $"{catalogueMonsterData.GetSellPrice()}";
+            monsterEarningText.text = $"{(1 / catalogueMonsterData.GetGoldCoinDropRate() / 60).ToString("F2")} / MIN";
         }
     }
-    
 }
