@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class ItemInventoryUI : MonoBehaviour
 {
-    [SerializeField] private Transform contentParent; // The layout parent (e.g. Horizontal Layout Group)
+    [SerializeField] private Transform contentParent; 
     [SerializeField] private ItemSlotUI slotPrefab;
     [SerializeField] private ItemDatabaseSO itemDatabase;
-    [SerializeField] private RectTransform contentRectTransform; // RectTransform of contentParent
+    [SerializeField] private RectTransform contentRectTransform; 
     public ItemDatabaseSO ItemDatabase => itemDatabase;
 
     [Header("Config")]

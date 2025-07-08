@@ -111,9 +111,9 @@ public class MonsterStatsHandler
 
     public void UpdateHappinessBasedOnArea(MonsterDataSO monsterData, MonsterManager gameManager)
     {
-        if (monsterData == null || gameManager?.gameArea == null) return;
+        if (monsterData == null || gameManager?.gameAreaRT == null) return;
 
-        float gameAreaHeight = gameManager.gameArea.sizeDelta.y;
+        float gameAreaHeight = gameManager.gameAreaRT.sizeDelta.y;
         float screenHeight = Screen.currentResolution.height;
         float heightRatio = gameAreaHeight / screenHeight;
 

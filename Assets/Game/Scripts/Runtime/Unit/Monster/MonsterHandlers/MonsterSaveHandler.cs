@@ -14,6 +14,7 @@ public class MonsterSaveHandler
         {
             instanceId = _controller.monsterID,
             monsterId = _controller.MonsterData.id,
+            gameAreaId = _controller.MonsterManager.currentGameAreaIndex,
             currentHunger = _controller.StatsHandler.CurrentHunger,
             currentHappiness = _controller.StatsHandler.CurrentHappiness,
             currentHealth = _controller.StatsHandler.CurrentHP,

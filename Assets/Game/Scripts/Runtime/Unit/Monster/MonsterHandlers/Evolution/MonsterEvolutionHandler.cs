@@ -126,7 +126,7 @@ public class MonsterEvolutionHandler
         var originalScale = _skeletonGraphic.rectTransform.localScale.x;
         var originalParent = _controller.transform.parent;
         var monsterTransform = _controller.transform;
-        var areaTransform = _controller.MonsterManager.gameArea.transform;
+        var areaTransform = _controller.MonsterManager.gameAreaRT.transform;
 
         // Get the next evolution skeleton asset
         var monsterData = _controller.MonsterData;
@@ -231,7 +231,7 @@ public class MonsterEvolutionHandler
             if (monsterManager != null)
             {
                 // Update saved IDs list in SaveSystem
-                var savedIDs = SaveSystem.LoadSavedMonIDs();
+                var savedIDs = SaveSystem.LoadMonIDs();
                 if (savedIDs.Contains(oldID))
                 {
                     savedIDs.Remove(oldID);

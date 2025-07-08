@@ -8,6 +8,8 @@ public class PlayerConfig
 {
     public int coins = 10000;
     public int poops = 0;
+    public int gameAreaIndex = 0; // Default to first game area
+    public int maxGameArea = 1; // Tracks the highest game area index created
 
     public string lastLoginTimeString;
     public string totalPlayTimeString;
@@ -15,15 +17,15 @@ public class PlayerConfig
     [NonSerialized] public DateTime lastLoginTime;
     [NonSerialized] public TimeSpan totalPlayTime;
 
-    public List<MonsterSaveData> monsters = new(); // Now using List for full JsonUtility support
+    public List<MonsterSaveData> ownedMonsters = new(); // Now using List for full JsonUtility support
+    public List<NPCSaveData> ownedNPCMonsters = new(); // For monsters that are owned but not in the world
     public List<OwnedItemData> ownedItems = new();
-    public string activeBiomeID = "default_biome";
     public List<string> ownedBiomes = new();
-    public bool isSkyEnabled = true;
-    public bool isCloudEnabled = true;
-    public bool isAmbientEnabled = true;
-
-
+    public string activeBiomeID = "default_biome";
+    public bool isSkyEnabled = false;
+    public bool isCloudEnabled = false;
+    public bool isAmbientEnabled = false;
+    public bool isRainEnabled = false;
 
     // Serialization Sync
     public void SyncToSerializable()
@@ -79,45 +81,86 @@ public class PlayerConfig
     {
         if (data == null || string.IsNullOrEmpty(data.instanceId)) return;
 
-        var existing = monsters.Find(m => m.instanceId == data.instanceId);
+        var existing = ownedMonsters.Find(m => m.instanceId == data.instanceId);
         if (existing != null)
         {
-            int index = monsters.IndexOf(existing);
-            monsters[index] = data;
+            int index = ownedMonsters.IndexOf(existing);
+            ownedMonsters[index] = data;
         }
         else
         {
-            monsters.Add(data);
+            ownedMonsters.Add(data);
         }
     }
 
     public bool LoadMonsterData(string instanceId, out MonsterSaveData data)
     {
-        data = monsters.Find(m => m.instanceId == instanceId);
+        data = ownedMonsters.Find(m => m.instanceId == instanceId);
         return data != null;
     }
 
-
     public void DeleteMonster(string instanceId)
     {
-        monsters.RemoveAll(m => m.instanceId == instanceId);
+        ownedMonsters.RemoveAll(m => m.instanceId == instanceId);
     }
 
     public List<string> GetAllMonsterIDs()
     {
-        return monsters.Select(m => m.instanceId).ToList();
+        return ownedMonsters.Select(m => m.instanceId).ToList();
     }
-
 
     public void SetAllMonsterIDs(List<string> ids)
     {
-        monsters = monsters.Where(m => ids.Contains(m.instanceId)).ToList();
+        ownedMonsters = ownedMonsters.Where(m => ids.Contains(m.instanceId)).ToList();
     }
 
     public void ClearAllMonsterData()
     {
-        monsters.Clear();
+        ownedMonsters.Clear();
     }
+
+    public void SaveNPCMonsterData(NPCSaveData data)
+    {
+        if (data == null || string.IsNullOrEmpty(data.instanceId)) return;
+
+        var existing = ownedNPCMonsters.Find(m => m.instanceId == data.instanceId);
+        if (existing != null)
+        {
+            int index = ownedNPCMonsters.IndexOf(existing);
+            ownedNPCMonsters[index] = data;
+        }
+        else
+        {
+            ownedNPCMonsters.Add(data);
+        }
+    }
+
+    public bool LoadNPCMonsterData(string instanceId, out NPCSaveData data)
+    {
+        data = ownedNPCMonsters.Find(m => m.instanceId == instanceId);
+        return data != null;
+    }
+
+    public void DeleteNPCMonster(string instanceId)
+    {
+        ownedNPCMonsters.RemoveAll(m => m.instanceId == instanceId);
+    }
+
+    public List<string> GetAllNPCMonsterIDs()
+    {
+        return ownedNPCMonsters.Select(m => m.instanceId).ToList();
+    }
+
+    public void SetAllNPCMonsterIDs(List<string> ids)
+    {
+        ownedNPCMonsters = ownedNPCMonsters.Where(m => ids.Contains(m.instanceId)).ToList();
+    }
+
+    public void ClearAllNPCMonsterData()
+    {
+        ownedNPCMonsters.Clear();
+    }
+
     // Biome Logic
     public void AddOwnedBiome(string biomeID)
     {
@@ -127,17 +170,56 @@ public class PlayerConfig
 
     public bool HasBiome(string biomeID)
     {
+        // If empty, consider it always valid for default biome logic
+        if (string.IsNullOrEmpty(biomeID))
+            return true;
+
         return ownedBiomes.Contains(biomeID);
     }
 
     public void SetActiveBiome(string biomeID)
     {
-        if (HasBiome(biomeID))
+        // Allow clearing the active biome with an empty string
+        if (string.IsNullOrEmpty(biomeID) || HasBiome(biomeID))
+        {
             activeBiomeID = biomeID;
+        }
     }
 
-}
+    // Game Area specific monster operations
+    public List<MonsterSaveData> GetMonstersForGameArea(int gameAreaIndex)
+    {
+        return ownedMonsters.Where(m => m.gameAreaId == gameAreaIndex).ToList();
+    }
 
+    public void SetMonsterGameArea(string instanceId, int gameAreaIndex)
+    {
+        var monster = ownedMonsters.Find(m => m.instanceId == instanceId);
+        if (monster != null)
+        {
+            monster.gameAreaId = gameAreaIndex;
+        }
+    }
+
+    public void MoveMonsterToGameArea(string instanceId, int fromArea, int toArea)
+    {
+        var monster = ownedMonsters.Find(m => m.instanceId == instanceId && m.gameAreaId == fromArea);
+        if (monster != null)
+        {
+            monster.gameAreaId = toArea;
+        }
+    }
+
+    public int GetMonsterCountForGameArea(int gameAreaIndex)
+    {
+        return ownedMonsters.Count(m => m.gameAreaId == gameAreaIndex);
+    }
+
+    public void DeleteMonstersFromGameArea(int gameAreaIndex)
+    {
+        ownedMonsters.RemoveAll(m => m.gameAreaId == gameAreaIndex);
+    }
+}
 
 [Serializable]
 public class OwnedItemData
@@ -146,4 +228,12 @@ public class OwnedItemData
     public ItemType type;
     public int amount;
 }
+
+[Serializable]
+public class NPCSaveData
+{
+    public string instanceId;
+    public string monsterId;
+}
+
 

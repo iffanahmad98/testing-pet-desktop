@@ -16,7 +16,7 @@ MonoBehaviour:
   - name: idle - walk
     fromState: 0
     toState: 1
-    probability: 0.8
+    probability: 0.5
     blendDuration: 0
     minDuration: 0
     maxDuration: 0
@@ -26,7 +26,17 @@ MonoBehaviour:
   - name: walk - idle
     fromState: 1
     toState: 0
-    probability: 0.4
+    probability: 0.8
+    blendDuration: 0
+    minDuration: 0
+    maxDuration: 0
+    requiresFood: 0
+    hungerThreshold: 0
+    happinessThreshold: 0
+  - name: walk - walk
+    fromState: 1
+    toState: 1
+    probability: 0.2
     blendDuration: 0
     minDuration: 0
     maxDuration: 0

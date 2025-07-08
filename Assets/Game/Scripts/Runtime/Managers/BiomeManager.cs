@@ -1,10 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Collections;
 using TMPro;
 using DG.Tweening;
-using NUnit.Framework;
 
 [System.Serializable]
 public class BiomeLayer
@@ -25,6 +23,9 @@ public class BiomeManager : MonoBehaviour
     public BiomeLayer skyLayer;
     public BiomeLayer ambientLayer;
     public Image groundLayerFilter;
+
+    [Header("Rain System")]
+    public GameObject rainSystem;
 
     [Header("Cloud System")]
     public RectTransform skyBG;
@@ -264,7 +265,7 @@ public class BiomeManager : MonoBehaviour
     {
         if (layer.layerObject != null)
         {
-            layer.layerObject.SetActive(active);
+            layer.layerObject.GetComponent<Image>().enabled = active;
         }
     }
 

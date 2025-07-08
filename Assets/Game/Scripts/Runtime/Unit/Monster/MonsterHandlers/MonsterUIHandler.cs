@@ -49,10 +49,10 @@ public class MonsterUIHandler
         }
 
         // Initialize stat bars with values from stats handler or defaults
+        float maxHealth = monsterController?.MonsterData.GetMaxHealth(monsterController.evolutionLevel) ?? 100f;
         float hunger = statsHandler?.CurrentHunger ?? 100f;
         float happiness = statsHandler?.CurrentHappiness ?? 100f;
-        float health = statsHandler?.CurrentHP ?? 100f;
-        float maxHealth = monsterController?.MonsterData.GetMaxHealth(monsterController.evolutionLevel) ?? 100f;
+        float health = statsHandler?.CurrentHP ?? maxHealth;
 
         if (hungerBar != null) hungerBar.Initialize(hunger, 100f);
         if (happinessBar != null) happinessBar.Initialize(happiness, 100f);

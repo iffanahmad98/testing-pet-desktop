@@ -35,9 +35,7 @@ public class ItemShopManager : MonoBehaviour
             tabController.OnTabChanged += OnTabChanged;
             tabController.OnTabSelected(0); // Default tab
             // itemInventoryUI.StartPopulateInventory();
-
         }
-
     }
 
     private void OnTabChanged(int tabIndex)
@@ -75,6 +73,7 @@ public class ItemShopManager : MonoBehaviour
 
         ShowItemInfo(card.itemData);
     }
+
     private void OnItemBuy(ItemCardUI card)
     {
         var item = card.itemData;
@@ -93,7 +92,6 @@ public class ItemShopManager : MonoBehaviour
             ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {item.itemName}!", 2f);
         }
     }
-
 
     private void ShowItemInfo(ItemDataSO item)
     {

@@ -77,10 +77,10 @@ public class MonsterBehaviorHandler
     private MonsterState GetSimpleDefaultNextState(MonsterState currentState)
     {
         bool isInAir = IsMonsterCurrentlyInAir();
-        float currentHappiness = _controller.StatsHandler.CurrentHappiness;
+        float currentHappiness = _controller.StatsHandler?.CurrentHappiness ?? 0f;
 
         // Prevent movement if happiness is too low
-        bool restrictMovement = currentHappiness < 0.5f;
+        bool restrictMovement = false; //currentHappiness < 0.25f;
 
         return currentState switch
         {
