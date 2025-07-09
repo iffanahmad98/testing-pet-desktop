@@ -13,20 +13,24 @@ MonoBehaviour:
   m_Name: Florasus_Data
   m_EditorClassIdentifier: 
   monsterName: Florasus
-  monsterId: 
   id: florasus
   monType: 3
   poopType: 10
-  hp: 125
   moveSpd: 90
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 0
   baseHunger: 50
   hungerDepleteRate: 0.05
+  maxHealthStage1: 125
+  maxHealthStage2: 250
+  maxHealthStage3: 300
   maxNutritionStage1: 200
   maxNutritionStage2: 600
   maxNutritionStage3: 1500
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 12
@@ -43,7 +47,9 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  evolutionLevel: 1
+  evolutionLevel: 0
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 2246400
@@ -64,7 +70,9 @@ MonoBehaviour:
     description: Evolve to Florasus Stage 3
     progressRetentionPercentage: 0
   monsterSpine: []
-  monsIconImg: []
+  CardIcon: []
+  DetailsIcon: []
+  CatalogueIcon: []
   evolutionAnimationSets: []
   evolutionBehaviors: []
   monsterPrice: 0

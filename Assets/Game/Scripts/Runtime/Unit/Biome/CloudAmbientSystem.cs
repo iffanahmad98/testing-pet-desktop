@@ -66,7 +66,7 @@ public class CloudAmbientSystem : MonoBehaviour
         }
 
         // Start spawning
-        spawnRoutine = StartCoroutine(SpawnCloudRoutine());
+        // spawnRoutine = StartCoroutine(SpawnCloudRoutine());
     }
 
     private void InitializeCloudPool()

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class MonsterCatalogueUI : MonoBehaviour
 {
-    [Header("Button Components")]
+    [Header("UI Components")]
     public Button StoreBtn;
     public Button TypeBtn;
     public Button RenameGameAreaBtn;
@@ -17,7 +17,10 @@ public class MonsterCatalogueUI : MonoBehaviour
     public CanvasGroup MonsterDetailsCanvasGroup;
     public Button CloseMonsterListBtn;
     public CanvasGroup MonsterListCanvasGroup;
+    public Button monsterCollectionBtn;
+    public CanvasGroup monsterCollectionCanvasGroup;
     public UISmoothFitter smoothFitter;
+    
 
     [Header("Game Area Components")]
     public Button[] gameAreaButtons;
@@ -49,7 +52,6 @@ public class MonsterCatalogueUI : MonoBehaviour
             Init();
             InitGameAreaButtons();
         }
-
     }
 
     public void Init()
@@ -67,6 +69,7 @@ public class MonsterCatalogueUI : MonoBehaviour
         SwitchGameAreaBtn.onClick.RemoveAllListeners();
         CloseMonsterDetailsBtn.onClick.RemoveAllListeners();
         CloseMonsterListBtn.onClick.RemoveAllListeners();
+        monsterCollectionBtn.onClick.RemoveAllListeners();
 
         // StoreBtn.onClick.AddListener(OnStoreButtonClicked);
         TypeBtn.onClick.AddListener(OnTypeButtonClicked);
@@ -88,6 +91,14 @@ public class MonsterCatalogueUI : MonoBehaviour
                 MonsterListCanvasGroup.interactable = false;
                 MonsterListCanvasGroup.blocksRaycasts = false;
                 smoothFitter.Kick();
+            });
+        });
+        monsterCollectionBtn.onClick.AddListener(() =>
+        {
+            monsterCollectionCanvasGroup.DOFade(1f, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
+            {
+                monsterCollectionCanvasGroup.interactable = true;
+                monsterCollectionCanvasGroup.blocksRaycasts = true;
             });
         });
     }
@@ -172,7 +183,22 @@ public class MonsterCatalogueUI : MonoBehaviour
             GameObject buttonObj = GetPooledGameAreaButton();
             buttonObj.SetActive(true);
             buttonObj.name = $"GameAreaButton_{i + 1}";
-            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = $"Game Area {i + 1}";
+            
+            // Get the saved name or use default
+            string gameAreaName = GetSavedGameAreaName(i);
+            if (string.IsNullOrEmpty(gameAreaName))
+            {
+                gameAreaName = $"Game Area {i + 1}";
+            }
+            
+            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = gameAreaName;
+            
+            // Ensure the input field is hidden initially
+            TMP_InputField inputField = buttonObj.GetComponentInChildren<TMP_InputField>(true);
+            if (inputField != null)
+            {
+                inputField.gameObject.SetActive(false);
+            }
 
             Button button = buttonObj.GetComponent<Button>();
             gameAreaButtons[i] = button;
@@ -185,8 +211,18 @@ public class MonsterCatalogueUI : MonoBehaviour
 
         // Force layout rebuild after all buttons are positioned
         yield return null;
-        // LayoutRebuilder.ForceRebuildLayoutImmediate(AddGameAreaBtn.transform.parent.GetComponent<RectTransform>());
         SetupGameAreaButtonListeners();
+    }
+
+    private string GetSavedGameAreaName(int index)
+    {
+        // Retrieve the saved game area name from your save system
+        // You'll need to implement this based on your save system structure
+        // For example:
+        // return SaveSystem.GetPlayerConfig().gameAreaNames?[index];
+        
+        // For now, return null to use default names
+        return SaveSystem.GetPlayerConfig().gameAreas[index].name;
     }
 
     private void SetupGameAreaButtonListeners()
@@ -231,6 +267,11 @@ public class MonsterCatalogueUI : MonoBehaviour
         activeGameAreaButtons.Add(newButtonObj);
 
         SaveSystem.GetPlayerConfig().maxGameArea++;
+        SaveSystem.GetPlayerConfig().gameAreas.Add(new GameAreaData
+        {
+            name = $"Game Area {newIndex}",
+            index = newIndex - 1 // Index is zero-based
+        });
         SaveSystem.SaveAll();
 
         // Refresh all buttons to update the array and listeners
@@ -252,12 +293,7 @@ public class MonsterCatalogueUI : MonoBehaviour
             int index = System.Array.IndexOf(gameAreaButtons, seletectedGameAreaButton);
             if (index >= 0 && index < gameAreaButtons.Length)
             {
-                // Rename the selected game area
-                string newName = "New Game Area Name"; // Replace with actual input logic
-                Debug.Log($"Renaming Game Area {index} to '{newName}'.");
-                // Here you would typically call a method to rename the game area
-                // GameAreaManager.RenameGameArea(index, newName);
-                gameAreaButtons[index].GetComponentInChildren<TextMeshProUGUI>().text = newName; // Assuming the button has a TextMeshProUGUI component
+                StartRenameMode(seletectedGameAreaButton, index);
             }
             else
             {
@@ -268,6 +304,91 @@ public class MonsterCatalogueUI : MonoBehaviour
         {
             Debug.LogWarning("No game area button is selected.");
         }
+    }
+
+    private void StartRenameMode(Button gameAreaButton, int index)
+    {
+        // Find the TMP InputField as a child of the button
+        TMP_InputField inputField = gameAreaButton.GetComponentInChildren<TMP_InputField>(true);
+        TextMeshProUGUI buttonText = gameAreaButton.GetComponentInChildren<TextMeshProUGUI>();
+        
+        if (inputField == null)
+        {
+            Debug.LogError("TMP_InputField not found as child of game area button.");
+            return;
+        }
+        
+        if (buttonText == null)
+        {
+            Debug.LogError("TextMeshProUGUI not found as child of game area button.");
+            return;
+        }
+        
+        // Hide the button text and show the input field
+        buttonText.gameObject.SetActive(false);
+        inputField.gameObject.SetActive(true);
+        
+        // Set the current text as the input field value
+        inputField.text = buttonText.text;
+        
+        // Focus the input field and select all text
+        inputField.Select();
+        inputField.ActivateInputField();
+        
+        // Remove any existing listeners to prevent duplicates
+        inputField.onEndEdit.RemoveAllListeners();
+        
+        // Add listener for when editing is finished
+        inputField.onEndEdit.AddListener((newName) => OnRenameComplete(gameAreaButton, index, newName, inputField, buttonText));
+        
+        // Add listener for when input field loses focus
+        inputField.onDeselect.AddListener((value) => OnRenameComplete(gameAreaButton, index, value, inputField, buttonText));
+    }
+
+    private void OnRenameComplete(Button gameAreaButton, int index, string newName, TMP_InputField inputField, TextMeshProUGUI buttonText)
+    {
+        // Validate the new name
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            newName = $"Game Area {index + 1}"; // Default name if empty
+        }
+        
+        // Trim whitespace and limit length if needed
+        newName = newName.Trim();
+        if (newName.Length > 10) // Adjust max length as needed
+        {
+            newName = newName.Substring(0, 10);
+        }
+        
+        // Update the button text
+        buttonText.text = newName;
+        
+        // Hide input field and show button text
+        inputField.gameObject.SetActive(false);
+        buttonText.gameObject.SetActive(true);
+        
+        // Save the new name to your save system
+        SaveGameAreaName(index, newName);
+        
+        // Remove listeners to prevent memory leaks
+        inputField.onEndEdit.RemoveAllListeners();
+        inputField.onDeselect.RemoveAllListeners();
+        
+        Debug.Log($"Game Area {index + 1} renamed to: {newName}");
+    }
+
+    private void SaveGameAreaName(int index, string name)
+    {
+        // Save the game area name to your save system
+        // You'll need to add a field to store game area names in your PlayerConfig
+        // For example:
+        // SaveSystem.GetPlayerConfig().gameAreaNames[index] = name;
+        // SaveSystem.SaveAll();
+
+        SaveSystem.GetPlayerConfig().gameAreas[index].name = name;
+        SaveSystem.SaveAll();
+        // For now, just log it
+        Debug.Log($"Saving Game Area {index + 1} name: {name}");
     }
 
     private void OnSwitchGameAreaButtonClicked()

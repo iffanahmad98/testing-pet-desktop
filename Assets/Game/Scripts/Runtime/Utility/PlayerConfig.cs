@@ -8,7 +8,7 @@ public class PlayerConfig
 {
     public int coins = 10000;
     public int poops = 0;
-    public int gameAreaIndex = 0; // Default to first game area
+    public int lastGameAreaIndex = 0; // Default to first game area
     public int maxGameArea = 1; // Tracks the highest game area index created
 
     public string lastLoginTimeString;
@@ -17,6 +17,7 @@ public class PlayerConfig
     [NonSerialized] public DateTime lastLoginTime;
     [NonSerialized] public TimeSpan totalPlayTime;
 
+    public List<GameAreaData> gameAreas = new(); // List of game areas
     public List<MonsterSaveData> ownedMonsters = new(); // Now using List for full JsonUtility support
     public List<NPCSaveData> ownedNPCMonsters = new(); // For monsters that are owned but not in the world
     public List<OwnedItemData> ownedItems = new();
@@ -234,6 +235,24 @@ public class NPCSaveData
 {
     public string instanceId;
     public string monsterId;
+}
+
+[Serializable]
+public class GameAreaData
+{
+    public string name;
+    public int index;
+    public List<string> monsterIDs = new List<string>();
+    public List<string> npcMonsterIDs = new List<string>();
+}
+
+[Serializable]
+public class MonsterCollectionData
+{
+    public string monsterId;
+    public string monsterName;
+    public string monsterCount;
+    public string monsterDescription;
 }
 
 

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 using DG.Tweening;
+using Coffee.UIExtensions;
 
 [System.Serializable]
 public class BiomeLayer
@@ -111,7 +112,6 @@ public class BiomeManager : MonoBehaviour
         SetSkyLayerActive(SaveSystem.IsSkyEnabled());
         SetAmbientLayerActive(SaveSystem.IsAmbientEnabled());
         ToggleClouds(SaveSystem.IsCloudEnabled());
-
     }
 
     private void Update()
@@ -252,7 +252,6 @@ public class BiomeManager : MonoBehaviour
         SetLayerActive(layer, active);
         OnLayerToggled?.Invoke(layer.layerName, active);
 
-
         if (layer.layerName == "Sky")
             SaveSystem.SetSkyEnabled(active);
         else if (layer.layerName == "Ambient")
@@ -357,8 +356,6 @@ public class BiomeManager : MonoBehaviour
         Debug.LogWarning($"BiomeManager: Biome with ID '{biomeID}' not found!");
     }
 
-
-
     /// <summary>
     /// Change biome by name
     /// </summary>
@@ -460,9 +457,6 @@ public class BiomeManager : MonoBehaviour
             }
         }
 
-        //apply ground layer filter
-
-
         // Invoke the biome changed event
         OnBiomeChanged?.Invoke(biome);
 
@@ -487,6 +481,26 @@ public class BiomeManager : MonoBehaviour
         objects.Clear();
     }
     #endregion
+
+    public void ToggleRainSystem()
+    {
+        if (rainSystem != null)
+        {
+            rainSystem.SetActive(!rainSystem.activeSelf);
+            SaveSystem.GetPlayerConfig().isRainEnabled = rainSystem.activeSelf;
+
+            // Optional: Show message if UIManager is available
+            var uiManager = ServiceLocator.Get<UIManager>();
+            if (uiManager != null)
+            {
+                uiManager.ShowMessage($"Rain System: {(!rainSystem.activeSelf ? "Disabled" : "Enabled")}", 1f);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("BiomeManager: Rain system not assigned!");
+        }
+    }
 
     private void OnDestroy()
     {

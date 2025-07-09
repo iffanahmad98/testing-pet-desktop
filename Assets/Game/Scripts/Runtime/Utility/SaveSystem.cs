@@ -405,7 +405,7 @@ public static class SaveSystem
             return;
         }
 
-        _playerConfig.gameAreaIndex = areaIndex;
+        _playerConfig.lastGameAreaIndex = areaIndex;
         SaveAll();
         Debug.Log($"Saved active game area index: {areaIndex}");
     }
@@ -418,7 +418,7 @@ public static class SaveSystem
             return 0;
         }
 
-        return _playerConfig.gameAreaIndex;
+        return _playerConfig.lastGameAreaIndex;
     }
     #endregion
 

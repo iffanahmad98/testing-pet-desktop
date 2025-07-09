@@ -24,7 +24,7 @@ public class ItemShopManager : MonoBehaviour
 
 
     [Header("Data")]
-    public List<ItemDataSO> allItems; // Replace with your actual item source
+    public ItemDatabaseSO itemDatabase; // Optional, if you have a database scriptable object
 
     private ItemCardUI selectedCard;
 
@@ -49,7 +49,7 @@ public class ItemShopManager : MonoBehaviour
     {
         ClearItemGrid();
 
-        var filteredItems = allItems.FindAll(i => i.category == category);
+        var filteredItems = itemDatabase.allItems.FindAll(i => i.category == category);
 
         foreach (var item in filteredItems)
         {

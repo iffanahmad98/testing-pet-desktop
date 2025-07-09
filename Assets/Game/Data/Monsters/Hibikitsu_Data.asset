@@ -13,20 +13,24 @@ MonoBehaviour:
   m_Name: Hibikitsu_Data
   m_EditorClassIdentifier: 
   monsterName: Hibikitsu
-  monsterId: 
   id: hibikitsu
   monType: 2
   poopType: 10
-  hp: 50
   moveSpd: 100
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 0
   baseHunger: 50
   hungerDepleteRate: 0.05
+  maxHealthStage1: 50
+  maxHealthStage2: 100
+  maxHealthStage3: 140
   maxNutritionStage1: 70
   maxNutritionStage2: 210
   maxNutritionStage3: 252.00002
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 6
@@ -43,7 +47,9 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  evolutionLevel: 1
+  evolutionLevel: 0
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 1382400
@@ -64,7 +70,9 @@ MonoBehaviour:
     description: Evolve to Hibikitsu Stage 3
     progressRetentionPercentage: 0
   monsterSpine: []
-  monsIconImg: []
+  CardIcon: []
+  DetailsIcon: []
+  CatalogueIcon: []
   evolutionAnimationSets: []
   evolutionBehaviors: []
   monsterPrice: 0
