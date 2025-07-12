@@ -71,7 +71,7 @@ public class MonsterCatalogueUI : MonoBehaviour
         CloseMonsterListBtn.onClick.RemoveAllListeners();
         monsterCollectionBtn.onClick.RemoveAllListeners();
 
-        // StoreBtn.onClick.AddListener(OnStoreButtonClicked);
+        StoreBtn.onClick.AddListener(OnStoreButtonClicked);
         TypeBtn.onClick.AddListener(OnTypeButtonClicked);
         RenameGameAreaBtn.onClick.AddListener(OnRenameGameAreaButtonClicked);
         SwitchGameAreaBtn.onClick.AddListener(OnSwitchGameAreaButtonClicked);
@@ -101,6 +101,12 @@ public class MonsterCatalogueUI : MonoBehaviour
                 monsterCollectionCanvasGroup.blocksRaycasts = true;
             });
         });
+    }
+
+    private void OnStoreButtonClicked()
+    {
+        Debug.Log("Store button clicked.");
+        ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
     }
 
     private void InitializeGameAreaButtonPool()

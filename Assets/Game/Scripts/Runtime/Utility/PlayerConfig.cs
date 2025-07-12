@@ -249,10 +249,11 @@ public class GameAreaData
 [Serializable]
 public class MonsterCollectionData
 {
+    public bool isUnlocked;
     public string monsterId;
     public string monsterName;
     public string monsterCount;
-    public string monsterDescription;
+    public int evolutionStage;
 }
 
 
