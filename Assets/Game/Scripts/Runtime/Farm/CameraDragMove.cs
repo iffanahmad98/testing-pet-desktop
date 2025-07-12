@@ -6,6 +6,11 @@ namespace MagicalGarden.Farm
 {
     public class CameraDragMove : MonoBehaviour
     {
+        [Header("Drag Boundaries")]
+        public Collider2D boundaryColliderFarm;
+        public Collider2D boundaryColliderHotel;
+        private Collider2D currentBoundary;
+
         [Header("Drag Settings")]
         public float dragSpeed = 5f;
         private Vector3 dragOrigin;
@@ -15,23 +20,25 @@ namespace MagicalGarden.Farm
         public float zoomSpeed = 5f;
         public float minZoom = 3f;
         public float maxZoom = 12f;
+
         [Header("Control Flags")]
         public bool canDrag = true;
         public bool canZoom = true;
 
         private Camera cam;
-
         private Coroutine zoomCoroutine;
 
         void Start()
         {
             cam = Camera.main;
+            currentBoundary = boundaryColliderFarm; // default ke farm
         }
 
         void Update()
         {
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
+
             HandleDrag();
             HandleZoom();
         }
@@ -39,6 +46,7 @@ namespace MagicalGarden.Farm
         void HandleDrag()
         {
             if (!canDrag) return;
+
             if (Input.GetMouseButtonDown(2)) // Middle mouse
             {
                 isDragging = true;
@@ -54,57 +62,86 @@ namespace MagicalGarden.Farm
             {
                 Vector3 currentPos = cam.ScreenToWorldPoint(Input.mousePosition);
                 Vector3 difference = dragOrigin - currentPos;
-                transform.position += difference;
+                Vector3 newPos = transform.position + difference;
+                transform.position = ClampCameraPosition(newPos, cam.orthographicSize);
             }
         }
 
         void HandleZoom()
         {
             if (!canZoom) return;
+
             float scroll = Input.mouseScrollDelta.y;
             if (scroll != 0f)
             {
                 float targetZoom = cam.orthographicSize - scroll * zoomSpeed * Time.deltaTime;
                 cam.orthographicSize = Mathf.Clamp(targetZoom, minZoom, maxZoom);
+                transform.position = ClampCameraPosition(transform.position, cam.orthographicSize);
             }
         }
 
-        // Call this when pet starts evolving
-        public void FocusOnTarget(Vector3 target, float zoomSize = 4f, float duration = 1f)
+        Vector3 ClampCameraPosition(Vector3 targetPos, float customZoom)
         {
+            if (currentBoundary == null) return targetPos;
+
+            Bounds bounds = currentBoundary.bounds;
+            float camHeight = customZoom;
+            float camWidth = camHeight * cam.aspect;
+
+            float minX = bounds.min.x + camWidth;
+            float maxX = bounds.max.x - camWidth;
+            float minY = bounds.min.y + camHeight;
+            float maxY = bounds.max.y - camHeight;
+
+            float clampedX = Mathf.Clamp(targetPos.x, minX, maxX);
+            float clampedY = Mathf.Clamp(targetPos.y, minY, maxY);
+
+            return new Vector3(clampedX, clampedY, targetPos.z);
+        }
+
+        // Focus kamera ke titik target sambil zoom in/out
+        public void FocusOnTarget(Vector3 target, float zoomSize = 4f, float duration = 1f, bool isHotel = false)
+        {
+            currentBoundary = isHotel ? boundaryColliderHotel : boundaryColliderFarm;
+
             if (zoomCoroutine != null)
                 StopCoroutine(zoomCoroutine);
 
             zoomCoroutine = StartCoroutine(ZoomAndFocus(target, zoomSize, duration));
         }
 
-        // Call this after evolve ends
+        // Reset kamera ke zoom default (posisi tetap)
         public void ResetZoom(float duration = 1f)
         {
             if (zoomCoroutine != null)
                 StopCoroutine(zoomCoroutine);
 
-            zoomCoroutine = StartCoroutine(ZoomAndFocus(transform.position, maxZoom/2, duration, resetPosition: true));
+            zoomCoroutine = StartCoroutine(ZoomAndFocus(transform.position, maxZoom / 2, duration));
         }
 
-        IEnumerator ZoomAndFocus(Vector3 targetPosition, float targetZoom, float duration, bool resetPosition = false)
+        IEnumerator ZoomAndFocus(Vector3 targetPosition, float targetZoom, float duration)
         {
             Vector3 startPos = transform.position;
             float startZoom = cam.orthographicSize;
 
-            float time = 0f;
-            while (time < duration)
-            {
-                time += Time.deltaTime;
-                float t = time / duration;
+            float elapsed = 0f;
 
-                transform.position = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), t);
-                cam.orthographicSize = Mathf.Lerp(startZoom, targetZoom, t);
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.SmoothStep(0, 1, elapsed / duration);
+
+                float currentZoom = Mathf.Lerp(startZoom, targetZoom, t);
+                cam.orthographicSize = currentZoom;
+
+                Vector3 interpolatedPos = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), t);
+                transform.position = ClampCameraPosition(interpolatedPos, currentZoom);
+
                 yield return null;
             }
 
-            if (resetPosition)
-                transform.position = startPos; // Optional: Keep original camera pos after zoom out
+            cam.orthographicSize = targetZoom;
+            transform.position = ClampCameraPosition(new Vector3(targetPosition.x, targetPosition.y, startPos.z), targetZoom);
         }
     }
 }

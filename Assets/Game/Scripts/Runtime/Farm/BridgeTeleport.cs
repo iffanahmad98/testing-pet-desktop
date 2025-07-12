@@ -62,12 +62,12 @@ public class BridgeTeleport : MonoBehaviour
         {
             case TeleportTarget.ToHotel:
                 if (hotelSpawnPoint != null)
-                    camMove.FocusOnTarget(hotelSpawnPoint.position, targetZoom, transitionDuration);
+                    camMove.FocusOnTarget(hotelSpawnPoint.position, targetZoom, transitionDuration, isHotel: true);
                 break;
 
             case TeleportTarget.ToFarm:
                 if (farmSpawnPoint != null)
-                    camMove.FocusOnTarget(farmSpawnPoint.position, targetZoom, transitionDuration);
+                    camMove.FocusOnTarget(farmSpawnPoint.position, targetZoom, transitionDuration, isHotel: false);
                 break;
         }
     }

@@ -30,16 +30,22 @@ public class ClickableObject : MonoBehaviour
 
     private void OnMouseEnter()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
         isHovered = true;
     }
 
     private void OnMouseExit()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
         isHovered = false;
     }
 
     private void OnMouseDown()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
         ShowMenu();
     }
 

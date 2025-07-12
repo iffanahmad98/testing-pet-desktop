@@ -15,9 +15,11 @@ namespace MagicalGarden.Manager
         [Header("Google Sheet Settings")]
         [Tooltip("URL dari Web App Google Script")]
         public string sheetUrl = "";
+        public string sheetMonsterSeedUrl = "";
 
         // [HideInInspector]
         public List<SheetData> itemList = new();
+        public List<SheetMonsterSeedData> itemMonsterSeedList = new();
 
         public Action OnDataLoaded;
 
@@ -39,8 +41,9 @@ namespace MagicalGarden.Manager
         }
 
         public void ResfreshData()
-        { 
+        {
             StartCoroutine(FetchSheetData());
+            StartCoroutine(FetchMonsterSeedData());
         }
 
         IEnumerator FetchSheetData()
@@ -52,26 +55,51 @@ namespace MagicalGarden.Manager
             {
                 Debug.Log("✅ Berhasil ambil data dari GSheet");
                 string rawJson = www.downloadHandler.text;
-                itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
+                Debug.LogError(rawJson);
+                // itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
+                // Debug.Log($"📦 Jumlah item: {itemList.Count}");
+                // OnDataLoaded?.Invoke();
+                try
+                {
+                    itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
                     Debug.Log($"📦 Jumlah item: {itemList.Count}");
                     OnDataLoaded?.Invoke();
-                // try
-                // {
-                //     itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
-                //     Debug.Log($"📦 Jumlah item: {itemList.Count}");
-                //     OnDataLoaded?.Invoke();
-                // }
-                // catch (Exception e)
-                // {
-                //     Debug.LogError("❌ Gagal parsing JSON: " + e.Message);
-                // }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("❌ Gagal parsing JSON: " + e.Message);
+                }
             }
             else
             {
                 Debug.LogError("Gagal ambil data dari GSheet: " + www.error);
             }
         }
+        IEnumerator FetchMonsterSeedData()
+        {
+            UnityWebRequest www = UnityWebRequest.Get(sheetMonsterSeedUrl);
+            yield return www.SendWebRequest();
 
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("✅ Berhasil ambil data monster seed dari GSheet");
+                string rawJson = www.downloadHandler.text;
+                Debug.LogError(rawJson);
+                try
+                {
+                    itemMonsterSeedList = JsonConvert.DeserializeObject<List<SheetMonsterSeedData>>(rawJson);
+                    Debug.Log($"👾 Jumlah monster seed: {itemMonsterSeedList.Count}");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("❌ Gagal parsing monster seed JSON: " + e.Message);
+                }
+            }
+            else
+            {
+                Debug.LogError("Gagal ambil data monster seed dari GSheet: " + www.error);
+            }
+        }
 
     }
     [System.Serializable]
@@ -79,33 +107,48 @@ namespace MagicalGarden.Manager
     {
         public List<SheetData> items;
     }
-
-
     [System.Serializable]
+
     public class SheetData
     {
+        [JsonProperty("Farming")]
+        public string farmingType;
+        [JsonProperty("No.")]
+        public string number;
         [JsonProperty("List")]
         public string seedName;
-        [JsonProperty("Seed Price")]
+        [JsonProperty("Seed Price (gold)")]
         public string seedPrice;
-
-        [JsonProperty("Durasi Siram")]
+        [JsonProperty("Seed Quantity")]
+        public string seedQuantity;
+        [JsonProperty("Durasi Siram (jam)")]
         public string wateringInterval;
-
         [JsonProperty("Durasi Tumbuh\n(Stage 1-2-3)(jam)")]
-        public string growDurationStages;
-
+        public string growDurationStages; // Tetap string jika ingin parsing manual "1,2,3"
         [JsonProperty("Total Durasi Tumbuh (jam)")]
-        public int totalGrowTime;
-
-        [JsonProperty("Waktu Layu (Jam)")]
-        public int wiltTime;
-
-        [JsonProperty("Waktu Mati\n(tanpa disiram)")]
-        public int deadTime;
-
+        public string totalGrowTime;
+        [JsonProperty("Waktu Layu (hari)")]
+        public string wiltTimeDays;
+        [JsonProperty("Waktu Mati\n(hari) ")]
+        public string deadTimeDays;
         [JsonProperty("Information")]
         public string description;
+    }
+
+    [System.Serializable]
+    public class SheetMonsterSeedData
+    {
+        [JsonProperty("Name")]
+        public string name;
+
+        [JsonProperty("Type")]
+        public string type;
+
+        [JsonProperty("Chance")]
+        public string changeMonster;
+
+        [JsonProperty("Price")]
+        public string price;
     }
 
 }

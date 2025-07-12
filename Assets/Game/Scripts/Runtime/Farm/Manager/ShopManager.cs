@@ -1,18 +1,28 @@
 using MagicalGarden.Shop;
 using UnityEngine;
+using UnityEngine.UI;
 using MagicalGarden.Inventory;
 using System.Linq;
 using System.Collections.Generic;
+using TMPro;
 
 namespace MagicalGarden.Manager
-{    
-    public class ShopManager : MonoBehaviour {
-        public Transform content;
+{
+    public class ShopManager : MonoBehaviour
+    {
+        public Transform contentSeed;
+        public Transform contentMonster;
         public GameObject itemShop;
         public ShopUI shopPlantUI;
         public ShopUI shopMonsterUI;
         public List<ItemData> allItems;
         public static ShopManager Instance;
+        [Header("Information Shop")]
+        public Image iconSeed;
+        public TextMeshProUGUI priceText;
+        public TextMeshProUGUI timeWateringText;
+        public TextMeshProUGUI timeGrowText;
+        public TextMeshProUGUI longDescText;
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -43,12 +53,30 @@ namespace MagicalGarden.Manager
             var items = GSheetManager.Instance.itemList;
             foreach (var item in items)
             {
-                // Debug.Log($"{item.seedName} - Harga: {item.seedPrice}");
-                var prefabItem = Instantiate(itemShop);
-                prefabItem.GetComponent<ItemShop>().Setup(item, null);
-                prefabItem.transform.SetParent(content, false);
+                if (item.farmingType.ToLower() == "food")
+                {
+                    // Debug.Log($"{item.seedName} - Harga: {item.seedPrice}");
+                    var prefabItem = Instantiate(itemShop);
+                    prefabItem.GetComponent<ItemShop>().Setup(item, null);
+                    prefabItem.transform.SetParent(contentSeed, false);
+                }
+                if (item.farmingType.ToLower() == "monster")
+                {
+                    var prefabItem = Instantiate(itemShop);
+                    prefabItem.GetComponent<ItemShop>().Setup(item, null);
+                    prefabItem.transform.SetParent(contentMonster, false);
+                }
             }
             RefreshAllInventoryUI();
+        }
+
+        public void SetInformation(SheetData currentItemData, Sprite iconData)
+        {
+            iconSeed.sprite = iconData;
+            timeGrowText.text = currentItemData.totalGrowTime;
+            priceText.text = currentItemData.seedPrice;
+            timeWateringText.text = currentItemData.wateringInterval;
+            longDescText.text = currentItemData.description;
         }
     }
 }

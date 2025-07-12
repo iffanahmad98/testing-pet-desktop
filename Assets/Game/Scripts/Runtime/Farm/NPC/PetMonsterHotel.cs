@@ -240,7 +240,7 @@ namespace MagicalGarden.AI
             // Delay sebelum hilang (optional)
             yield return new WaitForSeconds(0.5f);
 
-            Debug.Log($"💨 Pet {name} sampai ke tujuan dan akan dihancurkan.");
+            // Debug.Log($"💨 Pet {name} sampai ke tujuan dan akan dihancurkan.");
             Destroy(gameObject);
         }
         #endregion

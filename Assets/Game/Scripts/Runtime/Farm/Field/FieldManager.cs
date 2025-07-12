@@ -74,7 +74,7 @@ namespace MagicalGarden.Farm
                         if (tilemap.HasTile(tilePos))
                         {
                             tilemap.SetTile(tilePos, null);
-                            Debug.Log($"[Unlock] Removed locked tile at {tilePos}");
+                            // Debug.Log($"[Unlock] Removed locked tile at {tilePos}");
                         }
                     }
                     else
@@ -82,7 +82,7 @@ namespace MagicalGarden.Farm
                         if (tilemap.HasTile(tilePos))
                         {
                             tilemap.SetTile(tilePos, lockedTile);
-                            Debug.Log($"[Lock] Set locked tile at {tilePos}");
+                            // Debug.Log($"[Lock] Set locked tile at {tilePos}");
                         }
                     }
                 }

@@ -75,7 +75,7 @@ namespace MagicalGarden.Farm
 
             var currentStage = growthRequirements[stage];
 
-            Debug.LogError($"[{seedName}] Update: +{boostedHours:F2}h (base: {deltaHours:F2}h, boost: {fertilizerBoost}%) | Total timeInStage: {timeInStage:F2}/{currentStage.requiredHours}h");
+            // Debug.LogError($"[{seedName}] Update: +{boostedHours:F2}h (base: {deltaHours:F2}h, boost: {fertilizerBoost}%) | Total timeInStage: {timeInStage:F2}/{currentStage.requiredHours}h");
 
             // Naik ke tahap berikutnya jika cukup waktu
             if (timeInStage >= currentStage.requiredHours)

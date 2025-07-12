@@ -21,5 +21,11 @@ namespace MagicalGarden.Farm
             cameraRig.canDrag = true;
             cameraRig.canZoom = true;
         }
+
+        public bool HasEnoughPetsInInventory(int requiredCount)
+        {
+            //change to get count pet
+            return true;
+        }
     }
 }

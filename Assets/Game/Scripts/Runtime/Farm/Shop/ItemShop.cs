@@ -17,6 +17,7 @@ namespace MagicalGarden.Shop
         public TextMeshProUGUI priceText;
         public Button buyButton;
         private SheetData currentItemData;
+        private Sprite iconData;
 
         [Header("Tooltip Panel")]
         public GameObject tooltipPanel;
@@ -28,6 +29,7 @@ namespace MagicalGarden.Shop
             if (itemData != null)
             {
                 itemIcon.sprite = itemData.icon;
+                iconData = itemData.iconCrop;
             }
             else
             {
@@ -35,12 +37,13 @@ namespace MagicalGarden.Shop
                 itemIcon.sprite = null;
             }
             titleText.text = itemShop.seedName;
+            priceText.text = itemShop.seedPrice;
             tooltipText.text = $"Harga: {itemShop.seedPrice}\n" +
                                $"Siram: {itemShop.wateringInterval}\n" +
                                $"Durasi: {itemShop.growDurationStages}\n" +
                                $"Total: {itemShop.totalGrowTime} jam\n" +
-                               $"Layu: {itemShop.wiltTime} jam\n" +
-                               $"Mati: {itemShop.deadTime} jam\n\n" +
+                               $"Layu: {itemShop.wiltTimeDays} jam\n" +
+                               $"Mati: {itemShop.deadTimeDays} jam\n\n" +
                                $"{itemShop.description}";
 
             tooltipPanel.SetActive(false);
@@ -57,7 +60,7 @@ namespace MagicalGarden.Shop
             if (itemData != null)
             {
                 InventoryManager.Instance.AddItem(itemData, 1);
-                CoinManager.Instance.SpendCoins(10);
+                CoinManager.Instance.SpendCoins(int.Parse(currentItemData.seedPrice));
                 InventoryManager.Instance.RefreshAllInventoryUI();
 
                 Debug.Log($"✅ Bought seed: {itemData.itemId}");
@@ -70,12 +73,12 @@ namespace MagicalGarden.Shop
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltipPanel.SetActive(true);
+            ShopManager.Instance.SetInformation(currentItemData, iconData);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            tooltipPanel.SetActive(false);
+            
         }
     }
 }

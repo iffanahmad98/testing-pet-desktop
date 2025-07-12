@@ -22,9 +22,10 @@ namespace MagicalGarden.AI
         protected Dictionary<string, string> animationFallbacks = new Dictionary<string, string>
         {
             { "running", "flying" },
+            { "flying", "walking" },
             { "jumping", "jump" },
-            { "idle", "hover" },
-            // tambahkan fallback lainnya di sini
+            { "jump", "walking" },
+            { "idle", "hover" }
         };
         protected Coroutine currentCoroutine;
         protected void StartNewCoroutine(IEnumerator routine)
@@ -86,6 +87,7 @@ namespace MagicalGarden.AI
         {
             Vector3Int tile = terrainTilemap.WorldToCell(transform.position);
             currentTile = new Vector2Int(tile.x, tile.y);
+
             Vector2Int[] directions = new Vector2Int[]
             {
                 new Vector2Int(1, 0),
@@ -93,34 +95,52 @@ namespace MagicalGarden.AI
                 new Vector2Int(0, 1),
                 new Vector2Int(0, -1)
             };
-
-            Vector2Int chosenDir = directions[Random.Range(0, directions.Length)];
-            Vector2Int targetTile = currentTile + chosenDir;
-            if (!IsPathClear(currentTile, targetTile))
+            for (int i = directions.Length - 1; i > 0; i--)
             {
-                Debug.Log($"Blocked path: {currentTile} → {targetTile}");
-                if (IsJumpOverPossible(currentTile, targetTile))
+                int rand = Random.Range(0, i + 1);
+                (directions[i], directions[rand]) = (directions[rand], directions[i]);
+            }
+
+            bool moved = false;
+
+            foreach (var dir in directions)
+            {
+                Vector2Int targetTile = currentTile + dir;
+
+                if (!IsPathClear(currentTile, targetTile))
                 {
-                    yield return JumpToTile(targetTile); // ← Tambahkan coroutine ini
-                    yield break;
+                    // Debug.Log($"Blocked path: {currentTile} → {targetTile}");
+
+                    if (IsJumpOverPossible(currentTile, targetTile))
+                    {
+                        yield return JumpToTile(targetTile);
+                        currentTile = targetTile;
+                        moved = true;
+                        break;
+                    }
+
+                    continue;
                 }
 
-                yield return IdleState();
-                yield break;
-            }
-            SetAnimation("walking");
+                SetAnimation("walking");
 
-            Vector3 targetPos = GridToWorld(targetTile);
-            FlipByTarget(transform.position, targetPos);
-            while (Vector3.Distance(transform.position, targetPos) > 0.01f)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, walkSpeed * Time.deltaTime);
-                yield return null;
+                Vector3 targetPos = GridToWorld(targetTile);
+                FlipByTarget(transform.position, targetPos);
+
+                while (Vector3.Distance(transform.position, targetPos) > 0.01f)
+                {
+                    transform.position = Vector3.MoveTowards(transform.position, targetPos, walkSpeed * Time.deltaTime);
+                    yield return null;
+                }
+
+                transform.position = targetPos;
+                currentTile = targetTile;
+                moved = true;
+                break;
             }
 
-            transform.position = targetPos;
-            currentTile = targetTile;
             SetAnimation("idle");
+            yield return IdleState();
         }
         protected virtual IEnumerator RunState()
         {
@@ -200,25 +220,42 @@ namespace MagicalGarden.AI
         }
         protected virtual void SetAnimation(string animName)
         {
-            string resolvedAnim = animName;
+            string resolvedAnim = ResolveAnimationWithFallback(animName);
 
-            if (!HasAnimation(resolvedAnim))
+            if (string.IsNullOrEmpty(resolvedAnim))
             {
-                if (animationFallbacks.TryGetValue(animName, out var fallbackAnim) && HasAnimation(fallbackAnim))
-                {
-                    Debug.LogWarning($"Animation '{animName}' not found. Fallback to '{fallbackAnim}'");
-                    resolvedAnim = fallbackAnim;
-                }
-                else
-                {
-                    Debug.LogWarning($"Animation '{animName}' and fallback not found. Skipping animation.");
-                    return;
-                }
+                Debug.LogWarning($"⛔ Animation '{animName}' and all fallbacks not found.");
+                return;
             }
 
             if (currentState == resolvedAnim) return;
+
             currentState = resolvedAnim;
             skeleton.AnimationState.SetAnimation(0, resolvedAnim, true);
+        }
+
+        private string ResolveAnimationWithFallback(string startAnim)
+        {
+            string current = startAnim;
+            HashSet<string> visited = new HashSet<string>();
+
+            while (!string.IsNullOrEmpty(current))
+            {
+                if (HasAnimation(current))
+                    return current;
+
+                if (visited.Contains(current))
+                    break; // Hindari infinite loop
+
+                visited.Add(current);
+
+                if (animationFallbacks.TryGetValue(current, out string next))
+                    current = next;
+                else
+                    break;
+            }
+
+            return null; // Tidak ada animasi valid ditemukan
         }
         protected bool HasAnimation(string animName)
         {
