@@ -25,7 +25,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Buttons")]
     public Button UIMenuButton;
-    public Button InventoryButton;
+    public Button miniInventoryButton;
     public Button groundButton;
     public Button doorButton;
     public Button windowButton;
@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
 
         settingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
-        InventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
+        miniInventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
         catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
         mainInventoryButton?.onClick.AddListener(() => FadePanel(MainInventoryPanel, MainInventoryCanvasGroup, true));
 
@@ -173,7 +173,7 @@ public class UIManager : MonoBehaviour
         closeShopButton?.onClick.RemoveAllListeners();
         catalogueButton?.onClick.RemoveAllListeners();
         closeCatalogueButton?.onClick.RemoveAllListeners();
-        InventoryButton?.onClick.RemoveAllListeners();
+        miniInventoryButton?.onClick.RemoveAllListeners();
         mainInventoryButton?.onClick.RemoveAllListeners();
         closeMainInventoryButton?.onClick.RemoveAllListeners();
     }
@@ -303,6 +303,7 @@ public class UIManager : MonoBehaviour
         UIFloatMenuCanvasGroup.alpha = 1f;
 
         UIMenuButton.interactable = false;
+        miniInventoryButton.interactable = false;
         _isAnimating = false;
     }
 
@@ -513,13 +514,12 @@ public class UIManager : MonoBehaviour
 
     private void UpdateCoinCounterValue(int newCoinAmount)
     {
-        // coinCounterText.text = $"Coin : {newCoinAmount}";
         playerCoin.text = $"{newCoinAmount}";
     }
 
     private void UpdatePoopCounterValue(int newPoopAmount)
     {
-        // poopCounterText.text = $"Poop : {newPoopAmount}";
+
     }
 
     #endregion
