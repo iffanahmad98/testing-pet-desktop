@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
 
 public class FacilityManager : MonoBehaviour
 {
+    public GameObject magicShovelPrefab;
     [SerializeField] private Button magicShovelButton;
     [SerializeField] private FacilityDatabaseSO facilityDatabase;
 
@@ -28,11 +30,11 @@ public class FacilityManager : MonoBehaviour
 
     public bool CanUseFacility(string facilityID)
     {
-        if (!SaveSystem.PlayerConfig.HasFacility(facilityID))
-        {
-            Debug.LogWarning($"Facility {facilityID} is not owned.");
-            return false;
-        }
+        // if (!SaveSystem.PlayerConfig.HasFacility(facilityID))
+        // {
+        //     Debug.LogWarning($"Facility {facilityID} is not owned.");
+        //     return false;
+        // }
 
         var facility = GetFacilityByID(facilityID);
         if (facility == null) return false;
@@ -73,7 +75,7 @@ public class FacilityManager : MonoBehaviour
 
         return true;
     }
-    private System.Collections.IEnumerator UseMagicShovel()
+    private IEnumerator UseMagicShovel()
     {
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         var poops = new List<PoopController>(monsterManager.activePoops);
@@ -82,8 +84,13 @@ public class FacilityManager : MonoBehaviour
         {
             if (poop != null && poop.gameObject.activeInHierarchy)
             {
-                poop.OnCollected(); // or monsterManager.DespawnToPool(poop.gameObject)
-                yield return new WaitForSeconds(0.2f); // Add a delay for effect
+                magicShovelPrefab.SetActive(true);
+                magicShovelPrefab.transform.position = poop.GetComponent<RectTransform>().position;
+                magicShovelPrefab.GetComponent<UIAnimator>().Play();
+                yield return new WaitForSeconds(1f); // Add a delay for effect
+                poop.OnCollected(); // or monsterManager.DespawnToPool(poop.gameObject));
+                magicShovelPrefab.SetActive(false);
+                yield return new WaitForSeconds(0.5f); // Delay between each poop collection
             }
         }
 
