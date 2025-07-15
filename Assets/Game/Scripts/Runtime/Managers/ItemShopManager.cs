@@ -82,7 +82,7 @@ public class ItemShopManager : MonoBehaviour
         {
             OnItemSelected(card);
 
-            itemInventoryUI.StartPopulateInventory();
+            // itemInventoryUI.StartPopulateInventory();
             // Success message
             ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
         }
