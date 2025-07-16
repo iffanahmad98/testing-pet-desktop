@@ -10,7 +10,10 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     public TextMeshProUGUI amountText;
 
     private ItemDataSO itemData;
+    public ItemDataSO ItemDataSO => itemData;
     private int itemAmount;
+    private ItemInventoryUI inventoryUI;
+
 
     public void Initialize(ItemDataSO data, ItemType type, int amount)
     {
@@ -19,18 +22,28 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 
         iconImage.sprite = itemData.itemImgs[0];
         amountText.text = $"{amount} pcs";
+        inventoryUI = ServiceLocator.Get<ItemInventoryUI>();
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (itemAmount <= 0) return;
+
+        // Check for Delete Mode first
+        if (inventoryUI != null && inventoryUI.IsInDeleteMode)
+        {
+            inventoryUI.ConfirmDeleteItem(this);
+            return;
+        }
+
+        // Right-click cancels placement
         if (eventData.button == PointerEventData.InputButton.Right)
         {
             ServiceLocator.Get<PlacementManager>().CancelPlacement();
             return;
         }
 
-        if (itemAmount <= 0) return;
-
+        // Normal placement behavior
         var placementManager = ServiceLocator.Get<PlacementManager>();
         GameObject prefabToPlace = placementManager.GetPrefabForItemType(itemData.category);
         RectTransform canvas = placementManager.GetCanvasParent();
@@ -51,6 +64,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             previewSprite: itemData.itemImgs[0]
         );
     }
+
 
     private void OnConfirmPlacement(Vector2 position)
     {
@@ -77,4 +91,11 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     {
         Debug.Log("Placement cancelled.");
     }
+    public void ResetSlot()
+    {
+        iconImage.sprite = null;
+        iconImage.enabled = false;
+        amountText.text = "";
+    }
+
 }
