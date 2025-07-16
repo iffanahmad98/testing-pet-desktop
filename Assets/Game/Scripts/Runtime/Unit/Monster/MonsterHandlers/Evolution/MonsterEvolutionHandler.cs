@@ -29,6 +29,8 @@ public class MonsterEvolutionHandler
     public int NutritionConsumed => _nutritionConsumed;
     public int InteractionCount => _interactionCount;
 
+    public static event Action<MonsterController> OnMonsterEvolved;
+
     public MonsterEvolutionHandler(MonsterController controller, SkeletonGraphic skeletonGraphic)
     {
         _controller = controller;
@@ -262,25 +264,33 @@ public class MonsterEvolutionHandler
     }
     public void ResetMonsterData()
     {
-        // Refresh Monster ID (already done during evolution)
         UpdateMonsterID(_targetLevel);
-
-        // Reset tracking
         ResetEvolutionTracking();
-
-        // Reload max HP and max Hunger for the new evolution level
-        float newMaxHP = _controller.MonsterData.GetMaxHealth(_targetLevel);
-
-        // Reset and clamp stats
-        _controller.StatsHandler.Initialize(
-            initialHealth: newMaxHP,
-            initialHunger: _controller.MonsterData.baseHunger,
-            initialHappiness: _controller.MonsterData.baseHappiness,
-            maxHP: newMaxHP
-        );
-
-        // Save the refreshed data
-        _controller.SaveMonData();
+        
+        // Get max health for new evolution level
+        var maxHealth = _controller.MonsterData.GetMaxHealth(_targetLevel);
+        _controller.StatsHandler.Initialize(_controller.StatsHandler.CurrentHP, 
+                                          _controller.StatsHandler.CurrentHunger, 
+                                          _controller.StatsHandler.CurrentHappiness, 
+                                          maxHealth);
+        
+        // Direct save instead of using MonsterSaveHandler
+        var data = new MonsterSaveData
+        {
+            instanceId = _controller.monsterID,
+            monsterId = _controller.MonsterData.id,
+            gameAreaId = _controller.MonsterManager.currentGameAreaIndex,
+            currentHunger = _controller.StatsHandler.CurrentHunger,
+            currentHappiness = _controller.StatsHandler.CurrentHappiness,
+            currentHealth = _controller.StatsHandler.CurrentHP,
+            currentEvolutionLevel = _controller.evolutionLevel,
+            timeCreated = _controller.GetEvolveTimeCreated(),
+            totalTimeSinceCreation = _controller.GetEvolveTimeSinceCreation(),
+            nutritionConsumed = _controller.GetEvolveNutritionConsumed(),
+            currentInteraction = _controller.GetEvolutionInteractionCount()
+        };
+        
+        SaveSystem.SaveMon(data); // Direct save call
     }
 
 }

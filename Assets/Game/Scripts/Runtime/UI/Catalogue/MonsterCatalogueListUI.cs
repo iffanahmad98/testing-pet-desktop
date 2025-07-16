@@ -24,6 +24,20 @@ public class MonsterCatalogueListUI : MonoBehaviour
         monsterManager = ServiceLocator.Get<MonsterManager>();
         InitializeItemPool();
         RefreshCatalogue();
+        
+        // Subscribe to evolution events
+        MonsterEvolutionHandler.OnMonsterEvolved += OnMonsterEvolved;
+    }
+    
+    private void OnDestroy()
+    {
+        // Unsubscribe to prevent memory leaks
+        MonsterEvolutionHandler.OnMonsterEvolved -= OnMonsterEvolved;
+    }
+    
+    private void OnMonsterEvolved(MonsterController evolvedMonster)
+    {
+        RefreshCatalogue();
     }
 
     private void InitializeItemPool()

@@ -550,7 +550,6 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         }
     }
 
-    public void SaveMonData() => _saveHandler?.SaveData();
     public void LoadMonData() => _saveHandler?.LoadData();
     #endregion
 

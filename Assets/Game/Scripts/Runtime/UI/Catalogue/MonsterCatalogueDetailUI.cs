@@ -21,6 +21,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public TextMeshProUGUI monsterSellPriceText;
     public TextMeshProUGUI monsterEarningText;
     public Button markFavoriteButton;
+    public CatalogueMonsterData currentMonsterData;
 
     private void Awake()
     {
@@ -28,7 +29,17 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         layoutElement.ignoreLayout = true;
-        smoothFitter = CataloguePanel.GetComponent<UISmoothFitter>(); 
+        smoothFitter = CataloguePanel.GetComponent<UISmoothFitter>();
+    }
+
+    private void Start()
+    {
+        MonsterEvolutionHandler.OnMonsterEvolved += OnMonsterEvolved;
+    }
+
+    private void OnDestroy()
+    {
+        MonsterEvolutionHandler.OnMonsterEvolved -= OnMonsterEvolved;
     }
 
     public void SetDetails(CatalogueMonsterData catalogueMonsterData = null)
@@ -44,6 +55,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
 
         if (catalogueMonsterData == null)
         {
+            currentMonsterData = null;
+            monsterImage.sprite = null;
+            monsterNameText.text = string.Empty;
             // Hide the detail panel if no monster is provided
             smoothFitter.Kick();
             canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
@@ -56,6 +70,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         }
         else
         {
+            currentMonsterData = catalogueMonsterData;
             // Ensure the detail panel is active before setting details
             canvasGroup.alpha = 0f; // Reset alpha to 0 before fading in
             smoothFitter.Kick();
@@ -77,6 +92,15 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             monsterEvolutionProgressSlider.value = (catalogueMonsterData.evolutionLevel - 1f) / 2f;
             monsterSellPriceText.text = $"{catalogueMonsterData.GetSellPrice()}";
             monsterEarningText.text = $"{(1 / catalogueMonsterData.GetGoldCoinDropRate() / 60).ToString("F2")} / MIN";
+        }
+    }
+
+    private void OnMonsterEvolved(MonsterController evolvedMonster)
+    {
+        // If the evolved monster is currently displayed, refresh the details
+        if (currentMonsterData != null && currentMonsterData.monsterID == evolvedMonster.monsterID)
+        {
+            SetDetails(new CatalogueMonsterData(evolvedMonster));
         }
     }
 }
