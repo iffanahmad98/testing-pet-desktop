@@ -7,6 +7,7 @@ public class FacilityManager : MonoBehaviour
 {
     [SerializeField] private Button magicShovelButton;
     [SerializeField] private FacilityDatabaseSO facilityDatabase;
+    [SerializeField] private GameObject magicShovelPrefab;
 
     public FacilityDatabaseSO FacilityDatabase => facilityDatabase;
 
@@ -28,11 +29,11 @@ public class FacilityManager : MonoBehaviour
 
     public bool CanUseFacility(string facilityID)
     {
-        if (!SaveSystem.PlayerConfig.HasFacility(facilityID))
-        {
-            Debug.LogWarning($"Facility {facilityID} is not owned.");
-            return false;
-        }
+        // if (!SaveSystem.PlayerConfig.HasFacility(facilityID))
+        // {
+        //     Debug.LogWarning($"Facility {facilityID} is not owned.");
+        //     return false;
+        // }
 
         var facility = GetFacilityByID(facilityID);
         if (facility == null) return false;
@@ -77,12 +78,19 @@ public class FacilityManager : MonoBehaviour
     {
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         var poops = new List<PoopController>(monsterManager.activePoops);
+        var magicShovelAnim = magicShovelPrefab.GetComponent<UIAnimator>();
+        var magicShovelRT = magicShovelPrefab.GetComponent<RectTransform>();
 
         foreach (var poop in poops)
         {
             if (poop != null && poop.gameObject.activeInHierarchy)
             {
+                magicShovelRT.position = poop.transform.position;
+                magicShovelPrefab.SetActive(true);
+                magicShovelAnim.Play();
+                yield return new WaitForSeconds(0.5f); // Wait for animation to play
                 poop.OnCollected(); // or monsterManager.DespawnToPool(poop.gameObject)
+                magicShovelPrefab.SetActive(false);
                 yield return new WaitForSeconds(0.2f); // Add a delay for effect
             }
         }
