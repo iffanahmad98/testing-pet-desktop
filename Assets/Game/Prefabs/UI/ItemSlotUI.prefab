@@ -299,6 +299,7 @@ GameObject:
   - component: {fileID: 1769638643595904569}
   - component: {fileID: 7343581440550872407}
   - component: {fileID: 7487192110498114565}
+  - component: {fileID: 4220242184847175940}
   m_Layer: 5
   m_Name: ItemSlotUI
   m_TagString: Untagged
@@ -379,3 +380,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconImage: {fileID: 4621852589102871481}
   amountText: {fileID: 7746863630103741582}
+  canvasGroup: {fileID: 4220242184847175940}
+  graphicRaycaster: {fileID: 0}
+--- !u!225 &4220242184847175940
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8658521921765952764}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

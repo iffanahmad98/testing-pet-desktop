@@ -20,8 +20,6 @@ public class UIManager : MonoBehaviour
     public CanvasGroup CatalogueCanvasGroup;
     public GameObject InventoryPanel;
     public CanvasGroup InventoryCanvasGroup;
-    public GameObject MainInventoryPanel;
-    public CanvasGroup MainInventoryCanvasGroup;
 
     [Header("Buttons")]
     public Button UIMenuButton;
@@ -150,14 +148,27 @@ public class UIManager : MonoBehaviour
 
         settingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
-        miniInventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
+        miniInventoryButton?.onClick.AddListener(() =>
+        {
+            bool isActive = InventoryCanvasGroup.interactable;
+
+            if (isActive)
+            {
+                // Fade out and disable
+                FadePanel(InventoryPanel, InventoryCanvasGroup, false, 0.3f, 1.08f, 0.15f, true);
+            }
+            else
+            {
+                // Fade in and enable
+                FadePanel(InventoryPanel, InventoryCanvasGroup, true, 0.3f, 1.08f, 0.15f, true);
+            }
+        });
+
         catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
-        mainInventoryButton?.onClick.AddListener(() => FadePanel(MainInventoryPanel, MainInventoryCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
         closeShopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, false));
         closeCatalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, false));
-        closeMainInventoryButton?.onClick.AddListener(() => FadePanel(MainInventoryPanel, MainInventoryCanvasGroup, false));
     }
 
     private void UnregisterButtonListeners()
@@ -205,14 +216,9 @@ public class UIManager : MonoBehaviour
         CatalogueCanvasGroup.alpha = 0f;
         CatalogueCanvasGroup.interactable = false;
         CatalogueCanvasGroup.blocksRaycasts = false;
-
-        // Hide Main Inventory Panel
-        MainInventoryCanvasGroup.alpha = 0f;
-        MainInventoryCanvasGroup.interactable = false;
-        MainInventoryCanvasGroup.blocksRaycasts = false;
     }
 
-    public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f)
+    public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f, bool isActive = false)
     {
         RectTransform rect = panel.GetComponent<RectTransform>();
         if (fadeIn)
@@ -237,7 +243,7 @@ public class UIManager : MonoBehaviour
             canvasGroup.blocksRaycasts = false;
             canvasGroup.DOFade(0f, duration)
                 .SetEase(Ease.InQuad)
-                .OnComplete(() => panel.SetActive(false));
+                .OnComplete(() => panel.SetActive(isActive));
         }
     }
 
@@ -343,6 +349,7 @@ public class UIManager : MonoBehaviour
         _buttonCanvasGroup.alpha = 1f;
 
         UIFloatMenuPanel.SetActive(false);
+        miniInventoryButton.interactable = true;
         _isAnimating = false;
     }
 

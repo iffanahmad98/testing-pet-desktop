@@ -174,7 +174,7 @@ public class MainInventoryUI : MonoBehaviour
     {
         // Handle store button click
         Debug.Log("Store button clicked");
-        ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().MainInventoryPanel, ServiceLocator.Get<UIManager>().MainInventoryCanvasGroup, false);
+        // ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().MainInventoryPanel, ServiceLocator.Get<UIManager>().MainInventoryCanvasGroup, false);
         ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
     }
 

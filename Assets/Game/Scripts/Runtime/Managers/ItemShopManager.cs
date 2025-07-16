@@ -34,7 +34,6 @@ public class ItemShopManager : MonoBehaviour
         {
             tabController.OnTabChanged += OnTabChanged;
             tabController.OnTabSelected(0); // Default tab
-            // itemInventoryUI.StartPopulateInventory();
         }
     }
 
@@ -82,7 +81,7 @@ public class ItemShopManager : MonoBehaviour
         {
             OnItemSelected(card);
 
-            // itemInventoryUI.StartPopulateInventory();
+            ServiceLocator.Get<ItemInventoryUI>().StartPopulateShopInventory();
             // Success message
             ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
         }
