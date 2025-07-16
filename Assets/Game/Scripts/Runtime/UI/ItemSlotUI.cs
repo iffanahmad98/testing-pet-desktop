@@ -106,6 +106,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             Debug.LogWarning($"No prefab assigned for category {itemData.category}");
             return;
         }
+
         inventoryUI.HideInventory();
 
         placementManager.StartPlacement(
@@ -127,7 +128,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         // ✅ Check if this slot is in the vertical content parent - if not, don't allow dragging
         if (transform.parent != inventoryUI.VerticalContentParent)
         {
-            Debug.Log("❌ Drag not allowed - slot not in full inventory view");
             return;
         }
 
@@ -205,7 +205,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             }
             else
             {
-                Debug.Log("❌ Drop target not in vertical content - returning to original position");
                 ReturnToOriginalPosition();
             }
         }
@@ -397,10 +396,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         if (itemAmount <= 0)
         {
             ServiceLocator.Get<PlacementManager>().CancelPlacement();
-            // ❌ This destroys the object instead of returning to pool
-            // Destroy(gameObject); // Remove this line
-
-            // ✅ Instead, let the inventory handle it properly
             inventoryUI.HandleItemDepletion(this);
         }
     }
@@ -408,7 +403,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     private void OnCancelPlacement()
     {
         inventoryUI.ShowInventory();
-        Debug.Log("Placement cancelled.");
     }
 
     public void ResetSlot()

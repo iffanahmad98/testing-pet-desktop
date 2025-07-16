@@ -21,6 +21,7 @@ public class PlacementManager : MonoBehaviour
     [Header("Placement Prefabs")]
     [SerializeField] private GameObject foodPrefab;
     [SerializeField] private GameObject medicinePrefab;
+    private Transform prefabParent;
 
     [Header("Placement Canvas")]
     [SerializeField] private RectTransform canvasParent;
@@ -39,6 +40,7 @@ public class PlacementManager : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register(this);
+        prefabParent = foodPrefab.transform.parent;
     }
 
     private void OnDestroy()
@@ -57,7 +59,8 @@ public class PlacementManager : MonoBehaviour
     {
 
         gameArea = area;
-        currentPreview = Instantiate(prefab, area);
+        currentPreview = prefab;
+        currentPreview.transform.SetParent(area);
         previewRect = currentPreview.GetComponent<RectTransform>();
 
         this.onConfirmPlace = onPlace;
@@ -111,7 +114,8 @@ public class PlacementManager : MonoBehaviour
     {
         if (currentPreview != null)
         {
-            Destroy(currentPreview);
+            currentPreview.SetActive(false);
+            currentPreview.transform.SetParent(prefabParent);
             currentPreview = null;
         }
         onCancel?.Invoke();

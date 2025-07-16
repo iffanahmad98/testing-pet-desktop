@@ -33,7 +33,7 @@ public class ItemInventoryUI : MonoBehaviour
     [Header("Full Inventory Panel (Vertical Scroll)")]
     [SerializeField] private GameObject verticalContentGameObject;
     [SerializeField] private Transform verticalContentParent;
-    public Transform VerticalContentParent => verticalContentParent; // ✅ Add this public property
+    public Transform VerticalContentParent => verticalContentParent; 
     [SerializeField] private RectTransform verticalContentRect;
     [SerializeField] private Button deleteButton;
     [SerializeField] private Button storeButton;
@@ -46,7 +46,7 @@ public class ItemInventoryUI : MonoBehaviour
     [SerializeField] private float rowSpacing = 10f;
     [Header("Delete Confirmation")]
     [SerializeField] private GameObject deleteConfirmationPanel;
-    [SerializeField] private TextMeshProUGUI confirmationMessageText; // or TextMeshProUGUI
+    [SerializeField] private TextMeshProUGUI confirmationMessageText; 
     [SerializeField] private Button confirmDeleteButton;
     [SerializeField] private Button cancelDeleteButton;
 
@@ -54,11 +54,10 @@ public class ItemInventoryUI : MonoBehaviour
     // Object Pool for ItemSlotUI
     private Queue<ItemSlotUI> slotPool = new Queue<ItemSlotUI>();
     private List<ItemSlotUI> activeSlots = new List<ItemSlotUI>();
-    private int initialPoolSize = 20;
+    private int initialPoolSize = 50;
 
     private bool isDeleteMode = false;
     public bool IsInDeleteMode => isDeleteMode;
-    private ItemSlotUI pendingDeleteSlot;
     private Dictionary<ItemSlotUI, int> pendingDeleteMap = new();
 
 
@@ -162,7 +161,7 @@ public class ItemInventoryUI : MonoBehaviour
         cancelDeleteButton.onClick.AddListener(() =>
         {
             SetCanvasGroupVisibility(deleteConfirmationPanel, false);
-            ExitDeleteMode(); // ✅ Exit delete mode
+            ExitDeleteMode(); 
         });
 
 
@@ -259,7 +258,10 @@ public class ItemInventoryUI : MonoBehaviour
         }
 
         if (ownedItems.Count == 0)
-            Debug.Log("ℹ️ No items in inventory.");
+        {
+            Debug.LogWarning("ℹ️ No items in inventory.");
+            yield break;
+        }
 
         var sortedItems = SortItemsByCategory(ownedItems);
 
@@ -394,7 +396,7 @@ public class ItemInventoryUI : MonoBehaviour
 
         if (ownedItems == null || ownedItems.Count == 0)
         {
-            Debug.Log("ℹ️ No items to show in shop inventory.");
+            Debug.LogWarning("ℹ️ No items to show in shop inventory.");
             yield break;
         }
 
@@ -495,7 +497,6 @@ public class ItemInventoryUI : MonoBehaviour
     private void ShowDeleteConfirmationPanel()
     {
         string message = "Delete the following item(s)?\n";
-
         confirmationMessageText.text = message;
         SetCanvasGroupVisibility(deleteConfirmationPanel, true);
     }
@@ -503,7 +504,6 @@ public class ItemInventoryUI : MonoBehaviour
     private void EnterDeleteMode()
     {
         isDeleteMode = true;
-        Debug.Log("🗑 Delete Mode Activated. Tap an item to remove it.");
 
         // Visual feedback for delete mode
         foreach (var slot in activeSlots)
@@ -540,7 +540,6 @@ public class ItemInventoryUI : MonoBehaviour
             pendingDeleteMap.Remove(slot);
         slot.UpdateAmountText(pendingDeleteMap.GetValueOrDefault(slot, 0)); // 🔄 update UI
     }
-
 
     private void ExitDeleteMode()
     {
