@@ -6,7 +6,8 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 {
     public PoopType poopType;
     public int poopValue;
-    
+    private string poopId;
+
     private Animator animator;
     private RectTransform rectTransform;
 
@@ -28,10 +29,13 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (type == PoopType.Normal)
         {
             animator.SetTrigger("Normal");
+            poopId = "poop_ori";
+
         }
         else if (type == PoopType.Sparkle)
         {
             animator.SetTrigger("Special");
+            poopId = "poop_rare";
         }
     }
 
@@ -39,11 +43,12 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     {
         // Notify the MonsterManager about the poop collection
         ServiceLocator.Get<MonsterManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<MonsterManager>().poopCollected += poopValue);
-        
+
         // Save the updated poop count
         SaveSystem.SavePoop(ServiceLocator.Get<MonsterManager>().poopCollected);
+        SaveSystem.UpdateItemData(poopId, ItemType.Poop, 1);
         SaveSystem.Flush();
-        
+
         // Despawn this poop object
         ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
     }

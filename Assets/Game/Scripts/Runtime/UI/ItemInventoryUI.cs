@@ -30,6 +30,12 @@ public class ItemInventoryUI : MonoBehaviour
     [SerializeField] private RectTransform verticalContentRect;
     [SerializeField] private Button deleteButton;
     [SerializeField] private Button storeButton;
+    [Header("Full Inventory Panel (Vertical Scroll)")]
+    [SerializeField] private GameObject verticalContentGameObject;
+    [SerializeField] private Transform verticalContentParent;
+    [SerializeField] private RectTransform verticalContentRect;
+    [SerializeField] private Button deleteButton;
+    [SerializeField] private Button storeButton;
 
     [Header("General Settings")]
     [SerializeField] private ItemSlotUI slotPrefab;
@@ -112,9 +118,18 @@ public class ItemInventoryUI : MonoBehaviour
         var sortedItems = SortItemsByCategory(ownedItems);
         Debug.Log(ownedItems.Count);
 
-        yield return PopulateInventory(dropdownContentParent, dropdownContentRect, sortedItems, 6, 2); // Quick View: Max 6 items, 2 rows
-        yield return PopulateInventory(horizontalContentParent, horizontalContentRect, sortedItems, 10, 1); // Horizontal: Max 10 items
-        yield return PopulateInventory(verticalContentParent, verticalContentRect, sortedItems, ownedItems.Count, Mathf.CeilToInt((float)sortedItems.Count / slotsPerRow)); // Full: All items
+        // Quick View: 3 Food, 2 Medicine, 1 Poop
+        yield return PopulateInventoryByType(dropdownContentParent, dropdownContentRect, sortedItems,
+            foodMax: 3, medicineMax: 2, poopMax: 1, rows: 2);
+
+        // Horizontal Bar: 7 Food, 2 Medicine, 1 Poop
+        yield return PopulateInventoryByType(horizontalContentParent, horizontalContentRect, sortedItems,
+            foodMax: 7, medicineMax: 2, poopMax: 1, rows: 1);
+
+        // Full Inventory: show all
+        yield return PopulateInventory(verticalContentParent, verticalContentRect, sortedItems,
+            sortedItems.Count, Mathf.CeilToInt((float)sortedItems.Count / slotsPerRow));
+
     }
 
     private List<OwnedItemData> SortItemsByCategory(List<OwnedItemData> items)
@@ -160,6 +175,53 @@ public class ItemInventoryUI : MonoBehaviour
             yield return null;
         }
     }
+    private IEnumerator PopulateInventoryByType(Transform parent, RectTransform rect, List<OwnedItemData> allItems,
+    int foodMax, int medicineMax, int poopMax, int rows)
+    {
+        // Clear UI
+        foreach (Transform child in parent)
+            Destroy(child.gameObject);
+        yield return null;
+
+        var foodItems = new List<OwnedItemData>();
+        var medicineItems = new List<OwnedItemData>();
+        var poopItems = new List<OwnedItemData>();
+
+        foreach (var item in allItems)
+        {
+            var data = itemDatabase.GetItem(item.itemID);
+            if (data == null) continue;
+
+            switch (data.category)
+            {
+                case ItemType.Food: if (foodItems.Count < foodMax) foodItems.Add(item); break;
+                case ItemType.Medicine: if (medicineItems.Count < medicineMax) medicineItems.Add(item); break;
+                case ItemType.Poop: if (poopItems.Count < poopMax) poopItems.Add(item); break;
+            }
+        }
+
+        var displayItems = new List<OwnedItemData>();
+        displayItems.AddRange(foodItems);
+        displayItems.AddRange(medicineItems);
+        displayItems.AddRange(poopItems);
+
+        if (rect != null && parent == verticalContentParent)
+        {
+            float height = rows * (slotHeight + rowSpacing);
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        }
+
+        foreach (var item in displayItems)
+        {
+            var itemData = itemDatabase.GetItem(item.itemID);
+            if (itemData == null) continue;
+
+            var slot = Instantiate(slotPrefab, parent);
+            slot.Initialize(itemData, item.type, item.amount);
+            yield return null;
+        }
+    }
+
 
     // === Delete Mode Logic ===
 
