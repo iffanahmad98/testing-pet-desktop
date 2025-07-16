@@ -98,6 +98,7 @@ public class ItemInventoryUI : MonoBehaviour
 
     private IEnumerator PopulateAllInventoriesCoroutine()
     {
+        yield return new WaitForEndOfFrame(); // Ensure UI is ready
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
 
         if (ownedItems == null)
