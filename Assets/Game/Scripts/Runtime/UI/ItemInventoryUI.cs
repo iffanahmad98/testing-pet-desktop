@@ -551,7 +551,7 @@ public class ItemInventoryUI : MonoBehaviour
         {
             if (slot != null)
             {
-                slot.UpdateAmountText(0);
+                slot.UpdateAmountText(-1);
                 var bg = slot.GetComponent<Image>();
                 if (bg != null)
                     bg.color = Color.white;
