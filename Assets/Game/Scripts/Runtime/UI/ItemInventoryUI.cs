@@ -33,6 +33,7 @@ public class ItemInventoryUI : MonoBehaviour
     [Header("Full Inventory Panel (Vertical Scroll)")]
     [SerializeField] private GameObject verticalContentGameObject;
     [SerializeField] private Transform verticalContentParent;
+    public Transform VerticalContentParent => verticalContentParent; // ✅ Add this public property
     [SerializeField] private RectTransform verticalContentRect;
     [SerializeField] private Button deleteButton;
     [SerializeField] private Button storeButton;
@@ -334,9 +335,8 @@ public class ItemInventoryUI : MonoBehaviour
     private IEnumerator PopulateInventoryByType(Transform parent, RectTransform rect, List<OwnedItemData> allItems,
     int foodMax, int medicineMax, int poopMax, int rows)
     {
-        // Clear UI
-        foreach (Transform child in parent)
-            Destroy(child.gameObject);
+        // Clear UI using pooling system instead of destroying
+        ReturnSlotsFromParent(parent);
         yield return null;
 
         var foodItems = new List<OwnedItemData>();
@@ -361,22 +361,33 @@ public class ItemInventoryUI : MonoBehaviour
         displayItems.AddRange(medicineItems);
         displayItems.AddRange(poopItems);
 
+        // Store the items for this parent
+        parentToItemsMap[parent] = displayItems;
+
         if (rect != null && parent == verticalContentParent)
         {
             float height = rows * (slotHeight + rowSpacing);
             rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         }
 
-        foreach (var item in displayItems)
+        // Use pooling system to create slots
+        for (int i = 0; i < displayItems.Count; i++)
         {
+            var item = displayItems[i];
             var itemData = itemDatabase.GetItem(item.itemID);
             if (itemData == null) continue;
 
-            var slot = Instantiate(slotPrefab, parent);
+            var slot = GetSlotFromPool();
+            slot.transform.SetParent(parent, false);
             slot.Initialize(itemData, item.type, item.amount);
-            yield return null;
+            activeSlots.Add(slot);
+
+            // Small delay for smooth population
+            if (i % 5 == 0) // Every 5 items
+                yield return new WaitForSeconds(0.01f);
         }
     }
+
     private IEnumerator PopulateShopInventoryCoroutine()
     {
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
@@ -401,38 +412,48 @@ public class ItemInventoryUI : MonoBehaviour
             }
         }
 
-        // Clear existing UI
-        foreach (Transform child in shopInventoryContentParent)
-            Destroy(child.gameObject);
+        // Clear existing UI using pooling system
+        ReturnSlotsFromParent(shopInventoryContentParent);
         yield return null;
+
+        // Store the items for this parent
+        parentToItemsMap[shopInventoryContentParent] = displayItems;
 
         // NOTE: We don't set vertical height here — assume horizontal layout is managed via prefab size + LayoutGroup
 
-        foreach (var item in displayItems)
+        for (int i = 0; i < displayItems.Count; i++)
         {
+            var item = displayItems[i];
             var itemData = itemDatabase.GetItem(item.itemID);
             if (itemData == null) continue;
 
-            var slot = Instantiate(slotPrefab, shopInventoryContentParent);
+            var slot = GetSlotFromPool();
+            slot.transform.SetParent(shopInventoryContentParent, false);
             slot.Initialize(itemData, item.type, item.amount);
-            yield return null;
+            activeSlots.Add(slot);
+
+            // Small delay for smooth population
+            if (i % 5 == 0) // Every 5 items
+                yield return new WaitForSeconds(0.01f);
         }
     }
+
     public void HideInventory()
     {
         ServiceLocator.Get<UIManager>().FadePanel(gameObject, GetComponent<CanvasGroup>(), false, 0.3f, 1.08f, 0.15f, true);
     }
+
     public void ShowInventory()
     {
         ServiceLocator.Get<UIManager>().FadePanel(gameObject, GetComponent<CanvasGroup>(), true, 0.3f, 1.08f, 0.15f, true);
     }
+
     public void ResetInventoryGroupvisibility()
     {
         SetCanvasGroupVisibility(quickViewGameObject, true);
         SetCanvasGroupVisibility(horizontalBarGameObject, false);
         SetCanvasGroupVisibility(verticalContentGameObject, false);
     }
-
 
     private void ReturnSlotsFromParent(Transform parent)
     {
@@ -453,7 +474,6 @@ public class ItemInventoryUI : MonoBehaviour
         }
     }
 
-
     // === Delete Mode Logic ===
 
     private void OnDeleteButtonClicked()
@@ -471,15 +491,14 @@ public class ItemInventoryUI : MonoBehaviour
             ExitDeleteMode();
         }
     }
+
     private void ShowDeleteConfirmationPanel()
     {
-        string message = "Delete the following items?\n";
+        string message = "Delete the following item(s)?\n";
 
         confirmationMessageText.text = message;
         SetCanvasGroupVisibility(deleteConfirmationPanel, true);
     }
-
-
 
     private void EnterDeleteMode()
     {
@@ -494,6 +513,9 @@ public class ItemInventoryUI : MonoBehaviour
                 var bg = slot.GetComponent<Image>();
                 if (bg != null)
                     bg.color = new Color(1f, 0.5f, 0.5f, 0.3f); // Red tint
+
+                // ✅ Initialize amount text to show 0 items marked for deletion
+                slot.UpdateAmountText(0);
             }
         }
     }
@@ -505,7 +527,6 @@ public class ItemInventoryUI : MonoBehaviour
         if (pendingDeleteMap[slot] < slot.ItemAmount) // Add 1
         {
             pendingDeleteMap[slot]++;
-            Debug.Log($"➕ Marked {slot.ItemDataSO.itemName} x{pendingDeleteMap[slot]} for delete");
             slot.UpdateAmountText(pendingDeleteMap[slot]); // 🔄 update UI
         }
     }
@@ -517,8 +538,6 @@ public class ItemInventoryUI : MonoBehaviour
         pendingDeleteMap[slot]--;
         if (pendingDeleteMap[slot] <= 0)
             pendingDeleteMap.Remove(slot);
-
-        Debug.Log($"➖ Unmarked {slot.ItemDataSO.itemName}. Remaining: {pendingDeleteMap.GetValueOrDefault(slot, 0)}");
         slot.UpdateAmountText(pendingDeleteMap.GetValueOrDefault(slot, 0)); // 🔄 update UI
     }
 
@@ -532,26 +551,14 @@ public class ItemInventoryUI : MonoBehaviour
         {
             if (slot != null)
             {
-                slot.UpdateAmountText(0); // Reset UI
+                slot.UpdateAmountText(0);
                 var bg = slot.GetComponent<Image>();
                 if (bg != null)
-                    bg.color = Color.clear;
+                    bg.color = Color.white;
             }
         }
     }
 
-
-    public void ConfirmDeleteItem(ItemSlotUI slot)
-    {
-        if (!isDeleteMode || slot == null) return;
-
-        pendingDeleteSlot = slot;
-
-        var itemName = slot.ItemDataSO.itemName;
-        confirmationMessageText.text = $"Are you sure you want to delete <color=#ff4444><b>1</b> {itemName}</color>?";
-
-        SetCanvasGroupVisibility(deleteConfirmationPanel, true);
-    }
     private void HandleConfirmedDelete()
     {
         foreach (var kvp in pendingDeleteMap)
@@ -569,15 +576,12 @@ public class ItemInventoryUI : MonoBehaviour
         }
 
         SaveSystem.SaveAll();
-        Debug.Log("✅ Items deleted.");
 
         pendingDeleteMap.Clear();
         SetCanvasGroupVisibility(deleteConfirmationPanel, false);
         ExitDeleteMode();
         StartPopulateAllInventories();
     }
-
-
 
     private void OnStoreButtonClicked()
     {
@@ -590,7 +594,6 @@ public class ItemInventoryUI : MonoBehaviour
     public void MoveItemBack(ItemSlotUI draggedSlot, ItemSlotUI targetSlot)
     {
         if (isReordering) return;
-
         StartCoroutine(MoveItemBackCoroutine(draggedSlot, targetSlot));
     }
 
@@ -707,26 +710,6 @@ public class ItemInventoryUI : MonoBehaviour
                     slot.GetComponent<CanvasGroup>().DOKill();
                 Destroy(slot.gameObject);
             }
-        }
-    }
-
-    // Add method to check if reordering is in progress
-    public bool IsReordering => isReordering;
-
-    // Add this method to handle dragged items properly
-    public void HandleDraggedSlot(ItemSlotUI slot)
-    {
-        if (slot != null)
-        {
-            // Reset the slot's state
-            slot.ResetSlot();
-
-            // Remove from active slots if it exists
-            if (activeSlots.Contains(slot))
-                activeSlots.Remove(slot);
-
-            // Return to pool
-            ReturnSlotToPool(slot);
         }
     }
 

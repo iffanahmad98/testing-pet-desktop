@@ -124,6 +124,13 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     {
         if (inventoryUI.IsInDeleteMode) return;
 
+        // ✅ Check if this slot is in the vertical content parent - if not, don't allow dragging
+        if (transform.parent != inventoryUI.VerticalContentParent)
+        {
+            Debug.Log("❌ Drag not allowed - slot not in full inventory view");
+            return;
+        }
+
         isDragging = true;
         originalPosition = transform.position;
         originalParent = transform.parent;
@@ -162,10 +169,14 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         var potentialTarget = GetDropTarget(eventData);
         if (potentialTarget != null && potentialTarget != this)
         {
-            // Give subtle visual feedback that this is a valid drop target
-            if (potentialTarget.currentTween == null || !potentialTarget.currentTween.IsActive())
+            // ✅ Only highlight if the target is also in vertical content
+            if (potentialTarget.transform.parent == inventoryUI.VerticalContentParent)
             {
-                potentialTarget.PlayTargetHighlightAnimation();
+                // Give subtle visual feedback that this is a valid drop target
+                if (potentialTarget.currentTween == null || !potentialTarget.currentTween.IsActive())
+                {
+                    potentialTarget.PlayTargetHighlightAnimation();
+                }
             }
         }
     }
@@ -187,18 +198,31 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         var dropTarget = GetDropTarget(eventData);
         if (dropTarget != null && dropTarget != this)
         {
-            // ✅ Use the correct method name
-            inventoryUI.MoveItemBack(this, dropTarget);
+            // ✅ Only allow drop if target is in vertical content
+            if (dropTarget.transform.parent == inventoryUI.VerticalContentParent)
+            {
+                inventoryUI.MoveItemBack(this, dropTarget);
+            }
+            else
+            {
+                Debug.Log("❌ Drop target not in vertical content - returning to original position");
+                ReturnToOriginalPosition();
+            }
         }
         else
         {
             // Return to original position if no valid drop target
-            if (originalParent != null)
-            {
-                transform.SetParent(originalParent, false);
-                transform.SetSiblingIndex(originalSiblingIndex);
-                transform.position = originalPosition;
-            }
+            ReturnToOriginalPosition();
+        }
+    }
+
+    private void ReturnToOriginalPosition()
+    {
+        if (originalParent != null)
+        {
+            transform.SetParent(originalParent, false);
+            transform.SetSiblingIndex(originalSiblingIndex);
+            transform.position = originalPosition;
         }
     }
 
@@ -212,7 +236,11 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             var slot = result.gameObject.GetComponent<ItemSlotUI>();
             if (slot != null && slot != this && !slot.isDragging)
             {
-                return slot;
+                // ✅ Only return slots that are in vertical content
+                if (slot.transform.parent == inventoryUI.VerticalContentParent)
+                {
+                    return slot;
+                }
             }
         }
         return null;
@@ -234,14 +262,22 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             PlayHoverExitAnimation();
         }
     }
+
     public void UpdateAmountText(int markedForDelete = 0)
     {
-        if (markedForDelete > 0)
-            amountText.text = $"{itemAmount} pcs <color=#ff4444>(-{markedForDelete})</color>";
+        if (markedForDelete >= 0)
+        {
+            // Show deletion count in delete mode
+            amountText.text = $"{markedForDelete} pcs";
+            amountText.color = Color.red; // Red color to indicate deletion
+        }
         else
+        {
+            // Show normal item amount
             amountText.text = $"{itemAmount} pcs";
+            amountText.color = Color.black; // Normal color
+        }
     }
-
 
     // DOTween Animation Methods
     private void PlayHoverEnterAnimation()
@@ -379,9 +415,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     {
         // ✅ Kill any active tweens FIRST before resetting
         KillCurrentTween();
-
-        iconImage.sprite = null;
-        iconImage.enabled = false;
         amountText.text = "";
 
         // Reset visual state

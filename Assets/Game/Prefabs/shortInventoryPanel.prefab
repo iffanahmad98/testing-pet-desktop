@@ -302,7 +302,7 @@ GameObject:
   - component: {fileID: 2692435132020892179}
   - component: {fileID: 4976815844816971072}
   - component: {fileID: 3481774495653687511}
-  - component: {fileID: 5706487448261099572}
+  - component: {fileID: 3181835381755570708}
   m_Layer: 5
   m_Name: closeBtn
   m_TagString: Untagged
@@ -367,7 +367,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5706487448261099572
+--- !u!114 &3181835381755570708
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -531,7 +531,7 @@ GameObject:
   - component: {fileID: 2442858276500369163}
   - component: {fileID: 7598239611983669312}
   - component: {fileID: 7625424009927314874}
-  - component: {fileID: 85049413583013255}
+  - component: {fileID: 311576340448549263}
   m_Layer: 5
   m_Name: longInventBtn
   m_TagString: Untagged
@@ -596,7 +596,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &85049413583013255
+--- !u!114 &311576340448549263
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -695,7 +695,7 @@ MonoBehaviour:
     m_Bottom: 10
   m_ChildAlignment: 7
   m_StartCorner: 0
-  m_StartAxis: 0
+  m_StartAxis: 1
   m_CellSize: {x: 100, y: 100}
   m_Spacing: {x: 20, y: 20}
   m_Constraint: 2
@@ -909,6 +909,7 @@ GameObject:
   - component: {fileID: 7610591711606937084}
   - component: {fileID: 3886220875631229469}
   - component: {fileID: 4735404636157052498}
+  - component: {fileID: 6806803852246417426}
   m_Layer: 5
   m_Name: shortInventoryPanel
   m_TagString: Untagged
@@ -976,6 +977,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &6806803852246417426
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8660491675865837571}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8777879206770780689
 GameObject:
   m_ObjectHideFlags: 0
