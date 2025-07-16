@@ -610,7 +610,7 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    public void SaveAllMons()
+    public void SaveAllMonsters()
     {
         foreach (var monster in activeMonsters)
         {
@@ -642,7 +642,7 @@ public class MonsterManager : MonoBehaviour
         if (areaIndex == currentGameAreaIndex) return; // Already in this area
 
         // Save current monsters before switching
-        SaveAllMons();
+        SaveAllMonsters();
 
         // Clear current active monsters (return to pool)
         var monstersToRemove = activeMonsters.ToList();
@@ -742,8 +742,8 @@ public class MonsterManager : MonoBehaviour
 
     private void SaveGameData()
     {
-        SaveAllMons();
-        SaveAllNPCMons(); // <- ADD THIS LINE
+        SaveAllMonsters();
+        SaveAllNPCMons(); 
         SaveSystem.SavePoop(poopCollected);
         SaveSystem.SaveCoin(coinCollected);
         SaveSystem.Flush();

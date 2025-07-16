@@ -15,20 +15,4 @@ public class MonsterDatabaseSO : ScriptableObject
     {
         return monsters.FindAll(monster => monster.monType == type);
     }
-
-    // Add validation method for editor
-    private void OnValidate()
-    {
-        ValidateMonsterIDs();
-    }
-
-    private void ValidateMonsterIDs()
-    {
-        if (monsters == null) return;        for (int i = 0; i < monsters.Count; i++)
-        {
-            if (monsters[i] != null && string.IsNullOrEmpty(monsters[i].id))
-            {
-            }
-        }
-    }
 }
