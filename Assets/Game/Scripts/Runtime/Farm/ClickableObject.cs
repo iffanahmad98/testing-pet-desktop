@@ -7,6 +7,7 @@ public class ClickableObject : MonoBehaviour
 {
     [Header("Menu")]
     public UnityEvent onEnterTrigger;
+    public UnityEvent onExitTrigger;
 
     [Header("Hover Effect")]
     public float hoverScaleMultiplier = 1.1f;
@@ -56,6 +57,6 @@ public class ClickableObject : MonoBehaviour
 
     public void HideMenu()
     {
-        onEnterTrigger.Invoke();
+        onExitTrigger.Invoke();
     }
 }

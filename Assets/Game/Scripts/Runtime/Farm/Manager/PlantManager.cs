@@ -5,6 +5,7 @@ using MagicalGarden.Inventory;
 using MagicalGarden.Manager;
 using System.Linq;
 using UnityEngine.Tilemaps;
+using DG.Tweening;
 using Unity.Mathematics;
 // using System.Numerics;
 
@@ -80,12 +81,16 @@ namespace MagicalGarden.Farm
                 Debug.Log("Tile sudah ada tanaman.");
                 return;
             }
+
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
+
             bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
             if (!removed) return;
+
             Vector3 worldPos = TileManager.Instance.tilemapSeed.CellToWorld(cellPosition) + new Vector3(0f, 0.5f, 0);
             var plantObj = Instantiate(plantPrefab, worldPos, Quaternion.identity);
             plantObj.transform.parent = poolPlant;
+            plantObj.transform.localScale = Vector3.one; // Pastikan scale awal normal
 
             var plant = plantObj.GetComponent<PlantController>();
             plant.seed.lastUpdateTime = simulatedNow;
@@ -95,12 +100,44 @@ namespace MagicalGarden.Farm
             plant.seed.typeMonster = monsterSeed;
             plant.seed.seedName = itemdata.displayName;
 
-            TileManager.Instance.tilemapSeed.SetTile(cellPosition, itemdata.stageTiles[0]);
+            
             plants[cellPosition] = plant;
+
             if (!InventoryManager.Instance.HasItem(itemdata, 1))
             {
                 CursorIconManager.Instance.HideSeedIcon();
             }
+
+            // === 🎉 DOTween Bounce Effect ===
+            Vector3 worldPosCenter = TileManager.Instance.tilemapSeed.GetCellCenterWorld(cellPosition);
+
+            GameObject bounceVisual = new GameObject("TileBounce");
+            bounceVisual.transform.position = worldPosCenter;
+            bounceVisual.transform.localScale = Vector3.zero;
+
+            var spriteRenderer = bounceVisual.AddComponent<SpriteRenderer>();
+            TileBase tile = itemdata.stageTiles[0];
+
+            if (tile is Tile tileData)
+            {
+                spriteRenderer.sprite = tileData.sprite;
+            }
+            else
+            {
+                Debug.LogWarning("Tile tidak bisa di-cast ke Tile, sprite tidak dapat diambil.");
+            }
+            spriteRenderer.sortingLayerName = "World";
+            spriteRenderer.sortingOrder = 10;
+
+            // Tween: scale up (bounce), then scale down, then destroy
+            bounceVisual.transform.DOScale(3f, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
+            {
+                bounceVisual.transform.DOScale(2.5f, 0.15f).SetEase(Ease.InBack).OnComplete(() =>
+                {
+                    GameObject.Destroy(bounceVisual);
+                    TileManager.Instance.tilemapSeed.SetTile(cellPosition, itemdata.stageTiles[0]);
+                });
+            });
         }
 
         public void PlantWaterAt(Vector3Int cellPosition)

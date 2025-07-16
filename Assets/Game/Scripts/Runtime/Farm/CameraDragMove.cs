@@ -121,6 +121,8 @@ namespace MagicalGarden.Farm
 
         IEnumerator ZoomAndFocus(Vector3 targetPosition, float targetZoom, float duration)
         {
+            yield return null; // wait 1 frame to ensure correct start position
+
             Vector3 startPos = transform.position;
             float startZoom = cam.orthographicSize;
 
@@ -131,11 +133,11 @@ namespace MagicalGarden.Farm
                 elapsed += Time.deltaTime;
                 float t = Mathf.SmoothStep(0, 1, elapsed / duration);
 
-                float currentZoom = Mathf.Lerp(startZoom, targetZoom, t);
-                cam.orthographicSize = currentZoom;
+                float zoom = Mathf.Lerp(startZoom, targetZoom, t);
+                Vector3 pos = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), t);
 
-                Vector3 interpolatedPos = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), t);
-                transform.position = ClampCameraPosition(interpolatedPos, currentZoom);
+                cam.orthographicSize = zoom;
+                transform.position = ClampCameraPosition(pos, zoom);
 
                 yield return null;
             }

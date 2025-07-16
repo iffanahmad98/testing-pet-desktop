@@ -6,12 +6,14 @@ using System.Linq;
 using MagicalGarden.Inventory;
 using MagicalGarden.Farm;
 using TMPro;
+using MagicalGarden.AI;
 namespace MagicalGarden.Manager
 {
     public class FertilizerManager : MonoBehaviour
     {
         public static FertilizerManager Instance;
         public Animator craftingAnimator;
+        public NPCFertilizer npc;
 
         [Header("All Fertilizer UIs")]
         public List<FertilizerUI> fertilizerUIs;
@@ -62,6 +64,7 @@ namespace MagicalGarden.Manager
                 };
 
                 activeTasks = task;
+                StartCoroutine(npc.NPCFertiMake());
                 if (craftingAnimator != null)
                     craftingAnimator.SetBool("run", true);
                 foreach (var ui in fertilizerUIs)

@@ -32,7 +32,6 @@ namespace MagicalGarden.Manager
         public Tilemap tilemapHighlight;
         public Tilemap tilemapHotel;
         [Header("Tiles")]
-        public TileBase tileSeed;
         public TileBase tileWater;
         public TileBase tileFertilizer;
         public TileBase highlightTile;

@@ -18,13 +18,16 @@ namespace MagicalGarden.AI
         [SerializeField] private GameObject popupUI;
         private Vector3 targetPosition;
         private string currentState = "";
-        private Tilemap terrainTilemap;
+        public Tilemap terrainTilemap;
         public Vector2Int currentTile;
 
         void Start()
         {
             Vector3 worldPos = transform.position;
-            terrainTilemap = TileManager.Instance.tilemapSoil;
+            if (terrainTilemap == null)
+            {
+                terrainTilemap = TileManager.Instance.tilemapSoil;
+            }
             Vector3Int cellPos = terrainTilemap.WorldToCell(worldPos);
             currentTile = new Vector2Int(cellPos.x, cellPos.y);
             StartCoroutine(StateLoop());

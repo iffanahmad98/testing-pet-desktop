@@ -55,7 +55,7 @@ namespace MagicalGarden.Manager
             {
                 Debug.Log("✅ Berhasil ambil data dari GSheet");
                 string rawJson = www.downloadHandler.text;
-                Debug.LogError(rawJson);
+                // Debug.LogError(rawJson);
                 // itemList = JsonConvert.DeserializeObject<List<SheetData>>(rawJson);
                 // Debug.Log($"📦 Jumlah item: {itemList.Count}");
                 // OnDataLoaded?.Invoke();
@@ -82,9 +82,9 @@ namespace MagicalGarden.Manager
 
             if (www.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("✅ Berhasil ambil data monster seed dari GSheet");
+                // Debug.Log("✅ Berhasil ambil data monster seed dari GSheet");
                 string rawJson = www.downloadHandler.text;
-                Debug.LogError(rawJson);
+                // Debug.LogError(rawJson);
                 try
                 {
                     itemMonsterSeedList = JsonConvert.DeserializeObject<List<SheetMonsterSeedData>>(rawJson);

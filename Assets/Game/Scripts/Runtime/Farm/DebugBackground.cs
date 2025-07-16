@@ -8,8 +8,6 @@ public class DebugBackground : MonoBehaviour
     public Button btnNight;
 
     [Header("Targets")]
-    public GameObject rainEffect;
-    public GameObject nightOverlay;
     public GameObject backgroundLayer;
 
     [Header("Background Time")]
@@ -32,13 +30,11 @@ public class DebugBackground : MonoBehaviour
     void ToggleRain()
     {
         isRainOn = !isRainOn;
-        ApplyRain();
     }
 
     void ToggleNight()
     {
         isNightOn = !isNightOn;
-        ApplyNight();
     }
 
     void ToggleBackground()
@@ -49,21 +45,7 @@ public class DebugBackground : MonoBehaviour
 
     void ApplyState()
     {
-        ApplyRain();
-        ApplyNight();
         ApplyBackground();
-    }
-
-    void ApplyRain()
-    {
-        if (rainEffect != null)
-            rainEffect.SetActive(isRainOn);
-    }
-
-    void ApplyNight()
-    {
-        if (nightOverlay != null)
-            nightOverlay.SetActive(isNightOn);
     }
 
     void ApplyBackground()

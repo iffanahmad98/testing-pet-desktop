@@ -47,12 +47,10 @@ namespace MagicalGarden.Manager
 
         IEnumerator InitializeAfterDelay()
         {
-            yield return new WaitForSeconds(1f); // ⏱ Delay 1 detik
+            yield return new WaitForSeconds(1f);
 
             PlayerPrefs.DeleteAll();
             PlayerPrefs.Save();
-            Debug.Log("✅ Semua PlayerPrefs dihapus.");
-
             FindAllHotelRoom();
             LoadLastDate();
             // LoadHotelRooms();
