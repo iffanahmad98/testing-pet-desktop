@@ -16,8 +16,9 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     private ItemDataSO itemData;
     public ItemDataSO ItemDataSO => itemData;
     private int itemAmount;
+    public int ItemAmount => itemAmount;
     private ItemInventoryUI inventoryUI;
-    
+
     // Drag & Drop variables
     private Vector2 originalPosition;
     private Transform originalParent;
@@ -25,7 +26,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     private Canvas dragCanvas;
     private RectTransform dragCanvasRectTransform;
     private int originalSiblingIndex;
-    
+
     // Visual feedback with DOTween
     private Vector3 originalScale = Vector3.one;
     private Vector3 hoverScale = Vector3.one * 1.1f;
@@ -38,10 +39,10 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null)
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
-        
+
         // Store original scale
         originalScale = transform.localScale;
-        
+
         // Find the main canvas for dragging
         dragCanvas = MainCanvas.Canvas;
         if (dragCanvas != null)
@@ -57,7 +58,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         iconImage.enabled = true;
         amountText.text = $"{amount} pcs";
         inventoryUI = ServiceLocator.Get<ItemInventoryUI>();
-        
+
         // Reset visual state
         ResetScale();
         canvasGroup.alpha = 1f;
@@ -67,15 +68,23 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         if (isDragging) return; // Don't handle clicks during drag
-        
+
         if (itemAmount <= 0) return;
 
         // Check for Delete Mode first
         if (inventoryUI != null && inventoryUI.IsInDeleteMode)
         {
-            inventoryUI.ConfirmDeleteItem(this);
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                inventoryUI.AddToPendingDelete(this);
+            }
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                inventoryUI.RemoveFromPendingDelete(this);
+            }
             return;
         }
+
 
         // Right-click cancels placement
         if (eventData.button == PointerEventData.InputButton.Right)
@@ -97,6 +106,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             Debug.LogWarning($"No prefab assigned for category {itemData.category}");
             return;
         }
+        inventoryUI.HideInventory();
 
         placementManager.StartPlacement(
             prefabToPlace,
@@ -113,19 +123,19 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (inventoryUI.IsInDeleteMode) return;
-        
+
         isDragging = true;
         originalPosition = transform.position;
         originalParent = transform.parent;
         originalSiblingIndex = transform.GetSiblingIndex();
-        
+
         // Move to drag canvas for proper rendering
         if (dragCanvas != null)
             transform.SetParent(dragCanvas.transform, true);
-        
+
         // Visual feedback with DOTween
         PlayDragStartAnimation();
-        
+
         // Disable graphic raycaster temporarily
         if (graphicRaycaster != null)
             graphicRaycaster.enabled = false;
@@ -134,20 +144,20 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     public void OnDrag(PointerEventData eventData)
     {
         if (!isDragging) return;
-        
+
         if (dragCanvasRectTransform != null)
         {
             Vector2 localPointerPosition;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                dragCanvasRectTransform, 
-                eventData.position, 
-                eventData.pressEventCamera, 
+                dragCanvasRectTransform,
+                eventData.position,
+                eventData.pressEventCamera,
                 out localPointerPosition))
             {
                 transform.position = dragCanvasRectTransform.TransformPoint(localPointerPosition);
             }
         }
-        
+
         // Visual feedback: highlight potential drop targets
         var potentialTarget = GetDropTarget(eventData);
         if (potentialTarget != null && potentialTarget != this)
@@ -163,16 +173,16 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!isDragging) return;
-        
+
         isDragging = false;
-        
+
         // Reset visual state
         PlayDragEndAnimation();
-        
+
         // Re-enable graphic raycaster
         if (graphicRaycaster != null)
             graphicRaycaster.enabled = true;
-        
+
         // Check if dropped on a valid slot
         var dropTarget = GetDropTarget(eventData);
         if (dropTarget != null && dropTarget != this)
@@ -196,7 +206,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     {
         var results = new System.Collections.Generic.List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
-        
+
         foreach (var result in results)
         {
             var slot = result.gameObject.GetComponent<ItemSlotUI>();
@@ -224,6 +234,14 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             PlayHoverExitAnimation();
         }
     }
+    public void UpdateAmountText(int markedForDelete = 0)
+    {
+        if (markedForDelete > 0)
+            amountText.text = $"{itemAmount} pcs <color=#ff4444>(-{markedForDelete})</color>";
+        else
+            amountText.text = $"{itemAmount} pcs";
+    }
+
 
     // DOTween Animation Methods
     private void PlayHoverEnterAnimation()
@@ -248,7 +266,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         sequence.Append(transform.DOScale(dragScale, 0.15f).SetEase(Ease.OutBack));
         sequence.Join(canvasGroup.DOFade(0.8f, 0.15f));
         sequence.OnComplete(() => canvasGroup.blocksRaycasts = false);
-        
+
         currentTween = sequence;
     }
 
@@ -260,7 +278,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         sequence.Append(transform.DOScale(originalScale, 0.2f).SetEase(Ease.OutBounce));
         sequence.Join(canvasGroup.DOFade(1f, 0.2f));
         sequence.OnComplete(() => canvasGroup.blocksRaycasts = true);
-        
+
         currentTween = sequence;
     }
 
@@ -282,15 +300,15 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         KillCurrentTween();
         // Move back animation - slide effect with scale
         var sequence = DOTween.Sequence();
-        
+
         // Quick slide to the left and scale up
         sequence.Append(transform.DOLocalMoveX(transform.localPosition.x - 20f, 0.1f).SetEase(Ease.OutQuad));
         sequence.Join(transform.DOScale(originalScale * 1.2f, 0.1f).SetEase(Ease.OutQuad));
-        
+
         // Slide back to original position and scale down
         sequence.Append(transform.DOLocalMoveX(transform.localPosition.x, 0.15f).SetEase(Ease.OutBack));
         sequence.Join(transform.DOScale(originalScale, 0.15f).SetEase(Ease.OutBack));
-        
+
         currentTween = sequence;
     }
 
@@ -299,11 +317,11 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         KillCurrentTween();
         // Subtle highlight animation for target slot
         var sequence = DOTween.Sequence();
-        
+
         // Quick pulse effect
         sequence.Append(transform.DOScale(originalScale * 1.05f, 0.1f).SetEase(Ease.OutQuad));
         sequence.Append(transform.DOScale(originalScale, 0.1f).SetEase(Ease.InQuad));
-        
+
         currentTween = sequence;
     }
 
@@ -320,7 +338,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             currentTween.Kill();
             currentTween = null;
         }
-        
+
         // ✅ Also kill any tweens on this transform specifically
         transform.DOKill();
         canvasGroup.DOKill();
@@ -345,7 +363,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             ServiceLocator.Get<PlacementManager>().CancelPlacement();
             // ❌ This destroys the object instead of returning to pool
             // Destroy(gameObject); // Remove this line
-            
+
             // ✅ Instead, let the inventory handle it properly
             inventoryUI.HandleItemDepletion(this);
         }
@@ -353,26 +371,27 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
     private void OnCancelPlacement()
     {
+        inventoryUI.ShowInventory();
         Debug.Log("Placement cancelled.");
     }
-    
+
     public void ResetSlot()
     {
         // ✅ Kill any active tweens FIRST before resetting
         KillCurrentTween();
-        
+
         iconImage.sprite = null;
         iconImage.enabled = false;
         amountText.text = "";
-        
+
         // Reset visual state
         transform.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
-        
+
         // Reset drag state
         isDragging = false;
-        
+
         // Reset data
         itemData = null;
         itemAmount = 0;
@@ -382,7 +401,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     {
         // ✅ Kill tweens when object is disabled
         KillCurrentTween();
-        
+
         // Reset visual state immediately
         transform.localScale = originalScale;
         canvasGroup.alpha = 1f;

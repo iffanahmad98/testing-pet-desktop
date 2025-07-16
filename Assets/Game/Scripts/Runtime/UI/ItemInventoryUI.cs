@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using DG.Tweening;
+using TMPro;
 
 public class ItemInventoryUI : MonoBehaviour
 {
@@ -25,6 +26,9 @@ public class ItemInventoryUI : MonoBehaviour
     [SerializeField] private Button horizontalLeftScrollButton;
     [SerializeField] private Button horizontalRightScrollButton;
     [SerializeField] private Button horizontalDownScrollButton;
+    [Header("Shop Under Inventory")]
+    [SerializeField] private Transform shopInventoryContentParent;
+    [SerializeField] private RectTransform shopInventoryContentRect;
 
     [Header("Full Inventory Panel (Vertical Scroll)")]
     [SerializeField] private GameObject verticalContentGameObject;
@@ -39,6 +43,12 @@ public class ItemInventoryUI : MonoBehaviour
     [SerializeField] private int slotsPerRow = 6;
     [SerializeField] private float slotHeight = 110f;
     [SerializeField] private float rowSpacing = 10f;
+    [Header("Delete Confirmation")]
+    [SerializeField] private GameObject deleteConfirmationPanel;
+    [SerializeField] private TextMeshProUGUI confirmationMessageText; // or TextMeshProUGUI
+    [SerializeField] private Button confirmDeleteButton;
+    [SerializeField] private Button cancelDeleteButton;
+
 
     // Object Pool for ItemSlotUI
     private Queue<ItemSlotUI> slotPool = new Queue<ItemSlotUI>();
@@ -47,6 +57,9 @@ public class ItemInventoryUI : MonoBehaviour
 
     private bool isDeleteMode = false;
     public bool IsInDeleteMode => isDeleteMode;
+    private ItemSlotUI pendingDeleteSlot;
+    private Dictionary<ItemSlotUI, int> pendingDeleteMap = new();
+
 
     // Add these new variables for drag & drop
     private Dictionary<Transform, List<OwnedItemData>> parentToItemsMap = new Dictionary<Transform, List<OwnedItemData>>();
@@ -144,12 +157,25 @@ public class ItemInventoryUI : MonoBehaviour
         SetupNavigationButtons();
         deleteButton.onClick.AddListener(OnDeleteButtonClicked);
         storeButton.onClick.AddListener(OnStoreButtonClicked);
+        confirmDeleteButton.onClick.AddListener(HandleConfirmedDelete);
+        cancelDeleteButton.onClick.AddListener(() =>
+        {
+            SetCanvasGroupVisibility(deleteConfirmationPanel, false);
+            ExitDeleteMode(); // ✅ Exit delete mode
+        });
+
+
     }
 
     private void OnEnable()
     {
         closeButton.onClick.RemoveAllListeners();
-        closeButton.onClick.AddListener(() => ServiceLocator.Get<UIManager>().FadePanel(verticalContentGameObject, verticalContentGameObject.GetComponent<CanvasGroup>(), false));
+        closeButton.onClick.AddListener(() =>
+        {
+            HideInventory();
+            ResetInventoryGroupvisibility();
+            ExitDeleteMode();
+        });
         StartPopulateAllInventories();
     }
 
@@ -165,42 +191,59 @@ public class ItemInventoryUI : MonoBehaviour
                     slot.GetComponent<CanvasGroup>().DOKill();
             }
         }
-
         quickViewGameObject.SetActive(true);
         horizontalBarGameObject.SetActive(false);
         ReturnAllSlotsToPool();
     }
+    private void SetCanvasGroupVisibility(GameObject target, bool show)
+    {
+        CanvasGroup group = target.GetComponent<CanvasGroup>();
+        if (group == null) group = target.AddComponent<CanvasGroup>();
+
+        group.alpha = show ? 1f : 0f;
+        group.interactable = show;
+        group.blocksRaycasts = show;
+    }
+
 
     private void SetupNavigationButtons()
     {
         dropdownLeftScrollButton.onClick.AddListener(() =>
         {
-            quickViewGameObject.SetActive(false);
-            horizontalBarGameObject.SetActive(true);
+            SetCanvasGroupVisibility(quickViewGameObject, false);
+            SetCanvasGroupVisibility(horizontalBarGameObject, true);
         });
 
         dropdownRightScrollButton.onClick.AddListener(() =>
-            ServiceLocator.Get<UIManager>().FadePanel(this.gameObject, this.GetComponent<CanvasGroup>(), false));
+        {
+            HideInventory();
+            ResetInventoryGroupvisibility();
+        });
+
 
         horizontalLeftScrollButton.onClick.AddListener(() =>
         {
-            quickViewGameObject.SetActive(true);
-            horizontalBarGameObject.SetActive(false);
+            SetCanvasGroupVisibility(quickViewGameObject, true);
+            SetCanvasGroupVisibility(horizontalBarGameObject, false);
         });
 
         horizontalDownScrollButton.onClick.AddListener(() =>
         {
-            horizontalBarGameObject.SetActive(false);
+            SetCanvasGroupVisibility(horizontalBarGameObject, false);
             ServiceLocator.Get<UIManager>().FadePanel(verticalContentGameObject, verticalContentGameObject.GetComponent<CanvasGroup>(), true);
         });
 
         horizontalRightScrollButton.onClick.AddListener(() =>
-            ServiceLocator.Get<UIManager>().FadePanel(this.gameObject, this.GetComponent<CanvasGroup>(), false));
+        {
+            HideInventory();
+            ResetInventoryGroupvisibility();
+        });
     }
 
     public void StartPopulateAllInventories()
     {
         StartCoroutine(PopulateAllInventoriesCoroutine());
+        StartCoroutine(PopulateShopInventoryCoroutine());
     }
 
     private IEnumerator PopulateAllInventoriesCoroutine()
@@ -283,25 +326,11 @@ public class ItemInventoryUI : MonoBehaviour
                 yield return new WaitForSeconds(0.01f);
         }
     }
-
-    private void ReturnSlotsFromParent(Transform parent)
+    public void StartPopulateShopInventory()
     {
-        var slotsToReturn = new List<ItemSlotUI>();
-
-        foreach (var slot in activeSlots)
-        {
-            if (slot.transform.parent == parent)
-            {
-                slotsToReturn.Add(slot);
-            }
-        }
-
-        foreach (var slot in slotsToReturn)
-        {
-            activeSlots.Remove(slot);
-            ReturnSlotToPool(slot);
-        }
+        StartCoroutine(PopulateShopInventoryCoroutine());
     }
+
     private IEnumerator PopulateInventoryByType(Transform parent, RectTransform rect, List<OwnedItemData> allItems,
     int foodMax, int medicineMax, int poopMax, int rows)
     {
@@ -348,17 +377,109 @@ public class ItemInventoryUI : MonoBehaviour
             yield return null;
         }
     }
+    private IEnumerator PopulateShopInventoryCoroutine()
+    {
+        var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
+
+        if (ownedItems == null || ownedItems.Count == 0)
+        {
+            Debug.Log("ℹ️ No items to show in shop inventory.");
+            yield break;
+        }
+
+        // Filter only Food and Medicine
+        var displayItems = new List<OwnedItemData>();
+
+        foreach (var item in ownedItems)
+        {
+            var data = itemDatabase.GetItem(item.itemID);
+            if (data == null) continue;
+
+            if (data.category == ItemType.Food || data.category == ItemType.Medicine)
+            {
+                displayItems.Add(item);
+            }
+        }
+
+        // Clear existing UI
+        foreach (Transform child in shopInventoryContentParent)
+            Destroy(child.gameObject);
+        yield return null;
+
+        // NOTE: We don't set vertical height here — assume horizontal layout is managed via prefab size + LayoutGroup
+
+        foreach (var item in displayItems)
+        {
+            var itemData = itemDatabase.GetItem(item.itemID);
+            if (itemData == null) continue;
+
+            var slot = Instantiate(slotPrefab, shopInventoryContentParent);
+            slot.Initialize(itemData, item.type, item.amount);
+            yield return null;
+        }
+    }
+    public void HideInventory()
+    {
+        ServiceLocator.Get<UIManager>().FadePanel(gameObject, GetComponent<CanvasGroup>(), false, 0.3f, 1.08f, 0.15f, true);
+    }
+    public void ShowInventory()
+    {
+        ServiceLocator.Get<UIManager>().FadePanel(gameObject, GetComponent<CanvasGroup>(), true, 0.3f, 1.08f, 0.15f, true);
+    }
+    public void ResetInventoryGroupvisibility()
+    {
+        SetCanvasGroupVisibility(quickViewGameObject, true);
+        SetCanvasGroupVisibility(horizontalBarGameObject, false);
+        SetCanvasGroupVisibility(verticalContentGameObject, false);
+    }
+
+
+    private void ReturnSlotsFromParent(Transform parent)
+    {
+        var slotsToReturn = new List<ItemSlotUI>();
+
+        foreach (var slot in activeSlots)
+        {
+            if (slot.transform.parent == parent)
+            {
+                slotsToReturn.Add(slot);
+            }
+        }
+
+        foreach (var slot in slotsToReturn)
+        {
+            activeSlots.Remove(slot);
+            ReturnSlotToPool(slot);
+        }
+    }
 
 
     // === Delete Mode Logic ===
 
     private void OnDeleteButtonClicked()
     {
-        if (isDeleteMode)
-            ExitDeleteMode();
-        else
+        if (isDeleteMode && pendingDeleteMap.Count > 0)
+        {
+            ShowDeleteConfirmationPanel();
+        }
+        else if (!isDeleteMode)
+        {
             EnterDeleteMode();
+        }
+        else
+        {
+            ExitDeleteMode();
+        }
     }
+    private void ShowDeleteConfirmationPanel()
+    {
+        string message = "Delete the following items?\n";
+
+        confirmationMessageText.text = message;
+        SetCanvasGroupVisibility(deleteConfirmationPanel, true);
+    }
+
+
 
     private void EnterDeleteMode()
     {
@@ -376,17 +497,42 @@ public class ItemInventoryUI : MonoBehaviour
             }
         }
     }
+    public void AddToPendingDelete(ItemSlotUI slot)
+    {
+        if (!pendingDeleteMap.ContainsKey(slot))
+            pendingDeleteMap[slot] = 0;
+
+        if (pendingDeleteMap[slot] < slot.ItemAmount) // Add 1
+        {
+            pendingDeleteMap[slot]++;
+            Debug.Log($"➕ Marked {slot.ItemDataSO.itemName} x{pendingDeleteMap[slot]} for delete");
+            slot.UpdateAmountText(pendingDeleteMap[slot]); // 🔄 update UI
+        }
+    }
+
+    public void RemoveFromPendingDelete(ItemSlotUI slot)
+    {
+        if (!pendingDeleteMap.ContainsKey(slot)) return;
+
+        pendingDeleteMap[slot]--;
+        if (pendingDeleteMap[slot] <= 0)
+            pendingDeleteMap.Remove(slot);
+
+        Debug.Log($"➖ Unmarked {slot.ItemDataSO.itemName}. Remaining: {pendingDeleteMap.GetValueOrDefault(slot, 0)}");
+        slot.UpdateAmountText(pendingDeleteMap.GetValueOrDefault(slot, 0)); // 🔄 update UI
+    }
+
 
     private void ExitDeleteMode()
     {
         isDeleteMode = false;
-        Debug.Log("❌ Delete Mode Canceled.");
+        pendingDeleteMap.Clear();
 
-        // Reset visual feedback
         foreach (var slot in activeSlots)
         {
             if (slot != null)
             {
+                slot.UpdateAmountText(0); // Reset UI
                 var bg = slot.GetComponent<Image>();
                 if (bg != null)
                     bg.color = Color.clear;
@@ -394,21 +540,50 @@ public class ItemInventoryUI : MonoBehaviour
         }
     }
 
+
     public void ConfirmDeleteItem(ItemSlotUI slot)
     {
         if (!isDeleteMode || slot == null) return;
 
-        SaveSystem.PlayerConfig.ownedItems.RemoveAll(x => x.itemID == slot.ItemDataSO.itemID);
-        SaveSystem.SaveAll();
+        pendingDeleteSlot = slot;
 
-        Debug.Log($"✅ Deleted item: {slot.ItemDataSO.itemName}");
+        var itemName = slot.ItemDataSO.itemName;
+        confirmationMessageText.text = $"Are you sure you want to delete <color=#ff4444><b>1</b> {itemName}</color>?";
+
+        SetCanvasGroupVisibility(deleteConfirmationPanel, true);
+    }
+    private void HandleConfirmedDelete()
+    {
+        foreach (var kvp in pendingDeleteMap)
+        {
+            var slot = kvp.Key;
+            int deleteQty = kvp.Value;
+            var item = SaveSystem.PlayerConfig.ownedItems.FirstOrDefault(x => x.itemID == slot.ItemDataSO.itemID);
+
+            if (item != null)
+            {
+                item.amount -= deleteQty;
+                if (item.amount <= 0)
+                    SaveSystem.PlayerConfig.ownedItems.Remove(item);
+            }
+        }
+
+        SaveSystem.SaveAll();
+        Debug.Log("✅ Items deleted.");
+
+        pendingDeleteMap.Clear();
+        SetCanvasGroupVisibility(deleteConfirmationPanel, false);
         ExitDeleteMode();
         StartPopulateAllInventories();
     }
 
+
+
     private void OnStoreButtonClicked()
     {
-        ServiceLocator.Get<UIManager>().FadePanel(verticalContentGameObject, verticalContentGameObject.GetComponent<CanvasGroup>(), false);
+        HideInventory();
+        ResetInventoryGroupvisibility();
+        ExitDeleteMode();
         ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
     }
 

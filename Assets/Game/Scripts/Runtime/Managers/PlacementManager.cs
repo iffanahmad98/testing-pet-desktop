@@ -55,7 +55,6 @@ public class PlacementManager : MonoBehaviour
         Sprite previewSprite = null,
         bool isMedicine = false)
     {
-        CancelPlacement(); // Clear previous
 
         gameArea = area;
         currentPreview = Instantiate(prefab, area);
