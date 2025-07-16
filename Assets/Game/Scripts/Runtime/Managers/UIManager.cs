@@ -20,8 +20,6 @@ public class UIManager : MonoBehaviour
     public CanvasGroup CatalogueCanvasGroup;
     public GameObject InventoryPanel;
     public CanvasGroup InventoryCanvasGroup;
-    public GameObject MainInventoryPanel;
-    public CanvasGroup MainInventoryCanvasGroup;
 
     [Header("Buttons")]
     public Button UIMenuButton;
@@ -152,12 +150,10 @@ public class UIManager : MonoBehaviour
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
         miniInventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
         catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
-        mainInventoryButton?.onClick.AddListener(() => FadePanel(MainInventoryPanel, MainInventoryCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
         closeShopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, false));
         closeCatalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, false));
-        closeMainInventoryButton?.onClick.AddListener(() => FadePanel(MainInventoryPanel, MainInventoryCanvasGroup, false));
     }
 
     private void UnregisterButtonListeners()
@@ -205,11 +201,6 @@ public class UIManager : MonoBehaviour
         CatalogueCanvasGroup.alpha = 0f;
         CatalogueCanvasGroup.interactable = false;
         CatalogueCanvasGroup.blocksRaycasts = false;
-
-        // Hide Main Inventory Panel
-        MainInventoryCanvasGroup.alpha = 0f;
-        MainInventoryCanvasGroup.interactable = false;
-        MainInventoryCanvasGroup.blocksRaycasts = false;
     }
 
     public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f)
@@ -343,6 +334,7 @@ public class UIManager : MonoBehaviour
         _buttonCanvasGroup.alpha = 1f;
 
         UIFloatMenuPanel.SetActive(false);
+        miniInventoryButton.interactable = true;
         _isAnimating = false;
     }
 

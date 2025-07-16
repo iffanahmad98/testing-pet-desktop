@@ -1,14 +1,13 @@
 using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
 
 public class FacilityManager : MonoBehaviour
 {
-    public GameObject magicShovelPrefab;
     [SerializeField] private Button magicShovelButton;
     [SerializeField] private FacilityDatabaseSO facilityDatabase;
+    [SerializeField] private GameObject magicShovelPrefab;
 
     public FacilityDatabaseSO FacilityDatabase => facilityDatabase;
 
@@ -75,22 +74,24 @@ public class FacilityManager : MonoBehaviour
 
         return true;
     }
-    private IEnumerator UseMagicShovel()
+    private System.Collections.IEnumerator UseMagicShovel()
     {
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         var poops = new List<PoopController>(monsterManager.activePoops);
+        var magicShovelAnim = magicShovelPrefab.GetComponent<UIAnimator>();
+        var magicShovelRT = magicShovelPrefab.GetComponent<RectTransform>();
 
         foreach (var poop in poops)
         {
             if (poop != null && poop.gameObject.activeInHierarchy)
             {
+                magicShovelRT.position = poop.transform.position;
                 magicShovelPrefab.SetActive(true);
-                magicShovelPrefab.transform.position = poop.GetComponent<RectTransform>().position;
-                magicShovelPrefab.GetComponent<UIAnimator>().Play();
-                yield return new WaitForSeconds(1f); // Add a delay for effect
-                poop.OnCollected(); // or monsterManager.DespawnToPool(poop.gameObject));
+                magicShovelAnim.Play();
+                yield return new WaitForSeconds(0.5f); // Wait for animation to play
+                poop.OnCollected(); // or monsterManager.DespawnToPool(poop.gameObject)
                 magicShovelPrefab.SetActive(false);
-                yield return new WaitForSeconds(0.5f); // Delay between each poop collection
+                yield return new WaitForSeconds(0.2f); // Add a delay for effect
             }
         }
 
