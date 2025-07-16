@@ -91,7 +91,7 @@ public class ItemInventoryUI : MonoBehaviour
     {
         if (slot != null)
         {
-            // Remove from active slots list
+            // Remove from active slots list safely
             if (activeSlots.Contains(slot))
                 activeSlots.Remove(slot);
             
@@ -115,8 +115,11 @@ public class ItemInventoryUI : MonoBehaviour
 
     private void ReturnAllSlotsToPool()
     {
-        // ✅ Kill all tweens before returning to pool
-        foreach (var slot in activeSlots)
+        // ✅ Create a copy of the list to avoid modification during iteration
+        var slotsToReturn = new List<ItemSlotUI>(activeSlots);
+        
+        // Kill all tweens before returning to pool
+        foreach (var slot in slotsToReturn)
         {
             if (slot != null)
             {
@@ -124,8 +127,15 @@ public class ItemInventoryUI : MonoBehaviour
                 if (slot.GetComponent<CanvasGroup>() != null)
                     slot.GetComponent<CanvasGroup>().DOKill();
             }
+        }
+        
+        // Now safely return all slots to pool
+        foreach (var slot in slotsToReturn)
+        {
             ReturnSlotToPool(slot);
         }
+        
+        // Clear the active slots list
         activeSlots.Clear();
     }
 
