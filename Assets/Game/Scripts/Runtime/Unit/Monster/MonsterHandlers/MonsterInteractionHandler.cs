@@ -10,12 +10,14 @@ public class MonsterInteractionHandler
     private float _pokeCooldownTimer = 0f;
     private bool _hasBeenInteractedWith = false; 
     private bool _pendingEvolutionCheck = false;
+    private bool _isNPC = false;
 
     public MonsterInteractionHandler(MonsterController controller, MonsterStateMachine stateMachine)
     {
         _controller = controller;
         _controller.StateMachine.OnStateChanged += OnStateChanged;
         _cursorManager = ServiceLocator.Get<CursorManager>();
+        _isNPC = controller.isNPC;
     }
     
     private void OnStateChanged(MonsterState newState)
@@ -52,13 +54,13 @@ public class MonsterInteractionHandler
         if (_hasBeenInteractedWith)
         {
             _pokeCooldownTimer = 60f;
-            _pokeCooldownTimer = 3f;
+            _pokeCooldownTimer = 3f; //temp cooldown for demo purposes
         }
         else
         {
             _hasBeenInteractedWith = true;
             _pokeCooldownTimer = 60f;
-            _pokeCooldownTimer = 3f;
+            _pokeCooldownTimer = 3f; //temp cooldown for demo purposes
         }
     }
     
@@ -124,41 +126,75 @@ public class MonsterInteractionHandler
     private IEnumerator DelayedEvolutionTrigger()
     {
         yield return new WaitForSeconds(0.5f);
-        _controller.CheckEvolutionAfterInteraction();
+        _controller.CheckEvolveAfterInteraction();
     }
-    
+
     public void OnPointerEnter(PointerEventData e)
     {
-        _controller.SetHovered(true);
-        _cursorManager?.Set(CursorType.Monster);
+        if (_controller.EvolutionHandler.IsEvolving) return;
+
+        if (!_isNPC)
+        {
+            _controller.SetHovered(true);
+            _cursorManager?.Set(CursorType.Monster);
+        }
+        else
+        {
+            return;
+        }
     }
-    
+
     public void OnPointerExit(PointerEventData e)
     {
-        _controller.SetHovered(false);
-        _cursorManager?.Reset();
+        if (_controller.EvolutionHandler.IsEvolving) return;
+
+        if (!_isNPC)
+        {
+            _controller.SetHovered(false);
+            _cursorManager?.Reset();
+        }
+        else
+        {
+            return;
+        }
     }
     
     public void OnPointerClick(PointerEventData e)
     {
         if (_controller.EvolutionHandler.IsEvolving) return;
-        switch (e.button)
+
+        if (!_isNPC)
         {
-            case PointerEventData.InputButton.Left:
-                if (_pokeCooldownTimer <= 0f)
-                {
-                    HandlePoke();
-                }
-                else
-                {
-                    Debug.Log("⏱️ Poke cooldown active, cannot poke now!");
-                }
-                break;
-            case PointerEventData.InputButton.Right:
-                HandleMonsterInfo();
-                break;
-            default:
-                break;
+            switch (e.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    if (_pokeCooldownTimer <= 0f)
+                    {
+                        HandlePoke();
+                    }
+                    else
+                    {
+                        Debug.Log("⏱️ Poke cooldown active, cannot poke now!");
+                    }
+                    break;
+                case PointerEventData.InputButton.Right:
+                    HandleMonsterInfo();
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (e.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    Debug.Log("NPC Monster clicked - no interaction available");
+                    break;
+                case PointerEventData.InputButton.Right:
+                    Debug.Log("NPC Monster right-clicked - no interaction available");
+                    break;
+            }
         }
     }
 }

@@ -4,5 +4,6 @@ public enum MonsterType
     Uncommon,
     Rare,
     Mythic,
-    Legend
+    Legend,
+    NPC
 }

@@ -12,7 +12,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     private ItemDataSO itemData;
     private int itemAmount;
 
-    public void Initialize(ItemDataSO data, int amount)
+    public void Initialize(ItemDataSO data, ItemType type, int amount)
     {
         itemData = data;
         itemAmount = amount;
@@ -64,7 +64,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 
         itemAmount--;
         amountText.text = $"{itemAmount} pcs";
-        SaveSystem.UpdateItemData(itemData.itemID, itemAmount);
+        SaveSystem.UpdateItemData(itemData.itemID, itemData.category, itemAmount);
 
         if (itemAmount <= 0)
         {

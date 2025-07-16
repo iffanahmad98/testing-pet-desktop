@@ -12,6 +12,7 @@ public class MonsterUIHandler
     public Image monsterImage;
     public CanvasGroup monsterInfoPanel;
     public TextMeshProUGUI monsterNameText;
+    public TextMeshProUGUI monsterEvolStageText;
 
     [Header("VFX")]
     public UIParticle evolutionVFX;
@@ -31,7 +32,7 @@ public class MonsterUIHandler
     private CanvasGroup _expressionCg;
     private float _hoverStartTime = 0f;
     private bool _isDisplayingEmoji = false;
-    private const float EMOJI_DISPLAY_DELAY = 0.8f;
+    private const float EMOJI_DISPLAY_DELAY = 0.5f;
 
     public void Initialize(MonsterStatsHandler statsHandler = null, MonsterController monsterController = null)
     {
@@ -48,10 +49,10 @@ public class MonsterUIHandler
         }
 
         // Initialize stat bars with values from stats handler or defaults
+        float maxHealth = monsterController?.MonsterData.GetMaxHealth(monsterController.evolutionLevel) ?? 100f;
         float hunger = statsHandler?.CurrentHunger ?? 100f;
         float happiness = statsHandler?.CurrentHappiness ?? 100f;
-        float health = statsHandler?.CurrentHP ?? 100f;
-        float maxHealth = 100f; // Could add MaxHP property to StatsHandler
+        float health = statsHandler?.CurrentHP ?? maxHealth;
 
         if (hungerBar != null) hungerBar.Initialize(hunger, 100f);
         if (happinessBar != null) happinessBar.Initialize(happiness, 100f);
@@ -72,6 +73,7 @@ public class MonsterUIHandler
         if (monsterController != null)
         {
             monsterNameText.text = monsterController.MonsterData.monsterName;
+            monsterEvolStageText.text = $"Stage: {monsterController.evolutionLevel}";
         }
     }
 

@@ -20,10 +20,12 @@ public class UIManager : MonoBehaviour
     public CanvasGroup CatalogueCanvasGroup;
     public GameObject InventoryPanel;
     public CanvasGroup InventoryCanvasGroup;
+    public GameObject MainInventoryPanel;
+    public CanvasGroup MainInventoryCanvasGroup;
 
     [Header("Buttons")]
     public Button UIMenuButton;
-    public Button InventoryButton;
+    public Button miniInventoryButton;
     public Button groundButton;
     public Button doorButton;
     public Button windowButton;
@@ -34,6 +36,8 @@ public class UIManager : MonoBehaviour
     public Button closeSettingsButton;
     public Button catalogueButton;
     public Button closeCatalogueButton;
+    public Button mainInventoryButton;
+    public Button closeMainInventoryButton;
 
     public TextMeshProUGUI messageText;
 
@@ -146,12 +150,14 @@ public class UIManager : MonoBehaviour
 
         settingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
-        InventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
+        miniInventoryButton?.onClick.AddListener(() => FadePanel(InventoryPanel, InventoryCanvasGroup, !InventoryPanel.activeSelf));
         catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
+        mainInventoryButton?.onClick.AddListener(() => FadePanel(MainInventoryPanel, MainInventoryCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
         closeShopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, false));
         closeCatalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, false));
+        closeMainInventoryButton?.onClick.AddListener(() => FadePanel(MainInventoryPanel, MainInventoryCanvasGroup, false));
     }
 
     private void UnregisterButtonListeners()
@@ -167,7 +173,9 @@ public class UIManager : MonoBehaviour
         closeShopButton?.onClick.RemoveAllListeners();
         catalogueButton?.onClick.RemoveAllListeners();
         closeCatalogueButton?.onClick.RemoveAllListeners();
-        InventoryButton?.onClick.RemoveAllListeners();
+        miniInventoryButton?.onClick.RemoveAllListeners();
+        mainInventoryButton?.onClick.RemoveAllListeners();
+        closeMainInventoryButton?.onClick.RemoveAllListeners();
     }
 
     #endregion
@@ -177,10 +185,31 @@ public class UIManager : MonoBehaviour
     private void HideAllPanels()
     {
         UIFloatMenuPanel.SetActive(false);
-        SettingPanel.SetActive(false);
-        ShopPanel.SetActive(false);
-        InventoryPanel.SetActive(false);
-        CataloguePanel?.SetActive(false);
+
+        // Hide Setting Panel
+        SettingCanvasGroup.alpha = 0f;
+        SettingCanvasGroup.interactable = false;
+        SettingCanvasGroup.blocksRaycasts = false;
+
+        // Hide Shop Panel
+        ShopCanvasGroup.alpha = 0f;
+        ShopCanvasGroup.interactable = false;
+        ShopCanvasGroup.blocksRaycasts = false;
+
+        // Hide Inventory Panel
+        InventoryCanvasGroup.alpha = 0f;
+        InventoryCanvasGroup.interactable = false;
+        InventoryCanvasGroup.blocksRaycasts = false;
+
+        // Hide Catalogue Panel
+        CatalogueCanvasGroup.alpha = 0f;
+        CatalogueCanvasGroup.interactable = false;
+        CatalogueCanvasGroup.blocksRaycasts = false;
+
+        // Hide Main Inventory Panel
+        MainInventoryCanvasGroup.alpha = 0f;
+        MainInventoryCanvasGroup.interactable = false;
+        MainInventoryCanvasGroup.blocksRaycasts = false;
     }
 
     public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f)
@@ -274,6 +303,7 @@ public class UIManager : MonoBehaviour
         UIFloatMenuCanvasGroup.alpha = 1f;
 
         UIMenuButton.interactable = false;
+        miniInventoryButton.interactable = false;
         _isAnimating = false;
     }
 
@@ -484,13 +514,12 @@ public class UIManager : MonoBehaviour
 
     private void UpdateCoinCounterValue(int newCoinAmount)
     {
-        // coinCounterText.text = $"Coin : {newCoinAmount}";
         playerCoin.text = $"{newCoinAmount}";
     }
 
     private void UpdatePoopCounterValue(int newPoopAmount)
     {
-        // poopCounterText.text = $"Poop : {newPoopAmount}";
+
     }
 
     #endregion

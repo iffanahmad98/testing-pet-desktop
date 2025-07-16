@@ -12,27 +12,8 @@ public class MonsterVisualHandler
     {
         _controller = controller;
         _skeletonGraphic = skeletonGraphic;
+        ApplyMonsterVisuals();
     }
-
-    // public void SetSpineDataBasedOnEvolution()
-    // {
-    //     if (_controller.MonsterData == null || _skeletonGraphic == null) return;
-
-    //     SkeletonDataAsset targetSkeletonData = GetCurrentSkeletonData();
-
-    //     if (targetSkeletonData != null)
-    //     {
-    //         // Only change if it's actually different
-    //         if (_skeletonGraphic.skeletonDataAsset != targetSkeletonData)
-    //         {
-    //             _skeletonGraphic.skeletonDataAsset = targetSkeletonData;
-    //             _skeletonGraphic.Initialize(true);
-
-    //             // Wait a frame before setting animation
-    //             _controller.StartCoroutine(SetAnimationAfterFrame());
-    //         }
-    //     }
-    // }
 
     public void ApplyMonsterVisuals()
     {
@@ -90,44 +71,6 @@ public class MonsterVisualHandler
         var animSet = System.Array.Find(_controller.MonsterData.evolutionAnimationSets,
             set => set.evolutionLevel == evolutionLevel);
     }
-
-    // private IEnumerator SetAnimationAfterFrame()
-    // {
-    //     yield return null; // Wait one frame for spine to initialize
-
-    //     if (_skeletonGraphic.AnimationState != null)
-    //     {
-    //         _skeletonGraphic.AnimationState.SetAnimation(0, "idle", true);
-    //     }
-    // }
-
-    // public SkeletonDataAsset GetCurrentSkeletonData()
-    // {
-    //     if (_controller.MonsterData == null ||
-    //         _controller.MonsterData.monsterSpine == null ||
-    //         _controller.MonsterData.monsterSpine.Length == 0)
-    //     {
-    //         Debug.LogWarning($"[Visual] No spine data available for monster {_controller.monsterID}");
-    //         return null;
-    //     }
-
-    //     // Clamp to valid array bounds
-    //     int arrayIndex = Mathf.Clamp(_controller.evolutionLevel, 0, _controller.MonsterData.monsterSpine.Length - 1);
-
-    //     // Log if we're clamping (indicates a configuration issue)
-    //     if (arrayIndex != _controller.evolutionLevel)
-    //     {
-    //         Debug.LogWarning($"[Visual] Evolution level {_controller.evolutionLevel} out of bounds for monster {_controller.monsterID}. Using index {arrayIndex} instead.");
-    //     }
-
-    //     var spineAsset = _controller.MonsterData.monsterSpine[arrayIndex];
-    //     if (spineAsset == null)
-    //     {
-    //         Debug.LogError($"[Visual] Spine asset at index {arrayIndex} is null for monster {_controller.monsterID}");
-    //     }
-
-    //     return spineAsset;
-    // }
 
     public Bounds GetSkeletonBounds()
     {
@@ -195,9 +138,9 @@ public class MonsterVisualHandler
     public Vector2 GetRandomPositionOutsideBounds()
     {
         var gameManager = ServiceLocator.Get<MonsterManager>();
-        if (gameManager != null && gameManager.gameArea != null)
+        if (gameManager != null && gameManager.gameAreaRT != null)
         {
-            var gameAreaRect = gameManager.gameArea;
+            var gameAreaRect = gameManager.gameAreaRT;
             Vector2 gameAreaSize = gameAreaRect.sizeDelta;
 
             // Calculate spawn area (outside monster but inside game area)
@@ -384,6 +327,16 @@ public class MonsterVisualHandler
 
         // Return original position if no safe position found
         return preferredPosition;
+    }
+
+    // NEW: Handle coin spawn with animation (similar to poop)
+    public void SpawnCoinWithAnimation(CoinType type)
+    {
+        Vector2 launchPosition = GetCoinLaunchPosition();
+        Vector2 targetPosition = GetRandomPositionOutsideBounds();
+        
+        // Spawn coin through MonsterManager
+        ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
     }
 
     public Sprite GetMonsterIcon() => _currentIcon;

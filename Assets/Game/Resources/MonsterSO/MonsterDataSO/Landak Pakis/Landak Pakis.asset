@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Landak Pakis
   m_EditorClassIdentifier: 
   monsterName: Landak Pakis
-  id: 003
+  id: LandakPakis
   monType: 0
   poopType: 1
   moveSpd: 100
@@ -21,7 +21,7 @@ MonoBehaviour:
   eatDistance: 5
   baseHappiness: 50
   baseHunger: 100
-  hungerDepleteRate: 0
+  hungerDepleteRate: 0.05
   maxHealthStage1: 0
   maxHealthStage2: 0
   maxHealthStage3: 0
@@ -42,7 +42,7 @@ MonoBehaviour:
   gachaChanceDisplay: 
   isGachaOnly: 0
   areaHappinessRate: 0.2
-  pokeHappinessValue: 2
+  pokeHappinessValue: 20
   hungerHappinessThreshold: 30
   hungerHappinessDrainRate: 2
   canEvolve: 0

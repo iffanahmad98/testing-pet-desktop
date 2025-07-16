@@ -12,6 +12,8 @@ public class ItemShopManager : MonoBehaviour
     [Header("Item Display")]
     public GameObject itemCardPrefab;
     public Transform itemGridParent;
+    [Header("Inventory Reference")]
+    public ItemInventoryUI itemInventoryUI;
 
     [Header("Item Info Panel")]
     public TMP_Text itemNameText;
@@ -20,8 +22,9 @@ public class ItemShopManager : MonoBehaviour
     public TMP_Text itemFullnessText;
     public Image itemInfoIcon;
 
+
     [Header("Data")]
-    public List<ItemDataSO> allItems; // Replace with your actual item source
+    public ItemDatabaseSO itemDatabase; // Optional, if you have a database scriptable object
 
     private ItemCardUI selectedCard;
 
@@ -31,6 +34,7 @@ public class ItemShopManager : MonoBehaviour
         {
             tabController.OnTabChanged += OnTabChanged;
             tabController.OnTabSelected(0); // Default tab
+            // itemInventoryUI.StartPopulateInventory();
         }
     }
 
@@ -41,12 +45,11 @@ public class ItemShopManager : MonoBehaviour
         ItemType category = (ItemType)System.Enum.Parse(typeof(ItemType), tabCategories[tabIndex]);
         ShowItemsByCategory(category);
     }
-
     private void ShowItemsByCategory(ItemType category)
     {
         ClearItemGrid();
 
-        var filteredItems = allItems.FindAll(i => i.category == category);
+        var filteredItems = itemDatabase.allItems.FindAll(i => i.category == category);
 
         foreach (var item in filteredItems)
         {
@@ -54,6 +57,7 @@ public class ItemShopManager : MonoBehaviour
             ItemCardUI card = obj.GetComponent<ItemCardUI>();
             card.Setup(item);
             card.OnSelected = OnItemSelected;
+            card.OnBuy = OnItemBuy;
         }
 
         ClearItemInfo(); // Reset info panel
@@ -70,14 +74,36 @@ public class ItemShopManager : MonoBehaviour
         ShowItemInfo(card.itemData);
     }
 
+    private void OnItemBuy(ItemCardUI card)
+    {
+        var item = card.itemData;
+
+        if (SaveSystem.TryBuyItem(item))
+        {
+            OnItemSelected(card);
+
+            itemInventoryUI.StartPopulateInventory();
+            // Success message
+            ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
+        }
+        else
+        {
+            // Failure message
+            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {item.itemName}!", 2f);
+        }
+    }
+
     private void ShowItemInfo(ItemDataSO item)
     {
         itemNameText.text = item.itemName;
         itemPriceText.text = $"Price: {item.price}";
         itemDescText.text = item.description;
         itemFullnessText.text = $"Fullness: {item.nutritionValue}";
-        itemInfoIcon.sprite = item.itemImgs[0];
-        itemInfoIcon.enabled = item.itemImgs[0] != null;
+        if (itemInfoIcon != null)
+        {
+            itemInfoIcon.sprite = item.itemImgs[0];
+            itemInfoIcon.enabled = item.itemImgs[0] != null;
+        }
     }
 
     private void ClearItemGrid()
@@ -94,7 +120,10 @@ public class ItemShopManager : MonoBehaviour
         itemPriceText.text = "";
         itemDescText.text = "";
         itemFullnessText.text = "";
-        itemInfoIcon.sprite = null;
-        itemInfoIcon.enabled = false;
+        if (itemInfoIcon != null)
+        {
+            itemInfoIcon.sprite = null;
+            itemInfoIcon.enabled = false;
+        }
     }
 }

@@ -20,13 +20,13 @@ public class MonsterEvolutionHandler
     // Evolution tracking
     private float _timeSinceCreation;
     private string _timeCreated;
-    private int _foodConsumed;
+    private int _nutritionConsumed;
     private int _interactionCount;
 
     public bool CanEvolve => _controller?.MonsterData != null && _controller.MonsterData.canEvolve;
     public float TimeSinceCreation => _timeSinceCreation;
     public string TimeCreated => _timeCreated;
-    public int FoodConsumed => _foodConsumed;
+    public int NutritionConsumed => _nutritionConsumed;
     public int InteractionCount => _interactionCount;
 
     public MonsterEvolutionHandler(MonsterController controller, SkeletonGraphic skeletonGraphic)
@@ -49,7 +49,7 @@ public class MonsterEvolutionHandler
     {
         _timeCreated = timeCreated;
         _timeSinceCreation = timeSinceCreation;
-        _foodConsumed = foodConsumed;
+        _nutritionConsumed = foodConsumed;
         _interactionCount = interactionCount;
     }
 
@@ -62,13 +62,13 @@ public class MonsterEvolutionHandler
     {
         _timeCreated = DateTime.UtcNow.ToString("o"); // ISO 8601 format
         _timeSinceCreation = 0f;
-        _foodConsumed = 0;
+        _nutritionConsumed = 0;
         _interactionCount = 0;
     }
 
     public void OnFoodConsumed()
     {
-        _foodConsumed++;
+        _nutritionConsumed++;
         CheckEvolutionConditions();
     }
 
@@ -103,7 +103,7 @@ public class MonsterEvolutionHandler
     private bool MeetsEvolutionRequirements(EvolutionRequirement req)
     {
         return _timeSinceCreation >= req.minTimeAlive &&
-               _foodConsumed >= req.minFoodConsumed &&
+               _nutritionConsumed >= req.minFoodConsumed &&
                _interactionCount >= req.minInteractions &&
                _controller.StatsHandler.CurrentHappiness >= req.minCurrentHappiness &&
                _controller.StatsHandler.CurrentHunger >= req.minCurrentHunger &&
@@ -126,7 +126,7 @@ public class MonsterEvolutionHandler
         var originalScale = _skeletonGraphic.rectTransform.localScale.x;
         var originalParent = _controller.transform.parent;
         var monsterTransform = _controller.transform;
-        var areaTransform = _controller.MonsterManager.gameArea.transform;
+        var areaTransform = _controller.MonsterManager.gameAreaRT.transform;
 
         // Get the next evolution skeleton asset
         var monsterData = _controller.MonsterData;
@@ -231,7 +231,7 @@ public class MonsterEvolutionHandler
             if (monsterManager != null)
             {
                 // Update saved IDs list in SaveSystem
-                var savedIDs = SaveSystem.LoadSavedMonIDs();
+                var savedIDs = SaveSystem.LoadMonIDs();
                 if (savedIDs.Contains(oldID))
                 {
                     savedIDs.Remove(oldID);
@@ -253,7 +253,7 @@ public class MonsterEvolutionHandler
         if (req == null) return 1f;
 
         float timeProgress = req.minTimeAlive > 0 ? _timeSinceCreation / req.minTimeAlive : 1f;
-        float foodProgress = req.minFoodConsumed > 0 ? (float)_foodConsumed / req.minFoodConsumed : 1f;
+        float foodProgress = req.minFoodConsumed > 0 ? (float)_nutritionConsumed / req.minFoodConsumed : 1f;
         float interactionProgress = req.minInteractions > 0 ? (float)_interactionCount / req.minInteractions : 1f;
         float happinessProgress = req.minCurrentHappiness > 0 ? _controller.StatsHandler.CurrentHappiness / req.minCurrentHappiness : 1f;
         float hungerProgress = req.minCurrentHunger > 0 ? _controller.StatsHandler.CurrentHunger / req.minCurrentHunger : 1f;
@@ -270,12 +270,11 @@ public class MonsterEvolutionHandler
 
         // Reload max HP and max Hunger for the new evolution level
         float newMaxHP = _controller.MonsterData.GetMaxHealth(_targetLevel);
-        float newMaxHunger = _controller.MonsterData.GetMaxHunger(_targetLevel);
 
         // Reset and clamp stats
         _controller.StatsHandler.Initialize(
             initialHealth: newMaxHP,
-            initialHunger: newMaxHunger,
+            initialHunger: _controller.MonsterData.baseHunger,
             initialHappiness: _controller.MonsterData.baseHappiness,
             maxHP: newMaxHP
         );

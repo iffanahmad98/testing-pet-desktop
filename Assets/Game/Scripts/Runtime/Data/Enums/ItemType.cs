@@ -1,5 +1,6 @@
 public enum ItemType
 {
     Food,
-    Medicine
+    Medicine,
+    Poop
 }

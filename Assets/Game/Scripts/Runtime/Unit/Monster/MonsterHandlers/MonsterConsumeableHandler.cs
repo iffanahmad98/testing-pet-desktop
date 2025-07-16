@@ -21,6 +21,7 @@ public class MonsterConsumableHandler
     {
         _controller = controller;
         _rectTransform = rectTransform;
+        Initialize(controller.MonsterData);
     }
 
     public void Initialize(MonsterDataSO data)
@@ -31,7 +32,7 @@ public class MonsterConsumableHandler
 
     public void FindNearestConsumable()
     {
-        if (!_controller.IsLoaded || _isInternallyConsuming) return;
+        if (_isInternallyConsuming) return;
         if (Time.time - _lastConsumeTime < CONSUME_COOLDOWN) return;
 
         // Release previous claim

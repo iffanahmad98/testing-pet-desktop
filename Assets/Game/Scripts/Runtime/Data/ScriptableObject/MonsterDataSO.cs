@@ -15,14 +15,14 @@ public class MonsterDataSO : ScriptableObject
 
     [Header("Stats")]
     public float moveSpd = 100f;       // Move speed
-    public float foodDetectionRange = 200f;     // Range to detect food
+    public float foodDetectionRange = 100f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
     public float baseHappiness = 50f;            // Add base happiness
     public float baseHunger = 100f;               // Add base hunger
-    public float hungerDepleteRate = 0.001f;  // How fast hunger depletes
-    public float maxHealthStage1;
-    public float maxHealthStage2;
-    public float maxHealthStage3;
+    public float hungerDepleteRate = 0.1f;  // How fast hunger depletes
+    public float maxHealthStage1 = 0f;
+    public float maxHealthStage2 = 0f;
+    public float maxHealthStage3 = 0f;
     public float maxNutritionStage1 = 0f;          // Stage 1 hunger (keep existing)
     public float maxNutritionStage2 = 0f;          // Stage 2 hunger
     public float maxNutritionStage3 = 0f;          // Stage 3 hunger
@@ -59,6 +59,21 @@ public class MonsterDataSO : ScriptableObject
     public int timeToEvolveStage1 = 0; // Time to evolve from Stage 1 to Stage 2 (in days)
     public int timeToEvolveStage2 = 0; // Time to evolve from Stage 2 to Stage 3 (in days)
 
+    // Helper method to get evolution stage name
+    public string GetEvolutionStageName(int level)
+    {
+        switch (level)
+        {
+            case 1:
+                return "Buds";
+            case 2:
+                return "Bloom";
+            case 3:
+                return "Flourish";
+            default:
+                return "Other";
+        }
+    }
 
     [Header("Evolution Requirements - Embedded")]
     public EvolutionRequirement[] evolutionRequirements;
@@ -154,13 +169,13 @@ public class MonsterDataSO : ScriptableObject
         }
     }
 
-    public float GetMaxHunger(int evolutionLevel)
+    public float GetMaxNutrition(int evolutionLevel)
     {
         switch (evolutionLevel)
         {
             case 1: return maxNutritionStage1 > 0 ? maxNutritionStage1 : 100f; // Default to 100 if not set
-            case 2: return maxNutritionStage2 > 0 ? maxNutritionStage2 : maxNutritionStage1 * 2f;
-            case 3: return maxNutritionStage3 > 0 ? maxNutritionStage3 : maxNutritionStage2 * 1.5f;
+            case 2: return maxNutritionStage2 > 0 ? maxNutritionStage2 : 100f * 2f;
+            case 3: return maxNutritionStage3 > 0 ? maxNutritionStage3 : 100f * 3f;
             default: return maxNutritionStage1;
         }
     }
@@ -169,8 +184,8 @@ public class MonsterDataSO : ScriptableObject
         switch (evolutionLevel)
         {
             case 1: return maxHealthStage1 > 0 ? maxHealthStage1 : 100f; // Default to 100 if not set
-            case 2: return maxHealthStage2 > 0 ? maxHealthStage2 : maxHealthStage1 * 2f;
-            case 3: return maxHealthStage3 > 0 ? maxHealthStage3 : maxHealthStage2 * 1.5f;
+            case 2: return maxHealthStage2 > 0 ? maxHealthStage2 : 100f * 1.5f;
+            case 3: return maxHealthStage3 > 0 ? maxHealthStage3 : 100f * 3f;
             default: return maxHealthStage1;
         }
     }
@@ -180,8 +195,10 @@ public class MonsterDataSO : ScriptableObject
 public class MonsterSaveData
 {
     [Header("Identity")]
-    public string instanceId;               // Unique per instance
-    public string monsterId;               // Refers to MonsterDataSO.id
+    public string instanceId;
+    public string monsterId;
+    public int gameAreaId;
+
     [Header("Core Stats")]
     public float currentHealth;
     public float currentHunger;
@@ -191,11 +208,12 @@ public class MonsterSaveData
     [Header("Evolution Data")]
     public int currentEvolutionLevel;
     public int currentInteraction;
-    public int nutritionCount;
+    public int nutritionConsumed;
     public float totalTimeSinceCreation;
     public string timeCreated;
     // public EvolutionProgressData evolutionProgress;
 }
+
 [Serializable]
 public class EvolutionProgressData
 {

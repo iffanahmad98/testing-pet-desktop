@@ -56,7 +56,7 @@ public class MonsterSeparationHandler
             separationVector /= count;
             
             // Get game area size
-            var gameAreaSize = _controller.MonsterManager.gameArea.sizeDelta;
+            var gameAreaSize = _controller.MonsterManager.gameAreaRT.sizeDelta;
             
             // Scale force by available area (smaller area = gentler force)
             float areaFactor = Mathf.Clamp01(gameAreaSize.x * gameAreaSize.y / (500f * 500f));
@@ -85,7 +85,7 @@ public class MonsterSeparationHandler
         }
         
         // When height is constrained, INCREASE horizontal separation instead
-        var gameAreaSize = _controller.MonsterManager.gameArea.sizeDelta;
+        var gameAreaSize = _controller.MonsterManager.gameAreaRT.sizeDelta;
         if (gameAreaSize.y < 300f) {
             // Boost horizontal movement when vertical space is limited
             float boostFactor = Mathf.Lerp(2.0f, 1.0f, gameAreaSize.y / 300f);

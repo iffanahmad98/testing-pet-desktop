@@ -139,7 +139,7 @@ CanvasGroup:
   m_GameObject: {fileID: 657145950826039692}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
+  m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
 --- !u!1 &1353554511215279462
@@ -864,12 +864,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49101a1d19c02c14b8c57283a1c5f80d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isNPC: 0
+  currentHappiness: 0
+  currentHunger: 0
+  currentHealth: 0
+  currentGameAreaIndex: 0
   monsterID: 
   evolutionLevel: 0
+  monsterData: {fileID: 0}
   UI:
     monsterImage: {fileID: 5656146606241970412}
     monsterInfoPanel: {fileID: 8877545203958523592}
     monsterNameText: {fileID: 1704093435482182915}
+    monsterEvolStageText: {fileID: 8620722128699847046}
     evolutionVFX: {fileID: 881247367151245036}
     evolutionMaterial: {fileID: 2100000, guid: 590aa6fe487965f4baf0aa47db53a8d0, type: 2}
     healingVFX: {fileID: 9048028556071923942}
@@ -1158,8 +1165,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1542,6 +1549,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2019749073595213575, guid: eb7fda2501d2ae640aadb9ae0b763c3e, type: 3}
+      propertyPath: m_Value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2019749073595213575, guid: eb7fda2501d2ae640aadb9ae0b763c3e, type: 3}
+      propertyPath: m_Colors.m_ColorMultiplier
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5277304600250895532, guid: eb7fda2501d2ae640aadb9ae0b763c3e, type: 3}
       propertyPath: statSlider
       value: 
@@ -1557,6 +1572,10 @@ PrefabInstance:
     - target: {fileID: 8222505352825601513, guid: eb7fda2501d2ae640aadb9ae0b763c3e, type: 3}
       propertyPath: m_Color.r
       value: 0.76470596
+      objectReference: {fileID: 0}
+    - target: {fileID: 8385630361588398936, guid: eb7fda2501d2ae640aadb9ae0b763c3e, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8385630361588398936, guid: eb7fda2501d2ae640aadb9ae0b763c3e, type: 3}
       propertyPath: m_AnchorMax.y

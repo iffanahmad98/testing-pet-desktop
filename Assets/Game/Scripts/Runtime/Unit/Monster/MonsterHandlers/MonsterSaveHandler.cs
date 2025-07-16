@@ -14,40 +14,40 @@ public class MonsterSaveHandler
         {
             instanceId = _controller.monsterID,
             monsterId = _controller.MonsterData.id,
+            gameAreaId = _controller.MonsterManager.currentGameAreaIndex,
             currentHunger = _controller.StatsHandler.CurrentHunger,
             currentHappiness = _controller.StatsHandler.CurrentHappiness,
             currentHealth = _controller.StatsHandler.CurrentHP,
             currentEvolutionLevel = _controller.evolutionLevel,
 
             // Evolution data
-            timeCreated = _controller.GetEvolutionTimeCreated(),
-            totalTimeSinceCreation = _controller.GetEvolutionTimeSinceCreation(),
-            nutritionCount = _controller.GetEvolutionFoodConsumed(),
+            timeCreated = _controller.GetEvolveTimeCreated(),
+            totalTimeSinceCreation = _controller.GetEvolveTimeSinceCreation(),
+            nutritionConsumed = _controller.GetEvolveNutritionConsumed(),
             currentInteraction = _controller.GetEvolutionInteractionCount()
         };
 
         SaveSystem.SaveMon(data);
     }
 
-    public void LoadData(float maxHP)
+    public void LoadData()
     {
         if (SaveSystem.LoadMon(_controller.monsterID, out var data))
         {
             // Initialize stats handler with loaded data
-            _controller.StatsHandler.Initialize(data.currentHealth, data.currentHunger, data.currentHappiness, maxHP);
+            _controller.StatsHandler.Initialize(data.currentHealth, data.currentHunger, data.currentHappiness, _controller.MonsterData.GetMaxHealth(data.currentEvolutionLevel));
 
             _controller.evolutionLevel = data.currentEvolutionLevel > 0 ? data.currentEvolutionLevel : 1;
 
             // Load evolution data
-            _controller.LoadEvolutionData(data.totalTimeSinceCreation, data.timeCreated, data.nutritionCount, data.currentInteraction);
+            _controller.LoadEvolutionData(data.totalTimeSinceCreation, data.timeCreated, data.nutritionConsumed, data.currentInteraction);
         }
         else
         {
-            Debug.LogError($"No saved data found for monster ID: {_controller.monsterID}");
+            Debug.LogWarning($"No saved data found for monster ID: {_controller.monsterID}, createing new monster.");
         }
 
         ApplyMonsterDataStats();
-        // Apply visuals after loading
         _controller.UpdateVisuals();
     }
 

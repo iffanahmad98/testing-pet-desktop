@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using UnityEngine.UI;
 
 public class MonsterManager : MonoBehaviour
@@ -14,17 +15,16 @@ public class MonsterManager : MonoBehaviour
     public GameObject coinPrefab;
     public RectTransform poolContainer;
     public int initialPoolSize = 50;
+    public int initialMonsterPoolSize = 20;
 
     [Header("Game Settings")]
-    public RectTransform gameArea;
-    public RectTransform groundRect; 
-    public Canvas mainCanvas;
+    public RectTransform gameAreaRT;
+    public RectTransform groundRT;
     public MonsterDatabaseSO monsterDatabase;
+    public MonsterDatabaseSO npcMonsterDatabase;
 
     [Header("Food Placement Settings")]
     public GameObject foodPlacementIndicator;
-    public Color validPositionColor = Color.green;
-    public Color invalidPositionColor = Color.red;
 
     [Header("Rendering Settings")]
     public bool enableDepthSorting = true;
@@ -35,16 +35,23 @@ public class MonsterManager : MonoBehaviour
     private Queue<GameObject> _medicinePool = new Queue<GameObject>();
     private Queue<GameObject> _poopPool = new Queue<GameObject>();
     private Queue<GameObject> _coinPool = new Queue<GameObject>();
+    private Queue<GameObject> _monsterPool = new Queue<GameObject>();
 
     public int poopCollected;
     public int coinCollected;
     public int maxMonstersSlots = 5;
+    public int maxNPCSlots = 2;
+    public int currentGameAreaIndex = 0;
+
     public List<MonsterController> activeMonsters = new List<MonsterController>();
-    public List<GameObject> activeCoins = new List<GameObject>();
-    public List<GameObject> activePoops = new List<GameObject>();
+    public List<MonsterController> npcMonsters = new List<MonsterController>();
+    public List<CoinController> activeCoins = new List<CoinController>();
+    public List<PoopController> activePoops = new List<PoopController>();
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     private List<string> savedMonIDs = new List<string>();
+    [SerializeField] private Button spawnNPC1;
+    [SerializeField] private Button spawnNPC2;
 
     public System.Action<int> OnCoinChanged;
     public System.Action<int> OnPoopChanged;
@@ -56,6 +63,8 @@ public class MonsterManager : MonoBehaviour
         ServiceLocator.Register(this);
         InitializePools();
         SaveSystem.Initialize();
+        spawnNPC1.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("100")));
+        spawnNPC2.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("200")));
     }
 
     private void InitializePools()
@@ -65,6 +74,12 @@ public class MonsterManager : MonoBehaviour
             CreatePoolObject(foodPrefab, _foodPool);
             CreatePoolObject(poopPrefab, _poopPool);
             CreatePoolObject(coinPrefab, _coinPool);
+        }
+
+        // Initialize monster pool
+        for (int i = 0; i < initialMonsterPoolSize; i++)
+        {
+            CreatePoolObject(monsterPrefab, _monsterPool);
         }
     }
 
@@ -92,18 +107,30 @@ public class MonsterManager : MonoBehaviour
     #region Monster Management
     public void SellMonster(MonsterDataSO monsterData)
     {
-        int sellPrice = monsterData.GetSellPrice(activeMonsters.Find(m => m.MonsterData.id == monsterData.id)?.evolutionLevel ?? 1);
+        int sellPrice = monsterData.GetSellPrice(activeMonsters.Find(m => m.MonsterData.id == monsterData.id)?.evolutionLevel ?? 69);
         coinCollected += sellPrice;
         SaveSystem.SaveCoin(coinCollected);
         OnCoinChanged?.Invoke(coinCollected);
     }
 
+    public void BuyMonster(MonsterDataSO monsterData)
+    {
+        int cost = monsterData.monsterPrice;
+        if (SpentCoin(cost)) SpawnMonster(monsterData);
+    }
+
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
     {
         GameObject monster = CreateMonster(monsterData);
-
         var controller = monster.GetComponent<MonsterController>();
 
+        if (monster == null || controller == null)
+        {
+            Debug.LogError("SpawnMonster: Failed to create monster or MonsterController is missing.");
+            return;
+        }
+
+        // Initialize ID 
         if (!string.IsNullOrEmpty(id))
         {
             controller.monsterID = id;
@@ -117,16 +144,15 @@ public class MonsterManager : MonoBehaviour
         }
 
         controller.LoadMonData();
-
         var finalData = controller.MonsterData;
         monster.name = $"{finalData.monsterName}_{controller.monsterID}";
 
         if (string.IsNullOrEmpty(id))
         {
-            RegisterMonster(controller);
+            RegisterNewMonster(controller);
         }
         else
-            RegisterActiveMonster(controller);
+            RegisterLoadedMonster(controller);
 
         // Apply current pet scale to newly spawned monster
         var settingsManager = ServiceLocator.Get<SettingsManager>();
@@ -136,9 +162,10 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    private GameObject CreateMonster(MonsterDataSO monsterData = null)
+    private GameObject CreateMonster(MonsterDataSO monsterData)
     {
-        var monster = Instantiate(monsterPrefab, gameArea);
+        var monster = GetPooledObject(_monsterPool, monsterPrefab);
+        monster.transform.SetParent(gameAreaRT, false);
 
         var monsterController = monster.GetComponent<MonsterController>();
         var rectTransform = monster.GetComponent<RectTransform>();
@@ -149,39 +176,32 @@ public class MonsterManager : MonoBehaviour
         if (monsterController != null)
         {
             MonsterDataSO _data = monsterData;
-
-            // If no data provided, pick random from database
-            if (_data == null && monsterDatabase != null && monsterDatabase.monsters.Count > 0)
+            if (_data == null)
             {
-                _data = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
-            }
-
-            if (_data != null)
-            {
-                monsterController.SetMonsterData(_data);
-                monster.name = $"{_data.monsterName}_Temp";
+                Debug.LogError("SpawnMonster: No monster data provided");
+                return null;
             }
             else
-            {
-                monster.name = "Monster_Temp";
-            }
+                monsterController.SetMonsterData(_data);
         }
         else
         {
-            monster.name = "Monster_Temp";
+            Debug.LogError("SpawnMonster: MonsterController component not found on the prefab");
+            return null;
         }
 
+        monster.SetActive(true);
         return monster;
     }
 
-    private void RegisterMonster(MonsterController monsterController)
+    private void RegisterNewMonster(MonsterController monsterController)
     {
         savedMonIDs.Add(monsterController.monsterID);
         SaveSystem.SaveMonIDs(savedMonIDs);
-        RegisterActiveMonster(monsterController);
+        RegisterLoadedMonster(monsterController);
     }
 
-    public void RegisterActiveMonster(MonsterController monster)
+    private void RegisterLoadedMonster(MonsterController monster)
     {
         if (!activeMonsters.Contains(monster))
         {
@@ -203,11 +223,6 @@ public class MonsterManager : MonoBehaviour
             savedMonIDs.Add(monsterID);
             SaveSystem.SaveMonIDs(savedMonIDs);
         }
-    }
-
-    public void BuyMons(int cost = 0)
-    {
-        if (SpentCoin(cost)) SpawnMonster();
     }
 
     private (MonsterDataSO, int) GetMonsterDataAndLevelFromID(string monsterID)
@@ -271,6 +286,42 @@ public class MonsterManager : MonoBehaviour
         }
     }
     #endregion
+    #region  NPC Management
+    public void SaveAllNPCMons()
+    {
+        foreach (var npc in npcMonsters)
+        {
+            var saveData = new NPCSaveData
+            {
+                instanceId = npc.monsterID,
+                monsterId = npc.MonsterData.id
+            };
+            SaveSystem.SaveNPCMon(saveData);
+        }
+
+        SaveSystem.SaveNPCMonIDs(npcMonsters.Select(n => n.monsterID).ToList());
+    }
+    private void LoadNPCMonsters()
+    {
+        var npcIDs = SaveSystem.LoadNPCMonIDs();
+        foreach (var id in npcIDs)
+        {
+            if (SaveSystem.LoadNPCMon(id, out NPCSaveData saveData))
+            {
+                var monsterData = npcMonsterDatabase.monsters.Find(m => m.id == saveData.monsterId);
+                if (monsterData != null)
+                {
+                    SpawnNPCMonster(monsterData, saveData.instanceId);
+                }
+                else
+                {
+                    Debug.LogWarning($"NPC monster data not found for ID: {saveData.monsterId}");
+                }
+            }
+        }
+    }
+    #endregion
+
 
     #region Consumable Management
     public void SpawnItem(ItemDataSO data, Vector2 pos)
@@ -294,11 +345,11 @@ public class MonsterManager : MonoBehaviour
 
         if (pooled != null)
         {
-            SetupPooledObject(pooled, gameArea, pos);
+            SetupPooledObject(pooled, gameAreaRT, pos);
 
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {
-                consumable.Initialize(data, groundRect);
+                consumable.Initialize(data, groundRT);
             }
 
             // Register into the correct active list
@@ -320,10 +371,6 @@ public class MonsterManager : MonoBehaviour
             }
         }
     }
-
-
-
-
     #endregion
 
     #region Item Management
@@ -332,10 +379,9 @@ public class MonsterManager : MonoBehaviour
         var coin = GetPooledObject(_coinPool, coinPrefab);
         if (coin != null)
         {
-            activeCoins.Add(coin);
-            SetupPooledObject(coin, gameArea, startPosition);
+            SetupPooledObject(coin, gameAreaRT, startPosition);
+            activeCoins.Add(coin.GetComponent<CoinController>());
             coin.GetComponent<CoinController>().Initialize(type);
-            activeCoins.Add(coin);
 
             // Start arc animation coroutine
             StartCoroutine(AnimateCoinArc(coin.transform, startPosition, targetPosition));
@@ -406,8 +452,9 @@ public class MonsterManager : MonoBehaviour
         Vector2 finalPos = FindNonOverlappingPosition(anchoredPos, 50f);
 
         var poop = GetPooledObject(_poopPool, poopPrefab);
-        SetupPooledObject(poop, gameArea, finalPos);
+        SetupPooledObject(poop, gameAreaRT, finalPos);
         poop.GetComponent<PoopController>().Initialize(type);
+        activePoops.Add(poop.GetComponent<PoopController>());
         return poop;
     }
 
@@ -421,7 +468,7 @@ public class MonsterManager : MonoBehaviour
             bool hasOverlap = false;
 
             // Check against active coins and poop
-            foreach (Transform child in gameArea)
+            foreach (Transform child in gameAreaRT)
             {
                 if (child.gameObject.activeInHierarchy &&
                     (child.GetComponent<CoinController>() != null || child.GetComponent<PoopController>() != null))
@@ -443,7 +490,7 @@ public class MonsterManager : MonoBehaviour
             testPos = preferredPos + randomOffset;
 
             // Keep within game area bounds
-            var rect = gameArea.rect;
+            var rect = gameAreaRT.rect;
             testPos.x = Mathf.Clamp(testPos.x, rect.xMin + 25f, rect.xMax - 25f);
             testPos.y = Mathf.Clamp(testPos.y, rect.yMin + 25f, rect.yMax - 25f);
         }
@@ -511,13 +558,19 @@ public class MonsterManager : MonoBehaviour
         else if (obj.TryGetComponent<CoinController>(out _))
         {
             _coinPool.Enqueue(obj);
-            activeCoins.Remove(obj);
+            activeCoins.Remove(obj.GetComponent<CoinController>());
+        }
+        else if (obj.TryGetComponent<MonsterController>(out var monsterController))
+        {
+            _monsterPool.Enqueue(obj);
+            activeMonsters.Remove(monsterController);
+            npcMonsters.Remove(monsterController);
         }
         else if (obj.name.Contains("Poop"))
         {
             _poopPool.Enqueue(obj);
             CollectPoop();
-            activePoops.Remove(obj);
+            activePoops.Remove(obj.GetComponent<PoopController>());
         }
     }
     #endregion
@@ -525,19 +578,33 @@ public class MonsterManager : MonoBehaviour
     #region Save and Load
     private void LoadGame()
     {
-
         coinCollected = SaveSystem.LoadCoin();
         poopCollected = SaveSystem.LoadPoop();
-        savedMonIDs = SaveSystem.LoadSavedMonIDs();
+        currentGameAreaIndex = SaveSystem.LoadActiveGameAreaIndex();
+        savedMonIDs = SaveSystem.LoadMonIDs();
 
+        LoadMonstersForCurrentArea();
+        LoadNPCMonsters(); // <- ADD THIS LINE
+
+        OnCoinChanged?.Invoke(coinCollected);
+        OnPoopChanged?.Invoke(poopCollected);
+    }
+
+
+    private void LoadMonstersForCurrentArea()
+    {
         foreach (var id in savedMonIDs)
         {
-            if (SaveSystem.LoadMon(id, out _))
+            if (SaveSystem.LoadMon(id, out MonsterSaveData saveData))
             {
-                var (monsterData, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
-                if (monsterData != null)
+                // Only spawn monsters that belong to the current game area
+                if (saveData.gameAreaId == currentGameAreaIndex)
                 {
-                    SpawnMonster(monsterData, id);
+                    var (monsterData, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
+                    if (monsterData != null)
+                    {
+                        SpawnMonster(monsterData, id);
+                    }
                 }
             }
         }
@@ -549,50 +616,145 @@ public class MonsterManager : MonoBehaviour
         {
             var saveData = new MonsterSaveData
             {
-
                 instanceId = monster.monsterID,
                 monsterId = monster.MonsterData.id,
+                gameAreaId = currentGameAreaIndex, // Save current area
                 currentHunger = monster.StatsHandler.CurrentHunger,
                 currentHappiness = monster.StatsHandler.CurrentHappiness,
                 currentHealth = monster.StatsHandler.CurrentHP,
                 currentEvolutionLevel = monster.evolutionLevel,
 
                 // Evolution data
-                timeCreated = monster.GetEvolutionTimeCreated(),
-                totalTimeSinceCreation = monster.GetEvolutionTimeSinceCreation(),
-                nutritionCount = monster.GetEvolutionFoodConsumed(),
+                timeCreated = monster.GetEvolveTimeCreated(),
+                totalTimeSinceCreation = monster.GetEvolveTimeSinceCreation(),
+                nutritionConsumed = monster.GetEvolveNutritionConsumed(),
                 currentInteraction = monster.GetEvolutionInteractionCount()
             };
             SaveSystem.SaveMon(saveData);
         }
         SaveSystem.SaveMonIDs(savedMonIDs);
-        // SaveSystem.Flush();
+        SaveSystem.SaveActiveGameAreaIndex(currentGameAreaIndex); // Save current area
+    }
+
+    // Add method to switch game areas
+    public void SwitchToGameArea(int areaIndex)
+    {
+        if (areaIndex == currentGameAreaIndex) return; // Already in this area
+
+        // Save current monsters before switching
+        SaveAllMons();
+
+        // Clear current active monsters (return to pool)
+        var monstersToRemove = activeMonsters.ToList();
+        foreach (var monster in monstersToRemove)
+        {
+            DespawnToPool(monster.gameObject);
+        }
+        activeMonsters.Clear();
+
+        // Clear other active objects too
+        ClearActiveObjects();
+
+        // Update current area
+        currentGameAreaIndex = areaIndex;
+        SaveSystem.SaveActiveGameAreaIndex(currentGameAreaIndex);
+
+        // Load monsters for the new area
+        LoadMonstersForCurrentArea();
+
+        Debug.Log($"Switched to game area {areaIndex}");
+    }
+
+    private void ClearActiveObjects()
+    {
+        // Clear coins
+        var coinsToRemove = activeCoins.ToList();
+        foreach (var coin in coinsToRemove)
+        {
+            if (coin != null && coin.gameObject != null)
+                DespawnToPool(coin.gameObject);
+        }
+        activeCoins.Clear();
+
+        // Clear poop
+        var poopsToRemove = activePoops.ToList();
+        foreach (var poop in poopsToRemove)
+        {
+            if (poop != null && poop.gameObject != null)
+                DespawnToPool(poop.gameObject);
+        }
+        activePoops.Clear();
+
+        // Clear food
+        var foodsToRemove = activeFoods.ToList();
+        foreach (var food in foodsToRemove)
+        {
+            if (food != null && food.gameObject != null)
+                DespawnToPool(food.gameObject);
+        }
+        activeFoods.Clear();
+
+        // Clear medicine
+        var medicinestoRemove = activeMedicines.ToList();
+        foreach (var medicine in medicinestoRemove)
+        {
+            if (medicine != null && medicine.gameObject != null)
+                DespawnToPool(medicine.gameObject);
+        }
+        activeMedicines.Clear();
+    }
+
+    // Helper method to get monster count for specific area
+    public int GetMonsterCountForArea(int areaIndex)
+    {
+        return SaveSystem.PlayerConfig.GetMonsterCountForGameArea(areaIndex);
+    }
+
+    // Helper method to move monster to different area
+    public void MoveMonsterToArea(string monsterID, int targetAreaIndex)
+    {
+        var monster = activeMonsters.Find(m => m.monsterID == monsterID);
+        if (monster != null)
+        {
+            // Update the monster's area in save data
+            SaveSystem.PlayerConfig.SetMonsterGameArea(monsterID, targetAreaIndex);
+
+            // If moving to different area than current, remove from active list
+            if (targetAreaIndex != currentGameAreaIndex)
+            {
+                DespawnToPool(monster.gameObject);
+            }
+
+            SaveSystem.SaveAll();
+        }
+    }
+
+    public MonsterController GetMonsterByID(string monsterID)
+    {
+        if (SaveSystem.LoadMon(monsterID, out var saveData))
+        {
+            MonsterController monster = new MonsterController();
+            monster.StatsHandler.Initialize(saveData.currentHunger, saveData.currentHappiness, saveData.currentHealth, monster.MonsterData.GetMaxHealth(saveData.currentEvolutionLevel));
+            return monster;
+        }
+        return null;
     }
 
     private void SaveGameData()
     {
         SaveAllMons();
-
+        SaveAllNPCMons(); // <- ADD THIS LINE
         SaveSystem.SavePoop(poopCollected);
         SaveSystem.SaveCoin(coinCollected);
         SaveSystem.Flush();
     }
+
     #endregion
 
     #region Utility Methods
-    private Vector2 ScreenToGameAreaPosition()
-    {
-        var cam = mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCanvas.worldCamera;
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            gameArea, Input.mousePosition, cam, out Vector2 localPoint);
-
-        return localPoint;
-    }
-
     public bool IsPositionInGameArea(Vector2 localPosition)
     {
-        var rect = gameArea.rect;
+        var rect = gameAreaRT.rect;
         return localPosition.x >= rect.xMin && localPosition.x <= rect.xMax &&
                localPosition.y >= rect.yMin && localPosition.y <= rect.yMax;
     }
@@ -602,7 +764,7 @@ public class MonsterManager : MonoBehaviour
         // Check coins
         foreach (var coin in activeCoins)
         {
-            if (coin != null && coin.activeInHierarchy)
+            if (coin != null && coin.gameObject.activeInHierarchy)
             {
                 var coinRect = coin.GetComponent<RectTransform>();
                 if (coinRect != null)
@@ -616,7 +778,7 @@ public class MonsterManager : MonoBehaviour
         // Check poop
         foreach (var poop in activePoops)
         {
-            if (poop != null && poop.activeInHierarchy)
+            if (poop != null && poop.gameObject.activeInHierarchy)
             {
                 var poopRect = poop.GetComponent<RectTransform>();
                 if (poopRect != null)
@@ -640,5 +802,39 @@ public class MonsterManager : MonoBehaviour
 #endif
 
     void OnDestroy() => ServiceLocator.Unregister<MonsterManager>();
+    #endregion
+
+    #region NPC Monster Management
+    public void SpawnNPCMonster(MonsterDataSO monsterData, string id = null)
+    {
+        if (monsterData == null)
+        {
+            Debug.LogError("No monster data provided and no database available.");
+            return;
+        }
+
+        GameObject npcObj = GetPooledObject(_monsterPool, monsterPrefab);
+        npcObj.transform.SetParent(gameAreaRT, false);
+
+        var controller = npcObj.GetComponent<MonsterController>();
+        var movementBounds = new MonsterBoundsHandler(this, npcObj.GetComponent<RectTransform>());
+        controller.isNPC = true;
+
+        string npcID = id ?? $"NPC_{monsterData.id}_{System.Guid.NewGuid().ToString("N").Substring(0, 8)}";
+        controller.monsterID = npcID;
+        controller.gameObject.name = $"{monsterData.monsterName}_{npcID}";
+        controller.SetMonsterData(monsterData);
+
+        npcObj.GetComponent<RectTransform>().anchoredPosition = movementBounds.GetRandomSpawnTarget();
+        npcObj.SetActive(true);
+
+        if (!npcMonsters.Contains(controller))
+            npcMonsters.Add(controller);
+
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
+            settingsManager.ApplyCurrentPetScaleToMonster(controller);
+    }
+
     #endregion
 }

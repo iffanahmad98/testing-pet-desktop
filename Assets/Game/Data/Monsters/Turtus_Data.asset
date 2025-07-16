@@ -13,20 +13,24 @@ MonoBehaviour:
   m_Name: Turtus_Data
   m_EditorClassIdentifier: 
   monsterName: Turtus
-  monsterId: 
   id: turtus
   monType: 0
   poopType: 1
-  hp: 25
   moveSpd: 120
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 0
   baseHunger: 50
   hungerDepleteRate: 0.05
+  maxHealthStage1: 25
+  maxHealthStage2: 50
+  maxHealthStage3: 70
   maxNutritionStage1: 14
   maxNutritionStage2: 42
   maxNutritionStage3: 50.4
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 2
@@ -43,7 +47,9 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  evolutionLevel: 1
+  evolutionLevel: 0
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 604800
@@ -64,7 +70,9 @@ MonoBehaviour:
     description: Evolve to Turtus Stage 3
     progressRetentionPercentage: 0
   monsterSpine: []
-  monsIconImg: []
+  CardIcon: []
+  DetailsIcon: []
+  CatalogueIcon: []
   evolutionAnimationSets: []
   evolutionBehaviors: []
   monsterPrice: 320

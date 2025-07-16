@@ -13,20 +13,24 @@ MonoBehaviour:
   m_Name: Mochichu_Data
   m_EditorClassIdentifier: 
   monsterName: Mochichu
-  monsterId: 
   id: mochichu
   monType: 3
   poopType: 10
-  hp: 100
   moveSpd: 90
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 0
   baseHunger: 50
   hungerDepleteRate: 0.05
+  maxHealthStage1: 100
+  maxHealthStage2: 200
+  maxHealthStage3: 250
   maxNutritionStage1: 100
   maxNutritionStage2: 300
   maxNutritionStage3: 750
+  maxFullnessStage1: 0
+  maxFullnessStage2: 0
+  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 12
@@ -43,7 +47,9 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  evolutionLevel: 1
+  evolutionLevel: 0
+  timeToEvolveStage1: 0
+  timeToEvolveStage2: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 2073600
@@ -64,7 +70,9 @@ MonoBehaviour:
     description: Evolve to Mochichu Stage 3
     progressRetentionPercentage: 0
   monsterSpine: []
-  monsIconImg: []
+  CardIcon: []
+  DetailsIcon: []
+  CatalogueIcon: []
   evolutionAnimationSets: []
   evolutionBehaviors: []
   monsterPrice: 0

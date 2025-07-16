@@ -3,33 +3,26 @@ using UnityEngine.EventSystems;
 using System;
 using Spine.Unity;
 using System.Collections;
-using Microsoft.Unity.VisualStudio.Editor;
 
-public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ITargetable
 {
-    #region Enums & Constants
-    private enum InitializationState
-    {
-        NotStarted,
-        ComponentsReady,
-        HandlersCreated,
-        DataLoaded,
-        FullyInitialized
-    }
+    [Header("NPC Settings")]
+    public bool isNPC = false;  // Flag to identify NPC monsters
+    private NPCPetCaretakerHandler _npcHandler;
+    public NPCPetCaretakerHandler NPC => _npcHandler;
 
-    private const float TARGET_CHANGE_COOLDOWN = 1f;
-    #endregion
+    [Header("Monster Stats")]
+    // These fields are just for display and debugging purposes
+    public float currentHappiness;
+    public float currentHunger;
+    public float currentHealth;
+    public int currentGameAreaIndex;  
 
     #region Fields & Properties
-    // Initialization state tracking
-    private InitializationState _initState = InitializationState.NotStarted;
-    private bool _isInitializing = false;
-    private bool _isLoaded = false;
-
     // Monster identification & basic data
     public string monsterID;
     public int evolutionLevel;
-    private MonsterDataSO monsterData;
+    [SerializeField] private MonsterDataSO monsterData;
     public MonsterDataSO MonsterData => monsterData;
     public string timeCreated { get; private set; }
 
@@ -42,7 +35,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     // Stats & state properties
     public bool IsSick => _statsHandler?.IsSick ?? false;
-    public bool IsLoaded => _isLoaded;
 
     // Core events
     public event Action<float> OnHungerChanged;
@@ -50,7 +42,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public event Action<float> OnHappinessChanged;
     public event Action<float> OnHealthChanged;
     public event Action<bool> OnHoverChanged;
-    public event Action<MonsterController> OnMonsterFullyInitialized;
 
     // Handler instances
     private MonsterSaveHandler _saveHandler;
@@ -59,6 +50,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private MonsterConsumableHandler _consumableHandler;
     public MonsterConsumableHandler ConsumableHandler => _consumableHandler;
     private MonsterInteractionHandler _interactionHandler;
+    public MonsterInteractionHandler InteractionHandler => _interactionHandler;
     private MonsterBoundsHandler _boundHandler;
     public MonsterBoundsHandler BoundHandler => _boundHandler;
     private MonsterEvolutionHandler _evolutionHandler;
@@ -80,77 +72,74 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private MonsterManager _monsterManager;
     public MonsterManager MonsterManager => _monsterManager;
 
+    public bool IsTargetable => gameObject.activeInHierarchy && !isNPC;
+    public Vector2 Position => _rectTransform.anchoredPosition;
+
     // Movement related
     private Vector2 _targetPosition;
     private bool _isHovered;
     private Vector2 _lastSortPosition;
     private float _depthSortThreshold = 20f;
     private float _lastTargetChangeTime = 0f;
-
-    // Safe property access with initialization checks
-    public bool IsFullyInitialized => _initState == InitializationState.FullyInitialized;
+    private const float TARGET_CHANGE_COOLDOWN = 3f;
     #endregion
 
     #region Initialization
     private void Awake()
     {
-        if (_isInitializing) return;
-        _isInitializing = true;
-
-        InitializeID();
         InitializeComponents();
-        _initState = InitializationState.ComponentsReady;
-    }
-
-    private void InitializeID()
-    {
-        if (string.IsNullOrEmpty(monsterID))
-        {
-            monsterID = $"temp_{System.Guid.NewGuid().ToString("N")[..8]}";
-        }
-        gameObject.name = $"Monster_{monsterID}";
     }
 
     private void InitializeComponents()
     {
+        _monsterManager = ServiceLocator.Get<MonsterManager>();
         _rectTransform = GetComponent<RectTransform>();
+        _stateMachine = GetComponent<MonsterStateMachine>();
         _monsterSpineGraphic = GetComponentInChildren<SkeletonGraphic>();
+        _monsterSpineGraphic?.Initialize(true);
 
-        if (_monsterSpineGraphic != null)
+        if (_monsterSpineGraphic == null)
         {
-            // Force initialization if skeleton data exists but AnimationState doesn't
-            if (_monsterSpineGraphic.skeletonDataAsset != null && _monsterSpineGraphic.AnimationState == null)
-            {
-                _monsterSpineGraphic.Initialize(true);
-            }
+            Debug.LogError($"[MonsterController] No SkeletonGraphic found for {gameObject.name}!");
         }
-        else
-        {
-            Debug.LogError($"[MonsterController] No SkeletonGraphic found for {monsterID}!");
-        }
-
         if (_rectTransform == null)
         {
             Debug.LogError($"[MonsterController] No RectTransform found on {gameObject.name}");
+        }
+        if (_stateMachine == null)
+        {
+            Debug.LogError($"[MonsterController] No MonsterStateMachine found on {gameObject.name}");
+        }
+        if (_monsterManager == null)
+        {
+            Debug.LogError($"[MonsterController] No MonsterManager found in ServiceLocator!");
         }
     }
 
     private void Start()
     {
-        if (_initState != InitializationState.ComponentsReady) return;
+        if (isNPC)
+        {
+            _stateMachine = GetComponent<MonsterStateMachine>();
+            _rectTransform = GetComponent<RectTransform>();
+            _monsterSpineGraphic = GetComponentInChildren<SkeletonGraphic>();
+            _monsterSpineGraphic?.Initialize(true);
 
-        // Create handlers in dependency order
-        CreateHandlersInOrder();
-        _initState = InitializationState.HandlersCreated;
+            _boundHandler = new MonsterBoundsHandler(_monsterManager, _rectTransform);
+            _separationBehavior = new MonsterSeparationHandler(this, _rectTransform);
+            _movementHandler = new MonsterMovementHandler(this, _rectTransform, _monsterSpineGraphic);
+            _visualHandler = new MonsterVisualHandler(this, _monsterSpineGraphic);
+            _npcHandler = new NPCPetCaretakerHandler(this);
+            _npcHandler.Initialize();
 
-        // Wait for external dependencies, then continue
-        StartCoroutine(ContinueInitializationWhenReady());
-
-        // ADD: Safety timeout in case initialization gets stuck
-        StartCoroutine(InitializationTimeout());
+            UI.Initialize(_statsHandler, this);
+            return;
+        }
+        CreateHandlers();
+        StartCoroutine(FinalizeInitialization());
     }
 
-    private void CreateHandlersInOrder()
+    private void CreateHandlers()
     {
         // 1. Create core handlers first (no dependencies)
         _statsHandler = new MonsterStatsHandler(this);
@@ -159,124 +148,39 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         _coroutineHandler = new MonsterCoroutineHandler(this);
         _saveHandler = new MonsterSaveHandler(this);
         _evolutionHandler = new MonsterEvolutionHandler(this, _monsterSpineGraphic);
-        // Create handlers that need components (but not external services)
-        if (_monsterSpineGraphic != null)
-        {
-            _visualHandler = new MonsterVisualHandler(this, _monsterSpineGraphic);
-        }
-        else
-        {
-            Debug.LogWarning($"[MonsterController] Cannot create VisualHandler - no SkeletonGraphic found on {gameObject.name}");
-        }
-    }
 
-    private IEnumerator ContinueInitializationWhenReady()
-    {
-        // First wait for dependencies
-        yield return new WaitUntil(() =>
-            ServiceLocator.Get<MonsterManager>() != null &&
-            GetComponent<MonsterStateMachine>() != null);
-
-        // Get references
-        _stateMachine = GetComponent<MonsterStateMachine>();
-        _monsterManager = ServiceLocator.Get<MonsterManager>();
-        
-        // Wait just once, not twice
-        yield return null;
-        
-        // Create handlers
-        CreateDependentHandlers();
-        
-        // NEW: Add explicit wait for animation system if needed
-        if (_visualHandler != null)
-            yield return StartCoroutine(WaitForAnimationSystem());
-        
-        _initState = InitializationState.DataLoaded;
-        yield return StartCoroutine(FinalizeInitialization());
-    }
-    
-    private IEnumerator WaitForAnimationSystem()
-    {
-        int attempts = 0;
-        while (_monsterSpineGraphic == null || _monsterSpineGraphic.AnimationState == null)
-        {
-            if (attempts > 10) break; // Safety timeout
-
-            if (_monsterSpineGraphic != null && _monsterSpineGraphic.skeletonDataAsset != null)
-                _monsterSpineGraphic.Initialize(true);
-                
-            yield return new WaitForSeconds(0.1f);
-            attempts++;
-        }
-    }
-
-    private void CreateDependentHandlers()
-    {
-        // Check once and handle error case clearly
-        if (_rectTransform == null || _monsterManager == null || _monsterSpineGraphic == null)
-        {
-            Debug.LogError($"[MonsterController] {monsterID} cannot create movement handlers - missing dependencies");
-            return;
-        }
-
-        // Then create all handlers without repeated null checks
+        // 3. Create handlers that depend on the state machine
+        _visualHandler = new MonsterVisualHandler(this, _monsterSpineGraphic);
+        _interactionHandler = new MonsterInteractionHandler(this, _stateMachine);
         _boundHandler = new MonsterBoundsHandler(_monsterManager, _rectTransform);
         _movementHandler = new MonsterMovementHandler(this, _rectTransform, _monsterSpineGraphic);
         _separationBehavior = new MonsterSeparationHandler(this, _rectTransform);
         _consumableHandler = new MonsterConsumableHandler(this, _rectTransform);
-    }
 
+        UI.Initialize(_statsHandler, this);
+    }
+    
     private IEnumerator FinalizeInitialization()
     {
-        // Create interaction handler here (needs StateMachine which is loaded earlier)
-        _interactionHandler = new MonsterInteractionHandler(this, _stateMachine);
-
-        // Set initial values
-        SetRandomTarget();
-
-        // Apply monster data if available
-        if (monsterData != null)
+        yield return null; ;
+        // Add this: Load saved data before starting coroutines
+        if (MonsterData != null)
         {
-            _visualHandler?.ApplyMonsterVisuals();
-            _consumableHandler?.Initialize(monsterData);
-            UI.Initialize(_statsHandler, this);
+            SubscribeToEvents();
+            LoadMonData(); // This will call _saveHandler?.LoadData()
+            _coroutineHandler?.StartAllCoroutines();
         }
 
-        // Subscribe to events only after everything is ready
-        SubscribeToEvents();
+        // _initState = InitializationState.FullyInitialized;
 
-        // Register with GameManager last
-        _monsterManager?.RegisterActiveMonster(this);
-
-        // Start coroutines
-        _coroutineHandler?.StartAllCoroutines();
-
-        _initState = InitializationState.FullyInitialized;
-        _isLoaded = true;
-        _isInitializing = false;
-
-        OnMonsterFullyInitialized?.Invoke(this);
+        currentGameAreaIndex = _monsterManager.currentGameAreaIndex;
         yield break;
-    }
-
-    private IEnumerator InitializationTimeout()
-    {
-        yield return new WaitForSeconds(10f); // 10 second timeout
-
-        if (_initState != InitializationState.FullyInitialized)
-        {
-            _initState = InitializationState.FullyInitialized;
-            _isLoaded = true;
-            _isInitializing = false;
-        }
     }
     #endregion
 
     #region Lifecycle Methods
     private void Update()
     {
-        if (!IsFullyInitialized) return;
-
         // ADD: Skip all updates during evolution except evolution tracking
         if (_evolutionHandler?.IsEvolving == true)
         {
@@ -284,27 +188,32 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             return; // Skip movement, interactions, etc.
         }
 
-        _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
-        _interactionHandler?.UpdateTimers(Time.deltaTime);
-        _interactionHandler?.UpdateOutsideInteraction();
-
-        HandleMovement();
-
-        // Update emoji visibility if hovering
-        if (_isHovered)
+        if (!isNPC)
         {
-            UI.UpdateEmojiVisibility(IsSick);
-        }
+            UI.UpdateHungerDisplay(StatsHandler.CurrentHunger, _isHovered);
+            UI.UpdateHappinessDisplay(StatsHandler.CurrentHappiness, _isHovered);
+            UI.UpdateHealthDisplay(StatsHandler.CurrentHP);
+            // Update display fields (these are just for display/debugging)
+            currentHappiness = StatsHandler.CurrentHappiness;
+            currentHunger = StatsHandler.CurrentHunger;
+            currentHealth = StatsHandler.CurrentHP;
+
+            if (_isHovered)
+            {
+                UI.UpdateEmojiVisibility(IsSick);
+            }
+
+            _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
+            _interactionHandler?.UpdateTimers(Time.deltaTime);
+            _interactionHandler?.UpdateOutsideInteraction();
+        }    
+        HandleMovement();
     }
 
     private void OnEnable()
     {
-        // Only subscribe if fully initialized to prevent race conditions
-        if (IsFullyInitialized)
-        {
-            SubscribeToEvents();
-            _coroutineHandler?.StartAllCoroutines();
-        }
+        SubscribeToEvents();
+        _coroutineHandler?.StartAllCoroutines();
     }
 
     private void OnDisable()
@@ -316,8 +225,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private void OnDestroy()
     {
         UnsubscribeFromEvents();
-
-        // Clean up any other resources
         _coroutineHandler?.StopAllCoroutines();
     }
     #endregion
@@ -392,78 +299,146 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     #region Movement & Positioning
     private void HandleMovement()
     {
-        if (monsterData == null) return;
-        if (_evolutionHandler != null && _evolutionHandler.IsEvolving) return;
-
-        // NEW: Check if we should use relaxed bounds for very small areas, Only update movement every 3rd frame for tiny areas
-        bool useRelaxedBounds = _boundHandler?.IsMovementAreaTooSmall() ?? false;
-        Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
-        // NEW: For very small areas, drastically reduce movement updates
-        // NEW: Reduce separation force for small areas
-        if (useRelaxedBounds)
+        // Early return for NPCs - they should use simplified movement
+        if (isNPC)
         {
-            if (Time.frameCount % 3 != 0) return;
-            separationForce *= 0.1f; // Much weaker separation
+            HandleNPCMovement();
+            return;
         }
 
-        if (separationForce.magnitude > 0.1f)
-        {
-            Vector2 _pos = _rectTransform.anchoredPosition;
-            Vector2 newPos = _pos + separationForce * Time.deltaTime;
-
-            if (!useRelaxedBounds)
-            {
-                MonsterState _state = _stateMachine?.CurrentState ?? MonsterState.Idle;
-                var bounds = _boundHandler.CalculateBoundsForState(_state);
-                newPos.x = Mathf.Clamp(newPos.x, bounds.min.x, bounds.max.x);
-                newPos.y = Mathf.Clamp(newPos.y, bounds.min.y, bounds.max.y);
-            }
-            else
-            {
-                // For small areas, only prevent moving completely outside game area
-                var gameAreaSize = _monsterManager.gameArea.sizeDelta;
-                float padding = 20f;
-                newPos.x = Mathf.Clamp(newPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding);
-                newPos.y = Mathf.Clamp(newPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding);
-            }
-
-            _rectTransform.anchoredPosition = newPos;
-        }
-
+        // Early return if eating
         bool isEating = _consumableHandler?.IsCurrentlyConsuming ?? false;
         if (isEating) return;
 
+        // Check movement state early
         bool isMovementState = _stateMachine?.CurrentState == MonsterState.Walking ||
                               _stateMachine?.CurrentState == MonsterState.Running ||
                               _stateMachine?.CurrentState == MonsterState.Flying;
 
-        if (isMovementState)
+        if (!isMovementState) return;
+
+        // Bounds and separation logic
+        bool useRelaxedBounds = _boundHandler?.IsMovementAreaTooSmall() ?? false;
+        
+        // Handle separation
+        HandleSeparationLogic(useRelaxedBounds);
+        
+        // Handle consumable logic
+        HandleConsumableLogic();
+        
+        // Update movement
+        _movementHandler?.UpdateMovement(ref _targetPosition, monsterData);
+        
+        // Handle bounds checking
+        HandleBoundsChecking(useRelaxedBounds);
+        
+        // Handle target reaching
+        HandleTargetReaching(useRelaxedBounds);
+        
+        // Handle depth sorting
+        HandleDepthSorting();
+    }
+
+    private void HandleNPCMovement()
+    {
+        // Simplified movement for NPCs
+        if (_movementHandler != null)
         {
-            bool isGroundMovement = _stateMachine?.CurrentState != MonsterState.Flying;
-
-            if (isGroundMovement && _consumableHandler?.NearestConsumable == null)
+            if (!_npcHandler.OnAction)
             {
-                _consumableHandler?.FindNearestConsumable();
+                SetRandomTarget();
             }
+            _movementHandler.UpdateMovement(ref _targetPosition, monsterData);
+        }
+        
+        // Only apply bounds if NPC is not actively pursuing a target
+        if (!_npcHandler.OnAction)
+        {
+            // Basic bounds for NPCs
+            Vector2 currentPos = _rectTransform.anchoredPosition;
+            var gameAreaSize = _monsterManager.gameAreaRT.sizeDelta;
+            float padding = 20f;
+            bool outsideGameArea = currentPos.x < -gameAreaSize.x / 2 + padding ||
+                                  currentPos.x > gameAreaSize.x / 2 - padding ||
+                                  currentPos.y < -gameAreaSize.y / 2 + padding ||
+                                  currentPos.y > gameAreaSize.y / 2 - padding;
 
-            // Handle food logic only for ground movement
-            if (isGroundMovement && _consumableHandler?.NearestConsumable != null)
+            if (outsideGameArea)
             {
-                _consumableHandler?.HandleConsumableLogic(ref _targetPosition);
+                Vector2 clampedPos = new Vector2(
+                    Mathf.Clamp(currentPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding),
+                    Mathf.Clamp(currentPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding)
+                );
+                _rectTransform.anchoredPosition = clampedPos;
             }
+        }
+    }
 
-            _targetPosition = _separationBehavior.ApplySeparationToTarget(_targetPosition);
+    private void HandleSeparationLogic(bool useRelaxedBounds)
+    {
+        if (_separationBehavior == null) return;
+        
+        Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
+        
+        if (useRelaxedBounds)
+        {
+            if (Time.frameCount % 3 != 0) return;
+            separationForce *= 0.1f;
         }
 
-        _movementHandler.UpdateMovement(ref _targetPosition, monsterData);
+        if (separationForce.magnitude > 0.1f)
+        {
+            Vector2 currentPos = _rectTransform.anchoredPosition;
+            Vector2 newPos = currentPos + separationForce * Time.deltaTime;
 
-        // Enhanced bounds checking - only for normal sized areas
+            // Apply bounds to separation movement
+            if (!useRelaxedBounds && _boundHandler != null)
+            {
+                MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Idle;
+                var bounds = _boundHandler.CalculateBoundsForState(currentState);
+                newPos.x = Mathf.Clamp(newPos.x, bounds.min.x, bounds.max.x);
+                newPos.y = Mathf.Clamp(newPos.y, bounds.min.y, bounds.max.y);
+            }
+            else if (useRelaxedBounds)
+            {
+                var gameAreaSize = _monsterManager.gameAreaRT.sizeDelta;
+                float padding = 20f;
+                newPos.x = Mathf.Clamp(newPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding);
+                newPos.y = Mathf.Clamp(newPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding);
+            }
+            
+            _rectTransform.anchoredPosition = newPos;
+        }
+
+        // Apply separation to target (this modifies the target, doesn't move the monster)
+        _targetPosition = _separationBehavior.ApplySeparationToTarget(_targetPosition);
+    }
+
+    private void HandleConsumableLogic()
+    {
+        bool isGroundMovement = _stateMachine?.CurrentState != MonsterState.Flying;
+        
+        if (isGroundMovement && _consumableHandler != null)
+        {
+            if (_consumableHandler.NearestConsumable == null)
+            {
+                _consumableHandler.FindNearestConsumable();
+            }
+            
+            if (_consumableHandler.NearestConsumable != null)
+            {
+                _consumableHandler.HandleConsumableLogic(ref _targetPosition);
+            }
+        }
+    }
+
+    private void HandleBoundsChecking(bool useRelaxedBounds)
+    {
         Vector2 currentPos = _rectTransform.anchoredPosition;
         MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Idle;
 
-        if (!useRelaxedBounds && !_boundHandler.IsWithinBoundsForState(currentPos, currentState))
+        if (!useRelaxedBounds && _boundHandler != null && !_boundHandler.IsWithinBoundsForState(currentPos, currentState))
         {
-            // Clamp position
             var bounds = _boundHandler.CalculateBoundsForState(currentState);
             Vector2 clampedPos = new Vector2(
                 Mathf.Clamp(currentPos.x, bounds.min.x, bounds.max.x),
@@ -471,8 +446,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
             );
             _rectTransform.anchoredPosition = clampedPos;
 
-            // NEW: For very small movement areas, don't set new targets at all
-            bool areaIsTiny = (bounds.max.y - bounds.min.y) < 50f; // Less than 50 pixels height
+            bool areaIsTiny = (bounds.max.y - bounds.min.y) < 50f;
             if (!areaIsTiny && Time.time - _lastTargetChangeTime > TARGET_CHANGE_COOLDOWN)
             {
                 SetRandomTargetForCurrentState();
@@ -481,8 +455,8 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
         else if (useRelaxedBounds)
         {
-            // For small areas, only check if completely outside game area
-            var gameAreaSize = _monsterManager.gameArea.sizeDelta;
+            // Handle relaxed bounds logic...
+            var gameAreaSize = _monsterManager.gameAreaRT.sizeDelta;
             float padding = 20f;
             bool outsideGameArea = currentPos.x < -gameAreaSize.x / 2 + padding ||
                                   currentPos.x > gameAreaSize.x / 2 - padding ||
@@ -497,7 +471,6 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
                 );
                 _rectTransform.anchoredPosition = clampedPos;
 
-                // NEW: Much longer cooldown for relaxed bounds
                 if (Time.time - _lastTargetChangeTime > TARGET_CHANGE_COOLDOWN * 3f)
                 {
                     SetRandomTargetForCurrentState();
@@ -505,26 +478,31 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
                 }
             }
         }
+    }
 
-        // Check if monster moved significantly and request immediate depth sort
-        Vector2 newPosition = _rectTransform.anchoredPosition;
-        if (Vector2.Distance(newPosition, _lastSortPosition) >= _depthSortThreshold)
-        {
-            _lastSortPosition = newPosition;
-            ServiceLocator.Get<MonsterManager>().SortMonstersByDepth();
-        }
-
+    private void HandleTargetReaching(bool useRelaxedBounds)
+    {
         bool isPursuingFood = _consumableHandler?.NearestConsumable != null;
         float distanceToTarget = Vector2.Distance(_rectTransform.anchoredPosition, _targetPosition);
-        if (distanceToTarget < 10f && !isPursuingFood && isMovementState)
+        
+        if (distanceToTarget < 10f && !isPursuingFood)
         {
-            // NEW: Longer cooldown for reaching targets too
             float targetReachCooldown = useRelaxedBounds ? TARGET_CHANGE_COOLDOWN * 2f : TARGET_CHANGE_COOLDOWN;
             if (Time.time - _lastTargetChangeTime > targetReachCooldown)
             {
                 SetRandomTargetForCurrentState();
                 _lastTargetChangeTime = Time.time;
             }
+        }
+    }
+
+    private void HandleDepthSorting()
+    {
+        Vector2 newPosition = _rectTransform.anchoredPosition;
+        if (Vector2.Distance(newPosition, _lastSortPosition) >= _depthSortThreshold)
+        {
+            _lastSortPosition = newPosition;
+            _monsterManager?.SortMonstersByDepth();
         }
     }
 
@@ -547,31 +525,11 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
 
     public Vector2 GetTargetPosition() => _targetPosition;
-
-    private Vector2 GetRandomPositionAroundMonster()
+    
+    public void SetTargetPosition(Vector2 position)
     {
-        Vector2 basePos = _rectTransform.anchoredPosition;
-
-        // Create a safe drop position below the monster
-        Vector2 dropPosition = new Vector2(
-            basePos.x + UnityEngine.Random.Range(-50f, 50f),
-            basePos.y - 60f // Drop below monster
-        );
-
-        // Ensure it stays within game bounds if possible
-        if (_monsterManager?.gameArea != null)
-        {
-            var gameAreaSize = _monsterManager.gameArea.sizeDelta;
-            float padding = 30f;
-
-            dropPosition.x = Mathf.Clamp(dropPosition.x,
-                -gameAreaSize.x / 2 + padding,
-                gameAreaSize.x / 2 - padding);
-            dropPosition.y = Mathf.Max(dropPosition.y,
-                -gameAreaSize.y / 2 + padding);
-        }
-
-        return dropPosition;
+        _targetPosition = position;
+        _lastTargetChangeTime = Time.time; // Reset cooldown
     }
     #endregion
 
@@ -581,57 +539,22 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         if (newMonsterData == null) return;
 
         monsterData = newMonsterData;
-
-        // CRITICAL: Initialize evolution level BEFORE updating ID
-        InitializeEvolutionLevel();
+        evolutionLevel = evolutionLevel == 0 ? monsterData.evolutionLevel : evolutionLevel;
 
         // Update ID if needed (now uses correct evolution level)
         if (monsterID.StartsWith("temp_") || string.IsNullOrEmpty(monsterID))
         {
             monsterID = $"{monsterData.id}_Lv{evolutionLevel}_{System.Guid.NewGuid().ToString("N")[..8]}";
             gameObject.name = $"{monsterData.monsterName}_{monsterID}";
-
             timeCreated = DateTime.UtcNow.ToString("o"); // ISO 8601
-        }
-
-        // Only initialize handlers if they exist and we're ready
-        if (_initState >= InitializationState.HandlersCreated)
-        {
-            _consumableHandler?.Initialize(monsterData);
-            _visualHandler?.ApplyMonsterVisuals();
-        }
-
-        // Load data only after handlers are ready
-        if (_initState >= InitializationState.DataLoaded)
-        {
-            _saveHandler?.LoadData(monsterData.GetMaxHealth(evolutionLevel));
         }
     }
 
     public void SaveMonData() => _saveHandler?.SaveData();
-    public void LoadMonData() => _saveHandler?.LoadData(monsterData.GetMaxHealth(evolutionLevel));
+    public void LoadMonData() => _saveHandler?.LoadData();
     #endregion
 
     #region Evolution Functionality
-    private void InitializeEvolutionLevel()
-    {
-        if (monsterData != null)
-        {
-            // For new monsters, always start at level 1 regardless of SO
-            if (evolutionLevel <= 0)
-            {
-                evolutionLevel = 1; // Always start at 1 for new monsters
-            }
-        }
-        else
-        {
-            if (evolutionLevel <= 0)
-            {
-                evolutionLevel = 1;
-            }
-        }
-    }
-
     public Sprite GetEvolutionIcon(MonsterIconType iconType = MonsterIconType.Card)
     {
         if (monsterData == null)
@@ -642,46 +565,20 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
         return monsterData.GetEvolutionIcon(evolutionLevel, iconType);
     }
     public int GetCurrentSellPrice() => monsterData?.GetSellPrice(evolutionLevel) ?? 0;
-    public void CheckEvolutionAfterInteraction() => _evolutionHandler?.OnInteraction();
-    public float GetEvolutionProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
-    public float GetEvolutionTimeSinceCreation() => _evolutionHandler?.TimeSinceCreation ?? 0f;
-    public string GetEvolutionTimeCreated() => _evolutionHandler?.TimeCreated ?? DateTime.UtcNow.ToString("o"); // ISO 8601 format
-    public int GetEvolutionFoodConsumed() => _evolutionHandler?.FoodConsumed ?? 0;
+    public void CheckEvolveAfterInteraction() => _evolutionHandler?.OnInteraction();
+    public float GetEvolveProgress() => _evolutionHandler?.GetEvolutionProgress() ?? 0f;
+    public float GetEvolveTimeSinceCreation() => _evolutionHandler?.TimeSinceCreation ?? 0f;
+    public string GetEvolveTimeCreated() => _evolutionHandler?.TimeCreated ?? DateTime.UtcNow.ToString("o"); // ISO 8601 format
+    public int GetEvolveNutritionConsumed() => _evolutionHandler?.NutritionConsumed ?? 0;
     public int GetEvolutionInteractionCount() => _evolutionHandler?.InteractionCount ?? 0;
-    public void LoadEvolutionData(float timeSinceCreation, string timeCreated, int foodConsumed, int interactionCount)
-    {
-        _evolutionHandler?.LoadEvolutionData(timeSinceCreation, timeCreated, foodConsumed, interactionCount);
-    }
+    public void LoadEvolutionData(float timeSinceCreation, string timeCreated, int foodConsumed, int interactionCount) => _evolutionHandler?.LoadEvolutionData(timeSinceCreation, timeCreated, foodConsumed, interactionCount);
     #endregion
 
     #region Stats Management
     public void SetHunger(float value) => _statsHandler?.SetHunger(value);
     public void SetHappiness(float value) => _statsHandler?.SetHappiness(value);
-    public void SetSick(bool value) => _statsHandler?.SetSick(value);
-    public float GetLowHungerTime() => _statsHandler?.LowHungerTime ?? 0f;
-    public void SetLowHungerTime(float value) => _statsHandler?.SetLowHungerTime(value);
     public void IncreaseHappiness(float amount) => _statsHandler?.IncreaseHappiness(amount);
-    public void TreatSickness() => _statsHandler?.TreatSickness();
-    public void GiveMedicine(float healingValue)
-    {
-        if (_statsHandler == null)
-        {
-            Debug.LogWarning($"[MonsterController] {monsterID} has no stats handler assigned.");
-            return;
-        }
-
-        if (_statsHandler.IsSick)
-        {
-            TreatSickness(); // This will internally cure and reset states
-            Debug.Log($"[MonsterController] {monsterID} was sick and has been treated.");
-        }
-        else
-        {
-            Debug.Log($"[MonsterController] {monsterID} is not sick. Applying heal only.");
-        }
-
-        _statsHandler.Heal(healingValue);
-    }
+    public void GiveMedicine(float healingValue) => _statsHandler?.Heal(healingValue);
 
     #endregion
 
@@ -689,7 +586,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public void SetHovered(bool value)
     {
         if (_isHovered == value) return;
-        if (EvolutionHandler.IsEvolving)
+        if (EvolutionHandler?.IsEvolving == true)
         {
             _isHovered = false;
             return;
@@ -723,14 +620,7 @@ public class MonsterController : MonoBehaviour, IPointerEnterHandler, IPointerEx
     #region Visual Effects
     public void UpdateVisuals() => _visualHandler?.ApplyMonsterVisuals();
     public void DropPoop(PoopType type = PoopType.Normal) => _visualHandler?.SpawnPoopWithAnimation(type);
-
-    public void DropCoin(CoinType type)
-    {
-        Vector2 launchPosition = _visualHandler?.GetCoinLaunchPosition() ?? _rectTransform.anchoredPosition;
-        Vector2 targetPosition = _visualHandler?.GetRandomPositionOutsideBounds() ?? GetRandomPositionAroundMonster();
-        ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
-    }
-
+    public void DropCoin(CoinType type) => _visualHandler?.SpawnCoinWithAnimation(type);
     public Sprite GetMonsterIcon() => _visualHandler?.GetMonsterIcon();
     #endregion
 }

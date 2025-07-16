@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class MonsterBehaviorHandler
 {
@@ -21,6 +22,28 @@ public class MonsterBehaviorHandler
             return Random.value < 0.5f ? MonsterState.Idle : MonsterState.Walking;
         }
 
+        // Skip stat-dependent transitions for NPCs
+        if (_controller.isNPC)
+        {
+            var possibleNPCTransitions = GetValidTransitionsForNPC(currentState);
+            if (possibleNPCTransitions.Count > 0)
+            {
+                float rand = Random.value;
+                float cumulativeProbability = 0f;
+
+                foreach (var transition in possibleNPCTransitions)
+                {
+                    cumulativeProbability += transition.probability;
+                    if (rand <= cumulativeProbability)
+                    {
+                        return transition.toState;
+                    }
+                }
+            }
+            return GetSimpleDefaultNextState(currentState);
+        }
+        
+        // Original code for pet monsters
         var possibleTransitions = GetValidTransitions(currentState);
 
         if (possibleTransitions.Count == 0)
@@ -54,10 +77,10 @@ public class MonsterBehaviorHandler
     private MonsterState GetSimpleDefaultNextState(MonsterState currentState)
     {
         bool isInAir = IsMonsterCurrentlyInAir();
-        float currentHappiness = _controller.StatsHandler.CurrentHappiness;
+        float currentHappiness = _controller.StatsHandler?.CurrentHappiness ?? 0f;
 
         // Prevent movement if happiness is too low
-        bool restrictMovement = currentHappiness < 0.5f;
+        bool restrictMovement = false; //currentHappiness < 0.25f;
 
         return currentState switch
         {
@@ -110,6 +133,19 @@ public class MonsterBehaviorHandler
         }
 
         return _transitions;
+    }
+
+    // New method for NPC state transitions
+    private List<StateTransition> GetValidTransitionsForNPC(MonsterState currentState)
+    {
+        var currentBehaviorConfig = GetCurrentBehaviorConfig();
+        if (currentBehaviorConfig == null || currentBehaviorConfig.transitions == null)
+            return new List<StateTransition>();
+            
+        // Filter transitions, ignoring stat requirements
+        return currentBehaviorConfig.transitions
+            .Where(t => t.fromState == currentState && !t.requiresFood)
+            .ToList();
     }
 
     private MonsterBehaviorConfigSO GetCurrentBehaviorConfig()

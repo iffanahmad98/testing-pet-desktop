@@ -7,7 +7,10 @@ using System.Linq;
 public class MonsterCatalogueDetailUI : MonoBehaviour
 {
     [Header("UI Elements")]
-    public CanvasGroup monsterDetailPanel;
+    public GameObject CataloguePanel;
+    public UISmoothFitter smoothFitter;
+    public CanvasGroup canvasGroup;
+    public LayoutElement layoutElement;
     public Image monsterImage;
     public TextMeshProUGUI monsterNameText;
     public TextMeshProUGUI monsterTypeText;
@@ -17,10 +20,20 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public Slider monsterEvolutionProgressSlider;
     public TextMeshProUGUI monsterSellPriceText;
     public TextMeshProUGUI monsterEarningText;
+    public Button markFavoriteButton;
 
-    public void SetDetails(MonsterController monsterController = null)
+    private void Awake()
     {
-        if (monsterDetailPanel == null || monsterImage == null || monsterNameText == null ||
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+        layoutElement.ignoreLayout = true;
+        smoothFitter = CataloguePanel.GetComponent<UISmoothFitter>(); 
+    }
+
+    public void SetDetails(CatalogueMonsterData catalogueMonsterData = null)
+    {
+        if (canvasGroup == null || monsterImage == null || monsterNameText == null ||
             monsterTypeText == null || monsterEvolutionText == null || monsterFullnessSlider == null ||
             monsterHappinessSlider == null || monsterEvolutionProgressSlider == null ||
             monsterSellPriceText == null || monsterEarningText == null)
@@ -29,27 +42,41 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             return;
         }
 
-        if (monsterController == null)
+        if (catalogueMonsterData == null)
         {
             // Hide the detail panel if no monster is provided
+            smoothFitter.Kick();
+            canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
+            {
+                canvasGroup.interactable = false;
+                canvasGroup.blocksRaycasts = false;
+                layoutElement.ignoreLayout = true; 
+            });
             return;
         }
         else
         {
-            var _evolveLvl = monsterController.MonsterData.evolutionLevel;
+            // Ensure the detail panel is active before setting details
+            canvasGroup.alpha = 0f; // Reset alpha to 0 before fading in
+            smoothFitter.Kick();
+            canvasGroup.DOFade(1f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
+            {
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+                layoutElement.ignoreLayout = false; // Allow layout updates
+            });
 
-            // Example setup, replace with actual data retrieval logic
-            monsterDetailPanel.alpha = 1f;
-            monsterImage.sprite = monsterController.GetEvolutionIcon(MonsterIconType.Detail); // Set the sprite for the monster
-            monsterNameText.text = monsterController.MonsterData.monsterName;
-            monsterTypeText.text = monsterController.MonsterData.monType.ToString();
-            monsterEvolutionText.text = $"Evolution Level: {_evolveLvl}";
-            monsterFullnessSlider.value = monsterController.StatsHandler.CurrentHunger; //hunger or fullness nutrition going to ask later
-            monsterHappinessSlider.value = monsterController.StatsHandler.CurrentHappiness;
-            monsterEvolutionProgressSlider.value = (float)_evolveLvl / (monsterController.MonsterData.evolutionRequirements.Length + 1);
-            monsterSellPriceText.text = $"{monsterController.MonsterData.GetSellPrice(_evolveLvl)}";
-            monsterEarningText.text = $"{1 / monsterController.MonsterData.GetGoldCoinDropRate(_evolveLvl)} hourly";
+            // Set details using CatalogueMonsterData
+            canvasGroup.alpha = 1f;
+            monsterImage.sprite = catalogueMonsterData.GetMonsterIcon(MonsterIconType.Detail);
+            monsterNameText.text = catalogueMonsterData.monsterData.monsterName;
+            monsterTypeText.text = catalogueMonsterData.monsterData.monType.ToString();
+            monsterEvolutionText.text = $"Stage {catalogueMonsterData.GetEvolutionStageName()}";
+            monsterFullnessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHunger * 0.01f);
+            monsterHappinessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHappiness * 0.01f);
+            monsterEvolutionProgressSlider.value = (catalogueMonsterData.evolutionLevel - 1f) / 2f;
+            monsterSellPriceText.text = $"{catalogueMonsterData.GetSellPrice()}";
+            monsterEarningText.text = $"{(1 / catalogueMonsterData.GetGoldCoinDropRate() / 60).ToString("F2")} / MIN";
         }
     }
-    
 }

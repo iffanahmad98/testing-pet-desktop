@@ -6,19 +6,103 @@ using UnityEngine;
 public class MonsterDataSOEditor : Editor
 {
     // Organize foldouts by category and set sensible defaults
-    private bool showBasicInfo = false;        // Changed from true to false
-    private bool showStats = false;            // Changed from true to false
-    private bool showBehavior = false;          // Combine happiness + poop
-    private bool showEvolution = false;         // Less frequently edited
-    private bool showAnimations = false;        // Technical details - collapsed by default
-    private bool showAudio = false;             // Less frequently edited
-    private bool showVisuals = false;           // Less frequently edited
+    private bool showBasicInfo = false;
+    private bool showStats = false;
+    private bool showBehavior = false;
+    private bool showEvolution = false;
+    private bool showAnimations = false;
+    private bool showAudio = false;
+    private bool showVisuals = false;
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-        // More compact header
+        // Get the monster type to determine which editor to show
+        var monsterTypeProperty = serializedObject.FindProperty("monType");
+        var currentMonsterType = (MonsterType)monsterTypeProperty.enumValueIndex;
+        bool isNPCType = currentMonsterType == MonsterType.NPC;
+
+        // Show monster type selection prominently at the top with better styling
+        EditorGUILayout.Space(8);
+        
+        using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+        {
+            GUILayout.FlexibleSpace();
+            
+            // Add icon or color indicator for better visual feedback
+            if (isNPCType)
+            {
+                var prevColor = GUI.backgroundColor;
+                GUI.backgroundColor = new Color(0.7f, 0.9f, 1f, 1f); // Light blue for NPC
+                EditorGUILayout.LabelField("🤖 MONSTER TYPE:", EditorStyles.boldLabel, GUILayout.Width(140));
+                GUI.backgroundColor = prevColor;
+            }
+            else
+            {
+                EditorGUILayout.LabelField("🐾 MONSTER TYPE:", EditorStyles.boldLabel, GUILayout.Width(140));
+            }
+            
+            EditorGUILayout.PropertyField(monsterTypeProperty, GUIContent.none, GUILayout.Width(120));
+            GUILayout.FlexibleSpace();
+        }
+        
+        EditorGUILayout.Space(10);
+
+        // Add visual separator
+        var rect = EditorGUILayout.GetControlRect(false, 1);
+        EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.3f));
+        EditorGUILayout.Space(8);
+
+        // Draw appropriate sections based on monster type
+        if (isNPCType)
+        {
+            DrawNPCModeEditor();
+        }
+        else
+        {
+            DrawRegularModeEditor();
+        }
+
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawNPCModeEditor()
+    {
+        // Add a subtle header for NPC mode
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            GUILayout.FlexibleSpace();
+            var headerStyle = new GUIStyle(EditorStyles.largeLabel);
+            headerStyle.normal.textColor = new Color(0.4f, 0.7f, 1f, 1f);
+            EditorGUILayout.LabelField("NPC CONFIGURATION", headerStyle);
+            GUILayout.FlexibleSpace();
+        }
+        
+        EditorGUILayout.Space(8);
+        
+        DrawNPCBasicInfo();
+        DrawNPCVisualSettings();
+        DrawAnimationSettings();
+        DrawNPCBehaviorSettings();
+        DrawNPCEvolutionSettings();
+        DrawNPCAudioSettings();
+    }
+
+    private void DrawRegularModeEditor()
+    {
+        // Add a subtle header for regular mode
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            GUILayout.FlexibleSpace();
+            var headerStyle = new GUIStyle(EditorStyles.largeLabel);
+            headerStyle.normal.textColor = new Color(0.4f, 0.8f, 0.4f, 1f);
+            EditorGUILayout.LabelField("PET MONSTER CONFIGURATION", headerStyle);
+            GUILayout.FlexibleSpace();
+        }
+        
+        EditorGUILayout.Space(8);
+        
         DrawBasicInfo();
         DrawStats();
         DrawBehaviorSettings();
@@ -26,8 +110,204 @@ public class MonsterDataSOEditor : Editor
         DrawAnimationSettings();
         DrawVisualSettings();
         DrawAudioSettings();
+    }
 
-        serializedObject.ApplyModifiedProperties();
+    private void DrawNPCBasicInfo()
+    {
+        using (var scope = new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            showBasicInfo = EditorGUILayout.Foldout(showBasicInfo, "📋 Basic Information", true, EditorStyles.foldoutHeader);
+            if (!showBasicInfo) return;
+
+            EditorGUILayout.Space(5);
+            
+            using (new EditorGUI.IndentLevelScope())
+            {
+                // Identity section with better grouping
+                DrawSectionHeader("Identity");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterName"), new GUIContent("Name"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("id"), new GUIContent("ID"));
+                }
+                
+                EditorGUILayout.Space(8);
+                
+                // Classification section
+                DrawSectionHeader("Classification");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"), new GUIContent("Type"));
+                    }
+                }
+                
+                EditorGUILayout.Space(8);
+                
+                // Movement section
+                DrawSectionHeader("Movement");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("moveSpd"), new GUIContent("Move Speed"));
+                }
+            }
+            
+            EditorGUILayout.Space(5);
+        }
+        
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCVisualSettings()
+    {
+        using (var scope = new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            showVisuals = EditorGUILayout.Foldout(showVisuals, "🎨 Visual Assets", true, EditorStyles.foldoutHeader);
+            if (!showVisuals) return;
+
+            EditorGUILayout.Space(5);
+            
+            using (new EditorGUI.IndentLevelScope())
+            {
+                DrawSectionHeader("Icon Categories");
+                
+                // Detail Icons
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField("Detail Icons", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("DetailsIcon"), GUIContent.none);
+                }
+                
+                EditorGUILayout.Space(3);
+                
+                // Card Icons
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField("Card Icons", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("CardIcon"), GUIContent.none);
+                }
+            }
+            
+            EditorGUILayout.Space(5);
+        }
+        
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCEvolutionSettings()
+    {
+        using (var scope = new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            showEvolution = EditorGUILayout.Foldout(showEvolution, "🔄 Evolution System", true, EditorStyles.foldoutHeader);
+            if (!showEvolution) return;
+
+            EditorGUILayout.Space(5);
+            
+            using (new EditorGUI.IndentLevelScope())
+            {
+                DrawSectionHeader("Basic Settings");
+                var canEvolve = serializedObject.FindProperty("canEvolve").boolValue;
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("canEvolve"));
+
+                    if (canEvolve)
+                    {
+                        EditorGUILayout.Space(3);
+                        EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionLevel"));
+                        EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage1"), 
+                            new GUIContent("Days to Stage 2", "Time-based evolution trigger for NPCs"));
+                        EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage2"), 
+                            new GUIContent("Days to Stage 3", "Time-based evolution trigger for NPCs"));
+                    }
+                }
+
+                EditorGUILayout.Space(5);
+                
+                if (canEvolve)
+                {
+                    EditorGUILayout.HelpBox("💡 NPC evolution uses time-based triggers only.", MessageType.Info);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("❌ Evolution is disabled for this NPC monster.", MessageType.Info);
+                }
+            }
+            
+            EditorGUILayout.Space(5);
+        }
+        
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCBehaviorSettings()
+    {
+        using (var scope = new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            showBehavior = EditorGUILayout.Foldout(showBehavior, "⚙️ Behavior Settings", true, EditorStyles.foldoutHeader);
+            if (!showBehavior) return;
+
+            EditorGUILayout.Space(5);
+            
+            using (new EditorGUI.IndentLevelScope())
+            {
+                DrawSectionHeader("Behavior Configurations");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionBehaviors"), true);
+                }
+            }
+            
+            EditorGUILayout.Space(5);
+        }
+        
+        EditorGUILayout.Space(5);
+    }
+
+    private void DrawNPCAudioSettings()
+    {
+        using (var scope = new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            showAudio = EditorGUILayout.Foldout(showAudio, "🔊 Audio Settings", true, EditorStyles.foldoutHeader);
+            if (!showAudio) return;
+
+            EditorGUILayout.Space(5);
+            
+            using (new EditorGUI.IndentLevelScope())
+            {
+                // Ambient Sounds
+                DrawSectionHeader("Ambient Sounds");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("idleSounds"), new GUIContent("Idle Sounds"), true);
+                }
+
+                EditorGUILayout.Space(5);
+                
+                // Event Sounds
+                DrawSectionHeader("Event Sounds");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("interactionSound"), 
+                        new GUIContent("Interaction Sound"));
+                }
+                
+                EditorGUILayout.Space(5);
+                
+                // Special Sounds
+                DrawSectionHeader("Special Events");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("evolveSound"), 
+                        new GUIContent("Evolution Sound"));
+                }
+            }
+            
+            EditorGUILayout.Space(5);
+        }
+        
+        EditorGUILayout.Space(5);
     }
 
     private void DrawBasicInfo()
@@ -42,23 +322,33 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Classification", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("poopType")); // Move this here
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("poopType"));
 
-        // Pricing Section
-        EditorGUILayout.Space(3);
-        EditorGUILayout.LabelField("Pricing & Gacha", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterPrice"), new GUIContent("Buy Price"));
+        // Only show pricing & gacha for non-NPC monsters
+        var monsterTypeProperty = serializedObject.FindProperty("monType");
+        var currentMonsterType = (MonsterType)monsterTypeProperty.enumValueIndex;
+        if (currentMonsterType != MonsterType.NPC)
+        {
+            // Pricing Section
+            EditorGUILayout.Space(3);
+            EditorGUILayout.LabelField("Pricing & Gacha", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterPrice"), new GUIContent("Buy Price"));
 
-        // Sell prices
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage1"), new GUIContent("Sell Price (Stage 1)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage2"), new GUIContent("Sell Price (Stage 2)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage3"), new GUIContent("Sell Price (Stage 3)"));
+            // Sell prices
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage1"), new GUIContent("Sell Price (Stage 1)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage2"), new GUIContent("Sell Price (Stage 2)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("sellPriceStage3"), new GUIContent("Sell Price (Stage 3)"));
 
-        // NEW: Gacha data
-        EditorGUILayout.Space(2);
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChancePercent"), new GUIContent("Gacha Chance (Decimal)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChanceDisplay"), new GUIContent("Gacha Chance (Display)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("isGachaOnly"), new GUIContent("Gacha Only"));
+            // Gacha data
+            EditorGUILayout.Space(2);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChancePercent"), new GUIContent("Gacha Chance (Decimal)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("gachaChanceDisplay"), new GUIContent("Gacha Chance (Display)"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("isGachaOnly"), new GUIContent("Gacha Only"));
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Pricing and Gacha settings are not applicable for NPC monsters.", MessageType.Info);
+        }
 
         EditorGUILayout.Space(3);
         EditorGUI.indentLevel--;
@@ -259,6 +549,15 @@ public class MonsterDataSOEditor : Editor
 
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(5);  // Add this line for consistency
+    }
+
+    // Helper method for consistent section headers
+    private void DrawSectionHeader(string title)
+    {
+        var headerStyle = new GUIStyle(EditorStyles.boldLabel);
+        headerStyle.normal.textColor = new Color(0.3f, 0.3f, 0.3f, 1f);
+        EditorGUILayout.LabelField(title, headerStyle);
+        EditorGUILayout.Space(2);
     }
 }
 #endif
