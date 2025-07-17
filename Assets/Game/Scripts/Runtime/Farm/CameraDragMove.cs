@@ -107,7 +107,8 @@ namespace MagicalGarden.Farm
             if (zoomCoroutine != null)
                 StopCoroutine(zoomCoroutine);
 
-            zoomCoroutine = StartCoroutine(ZoomAndFocus(target, zoomSize, duration));
+            // zoomCoroutine = StartCoroutine(ZoomAndFocus(target, zoomSize, duration));
+            zoomCoroutine = StartCoroutine(MoveToTarget(target, duration));
         }
 
         // Reset kamera ke zoom default (posisi tetap)
@@ -116,7 +117,9 @@ namespace MagicalGarden.Farm
             if (zoomCoroutine != null)
                 StopCoroutine(zoomCoroutine);
 
-            zoomCoroutine = StartCoroutine(ZoomAndFocus(transform.position, maxZoom / 2, duration));
+            // zoomCoroutine = StartCoroutine(ZoomAndFocus(transform.position, maxZoom / 2, duration));
+            
+            zoomCoroutine = StartCoroutine(MoveToTarget(transform.position, duration));
         }
 
         IEnumerator ZoomAndFocus(Vector3 targetPosition, float targetZoom, float duration)
@@ -131,10 +134,11 @@ namespace MagicalGarden.Farm
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float t = Mathf.SmoothStep(0, 1, elapsed / duration);
+                float t = Mathf.Clamp01(elapsed / duration);
+                float easedT = EaseInOutSine(t);
 
-                float zoom = Mathf.Lerp(startZoom, targetZoom, t);
-                Vector3 pos = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), t);
+                float zoom = Mathf.Lerp(startZoom, targetZoom, easedT);
+                Vector3 pos = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), easedT);
 
                 cam.orthographicSize = zoom;
                 transform.position = ClampCameraPosition(pos, zoom);
@@ -144,6 +148,32 @@ namespace MagicalGarden.Farm
 
             cam.orthographicSize = targetZoom;
             transform.position = ClampCameraPosition(new Vector3(targetPosition.x, targetPosition.y, startPos.z), targetZoom);
+        }
+
+        IEnumerator MoveToTarget(Vector3 targetPosition, float duration)
+        {
+            yield return null; // pastikan posisi awal sudah benar
+
+            Vector3 startPos = transform.position;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                float easedT = EaseInOutSine(t);
+
+                Vector3 pos = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), easedT);
+                transform.position = pos; // langsung set tanpa clamp
+
+                yield return null;
+            }
+
+            transform.position = new Vector3(targetPosition.x, targetPosition.y, startPos.z); // final snap
+        }
+        float EaseInOutSine(float t)
+        {
+            return -(Mathf.Cos(Mathf.PI * t) - 1) / 2;
         }
     }
 }

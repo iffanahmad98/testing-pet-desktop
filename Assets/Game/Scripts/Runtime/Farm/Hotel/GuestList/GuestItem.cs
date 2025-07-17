@@ -49,6 +49,19 @@ namespace MagicalGarden.Hotel
             {
                 Destroy(gameObject);
             });
+            if (guest.IsVIPGuest())
+            {
+                checkInBtn.SetActive(false);
+                confirmBtn.SetActive(true);
+                vipObject.SetActive(true);
+                regObject.SetActive(false);
+            }else
+            {
+                checkInBtn.SetActive(true);
+                confirmBtn.SetActive(false);
+                vipObject.SetActive(false);
+                regObject.SetActive(true);
+            }
         }
 
 

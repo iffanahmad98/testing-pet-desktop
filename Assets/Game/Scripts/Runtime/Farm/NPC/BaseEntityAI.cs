@@ -19,10 +19,12 @@ namespace MagicalGarden.AI
         public Vector2Int currentTile;
         protected Coroutine stateLoopCoroutine;
         protected bool isOverridingState = false;
+        [HideInInspector] public bool isMoving = false;
         protected Dictionary<string, string> animationFallbacks = new Dictionary<string, string>
         {
             { "running", "flying" },
             { "flying", "walking" },
+            { "walking", "walk" },
             { "jumping", "jump" },
             { "jump", "walking" },
             { "idle", "hover" }
@@ -36,6 +38,7 @@ namespace MagicalGarden.AI
                 currentCoroutine = null;
             }
 
+            isMoving = false;
             currentCoroutine = StartCoroutine(routine);
         }
         protected virtual void Start()

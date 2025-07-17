@@ -82,7 +82,7 @@ namespace MagicalGarden.Manager
         GuestRarity GetRandomRarity()
         {
             int roll = UnityEngine.Random.Range(0, 100);
-            if (roll < 70) return GuestRarity.Normal;
+            if (roll < 70) return GuestRarity.Common;
             if (roll < 85) return GuestRarity.Rare;
             if (roll < 95) return GuestRarity.Mythic;
             return GuestRarity.Legend;
@@ -179,7 +179,7 @@ namespace MagicalGarden.Manager
                 // TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
                 TimeSpan stayDuration = new TimeSpan(0, 0, 3, 0); // 3 menit
                 var guestTemp = GetRandomGuestStagePrefab();
-                GuestRequest newRequest = new GuestRequest(guestTemp.name,guestTemp.icon, type, party, price, stayDuration, GetRandomRarity());
+                GuestRequest newRequest = new GuestRequest(guestTemp.name,guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
                 newRequest.GuestGroup = guestTemp;
                 todayGuestRequests.Add(newRequest);
             }
@@ -365,7 +365,7 @@ namespace MagicalGarden.Manager
     {
         public T data;
     }
-    
+
     [System.Serializable]
     public class GuestStageGroup
     {
@@ -375,6 +375,8 @@ namespace MagicalGarden.Manager
         public GameObject stage1;
         public GameObject stage2;
         public GameObject stage3;
+        [Header("Guest Attributes")]
+        public GuestRarity guestType;
 
         public GameObject GetPrefabByStage(int stage)
         {
@@ -391,6 +393,10 @@ namespace MagicalGarden.Manager
                 default:
                     return stage1;
             }
+        }
+        public bool IsVIPGuest()
+        {
+            return guestType == GuestRarity.Rare || guestType == GuestRarity.Mythic || guestType == GuestRarity.Legend;
         }
     }
     

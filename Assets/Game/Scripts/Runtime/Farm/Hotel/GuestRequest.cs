@@ -13,9 +13,9 @@ namespace MagicalGarden.Hotel
         public int price;
         public string type;
         public TimeSpan stayDurationDays;
-        public GuestRarity rarity = GuestRarity.Normal;
+        public GuestRarity rarity = GuestRarity.Common;
         public GuestStageGroup GuestGroup { get; set; }
-        public GuestRequest(string name, Sprite icon, string type, int party, int price, TimeSpan stayDuration, GuestRarity rarity = GuestRarity.Normal)
+        public GuestRequest(string name, Sprite icon, string type, int party, int price, TimeSpan stayDuration, GuestRarity rarity = GuestRarity.Common)
         {
             guestName = name;
             this.icon = icon;
@@ -24,6 +24,11 @@ namespace MagicalGarden.Hotel
             this.type = type;
             this.stayDurationDays = stayDuration;
             this.rarity = rarity;
+        }
+
+        public bool IsVIPGuest()
+        {
+            return rarity == GuestRarity.Rare || rarity == GuestRarity.Mythic || rarity == GuestRarity.Legend;
         }
 
         public string GetStayDurationString()
@@ -46,7 +51,8 @@ namespace MagicalGarden.Hotel
     }
     public enum GuestRarity
     {
-        Normal,
+        Common,
+        Uncommon,
         Rare,
         Mythic,
         Legend

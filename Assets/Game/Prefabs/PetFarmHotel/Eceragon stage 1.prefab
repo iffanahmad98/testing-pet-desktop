@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 11449187757829863}
   - component: {fileID: 4659825678032975215}
   - component: {fileID: 3164908206299456050}
-  - component: {fileID: 8296458651350903028}
+  - component: {fileID: 5271738835112048220}
   m_Layer: 0
-  m_Name: Sun Flion stage 2
+  m_Name: Eceragon stage 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d96c1c534c7df7849b55c6453ae97cbc, type: 2}
+  - {fileID: 2100000, guid: b235b461e03ec714ca919ac5d22a1beb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -86,7 +86,7 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &4659825678032975215
@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skeletonDataAsset: {fileID: 11400000, guid: 386995bad8f1f5848bc4abf6f0705b9c, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: 844e7ddc6f21e0a408193025ff42062a, type: 2}
   initialSkinName: 
   fixPrefabOverrideViaMeshFilter: 2
   initialFlipX: 0
@@ -151,18 +151,19 @@ MonoBehaviour:
   - stateName: idle
     probability: 0.2
   - stateName: jump
-    probability: 0.1
+    probability: 0
   - stateName: eat
     probability: 0.2
   - stateName: walk
     probability: 0.5
   - stateName: run
     probability: 0.2
+  terrainTilemap: {fileID: 0}
   currentTile: {x: 0, y: 0}
   destinationTile: {x: 16, y: -39}
   hotelRoomRef: {fileID: 0}
   hotelContrRef: {fileID: 0}
---- !u!114 &8296458651350903028
+--- !u!114 &5271738835112048220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,4 +175,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6933d486bbd9b214292fd038fc756fbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: 0
+  centerOffset: 0

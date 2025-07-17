@@ -15,7 +15,7 @@ namespace MagicalGarden.Hotel
         public int party;
         public int price;
         public int durationStay;
-        public GuestRarity rarity = GuestRarity.Normal;
+        public GuestRarity rarity = GuestRarity.Common;
         [Range(0, 100)]
         public int happiness = 100;
         public DateTime checkInDate;

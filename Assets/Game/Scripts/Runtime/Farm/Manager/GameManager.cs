@@ -9,6 +9,7 @@ namespace MagicalGarden.Farm
         public CameraDragMove cameraRig;
 
         [Header("Cloud Settings")]
+        public bool moveRightInstead = false;
         public List<Sprite> cloudDays;
         public List<Sprite> cloudEvenings;
         public GameObject cloudPrefab;
@@ -20,6 +21,8 @@ namespace MagicalGarden.Farm
         [Header("Cloud Spawn/Destroy Area")]
         public Collider2D spawnArea;
         public Collider2D destroyArea;
+        Collider2D currentSpawnArea;
+        Collider2D currentDestroyArea;
 
         private List<GameObject> cloudInstances = new List<GameObject>();
         private Dictionary<GameObject, float> cloudSpeeds = new Dictionary<GameObject, float>(); // ✅ menyimpan kecepatan per cloud
@@ -32,6 +35,8 @@ namespace MagicalGarden.Farm
         void Start()
         {
             SpawnClouds();
+            currentSpawnArea = moveRightInstead ? destroyArea : spawnArea;
+            currentDestroyArea = moveRightInstead ? spawnArea : destroyArea;
         }
 
         void Update()
@@ -131,18 +136,25 @@ namespace MagicalGarden.Farm
             foreach (var cloud in cloudInstances)
             {
                 float speed = cloudSpeeds.ContainsKey(cloud) ? cloudSpeeds[cloud] : 1f;
-                cloud.transform.position += Vector3.left * speed * Time.deltaTime;
+                Vector3 direction = moveRightInstead ? Vector3.right : Vector3.left;
+                cloud.transform.position += direction * speed * Time.deltaTime;
 
-                if (cloud.transform.position.x < destroyArea.bounds.min.x)
+                bool outOfBounds = moveRightInstead
+                    ? cloud.transform.position.x > currentDestroyArea.bounds.max.x
+                    : cloud.transform.position.x < currentDestroyArea.bounds.min.x;
+
+                if (outOfBounds)
                 {
-                    float resetX = spawnArea.bounds.max.x + Random.Range(0f, 1f);
-                    float resetY = Random.Range(spawnArea.bounds.min.y, spawnArea.bounds.max.y);
+                    float resetX = moveRightInstead
+                        ? currentSpawnArea.bounds.min.x + Random.Range(0f, 1f)
+                        : currentSpawnArea.bounds.max.x + Random.Range(0f, 1f);
+
+                    float resetY = Random.Range(currentSpawnArea.bounds.min.y, currentSpawnArea.bounds.max.y);
                     cloud.transform.position = new Vector3(resetX, resetY, 0f);
 
                     float randomScale = Random.Range(cloudScaleRange.x, cloudScaleRange.y);
                     cloud.transform.localScale = Vector3.one * randomScale;
 
-                    // ✅ reset juga kecepatannya
                     float newSpeed = Random.Range(cloudSpeedRange.x, cloudSpeedRange.y);
                     cloudSpeeds[cloud] = newSpeed;
                 }

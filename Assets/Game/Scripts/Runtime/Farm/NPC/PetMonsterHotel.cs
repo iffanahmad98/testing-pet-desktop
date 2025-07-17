@@ -10,6 +10,7 @@ namespace MagicalGarden.AI
         public Vector2Int destinationTile;
         public HotelRoom hotelRoomRef;
         public HotelController hotelContrRef;
+        private bool hasJumped = false;
         protected override IEnumerator CustomState(string stateName)
         {
             switch (stateName)
@@ -18,9 +19,33 @@ namespace MagicalGarden.AI
             }
         }
 
+        void OnMouseDown()
+        {
+            if (!hasJumped && !isMoving)
+            {
+                hasJumped = true;
+                StartNewCoroutine(JumpState());
+            }
+        }
+
+        protected virtual IEnumerator JumpState()
+        {
+            SetAnimation("jumping");
+            yield return new WaitForSeconds(1f);
+
+            // reset jump (jika ingin bisa lompat lagi setelah delay)
+            hasJumped = false;
+            StartNewCoroutine(IdleState());
+        }
+
         public void RunIdle()
         {
             StartNewCoroutine(IdleState());
+        }
+        void Awake()
+        {
+            if (GetComponent<Collider2D>() == null)
+                gameObject.AddComponent<BoxCollider2D>();
         }
 
         void Start()
@@ -42,7 +67,18 @@ namespace MagicalGarden.AI
             }
 
             Vector2Int destination = destinationOpt.Value;
-            StartNewCoroutine(MoveToTarget(destination));
+            StartNewCoroutine(MoveToTargetWithFlag(destination));
+        }
+
+        private IEnumerator MoveToTargetWithFlag(Vector2Int target, bool walkOnly = false)
+        {
+            isMoving = true;
+            Debug.Log("▶️ Mulai gerak ke " + target);
+
+            yield return MoveToTarget(target, walkOnly);
+
+            isMoving = false;
+            Debug.Log("🛑 Selesai gerak");
         }
 
         //wander routine get tile from hotel

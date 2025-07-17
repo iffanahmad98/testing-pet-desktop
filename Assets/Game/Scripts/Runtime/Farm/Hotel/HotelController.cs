@@ -34,7 +34,7 @@ namespace MagicalGarden.Hotel
         public int happiness = 100;
         DateTime checkInDate;
         public TimeSpan stayDurationDays;
-        public GuestRarity rarity = GuestRarity.Normal;
+        public GuestRarity rarity = GuestRarity.Common;
         private float logTimer = 0f;
         public List<PetMonsterHotel> listPet = new List<PetMonsterHotel>();
         void Start()
@@ -142,7 +142,7 @@ namespace MagicalGarden.Hotel
             party = 0;
             price = 0;
             happiness = 0;
-            rarity = GuestRarity.Normal;
+            rarity = GuestRarity.Common;
             foreach (var pet in listPet)
             {
                 pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
