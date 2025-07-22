@@ -37,6 +37,10 @@ public class MonsterCatalogueUI : MonoBehaviour
     private List<GameObject> activeGameAreaButtons = new List<GameObject>();
     private const int INITIAL_POOL_SIZE = 10;
 
+    // Global player config variable
+    private PlayerConfig playerConfig;
+    private bool isPlayerConfigLoaded = false;
+
     private void Awake()
     {
         if (StoreBtn == null || TypeBtn == null || RenameGameAreaBtn == null ||
@@ -48,10 +52,43 @@ public class MonsterCatalogueUI : MonoBehaviour
         }
         else
         {
-            InitializeGameAreaButtonPool();
-            Init();
-            InitGameAreaButtons();
+            StartCoroutine(InitializeAsync());
         }
+    }
+
+    private IEnumerator InitializeAsync()
+    {
+        // Load player config asynchronously first
+        yield return StartCoroutine(LoadPlayerConfigAsync());
+        
+        // Initialize components after player config is loaded
+        InitializeGameAreaButtonPool();
+        Init();
+        InitGameAreaButtons();
+    }
+
+    private IEnumerator LoadPlayerConfigAsync()
+    {
+        Debug.Log("Starting to load player config asynchronously...");
+        
+        // Yield for a frame to allow UI updates
+        yield return null;
+        
+        // Simulate async loading time if needed
+        yield return new WaitForSeconds(0.1f);
+        
+        // Load the player config and store it globally
+        playerConfig = SaveSystem.GetPlayerConfig();
+        
+        if (playerConfig == null)
+        {
+            Debug.LogError("Failed to load player config!");
+            isPlayerConfigLoaded = false;
+            yield break;
+        }
+        
+        isPlayerConfigLoaded = true;
+        Debug.Log("Player config loaded successfully!");
     }
 
     public void Init()
@@ -173,9 +210,15 @@ public class MonsterCatalogueUI : MonoBehaviour
 
     private IEnumerator PopulateGameAreaButtons()
     {
+        // Wait until player config is loaded
+        while (!isPlayerConfigLoaded)
+        {
+            yield return null;
+        }
+
         yield return null; // Wait for the next frame to ensure UI updates
 
-        int gameAreaCount = SaveSystem.GetPlayerConfig().maxGameArea;
+        int gameAreaCount = playerConfig.maxGameArea;
 
         // Resize gameAreaButtons array if needed
         if (gameAreaButtons == null || gameAreaButtons.Length < gameAreaCount)
@@ -222,13 +265,11 @@ public class MonsterCatalogueUI : MonoBehaviour
 
     private string GetSavedGameAreaName(int index)
     {
-        // Retrieve the saved game area name from your save system
-        // You'll need to implement this based on your save system structure
-        // For example:
-        // return SaveSystem.GetPlayerConfig().gameAreaNames?[index];
-        
-        // For now, return null to use default names
-        return SaveSystem.GetPlayerConfig().gameAreas[index].name;
+        if (!isPlayerConfigLoaded || playerConfig?.gameAreas == null || index >= playerConfig.gameAreas.Count)
+        {
+            return null;
+        }
+        return playerConfig.gameAreas[index].name;
     }
 
     private void SetupGameAreaButtonListeners()
@@ -261,7 +302,13 @@ public class MonsterCatalogueUI : MonoBehaviour
 
     private void AddGameArea()
     {
-        int newIndex = SaveSystem.GetPlayerConfig().maxGameArea + 1;
+        if (!isPlayerConfigLoaded || playerConfig == null)
+        {
+            Debug.LogError("Player config is not loaded!");
+            return;
+        }
+
+        int newIndex = playerConfig.maxGameArea + 1;
 
         // Get button from pool
         GameObject newButtonObj = GetPooledGameAreaButton();
@@ -272,8 +319,8 @@ public class MonsterCatalogueUI : MonoBehaviour
 
         activeGameAreaButtons.Add(newButtonObj);
 
-        SaveSystem.GetPlayerConfig().maxGameArea++;
-        SaveSystem.GetPlayerConfig().gameAreas.Add(new GameAreaData
+        playerConfig.maxGameArea++;
+        playerConfig.gameAreas.Add(new GameAreaData
         {
             name = $"Game Area {newIndex}",
             index = newIndex - 1 // Index is zero-based
@@ -385,15 +432,14 @@ public class MonsterCatalogueUI : MonoBehaviour
 
     private void SaveGameAreaName(int index, string name)
     {
-        // Save the game area name to your save system
-        // You'll need to add a field to store game area names in your PlayerConfig
-        // For example:
-        // SaveSystem.GetPlayerConfig().gameAreaNames[index] = name;
-        // SaveSystem.SaveAll();
+        if (!isPlayerConfigLoaded || playerConfig?.gameAreas == null || index >= playerConfig.gameAreas.Count)
+        {
+            Debug.LogError($"Cannot save game area name - invalid index {index} or player config not loaded");
+            return;
+        }
 
-        SaveSystem.GetPlayerConfig().gameAreas[index].name = name;
+        playerConfig.gameAreas[index].name = name;
         SaveSystem.SaveAll();
-        // For now, just log it
         Debug.Log($"Saving Game Area {index + 1} name: {name}");
     }
 

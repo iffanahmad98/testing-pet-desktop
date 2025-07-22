@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
-using System;
 using UnityEngine.UI;
 
 public class FacilityManager : MonoBehaviour
@@ -74,7 +74,8 @@ public class FacilityManager : MonoBehaviour
 
         return true;
     }
-    private System.Collections.IEnumerator UseMagicShovel()
+    
+    private IEnumerator UseMagicShovel()
     {
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         var poops = new List<PoopController>(monsterManager.activePoops);

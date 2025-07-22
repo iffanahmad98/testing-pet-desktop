@@ -176,7 +176,7 @@ public class MonsterEvolutionHandler
             evolveCam,
             spineGraphic,
             evolutionParticle,
-            whiteFlashMaterial,
+            // whiteFlashMaterial,
             nextSkeleton,
             () =>
             {
@@ -188,6 +188,7 @@ public class MonsterEvolutionHandler
             monsterPos
         );
         yield return new WaitUntil(() => sequenceDone);
+        yield return new WaitForSeconds(1f);
 
         // turn other monsters visible
         foreach (var monster in _controller.MonsterManager.activeMonsters)
@@ -215,7 +216,7 @@ public class MonsterEvolutionHandler
             food.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
         }
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
         _isEvolving = false;
     }
 

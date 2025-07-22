@@ -392,6 +392,8 @@ public class ItemInventoryUI : MonoBehaviour
 
     private IEnumerator PopulateShopInventoryCoroutine()
     {
+        yield return new WaitForEndOfFrame();
+
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
 
         if (ownedItems == null || ownedItems.Count == 0)

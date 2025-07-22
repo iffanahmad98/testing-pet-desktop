@@ -6,6 +6,7 @@ public class DataManager : MonoBehaviour
     [SerializeField] private ItemDatabaseSO itemDatabase;
     [SerializeField] private BiomeDatabaseSO biomeDatabase;
     [SerializeField] private FacilityDatabaseSO facilityDatabase;
+    [SerializeField] private MonsterDatabaseSO npcMonsterDatabase;
 
     void Start()
     {
@@ -20,4 +21,6 @@ public class DataManager : MonoBehaviour
     public FacilityDataSO GetFacilityData(string id) => facilityDatabase.GetFacility(id);
     public BiomeDatabaseSO GetBiomeDatabase() => biomeDatabase;
     public BiomeDataSO GetBiomeData(string name) => biomeDatabase.GetBiomeByName(name);
+    public MonsterDatabaseSO GetNPCMonsterDatabase() => npcMonsterDatabase;
+    public MonsterDataSO GetNPCMonsterData(string id) => npcMonsterDatabase.GetMonsterByID(id);
 }

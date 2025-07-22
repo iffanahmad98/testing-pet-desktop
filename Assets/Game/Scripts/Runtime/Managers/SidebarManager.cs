@@ -39,8 +39,9 @@ public class SidebarManager : MonoBehaviour
         // Set old button sprite to inactive
         if (currentLink != null && currentLink.buttonImage != null)
             currentLink.buttonImage.sprite = currentLink.inactiveSprite;
+
         // Activate new panel
-        linkToShow.linkedPanel.SetActive(true);
+        linkToShow.linkedPanel?.SetActive(true);
         currentPanel = linkToShow.linkedPanel;
 
         // Set new button sprite to active
