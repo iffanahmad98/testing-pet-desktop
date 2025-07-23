@@ -34,6 +34,8 @@ namespace MagicalGarden.Farm
         public GameObject guestUI;
         public GameObject inventoryUI;
         public GameObject menuBar;
+        //coroutine for click popupHotel
+        [HideInInspector] public Coroutine autoCloseCoroutine;
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -123,6 +125,33 @@ namespace MagicalGarden.Farm
         }
 
         #region ToolTip UI
+        // public void ShowMenu()
+        // {
+        //     if (currentOpenMenuHotel != null && currentOpenMenuHotel != this)
+        //     {
+        //         currentOpenMenuHotel.HideMenu();
+        //     }
+        //     currentOpenMenuHotel = this;
+        //     if (Farm.UIManager.Instance == null || Farm.UIManager.Instance.hotelInfoPanel == null)
+        //         return;
+        //     Farm.UIManager.Instance.hotelInfoPanel.Setup(hotelController);
+        //     GameObject panel = Farm.UIManager.Instance.hotelInfoPanel.transform.gameObject;
+        //     panel.transform.localScale = Vector3.zero;
+        //     panel.transform.position = transform.position + new Vector3(0f, 5f, 0f);
+        //     panel.SetActive(true);
+        //     currentTween?.Kill();
+        //     currentTween = panel.transform.DOScale(1f, 0.25f).SetEase(Ease.OutBack);
+        //     isMenuShown = true;
+        //     currentOpenMenuHotel = this;
+
+        //     // Reset auto close
+        //     Coroutine cr = Farm.UIManager.Instance.autoCloseCoroutine;
+        //     if (cr != null)
+        //         StopCoroutine(Farm.UIManager.Instance.autoCloseCoroutine);
+        //     Farm.UIManager.Instance.autoCloseCoroutine = StartCoroutine(AutoCloseMenuAfterSeconds(4f));
+        //     justOpenedThisFrame = true;
+        //     StartCoroutine(ClearJustOpenedFlag());
+        // }
         public void ShowPlantInfo(PlantController plant, Vector3 screenPos)
         {
             if (plantInfoPanel == null) return;
@@ -156,7 +185,7 @@ namespace MagicalGarden.Farm
                 plantInfoPanel.fertiTypeImage.sprite = plant.fertilizer.icon;
                 plantInfoPanel.fertiGrowthSpeedText.text = $"+{plant.fertilizer.boost}% growth speed";
             }
-            
+
             // plantInfoPanel.fertiGrowthSpeedText.text = "";
             plantInfoPanel.waterTimeText.text = plant.GetLastWateredTimeText();
             plantInfoPanel.lifeTimeText.text = plant.GetTimeUntilWiltOrDeathText();

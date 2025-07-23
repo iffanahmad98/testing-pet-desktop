@@ -90,7 +90,7 @@ namespace MagicalGarden.AI
                     case "idle": yield return IdleState(); break;
                     case "walk": yield return WalkState(); break;
                     case "run": yield return RunState(); break;
-                    case "eat": yield return EatState(); break;
+                    // case "eat": yield return EatState(); break;
                     case "jump": yield return JumpState(); break;
                 }
 

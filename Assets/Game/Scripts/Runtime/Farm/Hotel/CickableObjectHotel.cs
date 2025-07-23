@@ -17,7 +17,8 @@ namespace MagicalGarden.Hotel
         private HotelController hotelController;
         private bool isMenuShown = false;
         private Tween currentTween;
-        private Coroutine autoCloseCoroutine;
+        private bool justOpenedThisFrame = false;
+        private static ClickableObjectHotel currentOpenMenuHotel;
 
         private void Start()
         {
@@ -40,8 +41,7 @@ namespace MagicalGarden.Hotel
                 }
             }
 
-            // Klik kiri di luar object → tutup panel
-            if (isMenuShown && Input.GetMouseButtonDown(1))
+            if (currentOpenMenuHotel == this && isMenuShown && Input.GetMouseButtonDown(1))
             {
                 Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Collider2D col = Physics2D.OverlapPoint(mouseWorldPos);
@@ -65,6 +65,11 @@ namespace MagicalGarden.Hotel
 
         public void ShowMenu()
         {
+            if (currentOpenMenuHotel != null && currentOpenMenuHotel != this)
+            {
+                currentOpenMenuHotel.HideMenu();
+            }
+            currentOpenMenuHotel = this;
             if (Farm.UIManager.Instance == null || Farm.UIManager.Instance.hotelInfoPanel == null)
                 return;
             Farm.UIManager.Instance.hotelInfoPanel.Setup(hotelController);
@@ -75,11 +80,15 @@ namespace MagicalGarden.Hotel
             currentTween?.Kill();
             currentTween = panel.transform.DOScale(1f, 0.25f).SetEase(Ease.OutBack);
             isMenuShown = true;
+            currentOpenMenuHotel = this;
 
             // Reset auto close
-            if (autoCloseCoroutine != null)
-                StopCoroutine(autoCloseCoroutine);
-            autoCloseCoroutine = StartCoroutine(AutoCloseMenuAfterSeconds(4f));
+            Coroutine cr = Farm.UIManager.Instance.autoCloseCoroutine;
+            if (cr != null)
+                StopCoroutine(Farm.UIManager.Instance.autoCloseCoroutine);
+            Farm.UIManager.Instance.autoCloseCoroutine = StartCoroutine(AutoCloseMenuAfterSeconds(4f));
+            justOpenedThisFrame = true;
+            StartCoroutine(ClearJustOpenedFlag());
         }
 
         public void HideMenu()
@@ -101,16 +110,26 @@ namespace MagicalGarden.Hotel
 
             isMenuShown = false;
 
-            if (autoCloseCoroutine != null)
+            Coroutine cr = Farm.UIManager.Instance.autoCloseCoroutine;
+            if (cr != null)
             {
-                StopCoroutine(autoCloseCoroutine);
-                autoCloseCoroutine = null;
+                StopCoroutine(Farm.UIManager.Instance.autoCloseCoroutine);
+                Farm.UIManager.Instance.autoCloseCoroutine = null;
+            }
+            if (currentOpenMenuHotel == this)
+            {
+                currentOpenMenuHotel = null;
             }
         }
         private IEnumerator AutoCloseMenuAfterSeconds(float seconds)
         {
             yield return new WaitForSeconds(seconds);
             HideMenu();
+        }
+        private IEnumerator ClearJustOpenedFlag()
+        {
+            yield return null;
+            justOpenedThisFrame = false;
         }
     }
 }

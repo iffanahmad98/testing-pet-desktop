@@ -15,16 +15,19 @@ namespace MagicalGarden.AI
         public float runSpeed = 2f;
         public StateChance[] stateChances;
         protected string currentState = "";
+        protected string currentCoroutineString="";
         public Tilemap terrainTilemap;
         public Vector2Int currentTile;
         protected Coroutine stateLoopCoroutine;
         protected bool isOverridingState = false;
-        [HideInInspector] public bool isMoving = false;
+        protected string lastChosenState = "";
         protected Dictionary<string, string> animationFallbacks = new Dictionary<string, string>
         {
             { "running", "flying" },
             { "flying", "walking" },
             { "walking", "walk" },
+            { "eat", "itching" },
+            { "itching", "jumping" },
             { "jumping", "jump" },
             { "jump", "walking" },
             { "idle", "hover" }
@@ -37,8 +40,6 @@ namespace MagicalGarden.AI
                 StopCoroutine(currentCoroutine);
                 currentCoroutine = null;
             }
-
-            isMoving = false;
             currentCoroutine = StartCoroutine(routine);
         }
         protected virtual void Start()
@@ -69,13 +70,14 @@ namespace MagicalGarden.AI
         }
         protected virtual IEnumerator HandleState(string stateName)
         {
+            currentCoroutineString = stateName;
             switch (stateName)
             {
                 case "idle": return IdleState();
                 case "walk": return WalkState();
-                case "run":  return RunState();
+                case "run": return RunState();
                 case "jump": return JumpState();
-                default:     return CustomState(stateName);
+                default: return CustomState(stateName);
             }
         }
         protected virtual IEnumerator CustomState(string stateName)
@@ -195,18 +197,28 @@ namespace MagicalGarden.AI
         protected virtual string GetRandomState()
         {
             NormalizeProbabilities();
-            float rand = Random.value; // menghasilkan angka antara 0.0 sampai 1.0
-            float cumulative = 0f;
 
-            foreach (var state in stateChances)
+            for (int attempt = 0; attempt < 10; attempt++) // Coba maksimal 10x
             {
-                cumulative += state.probability;
-                if (rand < cumulative)
-                    return state.stateName;
+                float rand = Random.value;
+                float cumulative = 0f;
+
+                foreach (var state in stateChances)
+                {
+                    cumulative += state.probability;
+                    if (rand < cumulative)
+                    {
+                        if (state.stateName == "gotoroom" && lastChosenState == "gotoroom")
+                            break; // skip dan coba ulang
+
+                        lastChosenState = state.stateName;
+                        return state.stateName;
+                    }
+                }
             }
 
-            // Fallback (jaga-jaga jika total < 1)
-            return stateChances[stateChances.Length - 1].stateName;
+            // fallback (kalau 10x tetap dapat gotoroom)
+            return "idle";
         }
         protected virtual void NormalizeProbabilities()
         {
@@ -301,18 +313,20 @@ namespace MagicalGarden.AI
         }
 
         #region Path Finding To Target
-        public IEnumerator MoveToTarget(Vector2Int destination, bool walkOnly = false, bool continueStateLoop = true)
+        public IEnumerator MoveToTarget(Vector2Int destination, bool walkOnly = false, bool continueStateLoop = true, System.Action<bool> onComplete = null)
         {
             if (!IsWalkableTile(destination))
             {
                 Debug.LogError("Destination is not walkable!");
+                onComplete?.Invoke(false); // panggil callback: gagal
                 yield break;
             }
 
             List<Vector2Int> path = FindPath(currentTile, destination);
-            if (path == null || path.Count < 2)
+            if (path == null || path.Count < 1)
             {
                 Debug.LogWarning("No valid path found!");
+                onComplete?.Invoke(false); // gagal
                 yield break;
             }
 
@@ -373,8 +387,10 @@ namespace MagicalGarden.AI
 
             SetAnimation("idle");
             isOverridingState = false;
+            onComplete?.Invoke(true); // sukses
             if (continueStateLoop)
                 StartNewCoroutine(StateLoop()); // hanya jika diizinkan
+            
         }
 
         public List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)

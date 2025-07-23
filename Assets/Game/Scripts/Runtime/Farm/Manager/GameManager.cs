@@ -14,9 +14,8 @@ namespace MagicalGarden.Farm
         public List<Sprite> cloudEvenings;
         public GameObject cloudPrefab;
         public int cloudCount = 5;
-        public Vector2 cloudSpeedRange = new Vector2(0.5f, 1.5f); // ✅ per-cloud speed
+        public Vector2 cloudSpeedRange = new Vector2(0.5f, 1.5f);
         public Vector2 cloudScaleRange = new Vector2(0.8f, 1.2f);
-        public float minSpawnDistanceX = 2f;
 
         [Header("Cloud Spawn/Destroy Area")]
         public Collider2D spawnArea;
@@ -25,8 +24,10 @@ namespace MagicalGarden.Farm
         Collider2D currentDestroyArea;
 
         private List<GameObject> cloudInstances = new List<GameObject>();
-        private Dictionary<GameObject, float> cloudSpeeds = new Dictionary<GameObject, float>(); // ✅ menyimpan kecepatan per cloud
-
+        private Dictionary<GameObject, float> cloudSpeeds = new Dictionary<GameObject, float>();
+        
+        // Daftar untuk melacak posisi awan yang aktif, untuk pengecekan overlap
+        private List<Vector2> activeCloudXRanges = new List<Vector2>();
         void Awake()
         {
             Instance = this;
@@ -73,63 +74,85 @@ namespace MagicalGarden.Farm
                 return;
             }
 
-            List<float> usedXPositions = new List<float>();
-            int maxAttempts = 10;
+            List<Vector2> usedXRanges = new List<Vector2>();
+            int maxAttemptsPerCloud = 20; // Ubah nama variabel agar lebih jelas
+            float padding = 0.2f;
 
             for (int i = 0; i < cloudCount; i++)
             {
+                Sprite chosenSprite = cloudDays.Count > 0
+                    ? cloudDays[Random.Range(0, cloudDays.Count)]
+                    : null;
+
+                if (chosenSprite == null)
+                {
+                    Debug.LogWarning("❌ Sprite cloud kosong");
+                    continue;
+                }
+
+                // 1. TENTUKAN SKALA DAN LEBAR AWAN TERLEBIH DAHULU
+                float finalScale = Random.Range(cloudScaleRange.x, cloudScaleRange.y);
+                float spriteWidthUnit = chosenSprite.bounds.size.x;
+                float worldWidth = spriteWidthUnit * finalScale + padding; // Lebar awan yang sebenarnya di dunia game
+
                 Vector3 spawnPos = Vector3.zero;
                 bool positionFound = false;
 
-                for (int attempt = 0; attempt < maxAttempts; attempt++)
+                // 2. SEKARANG, CARI POSISI UNTUK AWAN DENGAN UKURAN YANG SUDAH PASTI
+                for (int attempt = 0; attempt < maxAttemptsPerCloud; attempt++)
                 {
                     float randomX = Random.Range(destroyArea.bounds.min.x, spawnArea.bounds.max.x);
                     float randomY = Random.Range(spawnArea.bounds.min.y, spawnArea.bounds.max.y);
 
-                    bool tooClose = false;
-                    foreach (float usedX in usedXPositions)
+                    float cloudMinX = randomX - worldWidth / 2f;
+                    float cloudMaxX = randomX + worldWidth / 2f;
+
+                    bool overlaps = false;
+                    foreach (var range in usedXRanges)
                     {
-                        if (Mathf.Abs(usedX - randomX) < minSpawnDistanceX)
+                        // Pengecekan overlap: jika rentang baru tumpang tindih dengan rentang yang sudah ada
+                        if (cloudMaxX > range.x && cloudMinX < range.y)
                         {
-                            tooClose = true;
+                            overlaps = true;
                             break;
                         }
                     }
 
-                    if (!tooClose)
+                    if (!overlaps)
                     {
                         spawnPos = new Vector3(randomX, randomY, 0f);
-                        usedXPositions.Add(randomX);
+                        usedXRanges.Add(new Vector2(cloudMinX, cloudMaxX)); // Simpan rentang yang sudah dipakai
                         positionFound = true;
-                        break;
+                        break; // Posisi ditemukan, keluar dari loop percobaan
                     }
                 }
 
                 if (!positionFound)
                 {
-                    float fallbackX = Random.Range(destroyArea.bounds.min.x, spawnArea.bounds.max.x);
-                    float fallbackY = Random.Range(spawnArea.bounds.min.y, spawnArea.bounds.max.y);
-                    spawnPos = new Vector3(fallbackX, fallbackY, 0f);
+                    // Jika setelah banyak percobaan tetap tidak menemukan tempat,
+                    // lebih baik jangan dipaksa spawn, atau log sebuah peringatan.
+                    Debug.LogWarning($"Tidak dapat menemukan posisi untuk awan ke-{i + 1} setelah {maxAttemptsPerCloud} percobaan. Mungkin area spawn terlalu padat.");
+                    continue; // Lanjut ke awan berikutnya
                 }
 
-                var cloud = Instantiate(cloudPrefab, spawnPos, Quaternion.identity);
+                // 3. BUAT AWAN DENGAN POSISI DAN SKALA YANG SUDAH VALID
+                GameObject cloud = Instantiate(cloudPrefab, spawnPos, Quaternion.identity);
+                cloud.transform.localScale = Vector3.one * finalScale;
+
+                var sr = cloud.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.sprite = chosenSprite;
+                }
+
                 cloudInstances.Add(cloud);
 
-                // ✅ acak kecepatan dan simpan
-                float randomSpeed = Random.Range(cloudSpeedRange.x, cloudSpeedRange.y);
-                cloudSpeeds[cloud] = randomSpeed;
-
-                // ✅ acak ukuran
-                float randomScale = Random.Range(cloudScaleRange.x, cloudScaleRange.y);
-                cloud.transform.localScale = Vector3.one * randomScale;
-
-                var spriteRenderer = cloud.GetComponent<SpriteRenderer>();
-                if (spriteRenderer != null && cloudDays.Count > 0)
-                {
-                    spriteRenderer.sprite = cloudDays[Random.Range(0, cloudDays.Count)];
-                }
+                float speed = Random.Range(cloudSpeedRange.x, cloudSpeedRange.y);
+                cloudSpeeds[cloud] = speed;
+                Debug.Log($"🌥️ Total awan berhasil di-spawn: {cloudInstances.Count} dari {cloudCount}");
             }
         }
+
 
         void UpdateCloudMovement()
         {

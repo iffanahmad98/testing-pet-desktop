@@ -62,7 +62,10 @@ namespace MagicalGarden.Farm
         public void PlayPourAnimation(string animationStateName)
         {
             if (pourAnimPrefab == null) return;
-            currentSprite = seedIconImage.sprite;
+
+            // ⛔ Hindari overwrite jika sprite kosong
+            if (seedIconImage.sprite != null)
+                currentSprite = seedIconImage.sprite;
             HideSeedIcon();
             GameObject animObj = Instantiate(pourAnimPrefab, seedIconImage.canvas.transform);
             animObj.transform.position = Input.mousePosition;
@@ -74,8 +77,6 @@ namespace MagicalGarden.Farm
             float animDuration = 1f;
             Destroy(animObj, animDuration);
             Invoke(nameof(RestoreSeedIcon), animDuration);
-
-
         }
         void RestoreSeedIcon()
         {
