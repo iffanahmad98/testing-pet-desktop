@@ -38,7 +38,6 @@ public class MonsterManager : MonoBehaviour
     private Queue<GameObject> _monsterPool = new Queue<GameObject>();
 
     public int poopCollected;
-    public int coinCollected;
     public int maxMonstersSlots = 5;
     public int maxNPCSlots = 2;
     public int currentGameAreaIndex = 0;
@@ -53,7 +52,6 @@ public class MonsterManager : MonoBehaviour
     [SerializeField] private Button spawnNPC1;
     [SerializeField] private Button spawnNPC2;
 
-    public System.Action<int> OnCoinChanged;
     public System.Action<int> OnPoopChanged;
     #endregion
 
@@ -107,16 +105,15 @@ public class MonsterManager : MonoBehaviour
     #region Monster Management
     public void SellMonster(MonsterDataSO monsterData)
     {
-        int sellPrice = monsterData.GetSellPrice(activeMonsters.Find(m => m.MonsterData.id == monsterData.id)?.evolutionLevel ?? 69);
-        coinCollected += sellPrice;
-        SaveSystem.SaveCoin(coinCollected);
-        OnCoinChanged?.Invoke(coinCollected);
+        int sellPrice = monsterData.GetSellPrice(monsterDatabase.GetMonsterByID(monsterData.id)?.evolutionLevel ?? 69);
+        CoinManager.AddCoins(sellPrice);
     }
 
     public void BuyMonster(MonsterDataSO monsterData)
     {
         int cost = monsterData.monsterPrice;
-        if (SpentCoin(cost)) SpawnMonster(monsterData);
+        if (CoinManager.SpendCoins(cost))
+            SpawnMonster(monsterData);
     }
 
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
@@ -498,16 +495,6 @@ public class MonsterManager : MonoBehaviour
         return testPos;
     }
 
-    public bool SpentCoin(int amount)
-    {
-        if (coinCollected < amount) return false;
-
-        coinCollected -= amount;
-        SaveSystem.SaveCoin(coinCollected);
-        OnCoinChanged?.Invoke(coinCollected);
-        return true;
-    }
-
     public void CollectPoop(int amount = 1)
     {
         poopCollected += amount;
@@ -578,7 +565,6 @@ public class MonsterManager : MonoBehaviour
     #region Save and Load
     private void LoadGame()
     {
-        coinCollected = SaveSystem.LoadCoin();
         poopCollected = SaveSystem.LoadPoop();
         currentGameAreaIndex = SaveSystem.LoadActiveGameAreaIndex();
         savedMonIDs = SaveSystem.LoadMonIDs();
@@ -586,7 +572,6 @@ public class MonsterManager : MonoBehaviour
         LoadMonstersForCurrentArea();
         LoadNPCMonsters(); // <- ADD THIS LINE
 
-        OnCoinChanged?.Invoke(coinCollected);
         OnPoopChanged?.Invoke(poopCollected);
     }
 
@@ -743,9 +728,8 @@ public class MonsterManager : MonoBehaviour
     private void SaveGameData()
     {
         SaveAllMonsters();
-        SaveAllNPCMons(); 
+        SaveAllNPCMons();
         SaveSystem.SavePoop(poopCollected);
-        SaveSystem.SaveCoin(coinCollected);
         SaveSystem.Flush();
     }
 

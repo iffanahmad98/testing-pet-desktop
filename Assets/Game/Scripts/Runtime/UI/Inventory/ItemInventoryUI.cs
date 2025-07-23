@@ -33,7 +33,7 @@ public class ItemInventoryUI : MonoBehaviour
     [Header("Full Inventory Panel (Vertical Scroll)")]
     [SerializeField] private GameObject verticalContentGameObject;
     [SerializeField] private Transform verticalContentParent;
-    public Transform VerticalContentParent => verticalContentParent; 
+    public Transform VerticalContentParent => verticalContentParent;
     [SerializeField] private RectTransform verticalContentRect;
     [SerializeField] private Button deleteButton;
     [SerializeField] private Button storeButton;
@@ -46,7 +46,7 @@ public class ItemInventoryUI : MonoBehaviour
     [SerializeField] private float rowSpacing = 10f;
     [Header("Delete Confirmation")]
     [SerializeField] private GameObject deleteConfirmationPanel;
-    [SerializeField] private TextMeshProUGUI confirmationMessageText; 
+    [SerializeField] private TextMeshProUGUI confirmationMessageText;
     [SerializeField] private Button confirmDeleteButton;
     [SerializeField] private Button cancelDeleteButton;
 
@@ -67,8 +67,8 @@ public class ItemInventoryUI : MonoBehaviour
 
     private void Awake()
     {
-        ServiceLocator.Register(this);
         InitializeSlotPool();
+        ServiceLocator.Register(this);
     }
 
     private void InitializeSlotPool()
@@ -161,9 +161,8 @@ public class ItemInventoryUI : MonoBehaviour
         cancelDeleteButton.onClick.AddListener(() =>
         {
             SetCanvasGroupVisibility(deleteConfirmationPanel, false);
-            ExitDeleteMode(); 
+            ExitDeleteMode();
         });
-
 
     }
 
@@ -434,6 +433,7 @@ public class ItemInventoryUI : MonoBehaviour
             var slot = GetSlotFromPool();
             slot.transform.SetParent(shopInventoryContentParent, false);
             slot.Initialize(itemData, item.type, item.amount);
+            Debug.Log($"Populating shop inventory with item: {itemData.itemName} (ID: {item.itemID}) - Amount: {item.amount}");
             activeSlots.Add(slot);
 
             // Small delay for smooth population

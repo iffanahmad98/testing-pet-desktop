@@ -17,7 +17,7 @@ public class GachaManager : MonoBehaviour
     [Header("Gacha Configuration")]
     public MonsterDatabaseSO monsterDatabase;
     public List<RarityWeight> rarityWeights;
-    public int gachaCost = 10;
+    public int gachaCost = 1000;
 
     [Header("Allowed Rarities")]
     [SerializeField]
@@ -29,8 +29,6 @@ public class GachaManager : MonoBehaviour
     };
     [Header("UI References")]
     public GachaResultPanel gachaResultPanel;
-    public TextMeshProUGUI playerGoldCoinText;
-
 
     private void Awake()
     {
@@ -38,9 +36,10 @@ public class GachaManager : MonoBehaviour
         ValidateConfiguration();
     }
 
-    void Start()
+
+    private void OnDestroy()
     {
-        playerGoldCoinText.text = $"{SaveSystem.LoadCoin()}";
+        ServiceLocator.Unregister<GachaManager>();
     }
 
     private void ValidateConfiguration()
@@ -57,13 +56,15 @@ public class GachaManager : MonoBehaviour
             var monstersOfRarity = monsterDatabase.monsters.Where(m => m.monType == rarity).Count();
         }
     }
+
     public void RollGacha()
     {
-        if (ServiceLocator.Get<MonsterManager>().coinCollected < gachaCost)
+        if (!CoinManager.SpendCoins(gachaCost))
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);
             return;
         }
+        Debug.Log($"Rolling gacha for {gachaCost} coins...");
 
         MonsterType chosenRarity = GetRandomRarity();
         MonsterDataSO selectedMonster = SelectRandomMonster(chosenRarity);
@@ -71,16 +72,12 @@ public class GachaManager : MonoBehaviour
         if (selectedMonster == null)
         {
             ServiceLocator.Get<UIManager>().ShowMessage("No monsters available!", 1f);
+            // Coins are already deducted here!
             return;
         }
 
-        // Only spend coins AFTER we confirm we can spawn a monster
-        if (ServiceLocator.Get<MonsterManager>().SpentCoin(gachaCost))
-        {
-            ShowGachaResult(selectedMonster, () => SellMonster(selectedMonster), () => SpawnMonster(selectedMonster));
-        }
+        ShowGachaResult(selectedMonster, () => SellMonster(selectedMonster), () => SpawnMonster(selectedMonster));
     }
-
 
     private MonsterDataSO SelectRandomMonster(MonsterType rarity)
     {
@@ -123,7 +120,6 @@ public class GachaManager : MonoBehaviour
     private void SellMonster(MonsterDataSO monsterData)
     {
         ServiceLocator.Get<MonsterManager>().SellMonster(monsterData);
-        playerGoldCoinText.text = $"{ServiceLocator.Get<MonsterManager>().coinCollected}";
     }
 
     private void ShowGachaResult(MonsterDataSO monster, System.Action onSellComplete, System.Action onSpawnComplete)
@@ -132,10 +128,5 @@ public class GachaManager : MonoBehaviour
         {
             gachaResultPanel.Show(monster, onSellComplete, onSpawnComplete);
         }
-    }
-
-    private void OnDestroy()
-    {
-        ServiceLocator.Unregister<GachaManager>();
     }
 }

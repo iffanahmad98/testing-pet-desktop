@@ -11,9 +11,6 @@ public static class SaveSystem
     private static PlayerConfig _playerConfig;
     public static PlayerConfig PlayerConfig => _playerConfig;
     private static DateTime _sessionStartTime;
-
-    public static void SaveCoin(int money) => _playerConfig.coins = money;
-    public static int LoadCoin() => _playerConfig.coins;
     public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig
     public static int LoadPoop() => _playerConfig.poops;
 
@@ -126,7 +123,7 @@ public static class SaveSystem
 
     public static void ResetSaveData()
     {
-        SaveCoin(100);
+        CoinManager.Coins = 100;
         SavePoop(0);
         _playerConfig.ClearAllMonsterData();
         _playerConfig.ClearAllNPCMonsterData();
@@ -305,25 +302,22 @@ public static class SaveSystem
             return false;
         }
 
-        int playerCoins = _playerConfig.coins;
         int itemPrice = itemData.price;
 
-        if (playerCoins < itemPrice)
+        // Deduct coins via CoinManager (handles check, update, save, event)
+        if (!CoinManager.SpendCoins(itemPrice))
         {
-            Debug.Log($"Not enough coins to buy {itemData.itemName}. Needed: {itemPrice}, Owned: {playerCoins}");
+            Debug.Log($"Not enough coins to buy {itemData.itemName}. Needed: {itemPrice}, Owned: {CoinManager.Coins}");
             return false;
         }
-
-        // Deduct coins
-        _playerConfig.coins -= itemPrice;
 
         // Add item to inventory
         _playerConfig.AddItem(itemData.itemID, itemData.category, 1);
 
-        // Save changes
+        // Save changes (item update only, coins already saved by CoinManager)
         SaveAll();
 
-        Debug.Log($"Purchased {itemData.itemName} and {itemData.category}for {itemPrice} coins. Remaining: {_playerConfig.coins}");
+        Debug.Log($"Purchased {itemData.itemName} and {itemData.category} for {itemPrice} coins. Remaining: {CoinManager.Coins}");
 
         return true;
     }
@@ -350,16 +344,15 @@ public static class SaveSystem
             return true;
         }
 
-        if (_playerConfig.coins < price)
+        if (!CoinManager.SpendCoins(price))
         {
-            Debug.Log($"Not enough coins to buy biome {biomeID}. Needed: {price}, Owned: {_playerConfig.coins}");
+            Debug.Log($"Not enough coins to buy biome {biomeID}. Needed: {price}, Owned: {CoinManager.Coins}");
             return false;
         }
 
-        _playerConfig.coins -= price;
         _playerConfig.AddOwnedBiome(biomeID);
         SaveAll();
-        Debug.Log($"Bought biome {biomeID} for {price} coins. Remaining: {_playerConfig.coins}");
+        Debug.Log($"Bought biome {biomeID} for {price} coins. Remaining: {CoinManager.Coins}");
         return true;
     }
 
