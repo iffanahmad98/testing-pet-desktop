@@ -9,7 +9,6 @@ public class UIManager : MonoBehaviour
     #region Inspector Fields
 
     [Header("UI Panels")]
-    public TextMeshProUGUI playerCoin;
     public GameObject UIFloatMenuPanel;
     public CanvasGroup UIFloatMenuCanvasGroup;
     public GameObject SettingPanel;
@@ -117,9 +116,7 @@ public class UIManager : MonoBehaviour
         var monster = ServiceLocator.Get<MonsterManager>();
         if (monster != null)
         {
-            monster.OnCoinChanged += UpdateCoinCounterValue;
             monster.OnPoopChanged += UpdatePoopCounterValue;
-            monster.OnCoinChanged?.Invoke(monster.coinCollected);
             monster.OnPoopChanged?.Invoke(monster.poopCollected);
         }
     }
@@ -129,7 +126,6 @@ public class UIManager : MonoBehaviour
         var monster = ServiceLocator.Get<MonsterManager>();
         if (monster != null)
         {
-            monster.OnCoinChanged -= UpdateCoinCounterValue;
             monster.OnPoopChanged -= UpdatePoopCounterValue;
         }
     }
@@ -518,11 +514,6 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region Monster System
-
-    private void UpdateCoinCounterValue(int newCoinAmount)
-    {
-        playerCoin.text = $"{newCoinAmount}";
-    }
 
     private void UpdatePoopCounterValue(int newPoopAmount)
     {

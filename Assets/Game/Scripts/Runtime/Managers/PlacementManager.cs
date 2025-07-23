@@ -57,7 +57,7 @@ public class PlacementManager : MonoBehaviour
         Sprite previewSprite = null,
         bool isMedicine = false)
     {
-
+        ResetPlacement();
         gameArea = area;
         currentPreview = prefab;
         currentPreview.transform.SetParent(area);
@@ -112,13 +112,17 @@ public class PlacementManager : MonoBehaviour
 
     public void CancelPlacement()
     {
+        ResetPlacement();
+        onCancel?.Invoke();
+    }
+    public void ResetPlacement()
+    {
         if (currentPreview != null)
         {
             currentPreview.SetActive(false);
             currentPreview.transform.SetParent(prefabParent);
             currentPreview = null;
         }
-        onCancel?.Invoke();
     }
 
     private bool IsInsideGameArea(Vector2 localPos)

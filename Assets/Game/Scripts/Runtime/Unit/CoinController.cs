@@ -28,7 +28,7 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable
         if (coinType == CoinType.Platinum)
         {
             animator.SetTrigger("Silver");
-            transform.localScale = Vector3.one; 
+            transform.localScale = Vector3.one;
         }
         if (coinType == CoinType.Gold)
         {
@@ -39,9 +39,7 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable
 
     public void OnCollected()
     {
-        ServiceLocator.Get<MonsterManager>().OnCoinChanged?.Invoke(ServiceLocator.Get<MonsterManager>().coinCollected += value);
-        SaveSystem.SaveCoin(ServiceLocator.Get<MonsterManager>().coinCollected);
-        SaveSystem.Flush();
+        CoinManager.AddCoins(value);
         ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
     }
 

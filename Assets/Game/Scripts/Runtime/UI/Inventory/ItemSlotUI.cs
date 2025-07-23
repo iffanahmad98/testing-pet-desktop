@@ -391,7 +391,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         itemAmount--;
         amountText.text = $"{itemAmount} pcs";
-        SaveSystem.UpdateItemData(itemData.itemID, itemData.category, itemAmount);
+        SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
 
         if (itemAmount <= 0)
         {
