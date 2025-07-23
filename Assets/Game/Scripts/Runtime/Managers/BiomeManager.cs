@@ -25,15 +25,14 @@ public class BiomeManager : MonoBehaviour
     public BiomeLayer ambientLayer;
     public Image groundLayerFilter;
 
-    [Header("Blur Effect")]
-    public Image[] blurImages;
-    public Material blurMaterial;
-    private bool isBlurActive = false;
+    [Header("Biome Filters")]
+    public CanvasGroup darkenFilter;
 
     [Header("Rain System")]
     public GameObject rainSystem;
 
     [Header("Cloud System")]
+    private CloudAmbientSystem cloudSystem;
     public RectTransform skyBG;
     public RectTransform ambientBG;
 
@@ -42,12 +41,7 @@ public class BiomeManager : MonoBehaviour
     private Vector2 originalAmbientBGPosition;
     private const float skyBGMinY = -1000f;
     private const float ambientBGMinY = -800f;
-
-    // Reference to SettingsManager to get height values
     private SettingsManager settingsManager;
-
-    // Reference to cloud system
-    private CloudAmbientSystem cloudSystem;
 
     [Header("Testing Controls")]
     public KeyCode toggleSkyKey = KeyCode.Alpha1;
@@ -170,6 +164,22 @@ public class BiomeManager : MonoBehaviour
         }
     }
 
+    public void ToggleFilters(string filterName, bool active)
+    {
+        if (filterName == "Darken")
+        {
+            if (darkenFilter != null)
+            {
+                darkenFilter.DOFade(active ? 1f : 0f, 0.5f).SetEase(Ease.InOutQuad);
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"BiomeManager: Unknown filter '{filterName}'");
+        }
+    }
+
+    //for testing purposes
     private void HandleTestingInput()
     {
         if (Input.GetKeyDown(toggleSkyKey))
@@ -524,67 +534,5 @@ public class BiomeManager : MonoBehaviour
         ClearSpawnedObjects(spawnedEffectObjects);
 
         ServiceLocator.Unregister<BiomeManager>();
-    }
-
-    /// <summary>
-    /// Toggle blur effect on ground, ambient, and sky layers
-    /// </summary>
-    public void ToggleBlurEffect(bool enableBlur)
-    {
-        if (blurImages == null || blurImages.Length == 0)
-        {
-            Debug.LogWarning("BiomeManager: Blur images array is not assigned or empty!");
-            return;
-        }
-
-        isBlurActive = enableBlur;
-
-        // Apply blur to all images in the array
-        foreach (Image blurImage in blurImages)
-        {
-            if (blurImage != null)
-            {
-                blurImage.material = enableBlur ? blurMaterial : null;
-            }
-        }
-
-        // Apply blur to current biome layers
-        if (skyBG != null)
-        {
-            Image skyImage = skyBG.GetComponent<Image>();
-            if (skyImage != null)
-            {
-                skyImage.material = enableBlur ? blurMaterial : null;
-            }
-        }
-
-        if (ambientBG != null)
-        {
-            Image ambientImage = ambientBG.GetComponent<Image>();
-            if (ambientImage != null)
-            {
-                ambientImage.material = enableBlur ? blurMaterial : null;
-            }
-        }
-
-        if (groundLayerFilter != null)
-        {
-            groundLayerFilter.material = enableBlur ? blurMaterial : null;
-        }
-
-        // Optional: Show UI feedback
-        var uiManager = ServiceLocator.Get<UIManager>();
-        if (uiManager != null)
-        {
-            uiManager.ShowMessage($"Blur Effect: {(enableBlur ? "ON" : "OFF")}", 1f);
-        }
-    }
-
-    /// <summary>
-    /// Get current blur state
-    /// </summary>
-    public bool IsBlurActive()
-    {
-        return isBlurActive;
     }
 }

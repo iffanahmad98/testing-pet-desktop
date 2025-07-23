@@ -32,10 +32,6 @@ public static class MonsterEvolutionSequenceHelper
         var biomeManager = ServiceLocator.Get<BiomeManager>();
 
         var effect = particle.GetComponent<CFXR_Effect>();
-        var shake = effect.cameraShake;
-        shake.useMainCamera = false;
-        shake.cameras = new List<Camera> { MainCanvas.MonsterCamera };
-        shake.enabled = true;
 
         // Store original monster scale, position, AND anchor/pivot settings for restoration
         var originalScale = spineGraphic.rectTransform.localScale;
@@ -59,7 +55,7 @@ public static class MonsterEvolutionSequenceHelper
         {
             if (biomeManager != null)
             {
-                biomeManager.ToggleBlurEffect(true);
+                biomeManager.ToggleFilters("Darken", true);
             }
 
             var monsterRect = spineGraphic.rectTransform;
@@ -78,7 +74,7 @@ public static class MonsterEvolutionSequenceHelper
 
         // Phase 1: Move parent MonsterController to center and start scaling (simulates camera focusing)
         parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
-        seq.Append(parentRect.DOAnchorPos(Vector2.zero, 1.5f).SetEase(Ease.InOutCubic));
+        seq.Append(parentRect.DOAnchorPos(new Vector2(0f, -50f), 1.5f).SetEase(Ease.InOutCubic));
         seq.Join(parentRect.DOScale(Vector3.one * 2.0f, 1.5f).SetEase(Ease.InOutCubic));
 
         // Phase 2: Continue scaling parent bigger (simulates zoom-in effect)  
@@ -96,41 +92,55 @@ public static class MonsterEvolutionSequenceHelper
             particle.SetActive(true);
             particleCg.alpha = 0f;
             particleCg.DOFade(1f, 1.0f).SetEase(Ease.InOutSine);
-            shake.StartShake();
             StartSparkleEffect(spineGraphic.rectTransform);
             
             // Scale shake effect during zoom (apply to parent)
             parentRect.DOShakeScale(3.5f, strength: 0.2f, vibrato: 8, randomness: 90f);
         });
 
-        // 3. Peak zoom moment with glow and transformation
+        // 3. Peak zoom moment - particle is on, fade out monster
         seq.AppendInterval(3.5f); // Wait for zoom to complete
         seq.AppendCallback(() => {
-            CreateGlowCover(spineGraphic, () => {
-                // Intense shake at transformation moment
-                spineGraphic.rectTransform.DOShakePosition(0.5f, strength: 20f, vibrato: 40, randomness: 90f);
-                
-                // Change skeleton during the glow peak
-                spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
-                spineGraphic.Initialize(true);
-                onEvolutionDataUpdate?.Invoke();
+            // Intense shake at transformation moment
+            spineGraphic.rectTransform.DOShakePosition(0.5f, strength: 20f, vibrato: 40, randomness: 90f);
+        });
+        
+        // Fade out monster while particle is still on
+        var monsterCanvasGroup = spineGraphic.GetComponent<CanvasGroup>();
+        if (monsterCanvasGroup == null)
+        {
+            monsterCanvasGroup = spineGraphic.gameObject.AddComponent<CanvasGroup>();
+        }
+        seq.Append(monsterCanvasGroup.DOFade(0f, 0.5f).SetEase(Ease.InOutSine));
+        
+        // Change skeleton while monster is invisible
+        seq.AppendCallback(() => {
+            spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
+            spineGraphic.Initialize(true);
+            onEvolutionDataUpdate?.Invoke();
+        });
+        
+        // Fade monster back in with new skeleton (particle still on)
+        seq.Append(monsterCanvasGroup.DOFade(1f, 0.8f).SetEase(Ease.InOutSine));
+        
+        // Wait a few seconds after skeleton change complete, then fade out particle
+        seq.AppendInterval(2.0f); // Monster visible for 2 seconds with particle
+        seq.AppendCallback(() => {
+            // Now fade out particle
+            particleCg.DOFade(0f, 1.5f).SetEase(Ease.InOutSine).OnComplete(() => {
+                particle.SetActive(false);
             });
-            
-            // Stop particles and shake after glow starts
-            particle.SetActive(false);
-            particleCg.DOFade(0f, 2.5f).SetEase(Ease.InOutSine);
-            shake.StopShake();
         });
 
-        // 4. Continue sparkles during glow
-        seq.AppendInterval(4f); // Wait for glow + sparkles
+        // 4. Continue sparkles during transformation
+        seq.AppendInterval(2f); // Reduced wait time since particle fades earlier
         seq.AppendCallback(() =>
         {
             StopSparkleEffect();
         });
 
         // 5. SIMULATE ZOOM OUT: Scale back down and return to original position
-        // seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(Vector3.one * 1.2f, 1.0f).SetEase(Ease.InOutCubic)); // Slightly bigger than default
+        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(Vector3.one * 1.2f, 1.0f).SetEase(Ease.InOutCubic));
         seq.Join(spineGraphic.rectTransform.DOAnchorPos(originalPos, 1.0f).SetEase(Ease.InOutCubic));
         // ADD: Return parent to original position
         seq.Join(spineGraphic.transform.parent.GetComponent<RectTransform>().DOAnchorPos(originalParentPos, 1.0f).SetEase(Ease.InOutCubic));
@@ -158,7 +168,7 @@ public static class MonsterEvolutionSequenceHelper
             // Disable blur effect at the end of evolution
             if (biomeManager != null)
             {
-                biomeManager.ToggleBlurEffect(false);
+                biomeManager.ToggleFilters("Darken", false);
             }
         });
 
@@ -365,82 +375,5 @@ public static class MonsterEvolutionSequenceHelper
                 cg.DOFade(0f, 1.5f).OnComplete(() => ReturnSparkleToPool(sparkle));
             }
         }
-    }
-
-    private static void CreateGlowCover(SkeletonGraphic spineGraphic, System.Action onGlowPeak)
-    {
-        // Create glow overlay with bright energy effect
-        var glowGO = new GameObject("GlowCover");
-        var glowImage = glowGO.AddComponent<Image>();
-        var glowRect = glowGO.GetComponent<RectTransform>();
-        var glowCG = glowGO.AddComponent<CanvasGroup>();
-        
-        // Create circular glow sprite programmatically
-        glowImage.sprite = CreateCircularGlowSprite();
-        glowImage.color = Color.green; // Bright green
-        glowImage.raycastTarget = false;
-        glowCG.alpha = 0f;
-        
-        // Parent to monster and size appropriately
-        glowGO.transform.SetParent(spineGraphic.rectTransform, false);
-        glowRect.anchoredPosition = new Vector2(0f, 10f); // Centered on monster
-        
-        // REDUCED GLOW SIZE: Make it 12.5x larger (0.25 of previous 50x)
-        var size = Mathf.Max(spineGraphic.rectTransform.sizeDelta.x, spineGraphic.rectTransform.sizeDelta.y) * 30f; // main resize of glow cover
-        glowRect.sizeDelta = new Vector2(size, size); // Square for circular sprite
-        
-        // Position in front of monster
-        glowGO.transform.SetSiblingIndex(999);
-        
-        // Glow sequence: grow and brighten -> peak -> fade (5x longer durations)
-        var glowSeq = DOTween.Sequence();
-        
-        // Grow and brighten (1.5s - was 0.3s)
-        glowSeq.Append(glowCG.DOFade(1f, 1.5f).SetEase(Ease.InBack));
-        glowSeq.Join(glowRect.DOScale(1.5f, 1.5f).SetEase(Ease.InBack)); // This will make it even bigger during animation!
-        
-        // At peak glow, change the skeleton
-        glowSeq.AppendCallback(() => onGlowPeak?.Invoke());
-        
-        // Hold bright glow (0.5s - was 0.1s)
-        glowSeq.AppendInterval(0.5f);
-        
-        // Fade and shrink (2.0s - was 0.4s)
-        glowSeq.Append(glowCG.DOFade(0f, 2.0f).SetEase(Ease.OutQuad));
-        glowSeq.Join(glowRect.DOScale(0.8f, 2.0f).SetEase(Ease.OutQuad));
-        
-        // Destroy glow object when done
-        glowSeq.OnComplete(() => Object.Destroy(glowGO));
-    }
-
-    // Add this new method to create circular glow sprite
-    private static Sprite CreateCircularGlowSprite()
-    {
-        var texture = new Texture2D(256, 256, TextureFormat.RGBA32, false);
-        var center = new Vector2(128, 128);
-        var radius = 120f;
-        
-        // Create circular radial gradient
-        for (int x = 0; x < 256; x++)
-        {
-            for (int y = 0; y < 256; y++)
-            {
-                float distance = Vector2.Distance(new Vector2(x, y), center);
-                
-                // Create smooth radial falloff
-                float alpha = Mathf.Clamp01(1f - (distance / radius));
-                
-                // Apply smoothstep for softer edges
-                alpha = Mathf.SmoothStep(0f, 1f, alpha);
-                
-                // Apply another smoothstep for even softer falloff
-                alpha = Mathf.SmoothStep(0f, 1f, alpha);
-                
-                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
-            }
-        }
-        
-        texture.Apply();
-        return Sprite.Create(texture, new Rect(0, 0, 256, 256), new Vector2(0.5f, 0.5f));
     }
 }

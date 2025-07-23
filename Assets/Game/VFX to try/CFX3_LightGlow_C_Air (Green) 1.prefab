@@ -9617,6 +9617,7 @@ GameObject:
   - component: {fileID: 19900004}
   - component: {fileID: 4715823751343643903}
   - component: {fileID: 8692701362446433978}
+  - component: {fileID: 6634046107707690339}
   m_Layer: 0
   m_Name: CFX3_LightGlow_C_Air (Green) 1
   m_TagString: Untagged
@@ -14452,7 +14453,7 @@ MonoBehaviour:
   m_IsTrail: 0
   m_IgnoreCanvasScaler: 0
   m_AbsoluteMode: 0
-  m_Scale3D: {x: 150, y: 150, z: 150}
+  m_Scale3D: {x: 200, y: 200, z: 200}
   m_AnimatableProperties: []
   m_Particles:
   - {fileID: 19800004}
@@ -14467,3 +14468,15 @@ MonoBehaviour:
   m_UseCustomView: 0
   m_CustomViewSize: 10
   m_TimeScaleMultiplier: 1
+--- !u!225 &6634046107707690339
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100004}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

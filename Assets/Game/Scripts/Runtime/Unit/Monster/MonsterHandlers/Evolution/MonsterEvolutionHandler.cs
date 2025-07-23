@@ -122,7 +122,18 @@ public class MonsterEvolutionHandler
 
     private IEnumerator EvolutionSequence()
     {
-        Debug.Log($"[Evolution] {_controller.MonsterData.monsterName} evolution started.");
+        // Store old ID before any changes
+        var oldID = _controller.monsterID;
+        
+        // CRITICAL: Update ID and save data IMMEDIATELY before visual effects
+        _controller.evolutionLevel = _targetLevel;
+        UpdateMonsterID(_targetLevel); // Reuse existing method - this updates the ID AND saves
+        
+        // Reset evolution tracking data
+        ResetEvolutionTracking();
+        
+        // Save the complete evolved state immediately
+        SaveEvolvedMonsterData();
 
         var originalPos = _skeletonGraphic.rectTransform.anchoredPosition;
         var originalScale = _skeletonGraphic.rectTransform.localScale.x;
@@ -161,14 +172,17 @@ public class MonsterEvolutionHandler
         foreach (var coin in _controller.MonsterManager.activeCoins)
         {
             coin.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+            coin.GetComponent<CanvasGroup>().interactable = false;
         }
         foreach (var poop in _controller.MonsterManager.activePoops)
         {
             poop.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+            poop.GetComponent<CanvasGroup>().interactable = false;
         }
         foreach (var food in _controller.MonsterManager.activeFoods)
         {
             food.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
+            food.GetComponent<CanvasGroup>().interactable = false;
         }
         
         var evolutionSequence = MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
@@ -207,14 +221,17 @@ public class MonsterEvolutionHandler
         foreach (var coin in _controller.MonsterManager.activeCoins)
         {
             coin.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+            coin.GetComponent<CanvasGroup>().interactable = true;
         }
         foreach (var poop in _controller.MonsterManager.activePoops)
         {
             poop.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+            poop.GetComponent<CanvasGroup>().interactable = true;
         }
         foreach (var food in _controller.MonsterManager.activeFoods)
         {
             food.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+            food.GetComponent<CanvasGroup>().interactable = true;
         }
 
         yield return new WaitForSeconds(1f);
@@ -251,6 +268,27 @@ public class MonsterEvolutionHandler
         }
     }
 
+    private void SaveEvolvedMonsterData()
+    {
+        // Save complete evolved monster state
+        var data = new MonsterSaveData
+        {
+            instanceId = _controller.monsterID, // Already updated by UpdateMonsterID
+            monsterId = _controller.MonsterData.id,
+            gameAreaId = _controller.MonsterManager.currentGameAreaIndex,
+            currentHunger = _controller.StatsHandler.CurrentHunger,
+            currentHappiness = _controller.StatsHandler.CurrentHappiness,
+            currentHealth = _controller.StatsHandler.CurrentHP,
+            currentEvolutionLevel = _controller.evolutionLevel,
+            timeCreated = _timeCreated, // Reset evolution tracking data
+            totalTimeSinceCreation = _timeSinceCreation,
+            nutritionConsumed = _nutritionConsumed,
+            currentInteraction = _interactionCount
+        };
+        
+        SaveSystem.SaveMon(data);
+    }
+
     public float GetEvolutionProgress()
     {
         var req = GetNextEvolutionRequirement();
@@ -264,35 +302,16 @@ public class MonsterEvolutionHandler
 
         return Mathf.Clamp01((timeProgress + foodProgress + interactionProgress + happinessProgress + hungerProgress) / 5f);
     }
-    public void ResetMonsterData()
+    
+    private void ResetMonsterData()
     {
-        UpdateMonsterID(_targetLevel);
         ResetEvolutionTracking();
-        
         // Get max health for new evolution level
         var maxHealth = _controller.MonsterData.GetMaxHealth(_targetLevel);
-        _controller.StatsHandler.Initialize(_controller.StatsHandler.CurrentHP, 
-                                          _controller.StatsHandler.CurrentHunger, 
-                                          _controller.StatsHandler.CurrentHappiness, 
+        _controller.StatsHandler.Initialize(_controller.StatsHandler.CurrentHP,
+                                          _controller.StatsHandler.CurrentHunger,
+                                          _controller.StatsHandler.CurrentHappiness,
                                           maxHealth);
-        
-        // Direct save instead of using MonsterSaveHandler
-        var data = new MonsterSaveData
-        {
-            instanceId = _controller.monsterID,
-            monsterId = _controller.MonsterData.id,
-            gameAreaId = _controller.MonsterManager.currentGameAreaIndex,
-            currentHunger = _controller.StatsHandler.CurrentHunger,
-            currentHappiness = _controller.StatsHandler.CurrentHappiness,
-            currentHealth = _controller.StatsHandler.CurrentHP,
-            currentEvolutionLevel = _controller.evolutionLevel,
-            timeCreated = _controller.GetEvolveTimeCreated(),
-            totalTimeSinceCreation = _controller.GetEvolveTimeSinceCreation(),
-            nutritionConsumed = _controller.GetEvolveNutritionConsumed(),
-            currentInteraction = _controller.GetEvolutionInteractionCount()
-        };
-        
-        SaveSystem.SaveMon(data); // Direct save call
     }
 
 }
