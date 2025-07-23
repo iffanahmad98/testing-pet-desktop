@@ -170,25 +170,26 @@ public class MonsterEvolutionHandler
         {
             food.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
         }
-
-        bool sequenceDone = false;
-        MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
+        
+        var evolutionSequence = MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
             evolveCam,
             spineGraphic,
             evolutionParticle,
-            // whiteFlashMaterial,
             nextSkeleton,
             () =>
             {
                 _controller.evolutionLevel = _targetLevel;
                 ResetMonsterData();
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
-                sequenceDone = true;
-            },
-            monsterPos
+                // DON'T set sequenceDone here - this is just the transformation moment
+            }
         );
-        yield return new WaitUntil(() => sequenceDone);
-        yield return new WaitForSeconds(1f);
+
+        // Wait for the ENTIRE sequence to complete (including zoom out and position restoration)
+        yield return evolutionSequence.WaitForCompletion();
+        
+        // NOW it's safe to show other objects
+        yield return new WaitForSeconds(0.5f); // Optional small delay for polish
 
         // turn other monsters visible
         foreach (var monster in _controller.MonsterManager.activeMonsters)

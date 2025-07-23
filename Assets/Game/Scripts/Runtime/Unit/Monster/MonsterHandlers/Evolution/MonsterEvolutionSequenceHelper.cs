@@ -6,7 +6,6 @@ using Spine.Unity;
 using CartoonFX;
 using UnityEngine.UI;
 using System.Linq;
-using Mono.Cecil.Cil;
 
 public static class MonsterEvolutionSequenceHelper
 {
@@ -20,8 +19,8 @@ public static class MonsterEvolutionSequenceHelper
         SkeletonGraphic spineGraphic,
         UIParticle evolutionParticle,
         SkeletonDataAsset nextEvolutionSkeleton,
-        System.Action onEvolutionDataUpdate,
-        Vector3 monsterPosition)
+        System.Action onEvolutionDataUpdate
+    )
     {
         _evolutionParticle = evolutionParticle.gameObject;
         var originalFOV = evolveCam.fieldOfView;
@@ -29,24 +28,69 @@ public static class MonsterEvolutionSequenceHelper
         var particle = evolutionParticle.gameObject;
         var particleCg = particle.GetComponent<CanvasGroup>();
 
+        // Get BiomeManager from ServiceLocator
+        var biomeManager = ServiceLocator.Get<BiomeManager>();
+
         var effect = particle.GetComponent<CFXR_Effect>();
         var shake = effect.cameraShake;
         shake.useMainCamera = false;
         shake.cameras = new List<Camera> { MainCanvas.MonsterCamera };
         shake.enabled = true;
 
+        // Store original monster scale, position, AND anchor/pivot settings for restoration
+        var originalScale = spineGraphic.rectTransform.localScale;
+        var originalPos = spineGraphic.rectTransform.anchoredPosition;
+        var originalAnchorMin = spineGraphic.rectTransform.anchorMin;
+        var originalAnchorMax = spineGraphic.rectTransform.anchorMax;
+        var originalPivot = spineGraphic.rectTransform.pivot;
+
+        // ALSO store parent (MonsterController) original settings
+        var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
+        var originalParentScale = parentRect.localScale;
+        var originalParentPos = parentRect.anchoredPosition;
+        var originalParentAnchorMin = parentRect.anchorMin;
+        var originalParentAnchorMax = parentRect.anchorMax;
+        var originalParentPivot = parentRect.pivot;
+
         var seq = DOTween.Sequence();
 
-        // 1. Camera zoom in - 5x slower
+        // 1. Enable blur effect at the start of evolution
         seq.AppendCallback(() =>
         {
-            MainCanvas.Canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            MainCanvas.Canvas.worldCamera = evolveCam;
-        });
-        seq.Append(MainCanvas.CamRT.DOAnchorPos(monsterPosition, 2.5f).SetEase(Ease.InOutSine));
-        seq.Append(evolveCam.DOFieldOfView(2.5f, 4.0f).SetEase(Ease.InOutSine));
+            if (biomeManager != null)
+            {
+                biomeManager.ToggleBlurEffect(true);
+            }
 
-        // 2. Play particle and start sparkles
+            var monsterRect = spineGraphic.rectTransform;
+            var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>(); // MonsterController
+            
+            // Set anchor and pivot to center for proper scaling
+            monsterRect.anchorMin = new Vector2(0.5f, 0.5f);
+            monsterRect.anchorMax = new Vector2(0.5f, 0.5f);
+            monsterRect.pivot = new Vector2(0.5f, 0.5f);
+            
+            // Also set parent anchor/pivot for proper centering
+            parentRect.anchorMin = new Vector2(0.5f, 0.5f);
+            parentRect.anchorMax = new Vector2(0.5f, 0.5f);
+            parentRect.pivot = new Vector2(0.5f, 0.5f);
+        });
+
+        // Phase 1: Move parent MonsterController to center and start scaling (simulates camera focusing)
+        parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
+        seq.Append(parentRect.DOAnchorPos(Vector2.zero, 1.5f).SetEase(Ease.InOutCubic));
+        seq.Join(parentRect.DOScale(Vector3.one * 2.0f, 1.5f).SetEase(Ease.InOutCubic));
+
+        // Phase 2: Continue scaling parent bigger (simulates zoom-in effect)  
+        seq.Append(parentRect.DOScale(Vector3.one * 4.0f, 2.0f).SetEase(Ease.InOutSine));
+
+        // Add shake to parent during zoom
+        seq.JoinCallback(() =>
+        {
+            parentRect.DOShakePosition(3.5f, strength: 8f, vibrato: 15, randomness: 50f);
+        });
+
+        // 2. Play particle and start sparkles during zoom
         seq.JoinCallback(() =>
         {
             particle.SetActive(true);
@@ -54,13 +98,19 @@ public static class MonsterEvolutionSequenceHelper
             particleCg.DOFade(1f, 1.0f).SetEase(Ease.InOutSine);
             shake.StartShake();
             StartSparkleEffect(spineGraphic.rectTransform);
+            
+            // Scale shake effect during zoom (apply to parent)
+            parentRect.DOShakeScale(3.5f, strength: 0.2f, vibrato: 8, randomness: 90f);
         });
 
-        // 3. Create glow cover and change skeleton during glow - 5x scaled timing
-        seq.AppendInterval(2.0f); // Wait 2s before glow starts
+        // 3. Peak zoom moment with glow and transformation
+        seq.AppendInterval(3.5f); // Wait for zoom to complete
         seq.AppendCallback(() => {
             CreateGlowCover(spineGraphic, () => {
-                // Change skeleton during the glow peak (at 1.5s into the glow)
+                // Intense shake at transformation moment
+                spineGraphic.rectTransform.DOShakePosition(0.5f, strength: 20f, vibrato: 40, randomness: 90f);
+                
+                // Change skeleton during the glow peak
                 spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
                 spineGraphic.Initialize(true);
                 onEvolutionDataUpdate?.Invoke();
@@ -68,28 +118,49 @@ public static class MonsterEvolutionSequenceHelper
             
             // Stop particles and shake after glow starts
             particle.SetActive(false);
-            particleCg.DOFade(0f, 2.5f).SetEase(Ease.InOutSine); // 5x slower fade
+            particleCg.DOFade(0f, 2.5f).SetEase(Ease.InOutSine);
             shake.StopShake();
         });
 
-        // 4. Continue sparkles for a bit after evolution (wait for glow to complete)
-        seq.AppendInterval(4f); // Wait 4s for glow + 5s for sparkles
+        // 4. Continue sparkles during glow
+        seq.AppendInterval(4f); // Wait for glow + sparkles
         seq.AppendCallback(() =>
         {
             StopSparkleEffect();
         });
 
-        // 5. Camera zoom out IMMEDIATELY after sparkles stop
-        seq.Append(evolveCam.DOFieldOfView(originalFOV, 0.8f).SetEase(Ease.InOutSine));
-        seq.Join(MainCanvas.CamRT.DOAnchorPos(originalPosition, 0.5f).SetEase(Ease.InOutSine));
+        // 5. SIMULATE ZOOM OUT: Scale back down and return to original position
+        // seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(Vector3.one * 1.2f, 1.0f).SetEase(Ease.InOutCubic)); // Slightly bigger than default
+        seq.Join(spineGraphic.rectTransform.DOAnchorPos(originalPos, 1.0f).SetEase(Ease.InOutCubic));
+        // ADD: Return parent to original position
+        seq.Join(spineGraphic.transform.parent.GetComponent<RectTransform>().DOAnchorPos(originalParentPos, 1.0f).SetEase(Ease.InOutCubic));
+
+        // 6. Final scale to normal size and ensure final positioning
+        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(originalParentScale, 0.5f).SetEase(Ease.OutBack)); // Use original scale instead of Vector3.one
+
         seq.AppendCallback(() =>
         {
-            MainCanvas.Canvas.worldCamera = null;
-            MainCanvas.Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        });
+            // Restore original anchor and pivot settings
+            spineGraphic.rectTransform.anchoredPosition = originalPos; // Ensure final position
+            spineGraphic.rectTransform.anchorMin = originalAnchorMin;
+            spineGraphic.rectTransform.anchorMax = originalAnchorMax;
+            spineGraphic.rectTransform.pivot = originalPivot;
+            spineGraphic.rectTransform.localScale = originalScale; // Restore original scale
+            
+            // Restore parent anchor and pivot settings
+            var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
+            parentRect.anchoredPosition = originalParentPos; // Ensure final position
+            parentRect.localScale = originalParentScale; // Ensure final scale
+            parentRect.anchorMin = originalParentAnchorMin;
+            parentRect.anchorMax = originalParentAnchorMax;
+            parentRect.pivot = originalParentPivot;
 
-        // 6. Additional 1 seconds after evolution sequence completion
-        // seq.AppendInterval(1.0f);
+            // Disable blur effect at the end of evolution
+            if (biomeManager != null)
+            {
+                biomeManager.ToggleBlurEffect(false);
+            }
+        });
 
         return seq;
     }
@@ -98,7 +169,6 @@ public static class MonsterEvolutionSequenceHelper
     private static Sprite CreateSparkleSprite()
     {
         var texture = new Texture2D(64, 64, TextureFormat.RGBA32, false);
-        var center = new Vector2(32, 32);
         
         // Create a 4-pointed star shape
         for (int x = 0; x < 64; x++)
@@ -164,12 +234,12 @@ public static class MonsterEvolutionSequenceHelper
         // Add Image component for UI rendering
         var image = sparkleGO.AddComponent<Image>();
         image.sprite = CreateSparkleSprite(); // Use native sprite
-        image.color = Color.white;
+        image.color = Color.green;
         image.raycastTarget = false;
         
-        // Add RectTransform
+        // Add RectTransform - LARGER SPARKLES
         var rect = sparkleGO.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(30f, 30f); // Slightly larger for better visibility
+        rect.sizeDelta = new Vector2(45f, 45f); // Increased from 30f to 45f (1.5x larger)
         
         // Add CanvasGroup for smooth fading
         var cg = sparkleGO.AddComponent<CanvasGroup>();
@@ -235,8 +305,8 @@ public static class MonsterEvolutionSequenceHelper
             // Set parent to the monster instead of main canvas
             sparkle.transform.SetParent(targetTransform, false);
             
-            // Random position around the monster (now relative to monster)
-            var radius = Random.Range(50f, 150f);
+            // MORE CENTERED - Reduced radius range around the monster
+            var radius = Random.Range(25f, 75f); // Reduced from 50f-150f to 25f-75f (more centered)
             var angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
             var offset = new Vector2(
                 Mathf.Cos(angle) * radius,
@@ -246,22 +316,26 @@ public static class MonsterEvolutionSequenceHelper
             sparkleRect.anchoredPosition = offset; // Relative to monster position
             sparkleRect.localScale = Vector3.zero;
             
-            // Random color tint
+            // Random color tint - Green shades
             var colors = new Color[] { 
-                Color.white, 
-                Color.yellow, 
-                new Color(1f, 0.8f, 0.9f), // Light pink
-                new Color(0.8f, 0.9f, 1f)  // Light blue
+                Color.green,                        // Pure green
+                new Color(0.5f, 1f, 0.5f),         // Light green
+                new Color(0f, 0.8f, 0.2f),         // Dark green
+                new Color(0.2f, 1f, 0.4f),         // Bright lime green
+                new Color(0.4f, 0.9f, 0.6f),       // Soft mint green
+                new Color(0.1f, 0.7f, 0.3f),       // Forest green
+                new Color(0.6f, 1f, 0.8f),         // Very light green
+                new Color(0.8f, 1f, 0.2f)          // Yellow-green
             };
             image.color = colors[Random.Range(0, colors.Length)];
             
             _activeSparkles.Add(sparkle);
             
-            // Animate sparkle
+            // Animate sparkle - LARGER SCALE RANGE
             var seq = DOTween.Sequence();
             
-            // Scale up and fade in
-            seq.Append(sparkleRect.DOScale(Random.Range(0.5f, 1.2f), 1.5f).SetEase(Ease.OutBack));
+            // Scale up and fade in - LARGER SPARKLES
+            seq.Append(sparkleRect.DOScale(Random.Range(0.8f, 1.5f), 1.5f).SetEase(Ease.OutBack)); // Increased from 0.5f-1.2f to 0.8f-1.5f
             seq.Join(canvasGroup.DOFade(1f, 1.5f));
             
             // Float upward while rotating (relative to monster)
@@ -293,34 +367,6 @@ public static class MonsterEvolutionSequenceHelper
         }
     }
 
-    private static void CreateParticleBurst(SkeletonGraphic spineGraphic, System.Action onBurstPeak)
-    {
-        // Intensify existing particles during transformation
-        var particleBurst = DOTween.Sequence();
-        
-        // Increase particle intensity
-        particleBurst.AppendCallback(() => {
-            // Scale up particle effects if possible
-            var particleTransform = _evolutionParticle.transform;
-            particleTransform.DOScale(2f, 0.2f);
-            
-            // Add extra sparkles during transformation
-            for (int i = 0; i < 15; i++) // More sparkles
-            {
-                CreateSingleSparkle(spineGraphic.rectTransform, i * 0.05f); // Faster spawn
-            }
-        });
-        
-        // Peak moment - change skeleton
-        particleBurst.AppendInterval(0.3f);
-        particleBurst.AppendCallback(() => onBurstPeak?.Invoke());
-        
-        // Scale back down
-        particleBurst.AppendCallback(() => {
-            _evolutionParticle.transform.DOScale(1f, 0.3f);
-        });
-    }
-
     private static void CreateGlowCover(SkeletonGraphic spineGraphic, System.Action onGlowPeak)
     {
         // Create glow overlay with bright energy effect
@@ -331,16 +377,16 @@ public static class MonsterEvolutionSequenceHelper
         
         // Create circular glow sprite programmatically
         glowImage.sprite = CreateCircularGlowSprite();
-        glowImage.color = Color.yellow; // Bright yellow
+        glowImage.color = Color.green; // Bright green
         glowImage.raycastTarget = false;
         glowCG.alpha = 0f;
         
         // Parent to monster and size appropriately
         glowGO.transform.SetParent(spineGraphic.rectTransform, false);
-        glowRect.anchoredPosition = Vector2.zero;
+        glowRect.anchoredPosition = new Vector2(0f, 10f); // Centered on monster
         
-        // Make it 8x larger and circular - MASSIVE glow coverage
-        var size = Mathf.Max(spineGraphic.rectTransform.sizeDelta.x, spineGraphic.rectTransform.sizeDelta.y) * 50f; // 8x instead of 2x
+        // REDUCED GLOW SIZE: Make it 12.5x larger (0.25 of previous 50x)
+        var size = Mathf.Max(spineGraphic.rectTransform.sizeDelta.x, spineGraphic.rectTransform.sizeDelta.y) * 30f; // main resize of glow cover
         glowRect.sizeDelta = new Vector2(size, size); // Square for circular sprite
         
         // Position in front of monster
