@@ -2,13 +2,14 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using MagicalGarden.Hotel;
+using MagicalGarden.Manager;
 
 namespace MagicalGarden.AI
 {
     public class NPCHotel : BaseEntityAI
     {
         public Vector2Int destinationTile;
-        public HotelRoom hotelRoomRef;
+        public HotelController hotelControlRef;
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -35,7 +36,7 @@ namespace MagicalGarden.AI
         {
             yield return new WaitForSeconds(1f);
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
-            stateLoopCoroutine = StartCoroutine(MoveToTarget(new Vector2Int(hotelRoomRef.hotelPosition.x, hotelRoomRef.hotelPosition.y)));
+            stateLoopCoroutine = StartCoroutine(MoveToTarget(new Vector2Int(hotelControlRef.hotelPositionTile.x, hotelControlRef.hotelPositionTile.y)));
         }
 
         public IEnumerator CleaningRoutine(float cleanDuration = 5f)
@@ -43,6 +44,7 @@ namespace MagicalGarden.AI
             Debug.Log("🧹 Memulai bersih-bersih...");
 
             // 2. Timer countdown (bisa sambil munculkan efek/animasi jika perlu)
+            HotelManager.Instance.CallCleaningVFX(hotelControlRef.dustPos);
             float timer = 0f;
             while (timer < cleanDuration)
             {
@@ -54,13 +56,16 @@ namespace MagicalGarden.AI
             Debug.Log("✅ Selesai bersih-bersih.");
 
             // 3. NPC muncul kembali
-            GetComponent<MeshRenderer>().enabled = true;
 
             // 4. Ubah tile kamar menjadi bersih
-            if (hotelRoomRef != null)
+            
+            if (hotelControlRef != null)
             {
-                hotelRoomRef.SetHotelTileDirty(false); // ubah tile ke bersih
+                hotelControlRef.SetClean(); // ubah tile ke bersih
             }
+            HotelManager.Instance.DestroyCleaningVFX(hotelControlRef.rayPos);
+            yield return new WaitForSeconds(2);
+            GetComponent<MeshRenderer>().enabled = true;
 
             // 5. Lanjut wander
             stateLoopCoroutine = StartCoroutine(StateLoop());

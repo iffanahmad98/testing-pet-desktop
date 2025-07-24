@@ -14,12 +14,14 @@ namespace MagicalGarden.Manager
     {
         public static HotelManager Instance;
         [Header("Hotel")]
+        public GameObject cleaningVfx;
+        public GameObject rayCleaningVfx;
+        public GameObject brokenHeartVfx;
+        GameObject currentCleaningVFX;
         public Transform poolHotelRoom;
         public Vector2Int targetCheckOut;
         public List<HotelController> hotelControllers = new List<HotelController>();
         public List<HotelRoom> hotelRooms = new();
-        public HotelTile cleanTile;
-        public HotelTile dirtyTile;
         public List<GameObject> guestPrefab;
         public List<GuestStageGroup> guestStageGroup;
         public NPCHotel npcHotel;
@@ -87,9 +89,19 @@ namespace MagicalGarden.Manager
             if (roll < 95) return GuestRarity.Mythic;
             return GuestRarity.Legend;
         }
+
+        public void CallCleaningVFX(Transform pos)
+        {
+            currentCleaningVFX = Instantiate(cleaningVfx, pos.position, Quaternion.identity);
+        }
+        public void DestroyCleaningVFX(Transform pos)
+        {
+            Instantiate(rayCleaningVfx, pos.position, Quaternion.identity);
+            Destroy(currentCleaningVFX);
+        }
         // public HotelRoom AssignGuestToAvailableRoom_backup(GuestRequest guest)
         // {
-            
+
         //     SaveHotelRooms();
         // }
         public void AssignGuestToAvailableRoom(GuestRequest guest)

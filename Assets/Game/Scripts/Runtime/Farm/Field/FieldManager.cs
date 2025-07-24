@@ -8,6 +8,7 @@ namespace MagicalGarden.Farm
     public class FieldManager : MonoBehaviour
     {
         public GameObject bubbleLockUI;
+        public GameObject unlockVFX;
         public List<FieldBlock> blocks = new List<FieldBlock>();
         public static FieldManager Instance;
 
@@ -50,6 +51,8 @@ namespace MagicalGarden.Farm
             if (block == null || block.isUnlocked) return;
             {
                 block.isUnlocked = true;
+                Vector3 worldPos = TileManager.Instance.tilemapSoil.CellToWorld(new Vector3Int(blockId.x, blockId.y, 0));
+                Instantiate(unlockVFX, worldPos, Quaternion.identity);
                 UpdateOverlayVisual(blockId, true);
             }
         }
@@ -62,18 +65,19 @@ namespace MagicalGarden.Farm
                 return;
             }
             TileBase lockedTile = TileManager.Instance.lockedTile;
+            TileBase unlockedTile = TileManager.Instance.unlockedTile;
 
             for (int dx = -1; dx <= 1; dx++)
             {
                 for (int dy = -1; dy <= 1; dy++)
                 {
                     Vector3Int tilePos = new Vector3Int(center.x + dx, center.y + dy, 0);
-                    
+
                     if (unlocked)
                     {
                         if (tilemap.HasTile(tilePos))
                         {
-                            tilemap.SetTile(tilePos, null);
+                            tilemap.SetTile(tilePos, unlockedTile);
                             // Debug.Log($"[Unlock] Removed locked tile at {tilePos}");
                         }
                     }

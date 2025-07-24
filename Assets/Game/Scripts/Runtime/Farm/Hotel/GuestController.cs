@@ -134,7 +134,7 @@ namespace MagicalGarden.Hotel
             {
                 roomServiceBtn.SetActive(true);
                 hasRequest = true;
-                currentRoom.SetHotelTileDirty(true);
+                // currentRoom.SetHotelTileDirty(true);
             }
             // else if (randomType == GuestRequestType.Food)
             // {
@@ -207,7 +207,7 @@ namespace MagicalGarden.Hotel
             }
             if (type == GuestRequestType.RoomService)
             {
-                HotelManager.Instance.npcHotel.hotelRoomRef = currentRoom;
+                // HotelManager.Instance.npcHotel.hotelControlRef = currentRoom;
                 StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
                 // currentRoom.SetHotelTileDirty(false);
             }
@@ -224,6 +224,7 @@ namespace MagicalGarden.Hotel
                 Debug.LogWarning("Invalid request type: " + typeStr);
             }
         }
+        
         public void SetHappiness(float value)
         {
             float percent = Mathf.Clamp01(value / 100f);

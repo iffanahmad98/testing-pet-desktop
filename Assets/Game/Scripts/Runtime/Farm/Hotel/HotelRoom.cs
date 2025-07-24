@@ -70,14 +70,6 @@ namespace MagicalGarden.Hotel
                 Debug.Log($"✅ Permintaan {type} dipenuhi di {roomId} untuk {guest.guestName}");
             }
         }
-        public void SetHotelTileDirty(bool isDirty)
-        {
-            var tilemap = TileManager.Instance.tilemapHotel;
-            if (tilemap == null) return;
-            var dirtyTile = HotelManager.Instance.dirtyTile;
-            var cleanTile = HotelManager.Instance.cleanTile;
-            tilemap.SetTile(hotelPosition, isDirty ? dirtyTile : cleanTile);
-        }
         
     }
     

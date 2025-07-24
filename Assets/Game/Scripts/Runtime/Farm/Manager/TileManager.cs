@@ -36,6 +36,7 @@ namespace MagicalGarden.Manager
         public TileBase tileFertilizer;
         public TileBase highlightTile;
         public TileBase lockedTile;
+        public TileBase unlockedTile;
         private Vector3Int previousCellPos = Vector3Int.zero;
         private bool hasPreviousTile = false;
         private ItemData currentItemdata;

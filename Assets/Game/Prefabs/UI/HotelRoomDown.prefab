@@ -1,5 +1,67 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6542437165936680963
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7915649447809239612}
+  m_Layer: 8
+  m_Name: PosAura
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7915649447809239612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6542437165936680963}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.12, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 787241541819021795}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6834989576512805166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5378799017888716919}
+  m_Layer: 8
+  m_Name: PosCleaning
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5378799017888716919
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6834989576512805166}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.45, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 787241541819021795}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7902950220661013053
 GameObject:
   m_ObjectHideFlags: 0
@@ -33,7 +95,9 @@ Transform:
   m_LocalPosition: {x: 43.95, y: -9.16, z: -5.9032454}
   m_LocalScale: {x: 1.2378268, y: 1.2378268, z: 1.2378268}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7915649447809239612}
+  - {fileID: 5378799017888716919}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7994285244563684898
@@ -92,7 +156,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 7403833524821630040, guid: f93f8e703931b0e4596bb94a057e710e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -185,6 +249,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2670ca2c36e83194c9ddb78754ab21eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dustPos: {fileID: 5378799017888716919}
+  rayPos: {fileID: 7915649447809239612}
   cleanSprites:
   - {fileID: 7403833524821630040, guid: f93f8e703931b0e4596bb94a057e710e, type: 3}
   - {fileID: -3701504693863394424, guid: f93f8e703931b0e4596bb94a057e710e, type: 3}
@@ -192,7 +258,7 @@ MonoBehaviour:
   - {fileID: 892696445561062154, guid: f93f8e703931b0e4596bb94a057e710e, type: 3}
   - {fileID: 1752527089109707290, guid: f93f8e703931b0e4596bb94a057e710e, type: 3}
   IsOccupied: 0
-  hotelPositionTile: {x: 12, y: -30}
+  hotelPositionTile: {x: 15, y: -30}
   offsetDistance: 3
   offsetDirection: 4
   wanderingTiles: []

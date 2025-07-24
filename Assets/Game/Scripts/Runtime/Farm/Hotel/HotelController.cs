@@ -10,6 +10,9 @@ namespace MagicalGarden.Hotel
 {
     public class HotelController : MonoBehaviour
     {
+        [Header("Position VFX")]
+        public Transform dustPos;
+        public Transform rayPos;
         [Header("Visual")]
         [Header("Clean Variants")]
         public Sprite[] cleanSprites;
@@ -162,6 +165,51 @@ namespace MagicalGarden.Hotel
             listPet.Clear();
             Debug.Log("🧹 Semua pet dihapus dari hotel.");
         }
+
+        #region FullFill Service
+        #if UNITY_EDITOR
+        [ContextMenu("Request/✅ Fulfill Clean")]
+        private void Context_Fulfill_Clean()
+        {
+            SetDirty();
+            FulfillRequestByString("RoomService");
+        }
+        #endif
+        private void FulfillRequest(GuestRequestType type)
+        {
+            // var request = currentRoom.roomRequests.Find(r => r.requestType == type && !r.isFulfilled);
+            // if (request != null)
+            // {
+            //     request.isFulfilled = true;
+            //     happiness = Mathf.Min(happiness + 20, 100);
+            //     SetHappiness(happiness);
+            //     currentRoom.roomRequests.Remove(request);
+            //     hasRequest = false;
+            //     ResetBtn();
+            //     fillExpired.transform.parent.gameObject.SetActive(false);
+
+            //     Debug.Log($"✅ {guestName} puas dengan {type}! Happiness: {happiness}");
+            // }
+            if (type == GuestRequestType.RoomService)
+            {
+                HotelManager.Instance.npcHotel.hotelControlRef = this;
+                StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
+                // currentRoom.SetHotelTileDirty(false);
+            }
+        }
+        public void FulfillRequestByString(string typeStr)
+        {
+            if (System.Enum.TryParse(typeStr, out GuestRequestType type))
+            {
+                FulfillRequest(type);
+            }
+            else
+            {
+                Debug.LogWarning("Invalid request type: " + typeStr);
+            }
+        }
+        #endregion
+
         #region Tile Wandering
         public void CalculateWanderingArea()
         {
