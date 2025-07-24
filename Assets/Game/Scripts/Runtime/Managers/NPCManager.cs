@@ -8,22 +8,21 @@ public class NPCManager : MonoBehaviour
         ServiceLocator.Register<NPCManager>(this);
     }
 
-    public GameObject GetIdlePos(int npcIndex)
+    public GameObject GetIdleTarget(int npcIndex)
     {
-        GameObject position;
+        GameObject target;
         if (npcIndex == 0)
         {
-            position = NPCIdleFlower.transform.GetChild(0).gameObject; // Assuming the first child is NPC1
+            target = NPCIdleFlower.GetComponent<NPCIdleFlower>().GetIdleStation(npcIndex);
         }
         else if (npcIndex == 1)
         {
-            position = NPCIdleFlower.transform.GetChild(1).gameObject; // Assuming the second child is NPC2
+            target = NPCIdleFlower.GetComponent<NPCIdleFlower>().GetIdleStation(npcIndex);
         }
         else
         {
-            position = null; // Default position if index is invalid
+            target = null; // Default position if index is invalid
         }
-
-        return position;
+        return target;
     }
 }

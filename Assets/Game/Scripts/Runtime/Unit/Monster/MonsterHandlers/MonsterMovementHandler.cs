@@ -19,8 +19,8 @@ public class MonsterMovementHandler
     public void UpdateMovement(ref Vector2 targetPosition, MonsterDataSO data)
     {
         // Validate target is in bounds before moving toward it
-        if (_controller.BoundHandler != null && 
-            !_controller.BoundHandler.IsWithinBoundsForState(targetPosition, _controller.StateMachine.CurrentState))
+        if (_controller.BoundHandler != null &&
+            !_controller.BoundHandler.IsWithinBoundsForState(targetPosition, _controller.StateMachine.CurrentState) && !_controller.isNPC)
         {
             targetPosition = _controller.BoundHandler.GetRandomTargetForState(_controller.StateMachine.CurrentState);
         }

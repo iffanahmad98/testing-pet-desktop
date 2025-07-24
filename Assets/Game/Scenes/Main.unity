@@ -311,6 +311,8 @@ RectTransform:
   m_Children:
   - {fileID: 577750298}
   - {fileID: 880935774}
+  - {fileID: 96335536}
+  - {fileID: 235755938}
   m_Father: {fileID: 1457136191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
@@ -918,7 +920,7 @@ GameObject:
   - component: {fileID: 96335538}
   - component: {fileID: 96335537}
   m_Layer: 5
-  m_Name: NPC1
+  m_Name: NPCIldeStation1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -931,16 +933,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 96335535}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 766799454}
+  m_Father: {fileID: 17609072}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 300, y: -270}
+  m_AnchoredPosition: {x: 150, y: -50}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &96335537
@@ -950,7 +952,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 96335535}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1325,7 +1327,7 @@ GameObject:
   - component: {fileID: 235755940}
   - component: {fileID: 235755939}
   m_Layer: 5
-  m_Name: NPC2
+  m_Name: NPCIdleStation2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1338,16 +1340,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 235755937}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 766799454}
+  m_Father: {fileID: 17609072}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -300, y: -270}
+  m_AnchoredPosition: {x: -150, y: -50}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &235755939
@@ -1357,7 +1359,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 235755937}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1548,7 +1550,7 @@ MonoBehaviour:
   rarityWeights:
   - type: 0
     weight: 100
-  gachaCost: 1000
+  gachaCost: 0
   allowedRarities: 00000000
   gachaResultPanel: {fileID: 330894949}
 --- !u!1 &321689312
@@ -3350,9 +3352,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 96335536}
-  - {fileID: 235755938}
+  m_Children: []
   m_Father: {fileID: 1052356096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3410,8 +3410,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 365eaad8c10244f42bd843cf96e31a7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NPC1Position: {fileID: 96335536}
-  NPC2Position: {fileID: 235755938}
+  IdleStation1: {fileID: 96335536}
+  IdleStation2: {fileID: 235755938}
 --- !u!1 &786184606
 GameObject:
   m_ObjectHideFlags: 0
@@ -8716,7 +8716,7 @@ MonoBehaviour:
   itemDescText: {fileID: 476819882}
   itemFullnessText: {fileID: 485304512}
   itemInfoIcon: {fileID: 0}
-  itemDatabase: {fileID: 11400000, guid: 07b3049cb58b2d64f8790d50f77db93c, type: 2}
+  itemDatabase: {fileID: 11400000, guid: 79e271fae5dcdbd4c8132afce8b425a3, type: 2}
 --- !u!114 &1888213871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8897,7 +8897,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 169cbe929a8ae8043a0c487bb24781dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemDatabase: {fileID: 11400000, guid: 07b3049cb58b2d64f8790d50f77db93c, type: 2}
+  itemDatabase: {fileID: 11400000, guid: 79e271fae5dcdbd4c8132afce8b425a3, type: 2}
   quickViewGameObject: {fileID: 1802389883}
   dropdownContentParent: {fileID: 2094432014}
   dropdownContentRect: {fileID: 2094432014}

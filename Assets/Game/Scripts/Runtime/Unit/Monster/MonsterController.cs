@@ -342,12 +342,10 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     private void HandleNPCMovement()
     {
         // Simplified movement for NPCs
-        if (_movementHandler != null)
+        if (_movementHandler != null && _npcHandler.OnMoveAction)
         {
-            if (!_npcHandler.OnAction)
-            {
-                SetRandomTarget();
-            }
+            // Remove the automatic random target setting when not on action
+            // The NPCPetCaretakerHandler will handle setting the target position
             _movementHandler.UpdateMovement(ref _targetPosition, monsterData);
         }
         

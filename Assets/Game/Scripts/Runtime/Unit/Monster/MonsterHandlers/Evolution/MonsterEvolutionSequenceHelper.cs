@@ -75,7 +75,7 @@ public static class MonsterEvolutionSequenceHelper
         // Phase 1: Move parent MonsterController to center and start scaling (simulates camera focusing)
         parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
         seq.Append(parentRect.DOAnchorPos(new Vector2(0f, -50f), 1.5f).SetEase(Ease.InOutCubic));
-        seq.Join(parentRect.DOScale(Vector3.one * 2.0f, 1.5f).SetEase(Ease.InOutCubic));
+        seq.Join(parentRect.DOScale(Vector3.one * 4.0f, 1.5f).SetEase(Ease.InOutCubic));
 
         // Phase 2: Continue scaling parent bigger (simulates zoom-in effect)  
         seq.Append(parentRect.DOScale(Vector3.one * 4.0f, 2.0f).SetEase(Ease.InOutSine));

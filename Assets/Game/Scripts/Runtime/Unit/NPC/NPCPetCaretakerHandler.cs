@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 public class NPCPetCaretakerHandler
 {
     private MonsterManager _monsterManager;
+    private NPCManager _nPCManager;
     private MonsterController _monsterController;
     private List<MonsterController> _petMonsterList = new List<MonsterController>();
     private List<CoinController> _coinList = new List<CoinController>();
@@ -23,6 +24,8 @@ public class NPCPetCaretakerHandler
     private bool OnPetInteraction = false;
     private bool PetFeederEnabled = true;
     private bool OnFeedingPet = false;
+    private bool OnIdling = false;
+    private bool OnMove = false; 
     private float minDistanceFromTarget = 100f;
 
     private enum ActionType { CoinCollection, PoopCollection, PetInteraction, PetFeeding, Idling }
@@ -30,11 +33,13 @@ public class NPCPetCaretakerHandler
     private bool _isPerformingAction = false;
 
     public bool OnAction => OnDoingAction();
+    public bool OnMoveAction => OnMove;
 
     public NPCPetCaretakerHandler(MonsterController monsterController)
     {
         _monsterController = monsterController;
         _monsterManager = ServiceLocator.Get<MonsterManager>();
+        _nPCManager = ServiceLocator.Get<NPCManager>();
 
         if (_monsterManager == null || _monsterController == null)
         {
@@ -87,7 +92,9 @@ public class NPCPetCaretakerHandler
                 Debug.Log("NPC is feeding a pet.");
                 break;
             case ActionType.Idling:
+                yield return DoIdling();
                 Debug.Log("NPC is idling.");
+                _monsterController.StateMachine.ChangeState(MonsterState.Idle);
                 break;
             default:
                 Debug.LogWarning($"NPCPetCaretakerHandler: Action {_currentAction} is not enabled or not implemented.");
@@ -156,12 +163,13 @@ public class NPCPetCaretakerHandler
         PetFeederEnabled = petFeederEnabled;
     }
 
-    public void InitState(bool onCollectingCoin = false, bool onCollectingPoop = false, bool onPetInteraction = false, bool onFeedingPet = false)
+    public void InitState(bool onCollectingCoin = false, bool onCollectingPoop = false, bool onPetInteraction = false, bool onFeedingPet = false, bool onIdling = false)
     {
         OnCollectingCoin = onCollectingCoin;
         OnCollectingPoop = onCollectingPoop;
         OnPetInteraction = onPetInteraction;
         OnFeedingPet = onFeedingPet;
+        OnIdling = onIdling;
     }
 
     public void InitList(MonsterManager manager)
@@ -182,27 +190,28 @@ public class NPCPetCaretakerHandler
 
     private IEnumerator MoveTo(RectTransform target)
     {
+        float distanceThreshold = OnIdling ? 2f : minDistanceFromTarget;
+        OnMove = true; 
         // Set the target position in MonsterController - this will use the existing movement system
         _monsterController.SetTargetPosition(target.anchoredPosition);
 
-        // Wait until the monster reaches the target position
-        while (OnDoingAction())
+        // Keep moving until we reach the target
+        while (OnAction)
         {
-            // Check if coin still exists
+            // Check if target still exists
             if (target == null || !target.gameObject.activeInHierarchy) yield break;
 
-            // Check if we're close enough to collect
+            // Check if we're close enough to the target
             NPCPosition = GetAnchoredPos(_monsterController.transform);
             float distance = Vector2.Distance(NPCPosition, target.anchoredPosition);
 
-            if (distance <= minDistanceFromTarget)
+            if (distance <= distanceThreshold)
             {
                 OnNearTarget(target.gameObject);
                 yield break;
             }
             yield return null;
         }
-        yield return null;
     }
 
     private void OnNearTarget(GameObject target)
@@ -263,7 +272,16 @@ public class NPCPetCaretakerHandler
                     Debug.LogWarning($"Not enough coins to buy {cheapestFood.itemID} (cost: {cheapestFood.price})");
                 }
             }
+            return;
+        }
 
+        // Handle idle station - if it's not a coin, poop, or pet, it's likely an idle station
+        if (_currentAction == ActionType.Idling)
+        {
+            // Just reached the idle station, no special action needed
+            // The DoIdling method will handle the waiting
+            OnMove = false;
+            _monsterController.StateMachine.ChangeState(MonsterState.Idle);
             return;
         }
     }
@@ -364,6 +382,37 @@ public class NPCPetCaretakerHandler
         }
     }
 
+    public IEnumerator DoIdling()
+    {
+        OnIdling = true;
+        
+        if (_nPCManager != null)
+        {
+            // Assuming each NPC has an index - you might need to add this property to MonsterController
+            // For now, using a default index of 0
+            int npcIndex = 0; // You may need to implement a way to get the NPC's index
+            GameObject idleStation = _nPCManager.GetIdleTarget(npcIndex);
+            
+            if (idleStation != null)
+            {
+                RectTransform idleTransform = idleStation.GetComponent<RectTransform>();
+                if (idleTransform != null)
+                {
+                    // Move to idle station
+                    yield return _monsterController.StartCoroutine(MoveTo(idleTransform));
+                    
+                    // Wait for a random duration (between 5-15 seconds)
+                    float idleDuration = Random.Range(5f, 15f);
+                    Debug.Log($"NPC is idling for {idleDuration:F1} seconds");
+                    _monsterController.StateMachine.ChangeState(MonsterState.Idle);
+                    yield return new WaitForSeconds(idleDuration);
+                }
+            }
+        }
+        
+        OnIdling = false;
+    }
+
     public T FindNearestTarget<T>(IEnumerable<T> list) where T : MonoBehaviour, ITargetable
     {
         T nearest = null;
@@ -386,7 +435,7 @@ public class NPCPetCaretakerHandler
     private bool OnDoingAction()
     {
         // Handle other actions here
-        if (OnCollectingCoin || OnCollectingPoop || OnPetInteraction || OnFeedingPet)
+        if (OnCollectingCoin || OnCollectingPoop || OnPetInteraction || OnFeedingPet || OnIdling)
         {
             return true;
         }
