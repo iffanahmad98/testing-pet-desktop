@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28832358e961e1540a202f2fe401c103, type: 3}
+  m_Name: Grapes
+  m_EditorClassIdentifier: 
+  itemId: grapes
+  displayName: Grapes Seed
+  icon: {fileID: -2178266113451658295, guid: cf5bb5cba4ee0d347857fc342ec40ea0, type: 3}
+  iconCrop: {fileID: -4322626274103637176, guid: fddb14c70873e6d45996ff071e61d905, type: 3}
+  itemType: 0
+  rarity: 0
+  isStackable: 1
+  description: this is grapes
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: 4b968ce43e61d434190c8f1b3c9cc085, type: 2}
+  - {fileID: 11400000, guid: 548e3ecb31de6c84f845d0d0eb8d97b7, type: 2}
+  stageWilted: {fileID: 11400000, guid: ecb473cc0d718f04bba32079dfa69f1f, type: 2}
+  markHarvest: {fileID: 2230748062605740563, guid: 3fe7b93703ce2fe4d81548a784009a13, type: 3}
+  dropItems: []
+  boost: 1
+  timeUse: 0
+  recipeCountPopNormal: 0
+  recipeCountPopRare: 0
+  needHourWatering: 1
+  needHourGrow: 4

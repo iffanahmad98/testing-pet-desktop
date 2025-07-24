@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28832358e961e1540a202f2fe401c103, type: 3}
+  m_Name: Peach_harvest
+  m_EditorClassIdentifier: 
+  itemId: peach
+  displayName: Peach Seed
+  icon: {fileID: 4566115872816706963, guid: c0bbbbcfb013b4e4fa9ad4bec19c2e25, type: 3}
+  itemType: 0
+  rarity: 0
+  isStackable: 1
+  description: this is peach
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: b8d0bdb250e4eab4286d24272110cf8c, type: 2}
+  - {fileID: 11400000, guid: d7a2791367b89a8459d63348964ec812, type: 2}
+  stageWilted: {fileID: 11400000, guid: eb5751fa8ec0cf24190b08c0a3eb05b6, type: 2}
+  markHarvest: {fileID: 8654928381151616049, guid: d4e99d9cfa862bc4b9b0eeff9d2d7f33, type: 3}
+  dropItems: []
+  boost: 1

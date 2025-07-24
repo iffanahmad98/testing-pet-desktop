@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28832358e961e1540a202f2fe401c103, type: 3}
+  m_Name: MonsterSeed
+  m_EditorClassIdentifier: 
+  itemId: monster seed
+  displayName: Monster Seed
+  icon: {fileID: -3669906137561495363, guid: 0eaba121d58b8e145b6db16c64a3a9e2, type: 3}
+  iconCrop: {fileID: -4758300303186549191, guid: 32bbe5cd4bc0de0468286fe4ead824e0, type: 3}
+  itemType: 4
+  rarity: 0
+  isStackable: 1
+  description: this is monster seed
+  stageTiles:
+  - {fileID: 11400000, guid: 055df14576c0c6246b7077ba78c7132c, type: 2}
+  - {fileID: 11400000, guid: 4114abe431e30f64b8dada7efc82fa10, type: 2}
+  - {fileID: 11400000, guid: 3ef39277f608e684ca0e3093163184b6, type: 2}
+  - {fileID: 11400000, guid: 679a8dffea0d11a45bd0013b8111e64f, type: 2}
+  stageWilted: {fileID: 11400000, guid: cf6539ed77a5d8f44a8cb11d099bddc3, type: 2}
+  markHarvest: {fileID: 4576184074245463138, guid: d4a487c80c5f68948b18beff4c15b39f, type: 3}
+  dropItems: []
+  boost: 1
+  timeUse: 0
+  recipeCountPopNormal: 0
+  recipeCountPopRare: 0
+  needHourWatering: 1
+  needHourGrow: 3

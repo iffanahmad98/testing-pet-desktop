@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28832358e961e1540a202f2fe401c103, type: 3}
+  m_Name: Pineapple
+  m_EditorClassIdentifier: 
+  itemId: pineapple
+  displayName: Pineapple Seed
+  icon: {fileID: -6805002798388449722, guid: 1c04911139dec0243b35c14ab4c6fe6a, type: 3}
+  iconCrop: {fileID: -3250807299213069671, guid: 128a353a3fc805044981350affd71795, type: 3}
+  itemType: 0
+  rarity: 0
+  isStackable: 1
+  description: this is pineapple
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: 5e74222781194224cada5b9aa50269c0, type: 2}
+  - {fileID: 11400000, guid: 1d42a4450b332f444bab82be9bff43a8, type: 2}
+  stageWilted: {fileID: 11400000, guid: 405a504d7887bb246bcabe5e8f2f979b, type: 2}
+  markHarvest: {fileID: 1014885876863682215, guid: 33c313ac6254f184aaacf7496036acdf, type: 3}
+  dropItems: []
+  boost: 1
+  timeUse: 0
+  recipeCountPopNormal: 0
+  recipeCountPopRare: 0
+  needHourWatering: 1
+  needHourGrow: 5

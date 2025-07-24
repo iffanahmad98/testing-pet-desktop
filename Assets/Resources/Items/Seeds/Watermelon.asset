@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28832358e961e1540a202f2fe401c103, type: 3}
+  m_Name: Watermelon
+  m_EditorClassIdentifier: 
+  itemId: watermelon
+  displayName: Watermelon Seed
+  icon: {fileID: -6737206874536002831, guid: 97a9adf390916334487dce4ab282dc54, type: 3}
+  iconCrop: {fileID: 994054265838085377, guid: 7086dc1334ecf374dac7a0345307f8db, type: 3}
+  itemType: 0
+  rarity: 0
+  isStackable: 1
+  description: this is watermelon
+  stageTiles:
+  - {fileID: 11400000, guid: 3404fc74788e8cc4c9f49a642a9c79e7, type: 2}
+  - {fileID: 11400000, guid: a88acfb2881d759419a43e218a17674c, type: 2}
+  - {fileID: 11400000, guid: 3e09fa3679514e9409fbf10777a6ed0d, type: 2}
+  - {fileID: 11400000, guid: 62842769839646d4f85c32fb85b3067e, type: 2}
+  stageWilted: {fileID: 11400000, guid: 71ba34cd355fca640b41baffe5c4c2e7, type: 2}
+  markHarvest: {fileID: 9188479453733208265, guid: 07fe62500f930674a8be79abc11e9f8a, type: 3}
+  dropItems: []
+  boost: 1
+  timeUse: 0
+  recipeCountPopNormal: 0
+  recipeCountPopRare: 0
+  needHourWatering: 1
+  needHourGrow: 3
