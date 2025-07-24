@@ -329,7 +329,7 @@ namespace MagicalGarden.Manager
 
                     if (saved.happiness > 80)
                     {
-                        CoinManager.Instance.AddCoins(coinReward);
+                        Farm.CoinManager.Instance.AddCoins(coinReward);
                         Debug.Log($"🎉 {saved.guest.guestName} happy, +{coinReward} coins!");
                     }
                     else

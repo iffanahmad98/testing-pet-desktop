@@ -60,7 +60,7 @@ namespace MagicalGarden.Shop
             if (itemData != null)
             {
                 InventoryManager.Instance.AddItem(itemData, 1);
-                CoinManager.Instance.SpendCoins(int.Parse(currentItemData.seedPrice));
+                Farm.CoinManager.Instance.SpendCoins(int.Parse(currentItemData.seedPrice));
                 InventoryManager.Instance.RefreshAllInventoryUI();
 
                 Debug.Log($"✅ Bought seed: {itemData.itemId}");

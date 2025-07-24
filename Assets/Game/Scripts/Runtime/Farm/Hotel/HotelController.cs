@@ -137,7 +137,7 @@ namespace MagicalGarden.Hotel
                 // {
                 //     Debug.Log($"😡 {nameGuest} kecewa dan tidak membayar.");
                 // }
-                CoinManager.Instance.AddCoins(price);
+                Farm.CoinManager.Instance.AddCoins(price);
             //reset All
             nameGuest = "";
             iconGuest = null;
