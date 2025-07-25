@@ -23,23 +23,29 @@ public static class MonsterEvolutionSequenceHelper
     )
     {
         // Use different particles for different phases
-        UIParticle rampUpParticle = (evolutionParticles != null && evolutionParticles.Length > 6) 
-            ? evolutionParticles[0] : null;  // Index 6 for ramp up
-        UIParticle coverUpParticle = (evolutionParticles != null && evolutionParticles.Length > 7) 
-            ? evolutionParticles[8] : null;  // Index 7 for cover up
-        UIParticle finishParticle = (evolutionParticles != null && evolutionParticles.Length > 8) 
-            ? evolutionParticles[2] : null;  // Index 8 for finish
+        UIParticle rampUpParticle = (evolutionParticles != null && evolutionParticles.Length > 0) 
+            ? evolutionParticles[0] : null;  // Index 0 for ramp up
+        UIParticle backgroundParticle = (evolutionParticles != null && evolutionParticles.Length > 8) 
+            ? evolutionParticles[8] : null;  // Index 8 for background
+        UIParticle finishParticle = (evolutionParticles != null && evolutionParticles.Length > 3) 
+            ? evolutionParticles[3] : null;  // Index 3 for finish
+        UIParticle foregroundParticle1 = (evolutionParticles != null && evolutionParticles.Length > 6) 
+            ? evolutionParticles[6] : null;  // Index 6 for foreground effect 1
+        UIParticle foregroundParticle2 = (evolutionParticles != null && evolutionParticles.Length > 7) 
+            ? evolutionParticles[7] : null;  // Index 7 for foreground effect 2
         
-        if (rampUpParticle == null || coverUpParticle == null || finishParticle == null)
+        if (rampUpParticle == null || backgroundParticle == null || finishParticle == null)
         {
-            Debug.LogError("Evolution particles missing! Need particles at indices 6, 7, and 8");
+            Debug.LogError("Evolution particles missing! Need particles at indices 0, 3, and 8");
             return DOTween.Sequence();
         }
 
         // Get components for all particles
         var rampUpCg = rampUpParticle.GetComponent<CanvasGroup>();
-        var coverUpCg = coverUpParticle.GetComponent<CanvasGroup>();
+        var backgroundCg = backgroundParticle.GetComponent<CanvasGroup>();
         var finishCg = finishParticle.GetComponent<CanvasGroup>();
+        var foreground1Cg = foregroundParticle1?.GetComponent<CanvasGroup>();
+        var foreground2Cg = foregroundParticle2?.GetComponent<CanvasGroup>();
 
         var originalFOV = evolveCam.fieldOfView;
         var originalPosition = MainCanvas.CamRT.anchoredPosition;
@@ -84,6 +90,14 @@ public static class MonsterEvolutionSequenceHelper
             parentRect.anchorMin = new Vector2(0.5f, 0.5f);
             parentRect.anchorMax = new Vector2(0.5f, 0.5f);
             parentRect.pivot = new Vector2(0.5f, 0.5f);
+            
+            // Change orientation to face left (positive scale)
+            if (spineGraphic.rectTransform.localScale.x < 0)
+            {
+                var currentScale = spineGraphic.rectTransform.localScale;
+                currentScale.x = Mathf.Abs(currentScale.x); // Make it positive to face left
+                spineGraphic.rectTransform.localScale = currentScale;
+            }
         });
 
         // Phase 1: Move parent MonsterController to center and start scaling (simulates camera focusing)
@@ -111,7 +125,7 @@ public static class MonsterEvolutionSequenceHelper
             parentRect.DOShakeScale(3.5f, strength: 0.2f, vibrato: 8, randomness: 90f);
         });
 
-        // 3. Peak zoom moment - transition to cover up particle
+        // 3. Peak zoom moment - transition to background particle
         seq.AppendInterval(2.5f); // Wait for initial ramp up
         seq.AppendCallback(() => {
             // Fade out ramp up particle
@@ -119,19 +133,116 @@ public static class MonsterEvolutionSequenceHelper
                 rampUpParticle.gameObject.SetActive(false);
             });
             
-            // Start cover up particle
-            coverUpParticle.gameObject.SetActive(true);
-            coverUpCg.alpha = 0f;
-            coverUpCg.DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+            // Start background particle behind the pet
+            backgroundParticle.gameObject.SetActive(true);
+            backgroundParticle.transform.SetSiblingIndex(0); // Move to back
+            backgroundCg.alpha = 0f;
+            backgroundCg.DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
             
             // Intense shake at transformation moment
             spineGraphic.rectTransform.DOShakePosition(0.5f, strength: 20f, vibrato: 40, randomness: 90f);
         });
         
-        // Wait for cover up particle to be fully visible
-        seq.AppendInterval(1.0f);
+        // NEW: Add skeleton swapping sequence after background particle starts
+        seq.AppendInterval(0.5f); // Wait for background particle to fade in
+        seq.AppendCallback(() => {
+            // Store original skeleton for swapping back
+            var originalSkeleton = spineGraphic.skeletonDataAsset;
+            var swapSeq = DOTween.Sequence();
+            
+            // Start foreground particle 1 at the beginning of swaps
+            if (foregroundParticle1 != null)
+            {
+                foregroundParticle1.gameObject.SetActive(true);
+                foreground1Cg.alpha = 0f;
+                foreground1Cg.DOFade(1f, 0.8f).SetEase(Ease.InOutSine);
+            }
+            
+            // Swap 1: Original -> Evolved (slow)
+            swapSeq.AppendCallback(() => {
+                spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
+                spineGraphic.Initialize(true);
+                spineGraphic.rectTransform.DOShakePosition(0.3f, strength: 15f, vibrato: 20, randomness: 90f);
+                spineGraphic.rectTransform.DOShakeScale(0.3f, strength: 0.1f, vibrato: 10, randomness: 90f);
+                // Add scale up/down effect
+                spineGraphic.rectTransform.DOScale(Vector3.one * 1.3f, 0.15f).SetEase(Ease.OutBack)
+                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.15f).SetEase(Ease.InBack));
+            });
+            swapSeq.AppendInterval(0.8f);
+            
+            // Swap 2: Evolved -> Original (medium speed)
+            swapSeq.AppendCallback(() => {
+                spineGraphic.skeletonDataAsset = originalSkeleton;
+                spineGraphic.Initialize(true);
+                spineGraphic.rectTransform.DOShakePosition(0.25f, strength: 18f, vibrato: 25, randomness: 90f);
+                spineGraphic.rectTransform.DOShakeScale(0.25f, strength: 0.12f, vibrato: 12, randomness: 90f);
+                // Add scale up/down effect
+                spineGraphic.rectTransform.DOScale(Vector3.one * 1.25f, 0.12f).SetEase(Ease.OutBack)
+                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.13f).SetEase(Ease.InBack));
+            });
+            swapSeq.AppendInterval(0.6f);
+            
+            // Swap 3: Original -> Evolved (faster) - Start foreground particle 2 here
+            swapSeq.AppendCallback(() => {
+                spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
+                spineGraphic.Initialize(true);
+                spineGraphic.rectTransform.DOShakePosition(0.2f, strength: 22f, vibrato: 30, randomness: 90f);
+                spineGraphic.rectTransform.DOShakeScale(0.2f, strength: 0.15f, vibrato: 15, randomness: 90f);
+                // Add scale up/down effect
+                spineGraphic.rectTransform.DOScale(Vector3.one * 1.4f, 0.1f).SetEase(Ease.OutBack)
+                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.1f).SetEase(Ease.InBack));
+                
+                // Start foreground particle 2 during this swap
+                if (foregroundParticle2 != null)
+                {
+                    foregroundParticle2.gameObject.SetActive(true);
+                    foreground2Cg.alpha = 0f;
+                    foreground2Cg.DOFade(1f, 1.0f).SetEase(Ease.InOutSine);
+                }
+            });
+            swapSeq.AppendInterval(0.4f);
+            
+            // Swap 4: Evolved -> Original (even faster)
+            swapSeq.AppendCallback(() => {
+                spineGraphic.skeletonDataAsset = originalSkeleton;
+                spineGraphic.Initialize(true);
+                spineGraphic.rectTransform.DOShakePosition(0.15f, strength: 25f, vibrato: 35, randomness: 90f);
+                spineGraphic.rectTransform.DOShakeScale(0.15f, strength: 0.18f, vibrato: 18, randomness: 90f);
+                // Add scale up/down effect
+                spineGraphic.rectTransform.DOScale(Vector3.one * 1.35f, 0.08f).SetEase(Ease.OutBack)
+                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.07f).SetEase(Ease.InBack));
+            });
+            swapSeq.AppendInterval(0.3f);
+            
+            // Swap 5: Original -> Evolved (fastest)
+            swapSeq.AppendCallback(() => {
+                spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
+                spineGraphic.Initialize(true);
+                spineGraphic.rectTransform.DOShakePosition(0.1f, strength: 30f, vibrato: 40, randomness: 90f);
+                spineGraphic.rectTransform.DOShakeScale(0.1f, strength: 0.2f, vibrato: 20, randomness: 90f);
+                // Add scale up/down effect
+                spineGraphic.rectTransform.DOScale(Vector3.one * 1.5f, 0.05f).SetEase(Ease.OutBack)
+                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.05f).SetEase(Ease.InBack));
+            });
+            swapSeq.AppendInterval(0.2f);
+            
+            // Final swap: Evolved -> Original (very fast)
+            swapSeq.AppendCallback(() => {
+                spineGraphic.skeletonDataAsset = originalSkeleton;
+                spineGraphic.Initialize(true);
+                spineGraphic.rectTransform.DOShakePosition(0.1f, strength: 35f, vibrato: 45, randomness: 90f);
+                spineGraphic.rectTransform.DOShakeScale(0.1f, strength: 0.25f, vibrato: 25, randomness: 90f);
+                // Add scale up/down effect
+                spineGraphic.rectTransform.DOScale(Vector3.one * 1.6f, 0.04f).SetEase(Ease.OutBack)
+                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.04f).SetEase(Ease.InBack));
+            });
+            swapSeq.AppendInterval(0.15f);
+        });
         
-        // Fade out monster while cover up particle is on
+        // Wait for swap sequence to complete (total duration: ~2.6 seconds)
+        seq.AppendInterval(2.7f);
+        
+        // Fade out monster while background particle is on (monster fades, background stays)
         var monsterCanvasGroup = spineGraphic.GetComponent<CanvasGroup>();
         if (monsterCanvasGroup == null)
         {
@@ -139,23 +250,40 @@ public static class MonsterEvolutionSequenceHelper
         }
         seq.Append(monsterCanvasGroup.DOFade(0f, 0.5f).SetEase(Ease.InOutSine));
         
-        // Change skeleton while monster is invisible (cover up particle still on)
+        // Change skeleton while monster is invisible (background particle still playing behind)
         seq.AppendCallback(() => {
             spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
             spineGraphic.Initialize(true);
             onEvolutionDataUpdate?.Invoke();
         });
         
-        // Fade monster back in with new skeleton (cover up particle still on)
+        // Fade monster back in with new skeleton (background particle still playing behind)
         seq.Append(monsterCanvasGroup.DOFade(1f, 0.8f).SetEase(Ease.InOutSine));
         
         // Wait a moment, then transition to finish particle
         seq.AppendInterval(1.0f);
         seq.AppendCallback(() => {
-            // Fade out cover up particle
-            coverUpCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() => {
-                coverUpParticle.gameObject.SetActive(false);
+            // Fade out background particle
+            backgroundCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() => {
+                backgroundParticle.gameObject.SetActive(false);
+                // Reset sibling index when done
+                backgroundParticle.transform.SetSiblingIndex(-1);
             });
+            
+            // Fade out foreground particles
+            if (foreground1Cg != null)
+            {
+                foreground1Cg.DOFade(0f, 0.8f).SetEase(Ease.InOutSine).OnComplete(() => {
+                    foregroundParticle1.gameObject.SetActive(false);
+                });
+            }
+            
+            if (foreground2Cg != null)
+            {
+                foreground2Cg.DOFade(0f, 0.8f).SetEase(Ease.InOutSine).OnComplete(() => {
+                    foregroundParticle2.gameObject.SetActive(false);
+                });
+            }
             
             // Start finish particle
             finishParticle.gameObject.SetActive(true);
@@ -175,13 +303,38 @@ public static class MonsterEvolutionSequenceHelper
         // 4. Wait for finish particle fade to complete
         seq.AppendInterval(2f); // Wait for particle fade
 
-        // 5. SIMULATE ZOOM OUT: Scale back down and return to original position
+        // 5. Play jumping animation sequence after evolution completes (BEFORE zoom out)
+        seq.AppendCallback(() =>
+        {
+            // Play jumping animation
+            if (spineGraphic.AnimationState != null)
+            {
+                spineGraphic.AnimationState.SetAnimation(0, "jumping", false);
+            }
+        });
+
+        // Wait for jump animation to complete (adjust duration as needed)
+        seq.AppendInterval(1.0f);
+
+        // Return to idle animation
+        seq.AppendCallback(() =>
+        {
+            if (spineGraphic.AnimationState != null)
+            {
+                spineGraphic.AnimationState.SetAnimation(0, "idle", true);
+            }
+        });
+
+        // Wait a moment in idle before starting zoom out
+        seq.AppendInterval(0.5f);
+
+        // 6. SIMULATE ZOOM OUT: Scale back down and return to original position
         seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(Vector3.one * 1.2f, 1.0f).SetEase(Ease.InOutCubic));
         seq.Join(spineGraphic.rectTransform.DOAnchorPos(originalPos, 1.0f).SetEase(Ease.InOutCubic));
         // ADD: Return parent to original position
         seq.Join(spineGraphic.transform.parent.GetComponent<RectTransform>().DOAnchorPos(originalParentPos, 1.0f).SetEase(Ease.InOutCubic));
 
-        // 6. Final scale to normal size and ensure final positioning
+        // 7. Final scale to normal size and ensure final positioning
         seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(originalParentScale, 0.5f).SetEase(Ease.OutBack));
 
         seq.AppendCallback(() =>
@@ -209,207 +362,5 @@ public static class MonsterEvolutionSequenceHelper
         });
 
         return seq;
-    }
-
-    // Create sparkle sprite programmatically
-    private static Sprite CreateSparkleSprite()
-    {
-        var texture = new Texture2D(64, 64, TextureFormat.RGBA32, false);
-        
-        // Create a 4-pointed star shape
-        for (int x = 0; x < 64; x++)
-        {
-            for (int y = 0; y < 64; y++)
-            {
-                var pos = new Vector2(x - 32, y - 32);
-                float alpha = 0f;
-                
-                // Create star pattern - four pointed star
-                float angle = Mathf.Atan2(pos.y, pos.x) * Mathf.Rad2Deg;
-                float distance = pos.magnitude;
-                
-                // Create 4 rays at 0, 90, 180, 270 degrees
-                for (int ray = 0; ray < 4; ray++)
-                {
-                    float rayAngle = ray * 90f;
-                    float angleDiff = Mathf.Abs(Mathf.DeltaAngle(angle, rayAngle));
-                    
-                    if (angleDiff < 15f) // Ray width
-                    {
-                        float rayAlpha = Mathf.Clamp01(1f - (distance / 25f)); // Ray length
-                        rayAlpha *= Mathf.Clamp01(1f - (angleDiff / 15f)); // Ray sharpness
-                        alpha = Mathf.Max(alpha, rayAlpha);
-                    }
-                }
-                
-                // Add center glow
-                float centerGlow = Mathf.Clamp01(1f - (distance / 8f));
-                alpha = Mathf.Max(alpha, centerGlow);
-                
-                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
-            }
-        }
-        
-        texture.Apply();
-        return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f));
-    }
-
-    private static void InitializeSparklePool()
-    {
-        if (_sparkleParent == null)
-        {
-            _sparkleParent = new GameObject("SparklePool");
-            _sparkleParent.transform.SetParent(MainCanvas.Canvas.transform, false);
-            _sparkleParent.SetActive(false);
-        }
-
-        // Pre-populate pool with sparkle objects
-        for (int i = 0; i < 20; i++)
-        {
-            var sparkle = CreateSparkleObject();
-            sparkle.transform.SetParent(_sparkleParent.transform, false);
-            sparkle.SetActive(false);
-            _sparklePool.Enqueue(sparkle);
-        }
-    }
-
-    private static GameObject CreateSparkleObject()
-    {
-        var sparkleGO = new GameObject("Sparkle");
-        
-        // Add Image component for UI rendering
-        var image = sparkleGO.AddComponent<Image>();
-        image.sprite = CreateSparkleSprite(); // Use native sprite
-        image.color = Color.green;
-        image.raycastTarget = false;
-        
-        // Add RectTransform - LARGER SPARKLES
-        var rect = sparkleGO.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(45f, 45f); // Increased from 30f to 45f (1.5x larger)
-        
-        // Add CanvasGroup for smooth fading
-        var cg = sparkleGO.AddComponent<CanvasGroup>();
-        cg.alpha = 0f;
-        
-        return sparkleGO;
-    }
-
-    private static GameObject GetSparkleFromPool()
-    {
-        if (_sparklePool.Count == 0)
-        {
-            InitializeSparklePool();
-        }
-
-        if (_sparklePool.Count > 0)
-        {
-            var sparkle = _sparklePool.Dequeue();
-            sparkle.SetActive(true);
-            return sparkle;
-        }
-
-        // Fallback: create new sparkle if pool is empty
-        return CreateSparkleObject();
-    }
-
-    private static void ReturnSparkleToPool(GameObject sparkle)
-    {
-        sparkle.SetActive(false);
-        sparkle.transform.SetParent(_sparkleParent.transform, false); // Return to pool parent
-        sparkle.GetComponent<CanvasGroup>().alpha = 0f;
-        sparkle.transform.localScale = Vector3.one;
-        sparkle.GetComponent<RectTransform>().anchoredPosition = Vector2.zero; // Reset position
-        _sparklePool.Enqueue(sparkle);
-        _activeSparkles.Remove(sparkle);
-    }
-
-    private static void StartSparkleEffect(RectTransform targetTransform)
-    {
-        if (_sparklePool.Count == 0)
-        {
-            InitializeSparklePool();
-        }
-
-        // Create sparkles around the monster
-        for (int i = 0; i < 8; i++)
-        {
-            CreateSingleSparkle(targetTransform, i * 0.1f);
-        }
-    }
-
-    private static void CreateSingleSparkle(RectTransform targetTransform, float delay)
-    {
-        DOVirtual.DelayedCall(delay, () =>
-        {
-            var sparkle = GetSparkleFromPool();
-            if (sparkle == null) return;
-
-            var sparkleRect = sparkle.GetComponent<RectTransform>();
-            var canvasGroup = sparkle.GetComponent<CanvasGroup>();
-            var image = sparkle.GetComponent<Image>();
-            
-            // Set parent to the monster instead of main canvas
-            sparkle.transform.SetParent(targetTransform, false);
-            
-            // MORE CENTERED - Reduced radius range around the monster
-            var radius = Random.Range(25f, 75f); // Reduced from 50f-150f to 25f-75f (more centered)
-            var angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
-            var offset = new Vector2(
-                Mathf.Cos(angle) * radius,
-                Mathf.Sin(angle) * radius
-            );
-            
-            sparkleRect.anchoredPosition = offset; // Relative to monster position
-            sparkleRect.localScale = Vector3.zero;
-            
-            // Random color tint - Green shades
-            var colors = new Color[] { 
-                Color.green,                        // Pure green
-                new Color(0.5f, 1f, 0.5f),         // Light green
-                new Color(0f, 0.8f, 0.2f),         // Dark green
-                new Color(0.2f, 1f, 0.4f),         // Bright lime green
-                new Color(0.4f, 0.9f, 0.6f),       // Soft mint green
-                new Color(0.1f, 0.7f, 0.3f),       // Forest green
-                new Color(0.6f, 1f, 0.8f),         // Very light green
-                new Color(0.8f, 1f, 0.2f)          // Yellow-green
-            };
-            image.color = colors[Random.Range(0, colors.Length)];
-            
-            _activeSparkles.Add(sparkle);
-            
-            // Animate sparkle - LARGER SCALE RANGE
-            var seq = DOTween.Sequence();
-            
-            // Scale up and fade in - LARGER SPARKLES
-            seq.Append(sparkleRect.DOScale(Random.Range(0.8f, 1.5f), 1.5f).SetEase(Ease.OutBack)); // Increased from 0.5f-1.2f to 0.8f-1.5f
-            seq.Join(canvasGroup.DOFade(1f, 1.5f));
-            
-            // Float upward while rotating (relative to monster)
-            seq.Join(sparkleRect.DOAnchorPosY(sparkleRect.anchoredPosition.y + Random.Range(30f, 80f), 7.5f).SetEase(Ease.OutQuad));
-            seq.Join(sparkleRect.DORotate(new Vector3(0, 0, Random.Range(180f, 360f)), 7.5f, RotateMode.FastBeyond360).SetEase(Ease.Linear));
-            
-            // Fade out and scale down
-            seq.Append(canvasGroup.DOFade(0f, 2.5f));
-            seq.Join(sparkleRect.DOScale(0f, 2.5f).SetEase(Ease.InBack));
-            
-            // Return to pool when done
-            seq.OnComplete(() => ReturnSparkleToPool(sparkle));
-        });
-    }
-
-    private static void StopSparkleEffect()
-    {
-        // Stop creating new sparkles, let existing ones finish their animation
-        DOTween.Kill("sparkle_creation");
-        
-        // Optionally fade out all active sparkles quickly
-        foreach (var sparkle in _activeSparkles.ToArray())
-        {
-            if (sparkle != null && sparkle.activeInHierarchy)
-            {
-                var cg = sparkle.GetComponent<CanvasGroup>();
-                cg.DOFade(0f, 1.5f).OnComplete(() => ReturnSparkleToPool(sparkle));
-            }
-        }
     }
 }
