@@ -17,21 +17,35 @@ public static class MonsterEvolutionSequenceHelper
     public static Sequence PlayEvolutionUISequence(
         Camera evolveCam,
         SkeletonGraphic spineGraphic,
-        UIParticle evolutionParticle,
+        UIParticle[] evolutionParticles, // Changed to array
         SkeletonDataAsset nextEvolutionSkeleton,
         System.Action onEvolutionDataUpdate
     )
     {
-        _evolutionParticle = evolutionParticle.gameObject;
+        // Use different particles for different phases
+        UIParticle rampUpParticle = (evolutionParticles != null && evolutionParticles.Length > 6) 
+            ? evolutionParticles[0] : null;  // Index 6 for ramp up
+        UIParticle coverUpParticle = (evolutionParticles != null && evolutionParticles.Length > 7) 
+            ? evolutionParticles[8] : null;  // Index 7 for cover up
+        UIParticle finishParticle = (evolutionParticles != null && evolutionParticles.Length > 8) 
+            ? evolutionParticles[2] : null;  // Index 8 for finish
+        
+        if (rampUpParticle == null || coverUpParticle == null || finishParticle == null)
+        {
+            Debug.LogError("Evolution particles missing! Need particles at indices 6, 7, and 8");
+            return DOTween.Sequence();
+        }
+
+        // Get components for all particles
+        var rampUpCg = rampUpParticle.GetComponent<CanvasGroup>();
+        var coverUpCg = coverUpParticle.GetComponent<CanvasGroup>();
+        var finishCg = finishParticle.GetComponent<CanvasGroup>();
+
         var originalFOV = evolveCam.fieldOfView;
         var originalPosition = MainCanvas.CamRT.anchoredPosition;
-        var particle = evolutionParticle.gameObject;
-        var particleCg = particle.GetComponent<CanvasGroup>();
 
         // Get BiomeManager from ServiceLocator
         var biomeManager = ServiceLocator.Get<BiomeManager>();
-
-        var effect = particle.GetComponent<CFXR_Effect>();
 
         // Store original monster scale, position, AND anchor/pivot settings for restoration
         var originalScale = spineGraphic.rectTransform.localScale;
@@ -50,7 +64,7 @@ public static class MonsterEvolutionSequenceHelper
 
         var seq = DOTween.Sequence();
 
-        // 1. Enable blur effect at the start of evolution
+        // 1. Enable darken filter if BiomeManager exists
         seq.AppendCallback(() =>
         {
             if (biomeManager != null)
@@ -59,7 +73,7 @@ public static class MonsterEvolutionSequenceHelper
             }
 
             var monsterRect = spineGraphic.rectTransform;
-            var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>(); // MonsterController
+            var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
             
             // Set anchor and pivot to center for proper scaling
             monsterRect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -86,26 +100,38 @@ public static class MonsterEvolutionSequenceHelper
             parentRect.DOShakePosition(3.5f, strength: 8f, vibrato: 15, randomness: 50f);
         });
 
-        // 2. Play particle and start sparkles during zoom
+        // 2. Play RAMP UP particle during zoom (monster still visible)
         seq.JoinCallback(() =>
         {
-            particle.SetActive(true);
-            particleCg.alpha = 0f;
-            particleCg.DOFade(1f, 1.0f).SetEase(Ease.InOutSine);
-            StartSparkleEffect(spineGraphic.rectTransform);
+            rampUpParticle.gameObject.SetActive(true);
+            rampUpCg.alpha = 0f;
+            rampUpCg.DOFade(1f, 1.0f).SetEase(Ease.InOutSine);
             
             // Scale shake effect during zoom (apply to parent)
             parentRect.DOShakeScale(3.5f, strength: 0.2f, vibrato: 8, randomness: 90f);
         });
 
-        // 3. Peak zoom moment - particle is on, fade out monster
-        seq.AppendInterval(3.5f); // Wait for zoom to complete
+        // 3. Peak zoom moment - transition to cover up particle
+        seq.AppendInterval(2.5f); // Wait for initial ramp up
         seq.AppendCallback(() => {
+            // Fade out ramp up particle
+            rampUpCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() => {
+                rampUpParticle.gameObject.SetActive(false);
+            });
+            
+            // Start cover up particle
+            coverUpParticle.gameObject.SetActive(true);
+            coverUpCg.alpha = 0f;
+            coverUpCg.DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+            
             // Intense shake at transformation moment
             spineGraphic.rectTransform.DOShakePosition(0.5f, strength: 20f, vibrato: 40, randomness: 90f);
         });
         
-        // Fade out monster while particle is still on
+        // Wait for cover up particle to be fully visible
+        seq.AppendInterval(1.0f);
+        
+        // Fade out monster while cover up particle is on
         var monsterCanvasGroup = spineGraphic.GetComponent<CanvasGroup>();
         if (monsterCanvasGroup == null)
         {
@@ -113,31 +139,41 @@ public static class MonsterEvolutionSequenceHelper
         }
         seq.Append(monsterCanvasGroup.DOFade(0f, 0.5f).SetEase(Ease.InOutSine));
         
-        // Change skeleton while monster is invisible
+        // Change skeleton while monster is invisible (cover up particle still on)
         seq.AppendCallback(() => {
             spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
             spineGraphic.Initialize(true);
             onEvolutionDataUpdate?.Invoke();
         });
         
-        // Fade monster back in with new skeleton (particle still on)
+        // Fade monster back in with new skeleton (cover up particle still on)
         seq.Append(monsterCanvasGroup.DOFade(1f, 0.8f).SetEase(Ease.InOutSine));
         
-        // Wait a few seconds after skeleton change complete, then fade out particle
-        seq.AppendInterval(2.0f); // Monster visible for 2 seconds with particle
+        // Wait a moment, then transition to finish particle
+        seq.AppendInterval(1.0f);
         seq.AppendCallback(() => {
-            // Now fade out particle
-            particleCg.DOFade(0f, 1.5f).SetEase(Ease.InOutSine).OnComplete(() => {
-                particle.SetActive(false);
+            // Fade out cover up particle
+            coverUpCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() => {
+                coverUpParticle.gameObject.SetActive(false);
+            });
+            
+            // Start finish particle
+            finishParticle.gameObject.SetActive(true);
+            finishCg.alpha = 0f;
+            finishCg.DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
+        });
+        
+        // Let finish particle play for a while, then fade out
+        seq.AppendInterval(2.0f); // Monster visible with finish particle
+        seq.AppendCallback(() => {
+            // Fade out finish particle
+            finishCg.DOFade(0f, 1.5f).SetEase(Ease.InOutSine).OnComplete(() => {
+                finishParticle.gameObject.SetActive(false);
             });
         });
 
-        // 4. Continue sparkles during transformation
-        seq.AppendInterval(2f); // Reduced wait time since particle fades earlier
-        seq.AppendCallback(() =>
-        {
-            StopSparkleEffect();
-        });
+        // 4. Wait for finish particle fade to complete
+        seq.AppendInterval(2f); // Wait for particle fade
 
         // 5. SIMULATE ZOOM OUT: Scale back down and return to original position
         seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(Vector3.one * 1.2f, 1.0f).SetEase(Ease.InOutCubic));
@@ -146,21 +182,21 @@ public static class MonsterEvolutionSequenceHelper
         seq.Join(spineGraphic.transform.parent.GetComponent<RectTransform>().DOAnchorPos(originalParentPos, 1.0f).SetEase(Ease.InOutCubic));
 
         // 6. Final scale to normal size and ensure final positioning
-        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(originalParentScale, 0.5f).SetEase(Ease.OutBack)); // Use original scale instead of Vector3.one
+        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(originalParentScale, 0.5f).SetEase(Ease.OutBack));
 
         seq.AppendCallback(() =>
         {
             // Restore original anchor and pivot settings
-            spineGraphic.rectTransform.anchoredPosition = originalPos; // Ensure final position
+            spineGraphic.rectTransform.anchoredPosition = originalPos;
             spineGraphic.rectTransform.anchorMin = originalAnchorMin;
             spineGraphic.rectTransform.anchorMax = originalAnchorMax;
             spineGraphic.rectTransform.pivot = originalPivot;
-            spineGraphic.rectTransform.localScale = originalScale; // Restore original scale
+            spineGraphic.rectTransform.localScale = originalScale;
             
             // Restore parent anchor and pivot settings
             var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
-            parentRect.anchoredPosition = originalParentPos; // Ensure final position
-            parentRect.localScale = originalParentScale; // Ensure final scale
+            parentRect.anchoredPosition = originalParentPos;
+            parentRect.localScale = originalParentScale;
             parentRect.anchorMin = originalParentAnchorMin;
             parentRect.anchorMax = originalParentAnchorMax;
             parentRect.pivot = originalParentPivot;

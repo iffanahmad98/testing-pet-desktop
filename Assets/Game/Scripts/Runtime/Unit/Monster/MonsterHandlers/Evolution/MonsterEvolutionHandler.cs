@@ -188,7 +188,7 @@ public class MonsterEvolutionHandler
         var evolutionSequence = MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
             evolveCam,
             spineGraphic,
-            evolutionParticle,
+            evolutionParticle, // This should now be the array instead of evolutionParticle[8]
             nextSkeleton,
             () =>
             {

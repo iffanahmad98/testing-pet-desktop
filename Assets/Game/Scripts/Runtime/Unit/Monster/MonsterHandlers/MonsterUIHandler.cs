@@ -15,7 +15,7 @@ public class MonsterUIHandler
     public TextMeshProUGUI monsterEvolStageText;
 
     [Header("VFX")]
-    public UIParticle evolutionVFX;
+    public UIParticle[] evolutionVFX;
     public Material evolutionMaterial;
     public UIParticle healingVFX;
     // public UIParticle sickVFX;
