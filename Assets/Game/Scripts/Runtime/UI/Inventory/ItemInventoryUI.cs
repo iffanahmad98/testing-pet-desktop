@@ -76,7 +76,7 @@ public class ItemInventoryUI : MonoBehaviour
         // Create initial pool of slot objects
         for (int i = 0; i < initialPoolSize; i++)
         {
-            var slot = Instantiate(slotPrefab);
+            var slot = Instantiate(slotPrefab, verticalContentParent);
             slot.gameObject.SetActive(false);
             slotPool.Enqueue(slot);
         }

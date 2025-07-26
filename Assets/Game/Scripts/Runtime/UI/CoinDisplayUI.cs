@@ -18,11 +18,11 @@ public class CoinDisplayUI : MonoBehaviour
         UpdateCoinText(CoinManager.Coins);
     }
     
-    // private void OnEnable()
-    // {
-    //     CoinManager.OnCoinChanged += UpdateCoinText;
-    //     UpdateCoinText(CoinManager.Coins);
-    // }
+    private void OnEnable()
+    {
+        CoinManager.OnCoinChanged += UpdateCoinText;
+        UpdateCoinText(CoinManager.Coins);
+    }
 
     private void OnDisable()
     {

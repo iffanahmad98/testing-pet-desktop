@@ -139,6 +139,7 @@ public class PlacementManager : MonoBehaviour
 
     private void UpdatePreviewVisual(bool isValid)
     {
+        currentPreview.SetActive(true);
         if (currentPreview.TryGetComponent<Image>(out var img))
         {
             img.color = isValid ? validColor : invalidColor;
