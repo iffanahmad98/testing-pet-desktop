@@ -57,10 +57,10 @@ public class MonsterCollectionUI : MonoBehaviour
 
         // Dictionary to count monsters by ID
         Dictionary<string, int> monsterCounts = new Dictionary<string, int>();
-        // Change this to track all unlocked evolution levels, not just the highest
-        Dictionary<string, HashSet<int>> monsterUnlockedEvolutions = new Dictionary<string, HashSet<int>>();
+        // Track the highest evolution level owned for each monster
+        Dictionary<string, int> monsterHighestEvolution = new Dictionary<string, int>();
 
-        // Count each monster and track all evolution levels that have been unlocked
+        // Count each monster and find highest evolution level
         foreach (var ownedMonster in ownedMonsters)
         {
             if (monsterCounts.ContainsKey(ownedMonster.monsterId))
@@ -70,18 +70,27 @@ public class MonsterCollectionUI : MonoBehaviour
             else
             {
                 monsterCounts[ownedMonster.monsterId] = 1;
-                monsterUnlockedEvolutions[ownedMonster.monsterId] = new HashSet<int>();
+                monsterHighestEvolution[ownedMonster.monsterId] = 0;
             }
             
-            // Add this evolution level to the unlocked set
-            monsterUnlockedEvolutions[ownedMonster.monsterId].Add(ownedMonster.currentEvolutionLevel);
+            // Update highest evolution level
+            if (ownedMonster.currentEvolutionLevel > monsterHighestEvolution[ownedMonster.monsterId])
+            {
+                monsterHighestEvolution[ownedMonster.monsterId] = ownedMonster.currentEvolutionLevel;
+            }
         }
 
         // Convert counted monsters to MonsterCollection
         foreach (var kvp in monsterCounts)
         {
-            // Get the highest evolution level for display purposes
-            int highestEvolution = monsterUnlockedEvolutions[kvp.Key].Max();
+            int highestEvolution = monsterHighestEvolution[kvp.Key];
+            
+            // Create list of all unlocked evolutions (1 to highest)
+            List<int> unlockedEvolutions = new List<int>();
+            for (int i = 1; i <= highestEvolution; i++)
+            {
+                unlockedEvolutions.Add(i);
+            }
             
             MonsterCollection collection = new MonsterCollection
             {
@@ -89,8 +98,7 @@ public class MonsterCollectionUI : MonoBehaviour
                 monsterName = kvp.Key,
                 monsterCount = kvp.Value.ToString(),
                 evolutionLevel = highestEvolution,
-                // Add a new field to track all unlocked evolutions
-                unlockedEvolutions = monsterUnlockedEvolutions[kvp.Key].ToList()
+                unlockedEvolutions = unlockedEvolutions
             };
 
             monsterCollections.Add(collection);
