@@ -7,9 +7,12 @@ namespace MagicalGarden.Farm
 {
     public class UnlockBubbleUI : MonoBehaviour
     {
-        public TextMeshProUGUI descText;
+        public TextMeshProUGUI coinText;
+        public TextMeshProUGUI harvestText;
         public Button unlockButton;
-
+        public Sprite unlockSprite;
+        public Sprite lockSprite;
+        
         private FieldBlock block;
         private Vector3 worldPos;
 
@@ -18,8 +21,8 @@ namespace MagicalGarden.Farm
             block = fieldBlock;
             worldPos = TileManager.Instance.tilemapSoil.CellToWorld(tilePos) + new Vector3(0f, 0.5f, 0);
             transform.position = worldPos;
-
-            descText.text = $"coin : {block.requiredCoins} | harvest : {block.requiredHarvest}";
+            coinText.text = block.requiredCoins.ToString();
+            harvestText.text = block.requiredHarvest.ToString();
             unlockButton.onClick.RemoveAllListeners();
             unlockButton.onClick.AddListener(OnUnlockClicked);
         }
@@ -34,10 +37,7 @@ namespace MagicalGarden.Farm
             }
             else
             {
-                descText.text = "";
                 Debug.Log("Syarat belum terpenuhi");
-                descText.text = $"coin : {block.requiredCoins} | harvest : {block.requiredHarvest}";
-                descText.text += "\nSyarat belum terpenuhi";
             }
         }
 

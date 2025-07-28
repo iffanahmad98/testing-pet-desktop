@@ -47,7 +47,7 @@ namespace MagicalGarden.AI
             Vector3 worldPos = transform.position;
             if (terrainTilemap == null)
             {
-                terrainTilemap = TileManager.Instance.tilemapSoil;
+                terrainTilemap = TileManager.Instance.tilemapWalkingAreaHotel;
             }
             Vector3Int cellPos = terrainTilemap.WorldToCell(worldPos);
             currentTile = new Vector2Int(cellPos.x, cellPos.y);
@@ -325,7 +325,7 @@ namespace MagicalGarden.AI
             List<Vector2Int> path = FindPath(currentTile, destination);
             if (path == null || path.Count < 1)
             {
-                Debug.LogWarning("No valid path found!");
+                Debug.LogWarning("No valid path found!" + destination.x +" "+destination.y);
                 onComplete?.Invoke(false); // gagal
                 yield break;
             }

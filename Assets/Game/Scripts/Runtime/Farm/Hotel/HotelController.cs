@@ -239,10 +239,9 @@ namespace MagicalGarden.Hotel
                     Vector3Int localOffset = new Vector3Int(x, y, 0);
                     Vector3Int pos = new Vector3Int(hotelPositionTile.x, hotelPositionTile.y, 0) + globalOffset + localOffset;
 
-                    if (TileManager.Instance.tilemapSoil.HasTile(pos))
-                    {
-                        wanderingTiles.Add(pos);
-                    }
+                    
+                    wanderingTiles.Add(pos);
+                    
                 }
             }
         }

@@ -31,6 +31,7 @@ namespace MagicalGarden.Manager
         public Tilemap tilemapFertilizer;
         public Tilemap tilemapHighlight;
         public Tilemap tilemapHotel;
+        public Tilemap tilemapWalkingAreaHotel;
         [Header("Tiles")]
         public TileBase tileWater;
         public TileBase tileFertilizer;
@@ -276,13 +277,13 @@ namespace MagicalGarden.Manager
         private void OnDrawGizmos()
         {
 #if UNITY_EDITOR
-            if (tilemapSoil == null) return;
+            if (tilemapWalkingAreaHotel == null) return;
 
-            foreach (var pos in tilemapSoil.cellBounds.allPositionsWithin)
+            foreach (var pos in tilemapWalkingAreaHotel.cellBounds.allPositionsWithin)
             {
-                if (tilemapSoil.HasTile(pos))
+                if (tilemapWalkingAreaHotel.HasTile(pos))
                 {
-                    Vector3 world = tilemapSoil.CellToWorld(pos) + new Vector3(0f, 0.5f, 0);
+                    Vector3 world = tilemapWalkingAreaHotel.CellToWorld(pos) + new Vector3(0f, 0.5f, 0);
                     
                     // Ubah world pos ke GUI pos
                     Vector3 guiPos = HandleUtility.WorldToGUIPoint(world);
