@@ -69,11 +69,46 @@ MonoBehaviour:
     evolutionName: Aceragon Stage 3
     description: Evolve to Aceragon Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 844e7ddc6f21e0a408193025ff42062a, type: 2}
+  - {fileID: 11400000, guid: f3e97bc450fb3e348a29276e071b4eaf, type: 2}
+  - {fileID: 11400000, guid: 3e5da015d7c18894390480d4a63202c1, type: 2}
+  CardIcon:
+  - {fileID: -358280743505770438, guid: 17065b728bcd37843b01be7c7b5545a7, type: 3}
+  - {fileID: -1021857481065555673, guid: 23011eb2437fbdc4692b232362190bad, type: 3}
+  - {fileID: 7508866945510553269, guid: 68288ec8d8a66ca45b3cd75260f28357, type: 3}
+  DetailsIcon:
+  - {fileID: -358280743505770438, guid: ba27653dfdbe3b940a166f6ce0b6888f, type: 3}
+  - {fileID: -1021857481065555673, guid: 4eabf5ef60e52ad4a9c31a7c1a261c37, type: 3}
+  - {fileID: 7508866945510553269, guid: 11828733a18941c4d80ea08bd50925be, type: 3}
+  CatalogueIcon:
+  - {fileID: -358280743505770438, guid: 1206dd07a433f7b4b8f620e9e54fc256, type: 3}
+  - {fileID: -1021857481065555673, guid: e637c32d7698f334785328b830869e16, type: 3}
+  - {fileID: 7508866945510553269, guid: 52023d3539576ab4191b6901161fae23, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - flapping
+    - idle
+    - itching
+    - walking
+  - evolutionLevel: 3
+    availableAnimations:
+    - eating
+    - flying
+    - idle
+    - itching
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 960
