@@ -13,6 +13,8 @@ namespace MagicalGarden.Farm
         public float customRotationZ = 0f;
         public Vector3 customOffset = Vector3.zero;
 
+        public float offsetElevated;
+
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
         {
             base.GetTileData(position, tilemap, ref tileData);
@@ -29,6 +31,7 @@ namespace MagicalGarden.Farm
     {
         NonWalkable,
         Walkable,
+        WalkableElevated,
         Locked,
         Plantable,
         Interact
