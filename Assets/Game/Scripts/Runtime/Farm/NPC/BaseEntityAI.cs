@@ -286,7 +286,7 @@ namespace MagicalGarden.AI
             var tile = terrainTilemap.GetTile(gridPos);
             if (tile is CustomTile myTile)
             {
-                return myTile.tileType == TileType.Walkable;
+                return myTile.tileType == TileType.Walkable || myTile.tileType == TileType.WalkableElevated;;
             }
             return false;
         }
@@ -463,8 +463,18 @@ namespace MagicalGarden.AI
         }
         protected virtual Vector3 GridToWorld(Vector2Int tile)
         {
-            Vector3 worldPos = terrainTilemap.CellToWorld(new Vector3Int(tile.x, tile.y, 0)) + terrainTilemap.cellSize / 2;
-            return new Vector3(worldPos.x, worldPos.y, 0f); // pastikan z = 0
+            // Vector3 worldPos = terrainTilemap.CellToWorld(new Vector3Int(tile.x, tile.y, 0)) + terrainTilemap.cellSize / 2;
+            // return new Vector3(worldPos.x, worldPos.y, 0f); // pastikan z = 0
+            Vector3Int gridPos = new Vector3Int(tile.x, tile.y, 0);
+            Vector3 worldPos = terrainTilemap.CellToWorld(gridPos) + terrainTilemap.cellSize / 2;
+
+            var tileBase = terrainTilemap.GetTile(gridPos);
+            if (tileBase is CustomTile myTile && myTile.tileType == TileType.WalkableElevated)
+            {
+                worldPos.y += myTile.offsetElevated; // offset naik sedikit, bisa kamu atur sesuai tinggi jembatan/tangga
+            }
+
+            return new Vector3(worldPos.x, worldPos.y, 0f);
         }
         protected virtual void FlipByTarget(Vector3 currentPos, Vector3 targetPos)
         {

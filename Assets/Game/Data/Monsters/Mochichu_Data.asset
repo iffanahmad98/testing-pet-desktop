@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 100
   maxNutritionStage2: 300
   maxNutritionStage3: 750
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 12
@@ -69,11 +66,28 @@ MonoBehaviour:
     evolutionName: Mochichu Stage 3
     description: Evolve to Mochichu Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 264dd28ce6c4ff0499cc5696e886e2fb, type: 2}
+  CardIcon:
+  - {fileID: 8369779628365965465, guid: c24cf9813984ffc4286f556f6d619c4f, type: 3}
+  - {fileID: -142927250687097264, guid: 763a6f43fdb1fa843abc3d8067416c61, type: 3}
+  - {fileID: 530860360001484945, guid: e07714a9cc5d22346943bf6318172d69, type: 3}
+  DetailsIcon:
+  - {fileID: 8369779628365965465, guid: 95e4a463ece815945ae59b82e97ce5b5, type: 3}
+  - {fileID: -142927250687097264, guid: 78386bf37f17cf149a9a8874b3c5c53c, type: 3}
+  - {fileID: 530860360001484945, guid: a454be16a265f5544a367062347a05d6, type: 3}
+  CatalogueIcon:
+  - {fileID: 8369779628365965465, guid: a28a3a4ce6b265442bd771d26e43f2ba, type: 3}
+  - {fileID: -142927250687097264, guid: c3633d4c88ca6f147869833b39abe987, type: 3}
+  - {fileID: 530860360001484945, guid: 6a1e476a7ccb8af4a9e07d851b9c5448, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
   evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 960

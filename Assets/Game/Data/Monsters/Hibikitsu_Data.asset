@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 70
   maxNutritionStage2: 210
   maxNutritionStage3: 252.00002
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 6
@@ -69,11 +66,31 @@ MonoBehaviour:
     evolutionName: Hibikitsu Stage 3
     description: Evolve to Hibikitsu Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 4843028bb72e44a4aad8b0ddf32b8229, type: 2}
+  - {fileID: 11400000, guid: ff2117af32eaa214da894b0b23dba2b8, type: 2}
+  CardIcon:
+  - {fileID: 4510347156139968712, guid: 1df3b77d5bfe3494298af64fb64e3b65, type: 3}
+  - {fileID: -4022421966068754255, guid: 0ca154f95634ffd4b9206bc2520454fb, type: 3}
+  DetailsIcon:
+  - {fileID: 4510347156139968712, guid: 0781b70990d11344a8fa1fcfeef0180f, type: 3}
+  - {fileID: -4022421966068754255, guid: 576860adf06720a41a13e21ea5d4300a, type: 3}
+  CatalogueIcon:
+  - {fileID: 4510347156139968712, guid: e3f94e1ee3a71a540a26a61f67b7065e, type: 3}
+  - {fileID: -4022421966068754255, guid: 3d3f20d4384d43e47874aa7feda02a59, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 720

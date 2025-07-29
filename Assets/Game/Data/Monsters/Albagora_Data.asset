@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 50
   maxNutritionStage2: 150
   maxNutritionStage3: 180
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 90
   platCoinDropRateStage1: 5
@@ -69,11 +66,24 @@ MonoBehaviour:
     evolutionName: Albagora Stage 3
     description: Evolve to Albagora Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: c92f700690e6c7d49b754a01f09b887e, type: 2}
+  CardIcon:
+  - {fileID: -8419364849804639871, guid: 4777eb6a1829ec449806578fc710cef9, type: 3}
+  - {fileID: -4832163233988475403, guid: 1bc0055c3da089444b336827d40d2dec, type: 3}
+  DetailsIcon:
+  - {fileID: -8419364849804639871, guid: e2d28a6307e0dbc4885afc0c3484515e, type: 3}
+  - {fileID: -4832163233988475403, guid: 24271da78dd3bc44b884e5878bed52e7, type: 3}
+  CatalogueIcon:
+  - {fileID: -8419364849804639871, guid: 145d80049196e8b4999cab309a5e533b, type: 3}
+  - {fileID: -4832163233988475403, guid: 7ecf1ebde4949b84da036e38fbdd7928, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 560
   sellPriceStage1: 375

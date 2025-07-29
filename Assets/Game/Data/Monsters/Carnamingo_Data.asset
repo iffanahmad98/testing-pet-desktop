@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 30
   maxNutritionStage2: 90
   maxNutritionStage3: 108.00001
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 4
@@ -69,11 +66,33 @@ MonoBehaviour:
     evolutionName: Carnamingo Stage 3
     description: Evolve to Carnamingo Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: cf718745bfaa80f41acf58f8849869ea, type: 2}
+  - {fileID: 11400000, guid: 4f6553774da6d7947af683d0a1976f6a, type: 2}
+  CardIcon:
+  - {fileID: 1866688679343989286, guid: 54a714134ed25bf429c3b89d6d457cc0, type: 3}
+  - {fileID: -7873579051141771938, guid: eb5c60fce2ab1ea42a18ed262dd67689, type: 3}
+  DetailsIcon:
+  - {fileID: 1866688679343989286, guid: 0d5b54c97bb66c045bad50b1dbd19ce8, type: 3}
+  - {fileID: -7873579051141771938, guid: f8bb7412350c86b4cbb1fb20f858abb0, type: 3}
+  CatalogueIcon:
+  - {fileID: 1866688679343989286, guid: 9b5b496f5c0a7a447bfea42e8d8d7c8e, type: 3}
+  - {fileID: -7873579051141771938, guid: 856052fd0772514409b2466fb3467b44, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
   evolutionBehaviors: []
   monsterPrice: 400
   sellPriceStage1: 260

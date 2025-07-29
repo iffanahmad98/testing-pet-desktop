@@ -23,12 +23,9 @@ public class MonsterDataSO : ScriptableObject
     public float maxHealthStage1 = 0f;
     public float maxHealthStage2 = 0f;
     public float maxHealthStage3 = 0f;
-    public float maxNutritionStage1 = 0f;          // Stage 1 hunger (keep existing)
-    public float maxNutritionStage2 = 0f;          // Stage 2 hunger
-    public float maxNutritionStage3 = 0f;          // Stage 3 hunger
-    public float maxFullnessStage1 = 0f; // Stage 1 fullness (keep existing)
-    public float maxFullnessStage2 = 0f; // Stage 2 fullness
-    public float maxFullnessStage3 = 0f; // Stage 3 fullness
+    public float maxNutritionStage1 = 0f;          // Stage 1 nutrition
+    public float maxNutritionStage2 = 0f;          // Stage 2 nutrition
+    public float maxNutritionStage3 = 0f;          // Stage 3 nutrition
 
 
     [Header("Drop Rates")]

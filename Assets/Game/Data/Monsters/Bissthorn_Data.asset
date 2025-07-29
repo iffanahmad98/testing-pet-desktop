@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 26
   maxNutritionStage2: 78
   maxNutritionStage3: 93.600006
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 3
@@ -69,7 +66,8 @@ MonoBehaviour:
     evolutionName: Bissthorn Stage 3
     description: Evolve to Bissthorn Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
+  monsterSpine:
+  - {fileID: 0}
   CardIcon: []
   DetailsIcon: []
   CatalogueIcon: []

@@ -364,12 +364,17 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealthStage1"), new GUIContent("Max Health (Stage 1)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealthStage2"), new GUIContent("Max Health (Stage 2)"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHealthStage3"), new GUIContent("Max Health (Stage 3)"));
+        
+        // Show Nutrition fields in Stats section
+        EditorGUILayout.Space(3);
+        EditorGUILayout.LabelField("Nutrition Values", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxNutritionStage1"), new GUIContent("Max Nutrition (Stage 1)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxNutritionStage2"), new GUIContent("Max Nutrition (Stage 2)"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxNutritionStage3"), new GUIContent("Max Nutrition (Stage 3)"));
+        
         EditorGUILayout.PropertyField(serializedObject.FindProperty("moveSpd"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("foodDetectionRange"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("eatDistance"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxFullnessStage1"), new GUIContent("Max Fullness (Stage 1)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxFullnessStage2"), new GUIContent("Max Fullness (Stage 2)"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("maxFullnessStage3"), new GUIContent("Max Fullness (Stage 3)"));
 
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Base Values", EditorStyles.boldLabel);

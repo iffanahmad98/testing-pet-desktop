@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 24
   maxNutritionStage2: 72
   maxNutritionStage3: 86.4
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 3
@@ -69,11 +66,33 @@ MonoBehaviour:
     evolutionName: Koaliarus Stage 3
     description: Evolve to Koaliarus Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 90b2c5849fca81b40ada7d6c93a487e5, type: 2}
+  - {fileID: 11400000, guid: fb5ed2d351339b64392c1d9520632392, type: 2}
+  CardIcon:
+  - {fileID: 1247075157343145607, guid: cb2901eed913c654490c4b6da1cd0349, type: 3}
+  - {fileID: -7452828371271423183, guid: 407702ec13f163047937a5c965b24108, type: 3}
+  DetailsIcon:
+  - {fileID: 1247075157343145607, guid: 944a33d860112334390493cf2e8d460a, type: 3}
+  - {fileID: -7452828371271423183, guid: 42293298b9c1f574a8002c26d8bccad9, type: 3}
+  CatalogueIcon:
+  - {fileID: 1247075157343145607, guid: 58e87b58616f86e4981883a28cce2ad9, type: 3}
+  - {fileID: -7452828371271423183, guid: 7115b8870530aa340bc348cbda0a0683, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - walk
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - walk
   evolutionBehaviors: []
   monsterPrice: 360
   sellPriceStage1: 240

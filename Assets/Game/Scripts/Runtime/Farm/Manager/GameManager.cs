@@ -49,6 +49,16 @@ namespace MagicalGarden.Farm
             UpdateCloudMovement();
         }
 
+        public void SaveGame()
+        {
+            PlantManager.Instance.SaveToJson();
+        }
+
+        public void LoadGame()
+        {
+            PlantManager.Instance.LoadFromJson();
+        }
+
         public void DisableCameraRig()
         {
             cameraRig.canDrag = false;

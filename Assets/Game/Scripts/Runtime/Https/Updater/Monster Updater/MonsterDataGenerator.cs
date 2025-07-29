@@ -259,14 +259,11 @@ public class MonsterDataGenerator
         asset.maxHealthStage1 = csvData.stage1.hp;
         asset.maxHealthStage2 = csvData.stage2 != null ? csvData.stage2.hp : csvData.stage1.hp * 2f;
         asset.maxHealthStage3 = csvData.stage3 != null ? csvData.stage3.hp : csvData.stage2 != null ? csvData.stage2.hp * 1.4f : csvData.stage1.hp * 3f;
+        
+        // FIX: Map fullness to BOTH nutrition AND fullness fields
         asset.maxNutritionStage1 = csvData.stage1.fullness;
-
-        // NEW: Map stage-specific hunger values
-        if (csvData.stage2 != null)
-            asset.maxNutritionStage2 = csvData.stage2.fullness;
-
-        if (csvData.stage3 != null)
-            asset.maxNutritionStage3 = csvData.stage3.fullness;
+        asset.maxNutritionStage2 = csvData.stage2 != null ? csvData.stage2.fullness : csvData.stage1.fullness * 1.5f;
+        asset.maxNutritionStage3 = csvData.stage3 != null ? csvData.stage3.fullness : csvData.stage2 != null ? csvData.stage2.fullness * 1.2f : csvData.stage1.fullness * 2f;
 
         // Map coin drop rates for all stages
         asset.goldCoinDropRateStage1 = csvData.stage1.goldCoinHour;

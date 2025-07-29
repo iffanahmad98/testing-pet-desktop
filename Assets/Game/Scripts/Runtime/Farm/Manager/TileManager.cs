@@ -277,13 +277,13 @@ namespace MagicalGarden.Manager
         private void OnDrawGizmos()
         {
 #if UNITY_EDITOR
-            if (tilemapWalkingAreaHotel == null) return;
+            if (tilemapSoil == null) return;
 
-            foreach (var pos in tilemapWalkingAreaHotel.cellBounds.allPositionsWithin)
+            foreach (var pos in tilemapSoil.cellBounds.allPositionsWithin)
             {
-                if (tilemapWalkingAreaHotel.HasTile(pos))
+                if (tilemapSoil.HasTile(pos))
                 {
-                    Vector3 world = tilemapWalkingAreaHotel.CellToWorld(pos) + new Vector3(0f, 0.5f, 0);
+                    Vector3 world = tilemapSoil.CellToWorld(pos) + new Vector3(0f, 0.5f, 0);
                     
                     // Ubah world pos ke GUI pos
                     Vector3 guiPos = HandleUtility.WorldToGUIPoint(world);
