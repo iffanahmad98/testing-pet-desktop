@@ -81,7 +81,8 @@ public class ItemShopManager : MonoBehaviour
         {
             OnItemSelected(card);
 
-            ServiceLocator.Get<ItemInventoryUI>().StartPopulateShopInventory();
+            // Refresh all inventory views when item is bought
+            ServiceLocator.Get<ItemInventoryUI>().StartPopulateAllInventories();
             // Success message
             ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
         }
