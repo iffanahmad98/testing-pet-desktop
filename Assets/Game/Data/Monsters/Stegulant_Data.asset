@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 60
   maxNutritionStage2: 180
   maxNutritionStage3: 216.00002
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 6
@@ -69,11 +66,25 @@ MonoBehaviour:
     evolutionName: Stegulant Stage 3
     description: Evolve to Stegulant Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
+  monsterSpine:
+  - {fileID: 11400000, guid: bb932aa5eb04f474b8a5bf06ff556775, type: 2}
+  - {fileID: 11400000, guid: 487ede77114ea5941b64ed8f92278bc2, type: 2}
   CardIcon: []
   DetailsIcon: []
   CatalogueIcon: []
-  evolutionAnimationSets: []
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 720

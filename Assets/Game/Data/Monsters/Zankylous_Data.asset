@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 80
   maxNutritionStage2: 240
   maxNutritionStage3: 288
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 6
@@ -69,11 +66,31 @@ MonoBehaviour:
     evolutionName: Zankylous Stage 3
     description: Evolve to Zankylous Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 326e998babf58654d8fdb5d8a9cc6754, type: 2}
+  - {fileID: 11400000, guid: bb4878a69a9660c4c80b6ca0e2fd8f59, type: 2}
+  CardIcon:
+  - {fileID: 2337847524192902854, guid: 7ae70a60ab847914296336e0bcf7eb07, type: 3}
+  - {fileID: -178674000502127665, guid: 2baa0c2dc7ffc0d4090237ce849d8179, type: 3}
+  DetailsIcon:
+  - {fileID: 2337847524192902854, guid: 75c00551c3ebf31429e82f8c0e972961, type: 3}
+  - {fileID: -178674000502127665, guid: 773cb23f8d6ae68429a5243ea1572549, type: 3}
+  CatalogueIcon:
+  - {fileID: 2337847524192902854, guid: 8e73599fbf326294e963c35856fc293d, type: 3}
+  - {fileID: -178674000502127665, guid: fa3e7236eaaf766408fd3655e8ed2381, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 720
