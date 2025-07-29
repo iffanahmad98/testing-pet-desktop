@@ -93,7 +93,11 @@ MonoBehaviour:
     - itching
     - jumping
     - walk
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: f639dfb1130db2e45ae091b41da1c578, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: 3f0c959d8f6e5f343b562cf515d0544b, type: 2}
   monsterPrice: 360
   sellPriceStage1: 240
   sellPriceStage2: 480

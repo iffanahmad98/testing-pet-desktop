@@ -95,7 +95,11 @@ MonoBehaviour:
     - jumping
     - running
     - walking
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: a019b3c476907e94490b320493452e80, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: d7e9ecb9b63a1ff4db92cf5162186dac, type: 2}
   monsterPrice: 360
   sellPriceStage1: 240
   sellPriceStage2: 480
