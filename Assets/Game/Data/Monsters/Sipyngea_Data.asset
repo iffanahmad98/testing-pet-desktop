@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 20
   maxNutritionStage2: 60
   maxNutritionStage3: 72
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 3
@@ -69,11 +66,35 @@ MonoBehaviour:
     evolutionName: Sipyngea Stage 3
     description: Evolve to Sipyngea Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 0e80b905431cc144b943e2248c0c03da, type: 2}
+  - {fileID: 11400000, guid: d3925711251202a408adfc9199587c4a, type: 2}
+  CardIcon:
+  - {fileID: 8255957738299687659, guid: 6bb0a87179902fb45b1b4872d856cc78, type: 3}
+  - {fileID: -3138044776463176782, guid: e22910eba1af7bb47b1a4989e9bc5d9e, type: 3}
+  DetailsIcon:
+  - {fileID: 8255957738299687659, guid: 5c0e73c6fb55d8e42a0c8776d36c9071, type: 3}
+  - {fileID: -3138044776463176782, guid: df09c44623836814090aead87fafc426, type: 3}
+  CatalogueIcon:
+  - {fileID: 8255957738299687659, guid: 190af906d8b942f42852ed4846cfddaa, type: 3}
+  - {fileID: -3138044776463176782, guid: d405efe924aaf684e96e6e0963a33cc7, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - running
+    - walking
   evolutionBehaviors: []
   monsterPrice: 360
   sellPriceStage1: 240

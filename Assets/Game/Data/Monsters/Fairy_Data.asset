@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 600
   maxNutritionStage2: 1800
   maxNutritionStage3: 4500
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 24
@@ -69,11 +66,43 @@ MonoBehaviour:
     evolutionName: Fairy Stage 3
     description: Evolve to Fairy Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 7286de5262d48914687fa0a4decc5edd, type: 2}
+  - {fileID: 11400000, guid: 6d2e3cf73b7fffa409430f1d6e088460, type: 2}
+  - {fileID: 11400000, guid: 5247a0be5547b27439feaf18d0dac589, type: 2}
+  CardIcon:
+  - {fileID: 5544922074716758884, guid: e1cc696b01fdadb4a95535acd033dd1f, type: 3}
+  - {fileID: 5503059418750273520, guid: 45c4c7313cc4afd42b84699d9109b03f, type: 3}
+  - {fileID: -5850483297479325703, guid: 512565b73c5c3e94daaa29d8fd345632, type: 3}
+  DetailsIcon:
+  - {fileID: 5544922074716758884, guid: 2587d5315c255544ab644e5ebcf46c34, type: 3}
+  - {fileID: 5503059418750273520, guid: 716958ac389d29e4a8a5fd64c913234a, type: 3}
+  - {fileID: -5850483297479325703, guid: 4765468c6de04fa42bb0ea32e4280e08, type: 3}
+  CatalogueIcon:
+  - {fileID: 5544922074716758884, guid: 6d889adaf9db1f14e8d2563716711fec, type: 3}
+  - {fileID: 5503059418750273520, guid: d152ccd54e271e84e9f328c18748ce00, type: 3}
+  - {fileID: -5850483297479325703, guid: 96db2ac07eca1904d9849f662d90f660, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+    - flying
+  - evolutionLevel: 3
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+    - flying
   evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 1440

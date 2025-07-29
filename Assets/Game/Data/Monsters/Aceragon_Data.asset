@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 300
   maxNutritionStage2: 900
   maxNutritionStage3: 2250
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 12
@@ -109,7 +106,11 @@ MonoBehaviour:
     - itching
     - jumping
     - walking
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 0
+    behaviorConfig: {fileID: 11400000, guid: 6599e5efe0a16a340a1a2bb4442c12f3, type: 2}
+  - evolutionLevel: 0
+    behaviorConfig: {fileID: 0}
   monsterPrice: 0
   sellPriceStage1: 960
   sellPriceStage2: 1920

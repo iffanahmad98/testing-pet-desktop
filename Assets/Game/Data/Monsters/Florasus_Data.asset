@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 200
   maxNutritionStage2: 600
   maxNutritionStage3: 1500
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 12
@@ -69,11 +66,47 @@ MonoBehaviour:
     evolutionName: Florasus Stage 3
     description: Evolve to Florasus Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: b9a386da8fdbd654da340c163ba885dd, type: 2}
+  - {fileID: 11400000, guid: 2b4c413f9b8a22343b61de3470bd1149, type: 2}
+  - {fileID: 11400000, guid: 2ddec8597da86e84eb9098abf3d11a0e, type: 2}
+  CardIcon:
+  - {fileID: 6514486297651327007, guid: 092c09915fda1c949920a14e402f3d64, type: 3}
+  - {fileID: 1180744964698110311, guid: 282bba160b59f1343ac85652b0826a2d, type: 3}
+  - {fileID: 7221360509020117592, guid: f5c307ae3ddb6054a955bfcbe8ccb591, type: 3}
+  DetailsIcon:
+  - {fileID: 6514486297651327007, guid: 5ed15f42c763fe04e9183afcdc9a4261, type: 3}
+  - {fileID: 1180744964698110311, guid: d3e0e8ee6b1a5a94c81891aa28edd64b, type: 3}
+  - {fileID: 7221360509020117592, guid: 4a96e2732632cee4dbef43e2be662081, type: 3}
+  CatalogueIcon:
+  - {fileID: 6514486297651327007, guid: b134dcb989709974b9ca8a76fd0afe9d, type: 3}
+  - {fileID: 1180744964698110311, guid: f360c0bf6dc536341b62dea717445411, type: 3}
+  - {fileID: 7221360509020117592, guid: ca0b38fba43b15e42a1b8145648d34a7, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running 1
+    - walking
+    - flapping
+    - running 2
+  - evolutionLevel: 3
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
+    - flying
   evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 960

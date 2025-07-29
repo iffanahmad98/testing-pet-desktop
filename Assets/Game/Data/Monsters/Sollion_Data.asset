@@ -28,9 +28,6 @@ MonoBehaviour:
   maxNutritionStage1: 54
   maxNutritionStage2: 162
   maxNutritionStage3: 194.40001
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 90
   platCoinDropRateStage1: 5
@@ -69,11 +66,34 @@ MonoBehaviour:
     evolutionName: Sollion Stage 3
     description: Evolve to Sollion Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: f26daceca8dbb71478522fdfea9196f5, type: 2}
+  - {fileID: 11400000, guid: 386995bad8f1f5848bc4abf6f0705b9c, type: 2}
+  CardIcon:
+  - {fileID: -6936286273453244540, guid: f041fb7397bab1548aef735a49b2969d, type: 3}
+  - {fileID: 4277601747462222757, guid: 75de9005d06b71d4486aecce38cae5be, type: 3}
+  DetailsIcon:
+  - {fileID: -6936286273453244540, guid: 3da219105e4b51b40b265bf885feb4fb, type: 3}
+  - {fileID: 4277601747462222757, guid: a9417abb9b0986a4c853b485c3a56b8c, type: 3}
+  CatalogueIcon:
+  - {fileID: -6936286273453244540, guid: e285b1585abae8a4ab296d93634c386f, type: 3}
+  - {fileID: 4277601747462222757, guid: b7f11ed3fcaf72c4d99a27f04df75b08, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - 'eating '
+    - idle
+    - itching
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - 'eating '
+    - idle
+    - itching
+    - jumping
+    - walking
+    - running
   evolutionBehaviors: []
   monsterPrice: 560
   sellPriceStage1: 375
