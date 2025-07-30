@@ -286,18 +286,4 @@ public class MonsterAnimationHandler
         }
         return _cachedSkeletonData;
     }
-
-    // Call this when the controller is destroyed
-    public void Dispose()
-    {
-        _cachedSkeletonData = null;
-        _animationCache.Clear();
-    }
-
-    // Call this when skeleton data is updated
-    public void InvalidateCache()
-    {
-        _cachedSkeletonData = null;
-        _animationCache.Clear();
-    }
 }

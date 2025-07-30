@@ -64,7 +64,7 @@ public class NPCPetCaretakerHandler
             {
                 yield return StartNextAction();
             }
-            yield return new WaitForSeconds(3f); // Check every 3 seconds
+            yield return new WaitForSeconds(10f); // Check every 10 seconds
         }
     }
 

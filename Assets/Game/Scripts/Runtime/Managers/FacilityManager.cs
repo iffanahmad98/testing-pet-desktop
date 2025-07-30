@@ -16,6 +16,7 @@ public class FacilityManager : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register(this);
+        
         SaveSystem.TryPurchaseFacility(facilityDatabase.GetFacility("F1"));
         magicShovelButton.onClick.AddListener(() => UseFacility("F1"));
     }
@@ -48,7 +49,6 @@ public class FacilityManager : MonoBehaviour
 
     public bool UseFacility(string facilityID)
     {
-
         if (!CanUseFacility(facilityID)) return false;
 
         var facility = GetFacilityByID(facilityID);

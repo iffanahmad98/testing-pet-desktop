@@ -12,7 +12,7 @@ public class ButtonHighlight : MonoBehaviour,
     IPointerDownHandler, IPointerUpHandler
 {
     [Header("Highlight settings")]
-    [ColorUsage(false)] public Color highlightColor = new(1f, 0.85f, 0.2f);
+    // [ColorUsage(false)] public Color highlightColor = Color.white;
     [Range(1f, 2f)]    public float scaleMultiplier = 1.2f;
     public float tweenTime = 0.15f;
     public Ease  ease      = Ease.OutQuad;
@@ -29,7 +29,7 @@ public class ButtonHighlight : MonoBehaviour,
         baseScale = transform.localScale;
 
         seq = DOTween.Sequence().SetAutoKill(false).Pause().SetRecyclable(true)
-              .Append(img.DOColor(highlightColor, tweenTime).SetEase(ease))
+            //   .Append(img.DOColor(highlightColor, tweenTime).SetEase(ease))
               .Join(transform.DOScale(baseScale * scaleMultiplier, tweenTime).SetEase(ease));
     }
 
