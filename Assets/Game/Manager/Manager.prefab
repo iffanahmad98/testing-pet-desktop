@@ -307,7 +307,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3237431783048085357}
   - component: {fileID: 82540597057440134}
-  - component: {fileID: 1647250584560892044}
   - component: {fileID: 8408899965472176798}
   m_Layer: 0
   m_Name: Shop
@@ -356,23 +355,6 @@ MonoBehaviour:
   itemFullnessText: {fileID: 0}
   itemInfoIcon: {fileID: 0}
   itemDatabase: {fileID: 11400000, guid: 79e271fae5dcdbd4c8132afce8b425a3, type: 2}
---- !u!114 &1647250584560892044
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2240938270952959010}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf7d1597f9915f14aaa6630116a793b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rarityTabController: {fileID: 0}
-  monsterCardParent: {fileID: 0}
-  monsterCardPrefab: {fileID: 0}
-  detailPanel: {fileID: 0}
-  allMonsters: []
 --- !u!114 &8408899965472176798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -603,7 +585,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   magicShovelButton: {fileID: 0}
   facilityDatabase: {fileID: 11400000, guid: f7b83edb8479dd240943066774f89590, type: 2}
-  magicShovelPrefab: {fileID: 806326979923254128, guid: cd8fdca2d9d0f9049b90123c7a0ba745, type: 3}
+  magicShovelPrefab: {fileID: 0}
 --- !u!1 &3680612517786595220
 GameObject:
   m_ObjectHideFlags: 0

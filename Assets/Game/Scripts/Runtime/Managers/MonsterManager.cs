@@ -815,6 +815,10 @@ public class MonsterManager : MonoBehaviour
         if (!npcMonsters.Contains(controller))
             npcMonsters.Add(controller);
 
+        // ADD THIS LINE: Include NPCs in depth sorting
+        if (!activeMonsters.Contains(controller))
+            activeMonsters.Add(controller);
+
         var settingsManager = ServiceLocator.Get<SettingsManager>();
         if (settingsManager != null)
             settingsManager.ApplyCurrentPetScaleToMonster(controller);
