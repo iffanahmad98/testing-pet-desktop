@@ -17,6 +17,8 @@ public class GachaResultPanel : MonoBehaviour
     [Header("Display Objects")]
     public GameObject chest;
     public GameObject egg;
+    public SkeletonGraphic eggMonsterGraphic;
+    public CanvasGroup eggMonsterCanvasGroup;
     public GameObject monsterDisplay;
     public SkeletonGraphic monsterSkeletonGraphic;
     public Material monsterMaterial; 
@@ -44,8 +46,6 @@ public class GachaResultPanel : MonoBehaviour
     private CanvasGroup chestCanvas;
     private CanvasGroup eggCanvas;
     private CanvasGroup monsterCanvas;
-    private Animator chestAnimator;
-    private Animator eggAnimator;
     
     private UIAnimator chestAnimatorUI;
     private UIAnimator eggAnimatorUI;
@@ -97,7 +97,7 @@ public class GachaResultPanel : MonoBehaviour
             chest.SetActive(true);
             chestAnimatorUI?.Play();
         });
-        seq.AppendInterval(chestAnimatorUI?.TotalDuration * 2f ?? 0.5f);
+        seq.AppendInterval(chestAnimatorUI?.TotalDuration * 2f ?? 1f);
         seq.Append(chestCanvas.DOFade(0, 0.2f).SetEase(fadeOutChestEase));
         // 3. Egg: set active, fade in + scale punch, play animator, on last frame play shineVFX
         seq.Append(eggCanvas.DOFade(1, 0.2f).SetEase(fadeInEggEase));
@@ -107,12 +107,21 @@ public class GachaResultPanel : MonoBehaviour
             egg.SetActive(true);
             eggAnimatorUI?.Play();
         });
-        seq.AppendInterval(eggAnimatorUI?.TotalDuration * 1.25f ?? 0.5f);
-        seq.JoinCallback(() =>
+        
+        // Wait for egg animation to complete, then fade in egg monster
+        seq.AppendInterval(eggAnimatorUI?.TotalDuration * 0.5f ?? 0.5f);
+        seq.AppendCallback(() =>
         {
+            // Fade in egg monster and assign spine graphic
+            eggMonsterGraphic.skeletonDataAsset = monster.monsterSpine[0];
+            eggMonsterGraphic.material = monsterMaterial;
+            eggMonsterGraphic.startingAnimation = eggMonsterGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";
+            eggMonsterGraphic.Initialize(true);
+            eggMonsterCanvasGroup.DOFade(1, 0.5f);
             shineVFX.gameObject.SetActive(true);
             shineVFX.Play();
         });
+        seq.AppendInterval(1f);
         seq.Append(eggCanvas.DOFade(0, 0.2f).SetEase(fadeOutEggEase));
         // 4. Show monster info 
         seq.AppendCallback(() =>
@@ -164,6 +173,9 @@ public class GachaResultPanel : MonoBehaviour
         // Hide and reset egg
         egg.SetActive(false);
         if (eggCanvas != null) eggCanvas.alpha = 0f;
+        
+        // Reset egg monster
+        if (eggMonsterCanvasGroup != null) eggMonsterCanvasGroup.alpha = 0f;
 
         // Hide and reset monster display
         if (monsterCanvas != null) monsterCanvas.alpha = 0f;
@@ -199,13 +211,5 @@ public class GachaResultPanel : MonoBehaviour
         {
             root.SetActive(false);
         }
-    }
-    
-    float GetClipLength(Animator anim, string clipName)
-    {
-        // quickest clip-lookup; cache this if you call it often
-        foreach (var clip in anim.runtimeAnimatorController.animationClips)
-            if (clip.name == clipName) return clip.length;
-        return 0f;
     }
 }
