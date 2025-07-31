@@ -292,7 +292,8 @@ public class SettingsManager : MonoBehaviour
 
     public void AdjustUIScale(float delta)
     {
-        uiScale = Mathf.Clamp(uiScale + delta, 0.5f, 2f);
+        if (canvasScaler == null || canvasScaler.scaleFactor <= 0.7f || canvasScaler.scaleFactor > 1.1f) return;
+        uiScale = Mathf.Clamp(uiScale + delta, 0.2f, 2f);
         canvasScaler.scaleFactor = uiScale;
     }
 

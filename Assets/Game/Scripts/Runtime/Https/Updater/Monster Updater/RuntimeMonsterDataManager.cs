@@ -48,6 +48,7 @@ public class RuntimeMonsterDataManager : MonoBehaviour
         public string name;
         public MonsterType type;
         public string pupType;
+        public int evolutionLevel; // Added evolution level
 
         public StageData stage1;
         public StageData stage2;
@@ -200,6 +201,7 @@ public class RuntimeMonsterDataManager : MonoBehaviour
             monster.name = values[0].Trim();
             monster.type = ParseMonsterType(values[1].Trim());
             monster.pupType = ParsePupType(values[2].Trim());
+            monster.evolutionLevel = 1; // Always start at level 1
 
             monster.stage1 = new RuntimeMonsterData.StageData
             {

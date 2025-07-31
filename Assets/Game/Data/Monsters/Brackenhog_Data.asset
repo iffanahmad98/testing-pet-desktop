@@ -44,7 +44,7 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  evolutionLevel: 0
+  evolutionLevel: 1
   timeToEvolveStage1: 0
   timeToEvolveStage2: 0
   evolutionRequirements:
@@ -95,7 +95,11 @@ MonoBehaviour:
     - jump
     - running
     - walking
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: 7a2b52db2768d4a48865fcd579f3947c, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: 56fbd12a5c85fce47afb4935bfcb9cc0, type: 2}
   monsterPrice: 560
   sellPriceStage1: 375
   sellPriceStage2: 750

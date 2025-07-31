@@ -1,10 +1,10 @@
 using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using System.Collections.Generic;
 using System.Globalization;
 using Unity.EditorCoroutines.Editor;
-#endif
 
 public class ItemDataGenerator
 {
@@ -452,8 +452,6 @@ public class ItemDataGenerator
     #endregion
 }
 
-#region Data Classes
-
 [System.Serializable]
 public class ItemCSVData
 {
@@ -465,4 +463,4 @@ public class ItemCSVData
     public float nutritionValue;
 }
 
-#endregion
+#endif

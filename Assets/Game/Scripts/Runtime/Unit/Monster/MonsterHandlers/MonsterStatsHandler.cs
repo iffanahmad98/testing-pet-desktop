@@ -146,7 +146,6 @@ public class MonsterStatsHandler
     public void Heal(float amount)
     {
         SetHP(_currentHP + amount);
-        OnHealthChanged?.Invoke(_currentHP);
     }
 
 

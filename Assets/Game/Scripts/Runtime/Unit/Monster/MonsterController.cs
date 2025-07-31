@@ -348,7 +348,26 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             // The NPCPetCaretakerHandler will handle setting the target position
             _movementHandler.UpdateMovement(ref _targetPosition, monsterData);
         }
-        
+
+        // ADD: Handle separation for NPCs (simplified version)
+        if (_separationBehavior != null)
+        {
+            Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
+            if (separationForce.magnitude > 0.1f)
+            {
+                Vector2 currentPos = _rectTransform.anchoredPosition;
+                Vector2 newPos = currentPos + separationForce * Time.deltaTime * 0.5f; // Reduced force for NPCs
+                
+                // Apply basic bounds
+                var gameAreaSize = _monsterManager.gameAreaRT.sizeDelta;
+                float padding = 20f;
+                newPos.x = Mathf.Clamp(newPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding);
+                newPos.y = Mathf.Clamp(newPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding);
+                
+                _rectTransform.anchoredPosition = newPos;
+            }
+        }
+
         // Only apply bounds if NPC is not actively pursuing a target
         if (!_npcHandler.OnAction)
         {
@@ -370,6 +389,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
                 _rectTransform.anchoredPosition = clampedPos;
             }
         }
+        
+        HandleDepthSorting();
     }
 
     private void HandleSeparationLogic(bool useRelaxedBounds)
