@@ -5,7 +5,6 @@ using MagicalGarden.Inventory;
 using System.Linq;
 using TMPro;
 using System;
-using UnityEditor.PackageManager;
 
 namespace MagicalGarden.Farm.UI
 {
