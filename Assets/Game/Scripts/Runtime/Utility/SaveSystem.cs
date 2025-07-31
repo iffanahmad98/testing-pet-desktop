@@ -322,6 +322,38 @@ public static class SaveSystem
         return true;
     }
     #endregion
+    #region Monster Data Operations
+    public static bool TryBuyMonster(MonsterDataSO monsterData)
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, cannot buy monster.");
+            return false;
+        }
+
+        if (monsterData == null)
+        {
+            Debug.LogWarning("MonsterData is null.");
+            return false;
+        }
+
+        int monsterPrice = monsterData.monsterPrice;
+
+        // Deduct coins via CoinManager (handles check, update, save, event)
+        if (!CoinManager.SpendCoins(monsterPrice))
+        {
+            Debug.Log($"Not enough coins to buy {monsterData.monsterName}. Needed: {monsterPrice}, Owned: {CoinManager.Coins}");
+            return false;
+        }
+
+        // Save changes (monster update only, coins already saved by CoinManager)
+        SaveAll();
+
+        Debug.Log($"Bought {monsterData.monsterName} for {monsterPrice} coins. Remaining: {CoinManager.Coins}");
+
+        return true;
+    }
+    #endregion
     #region Biome Operations
 
     public static bool TryBuyBiome(string biomeID, int price)
