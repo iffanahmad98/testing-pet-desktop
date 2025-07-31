@@ -253,33 +253,21 @@ public class MonsterManager : MonoBehaviour
 
     public void SortMonstersByDepth()
     {
-        if (activeMonsters.Count <= 1) return;
-
-        // Use array for better performance with large lists
-        var validMonsters = new List<MonsterController>(activeMonsters.Count);
-
-        // Filter out null/inactive monsters first
-        for (int i = activeMonsters.Count - 1; i >= 0; i--)
-        {
-            var monster = activeMonsters[i];
-            if (monster == null || !monster.gameObject.activeInHierarchy)
-            {
-                activeMonsters.RemoveAt(i); // Clean up invalid references
-            }
-            else
-            {
-                validMonsters.Add(monster);
-            }
-        }
+        // Combine both lists for sorting but keep them separate
+        var allMonstersForSorting = new List<MonsterController>();
+        allMonstersForSorting.AddRange(activeMonsters.Where(m => m != null && m.gameObject.activeInHierarchy));
+        allMonstersForSorting.AddRange(npcMonsters.Where(m => m != null && m.gameObject.activeInHierarchy));
+        
+        if (allMonstersForSorting.Count <= 1) return;
 
         // Sort by Y position (higher Y = lower sibling index)
-        validMonsters.Sort((a, b) =>
+        allMonstersForSorting.Sort((a, b) =>
             b.transform.position.y.CompareTo(a.transform.position.y));
 
-        // Update sibling indices, starting from index 1 to preserve background at index 0
-        for (int i = 0; i < validMonsters.Count; i++)
+        // Update sibling indices
+        for (int i = 0; i < allMonstersForSorting.Count; i++)
         {
-            validMonsters[i].transform.SetSiblingIndex(i + 1); // +1 to skip background
+            allMonstersForSorting[i].transform.SetSiblingIndex(i + 1);
         }
     }
     #endregion
@@ -814,10 +802,6 @@ public class MonsterManager : MonoBehaviour
 
         if (!npcMonsters.Contains(controller))
             npcMonsters.Add(controller);
-
-        // ADD THIS LINE: Include NPCs in depth sorting
-        if (!activeMonsters.Contains(controller))
-            activeMonsters.Add(controller);
 
         var settingsManager = ServiceLocator.Get<SettingsManager>();
         if (settingsManager != null)
