@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d43525788b090c4aacd2306bac8c1b1, type: 3}
+  m_Name: CrystalBiome
+  m_EditorClassIdentifier: 
+  biomeID: cyrstal_biome
+  biomeName: Crystal
+  description: Description here.
+  price: 7
+  thumbnail: {fileID: -3973128355438887921, guid: 055dad2bf20bbf04c84d448c40386cdc, type: 3}
+  skyBackground: {fileID: -3581628074278432912, guid: f34817090d9602348846042c8c46706c, type: 3}
+  skyObjects: []
+  cloudSprites:
+  - {fileID: 8287873616420496286, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: 7911139459876737251, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -1115256706364395465, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -477254976604553037, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: 5291327898690728900, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -3052748074778076258, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -5914686066510983863, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  - {fileID: -8928922196803100657, guid: 927b1b9d788c6a74f84f14e4f11594b2, type: 3}
+  cloudSpawnRate: 3
+  cloudMinSpeed: 20
+  cloudMaxSpeed: 50
+  cloudMinScale: 0.5
+  cloudMaxScale: 1.5
+  maxClouds: 8
+  effectPrefabs: []
+  ambientBackground: {fileID: 5590031052236687318, guid: b6296eb17a422eb42a00cd23b51900fa, type: 3}
+  groundBackground: {fileID: 3979329105887568804, guid: 99f8adfcd3d63c64c8ceac8d56cdee22, type: 3}
+  groundFilterColor: {r: 1, g: 1, b: 1, a: 1}
+  groundFilterAlpha: 1

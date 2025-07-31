@@ -16,7 +16,8 @@ public class BiomeLayer
 public class BiomeManager : MonoBehaviour
 {
     [Header("Biome Data")]
-    [SerializeField] private BiomeDataSO[] availableBiomes;
+    // [SerializeField] private BiomeDataSO[] availableBiomes;
+    [SerializeField] public BiomeDatabaseSO availableBiomes;
     [SerializeField] public BiomeDataSO currentBiome { get; private set; }
     [SerializeField] private TMP_Dropdown biomeDropdown;
 
@@ -125,11 +126,11 @@ public class BiomeManager : MonoBehaviour
         SetLayerActive(ambientLayer, ambientLayer.isActive);
 
         // Set current biome index
-        if (availableBiomes != null && availableBiomes.Length > 0 && currentBiome != null)
+        if (availableBiomes != null && availableBiomes.allBiomes.Count > 0 && currentBiome != null)
         {
-            for (int i = 0; i < availableBiomes.Length; i++)
+            for (int i = 0; i < availableBiomes.allBiomes.Count; i++)
             {
-                if (availableBiomes[i] == currentBiome)
+                if (availableBiomes.allBiomes[i] == currentBiome)
                 {
                     currentBiomeIndex = i;
                     break;
@@ -143,7 +144,7 @@ public class BiomeManager : MonoBehaviour
         biomeDropdown.ClearOptions();
 
         List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
-        foreach (BiomeDataSO biome in availableBiomes)
+        foreach (BiomeDataSO biome in availableBiomes.allBiomes)
         {
             options.Add(new TMP_Dropdown.OptionData(biome.biomeName));
         }
@@ -153,9 +154,9 @@ public class BiomeManager : MonoBehaviour
         // Set initial selection to match current biome
         if (currentBiome != null)
         {
-            for (int i = 0; i < availableBiomes.Length; i++)
+            for (int i = 0; i < availableBiomes.allBiomes.Count; i++)
             {
-                if (availableBiomes[i] == currentBiome)
+                if (availableBiomes.allBiomes[i] == currentBiome)
                 {
                     biomeDropdown.value = i;
                     break;
@@ -307,7 +308,7 @@ public class BiomeManager : MonoBehaviour
 
     private void OnDropdownValueChanged(int index)
     {
-        if (index >= 0 && index < availableBiomes.Length)
+        if (index >= 0 && index < availableBiomes.allBiomes.Count)
         {
             ChangeBiomeByIndex(index);
         }
@@ -318,11 +319,11 @@ public class BiomeManager : MonoBehaviour
     /// </summary>
     public void ChangeBiome(int offset)
     {
-        if (availableBiomes == null || availableBiomes.Length == 0) return;
+        if (availableBiomes == null || availableBiomes.allBiomes.Count == 0) return;
 
         // Calculate new index with wrap-around
-        int newIndex = (currentBiomeIndex + offset) % availableBiomes.Length;
-        if (newIndex < 0) newIndex = availableBiomes.Length - 1;
+        int newIndex = (currentBiomeIndex + offset) % availableBiomes.allBiomes.Count;
+        if (newIndex < 0) newIndex = availableBiomes.allBiomes.Count - 1;
 
         ChangeBiomeByIndex(newIndex);
     }
@@ -332,9 +333,9 @@ public class BiomeManager : MonoBehaviour
     /// </summary>
     public void ChangeBiomeByIndex(int index)
     {
-        if (availableBiomes == null || index < 0 || index >= availableBiomes.Length) return;
+        if (availableBiomes == null || index < 0 || index >= availableBiomes.allBiomes.Count) return;
 
-        BiomeDataSO newBiome = availableBiomes[index];
+        BiomeDataSO newBiome = availableBiomes.allBiomes[index];
         ApplyBiomeData(newBiome);
         currentBiomeIndex = index;
 
@@ -359,9 +360,9 @@ public class BiomeManager : MonoBehaviour
 
         if (availableBiomes == null) return;
 
-        for (int i = 0; i < availableBiomes.Length; i++)
+        for (int i = 0; i < availableBiomes.allBiomes.Count; i++)
         {
-            if (availableBiomes[i].biomeID == biomeID)
+            if (availableBiomes.allBiomes[i].biomeID == biomeID)
             {
                 ChangeBiomeByIndex(i);
                 return;
@@ -378,9 +379,9 @@ public class BiomeManager : MonoBehaviour
     {
         if (availableBiomes == null) return;
 
-        for (int i = 0; i < availableBiomes.Length; i++)
+        for (int i = 0; i < availableBiomes.allBiomes.Count; i++)
         {
-            if (availableBiomes[i].biomeName == biomeName)
+            if (availableBiomes.allBiomes[i].biomeName == biomeName)
             {
                 ChangeBiomeByIndex(i);
                 return;
@@ -423,7 +424,17 @@ public class BiomeManager : MonoBehaviour
         // Set ground layer filter color and alpha
         if (groundLayerFilter != null)
         {
+            Image groundImage = groundLayerFilter.GetComponent<Image>();
             CanvasGroup groundFilterCg = groundLayerFilter.GetComponent<CanvasGroup>();
+
+            if (biome.groundBackground != null)
+            {
+                if (groundImage != null)
+                {
+                    groundImage.sprite = biome.groundBackground;
+                }
+            }
+
             if (groundFilterCg != null)
             {
                 groundLayerFilter.color = Color.clear; // Reset to clear before applying new color
