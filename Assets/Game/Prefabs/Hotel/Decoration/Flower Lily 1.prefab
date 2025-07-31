@@ -30,10 +30,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7637941283707517811}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -8.634, y: 26.119, z: -5.895262}
-  m_LocalScale: {x: 1.9475751, y: 1.9475751, z: 1.89162}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.48563468}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -60,7 +60,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7637941283707517811}
-  m_Mesh: {fileID: 4300000, guid: 0d24be9729da163458f77dc53fdff127, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 1ee47f300ae168549bdc93a51d6c7fce, type: 2}
 --- !u!23 &8312756761451929733
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -104,7 +104,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: -2268
+  m_SortingOrder: 5813
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &3401384361390497493
 MonoBehaviour:
@@ -120,8 +120,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabInstanceIsCreated: 0
   pixelsPerUnit: 100
-  width: 1.41
-  height: 1.52
+  width: 5.7
+  height: 5.46
   widthSegments: 3
   heightSegments: 5
 --- !u!114 &4086812470434421842

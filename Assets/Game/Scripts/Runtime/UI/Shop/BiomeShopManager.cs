@@ -20,7 +20,7 @@ public class BiomeShopManager : MonoBehaviour
     public TMP_Text biomeDescText;
 
     [Header("Data")]
-    public List<BiomeDataSO> biomes; // List of all available biomes
+    public BiomeDatabaseSO biomes; // List of all available biomes
 
     private BiomeCardUI selectedCard;
     private float originalBiomeParentHeight;
@@ -65,7 +65,7 @@ public class BiomeShopManager : MonoBehaviour
         foreach (Transform child in cardParent)
             Destroy(child.gameObject);
 
-        foreach (var biome in biomes)
+        foreach (var biome in biomes.allBiomes)
         {
             GameObject cardObj = Instantiate(biomeCardPrefab, cardParent);
             BiomeCardUI card = cardObj.GetComponent<BiomeCardUI>();
@@ -75,7 +75,7 @@ public class BiomeShopManager : MonoBehaviour
             card.OnCancelApplied = OnBiomeCancel;
             card.OnBuyClicked = OnBiomeBuy;
         }
-        AdjustBiomeParentHeight(biomes.Count);
+        AdjustBiomeParentHeight(biomes.allBiomes.Count);
         ClearInfo();
     }
     private void AdjustBiomeParentHeight(int biomeCount)

@@ -31,6 +31,7 @@ public class BiomeDataSO : ScriptableObject
     public Sprite ambientBackground;
 
     [Header("Ground Layer")]
+    public Sprite groundBackground;
     public Color groundFilterColor;
     public float groundFilterAlpha;
 }

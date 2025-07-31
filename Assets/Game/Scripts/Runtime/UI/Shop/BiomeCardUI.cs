@@ -11,6 +11,7 @@ public class BiomeCardUI : MonoBehaviour
     public Button buyButton;
     public Button applyButton;
     public Button cancelButton;
+    public Image highlightImage; // Optional highlight for selection
 
     public Image thumbnail;
 
@@ -63,6 +64,7 @@ public class BiomeCardUI : MonoBehaviour
     {
         // Optional: highlight visual
         // For now, we just ensure selection works
+        highlightImage.gameObject.SetActive(selected);
     }
 
     public void OnClickCard()
