@@ -20,7 +20,9 @@ public class ItemDataUpdaterEditor : Editor
         // Primary Option: Online Fetch
         EditorGUILayout.LabelField("🌐 Online Data (Recommended)", EditorStyles.miniBoldLabel);
         
-        bool hasAnyURL = !string.IsNullOrEmpty(updater.foodSheetURL) || !string.IsNullOrEmpty(updater.medicineSheetURL);
+        bool hasAnyURL = !string.IsNullOrEmpty(updater.foodSheetURL) || 
+                        !string.IsNullOrEmpty(updater.medicineSheetURL) ||
+                        !string.IsNullOrEmpty(updater.monsterSheetURL);
         
         if (!hasAnyURL)
         {
@@ -38,6 +40,8 @@ public class ItemDataUpdaterEditor : Editor
                 EditorGUILayout.HelpBox("✅ Food data URL configured", MessageType.Info);
             if (!string.IsNullOrEmpty(updater.medicineSheetURL))
                 EditorGUILayout.HelpBox("✅ Medicine data URL configured", MessageType.Info);
+            if (!string.IsNullOrEmpty(updater.monsterSheetURL))
+                EditorGUILayout.HelpBox("✅ Monster data URL configured", MessageType.Info);
         }
         
         EditorGUILayout.Space();
@@ -79,6 +83,20 @@ public class ItemDataUpdaterEditor : Editor
                 }
             }
             
+            if (GUILayout.Button("📂 Import Monster CSV File", GUILayout.Height(25)))
+            {
+                string path = EditorUtility.OpenFilePanel("Select Monster CSV", "", "csv");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    string csvContent = System.IO.File.ReadAllText(path);
+                    ItemDataGenerator.GenerateFromCSV(csvContent, ItemType.CommonMonster); // Auto-detects common/uncommon
+                    Debug.Log("✅ Monster CSV processed from local file!");
+                    
+                    EditorUtility.DisplayDialog("Success", 
+                        "Monster data imported from local CSV file! Both Common and Uncommon monsters detected automatically.", "OK");
+                }
+            }
+            
             EditorGUILayout.HelpBox("Use local import for:\n• Testing CSV format changes\n• Working offline\n• Using backup data", MessageType.None);
             
             EditorGUILayout.Space();
@@ -100,10 +118,12 @@ public class ItemDataUpdaterEditor : Editor
             {
                 string[] foodGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Food" });
                 string[] medGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Medicine" });
-                int total = foodGuids.Length + medGuids.Length;
+                string[] commonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/CommonMonster" });
+                string[] uncommonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/UncommonMonster" });
+                int total = foodGuids.Length + medGuids.Length + commonGuids.Length + uncommonGuids.Length;
                 
                 EditorUtility.DisplayDialog("Asset Count", 
-                    $"Found {total} Item Data assets:\n• Food: {foodGuids.Length}\n• Medicine: {medGuids.Length}", "OK");
+                    $"Found {total} Item Data assets:\n• Food: {foodGuids.Length}\n• Medicine: {medGuids.Length}\n• Common Monsters: {commonGuids.Length}\n• Uncommon Monsters: {uncommonGuids.Length}", "OK");
             }
             
             EditorGUI.indentLevel--;
@@ -124,11 +144,12 @@ public class ItemDataUpdaterEditor : Editor
             // Count how many URLs we have
             if (!string.IsNullOrEmpty(updater.foodSheetURL)) totalTasks++;
             if (!string.IsNullOrEmpty(updater.medicineSheetURL)) totalTasks++;
+            if (!string.IsNullOrEmpty(updater.monsterSheetURL)) totalTasks++;
             
             // Fetch Food Data
             if (!string.IsNullOrEmpty(updater.foodSheetURL))
             {
-                EditorUtility.DisplayProgressBar("Fetching Data", "Fetching food data...", 0.3f);
+                EditorUtility.DisplayProgressBar("Fetching Data", "Fetching food data...", 0.2f);
                 
                 using (UnityWebRequest request = UnityWebRequest.Get(updater.foodSheetURL))
                 {
@@ -156,7 +177,7 @@ public class ItemDataUpdaterEditor : Editor
             // Fetch Medicine Data
             if (!string.IsNullOrEmpty(updater.medicineSheetURL))
             {
-                EditorUtility.DisplayProgressBar("Fetching Data", "Fetching medicine data...", 0.7f);
+                EditorUtility.DisplayProgressBar("Fetching Data", "Fetching medicine data...", 0.4f);
                 
                 using (UnityWebRequest request = UnityWebRequest.Get(updater.medicineSheetURL))
                 {
@@ -181,12 +202,42 @@ public class ItemDataUpdaterEditor : Editor
                 }
             }
             
+            // Fetch Monster Data (both common and uncommon)
+            if (!string.IsNullOrEmpty(updater.monsterSheetURL))
+            {
+                EditorUtility.DisplayProgressBar("Fetching Data", "Fetching monster data...", 0.6f);
+                
+                using (UnityWebRequest request = UnityWebRequest.Get(updater.monsterSheetURL))
+                {
+                    request.timeout = 15;
+                    var operation = request.SendWebRequest();
+                    
+                    while (!operation.isDone)
+                    {
+                        await Task.Delay(50);
+                    }
+                    
+                    if (request.result == UnityWebRequest.Result.Success)
+                    {
+                        ItemDataGenerator.GenerateFromCSV(request.downloadHandler.text, ItemType.CommonMonster); // Auto-detects both types
+                        successCount++;
+                        Debug.Log($"✅ Monster data fetch successful!");
+                    }
+                    else
+                    {
+                        Debug.LogError($"❌ Monster data fetch failed: {request.error}");
+                    }
+                }
+            }
+            
             EditorUtility.DisplayProgressBar("Fetching Data", "Counting assets...", 0.9f);
             
             // Count generated assets
             string[] foodGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Food" });
             string[] medGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Medicine" });
-            int totalAssets = foodGuids.Length + medGuids.Length;
+            string[] commonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/CommonMonster" });
+            string[] uncommonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/UncommonMonster" });
+            int totalAssets = foodGuids.Length + medGuids.Length + commonGuids.Length + uncommonGuids.Length;
             
             if (successCount > 0)
             {
@@ -196,6 +247,8 @@ public class ItemDataUpdaterEditor : Editor
                     $"Successfully updated item data from Google Sheets!\n\n" +
                     $"Food items: {foodGuids.Length}\n" +
                     $"Medicine items: {medGuids.Length}\n" +
+                    $"Common monsters: {commonGuids.Length}\n" +
+                    $"Uncommon monsters: {uncommonGuids.Length}\n" +
                     $"Total: {totalAssets}", "OK");
             }
             else

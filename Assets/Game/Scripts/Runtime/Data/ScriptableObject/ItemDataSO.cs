@@ -10,6 +10,7 @@ public class ItemDataSO : ScriptableObject
     [TextArea]
     public string description;
     public ItemType category; // Use enum ItemType for categorization (e.g., Food, Medicine)
+    public float unlockRequirement; // If used as a requirement for unlocking or crafting
 
     [Header("Stats")]
     public int price;

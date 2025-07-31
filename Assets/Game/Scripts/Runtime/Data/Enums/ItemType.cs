@@ -2,5 +2,7 @@ public enum ItemType
 {
     Food,
     Medicine,
-    Poop
+    Poop,
+    CommonMonster,
+    UncommonMonster
 }

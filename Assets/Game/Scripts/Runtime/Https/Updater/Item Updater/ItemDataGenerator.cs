@@ -19,12 +19,17 @@ public class ItemDataGenerator
             
             // Ask user for item type
             int choice = EditorUtility.DisplayDialogComplex("Item Type", 
-                "What type of items are in this CSV?", "Food", "Medicine", "Cancel");
+                "What type of items are in this CSV?", "Food", "Medicine", "Monsters");
             
             if (choice == 0)
                 GenerateFromCSV(csvContent, ItemType.Food);
             else if (choice == 1)
                 GenerateFromCSV(csvContent, ItemType.Medicine);
+            else if (choice == 2)
+            {
+                // For monsters, we'll auto-detect based on Type column
+                GenerateFromCSV(csvContent, ItemType.CommonMonster); // Pass any monster type, will auto-detect
+            }
         }
     }
 
@@ -144,22 +149,60 @@ public class ItemDataGenerator
             var item = new ItemCSVData();
 
             item.itemName = values[0].Trim().Replace("\"", "");
-            item.category = itemType;
             
-            // Parse price
-            item.price = ParseInt(values[1]);
-            
-            // Parse nutrition value (HP+ for medicine, Fullness for food)
-            item.nutritionValue = ParseFloat(values[2]);
-            
-            // Parse description (remove quotes)
-            if (values.Length > 3)
+            // Parse based on item type
+            if (itemType == ItemType.CommonMonster || itemType == ItemType.UncommonMonster)
             {
-                item.description = values[3].Trim().Replace("\"", "");
+                // Monster CSV format: Name, Type, Price, Requirement, Information
+                string monsterType = "";
+                if (values.Length > 1)
+                {
+                    monsterType = values[1].Trim().Replace("\"", "");
+                    item.description = values[1].Trim().Replace("\"", ""); // Type becomes description
+                }
+                
+                // Auto-detect monster category based on Type column (case-insensitive)
+                if (monsterType.Equals("Common", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    item.category = ItemType.CommonMonster;
+                }
+                else if (monsterType.Equals("Uncommon", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    item.category = ItemType.UncommonMonster;
+                }
+                else
+                {
+                    // Default fallback - log what we found
+                    Debug.LogWarning($"Unknown monster type '{monsterType}' for {item.itemName}, defaulting to {itemType}");
+                    item.category = itemType;
+                }
+                
+                item.price = ParseInt(values[2]); // Price
+                
+                // Parse requirement (extract number from "≥ X" format)
+                if (values.Length > 3)
+                {
+                    string requirement = values[3].Trim().Replace("\"", "");
+                    item.unlockRequirement = ParseRequirement(requirement);
+                }
+                
+                item.nutritionValue = 0f; // Monsters don't have nutrition value
+            }
+            else
+            {
+                // Food/Medicine format: existing logic
+                item.category = itemType;
+                item.price = ParseInt(values[1]);
+                item.nutritionValue = ParseFloat(values[2]);
+                
+                if (values.Length > 3)
+                {
+                    item.description = values[3].Trim().Replace("\"", "");
+                }
             }
 
             // Generate unique ID
-            item.itemID = GenerateItemID(item.itemName, itemType);
+            item.itemID = GenerateItemID(item.itemName, item.category);
 
             return item;
         }
@@ -170,9 +213,25 @@ public class ItemDataGenerator
         }
     }
 
-    #endregion
-
-    #region Data Type Parsing
+    private static float ParseRequirement(string requirement)
+    {
+        if (string.IsNullOrEmpty(requirement)) return 0f;
+        
+        // Handle "≥ X" format
+        if (requirement.Contains("≥"))
+        {
+            string numberPart = requirement.Replace("≥", "").Trim();
+            return ParseFloat(numberPart);
+        }
+        
+        // Handle "Selalu terbuka" (always open)
+        if (requirement.ToLower().Contains("selalu") || requirement.ToLower().Contains("always"))
+        {
+            return 0f; // No requirement
+        }
+        
+        return ParseFloat(requirement);
+    }
 
     private static float ParseFloat(string value)
     {
@@ -200,7 +259,15 @@ public class ItemDataGenerator
 
     private static string GenerateItemID(string itemName, ItemType itemType)
     {
-        string prefix = itemType == ItemType.Food ? "food_" : "med_";
+        string prefix = itemType switch
+        {
+            ItemType.Food => "food_",
+            ItemType.Medicine => "med_",
+            ItemType.CommonMonster => "common_",
+            ItemType.UncommonMonster => "uncommon_",
+            _ => "item_"
+        };
+        
         string cleanName = itemName.ToLower()
             .Replace(" ", "_")
             .Replace("-", "_")
@@ -284,6 +351,7 @@ public class ItemDataGenerator
         asset.category = csvData.category;
         asset.price = csvData.price;
         asset.nutritionValue = csvData.nutritionValue;
+        asset.unlockRequirement = csvData.unlockRequirement;
         
         // Set default sprites array if null
         if (asset.itemImgs == null || asset.itemImgs.Length == 0)
@@ -371,7 +439,9 @@ public class ItemDataGenerator
             }
         }
 
-        if (string.IsNullOrEmpty(updater.foodSheetURL) && string.IsNullOrEmpty(updater.medicineSheetURL))
+        if (string.IsNullOrEmpty(updater.foodSheetURL) && 
+            string.IsNullOrEmpty(updater.medicineSheetURL) && 
+            string.IsNullOrEmpty(updater.monsterSheetURL))
         {
             EditorUtility.DisplayDialog("Missing URLs",
                 "Please set at least one Google Sheets URL in the ItemDataUpdater component first!", "OK");
@@ -397,6 +467,8 @@ public class ItemDataGenerator
 
         string[] foodGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Food" });
         string[] medGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Medicine" });
+        string[] commonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/CommonMonster" });
+        string[] uncommonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/UncommonMonster" });
 
         int totalDeleted = 0;
 
@@ -408,6 +480,20 @@ public class ItemDataGenerator
         }
 
         foreach (string guid in medGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            AssetDatabase.DeleteAsset(path);
+            totalDeleted++;
+        }
+
+        foreach (string guid in commonGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            AssetDatabase.DeleteAsset(path);
+            totalDeleted++;
+        }
+
+        foreach (string guid in uncommonGuids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             AssetDatabase.DeleteAsset(path);
@@ -438,13 +524,16 @@ public class ItemDataGenerator
         // Count generated assets
         string[] foodGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Food" });
         string[] medGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/Medicine" });
-        int totalAssets = foodGuids.Length + medGuids.Length;
+        string[] commonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/CommonMonster" });
+        string[] uncommonGuids = AssetDatabase.FindAssets("t:ItemDataSO", new[] { "Assets/Game/Data/Items/UncommonMonster" });
+        int totalAssets = foodGuids.Length + medGuids.Length + commonGuids.Length + uncommonGuids.Length;
 
         Debug.Log($"✅ Generated {totalAssets} item data assets successfully!");
 
         EditorUtility.DisplayDialog("Success!",
             $"Successfully generated {totalAssets} item data assets!\n" +
-            $"Food: {foodGuids.Length}\nMedicine: {medGuids.Length}", "OK");
+            $"Food: {foodGuids.Length}\nMedicine: {medGuids.Length}\n" +
+            $"Common Monsters: {commonGuids.Length}\nUncommon Monsters: {uncommonGuids.Length}", "OK");
 
         EditorUtility.ClearProgressBar();
     }
@@ -461,6 +550,7 @@ public class ItemCSVData
     public ItemType category;
     public int price;
     public float nutritionValue;
+    public float unlockRequirement;
 }
 
 #endif

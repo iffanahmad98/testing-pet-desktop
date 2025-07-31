@@ -12,6 +12,8 @@ public class ItemDataUpdater : MonoBehaviour
     public string foodSheetURL;
     [TextArea]
     public string medicineSheetURL;
+    [TextArea]
+    public string monsterSheetURL; // Single URL for both common and uncommon monsters
     
     [Header("Update Settings")]
     public bool updateOnGameStart = true;
@@ -72,6 +74,13 @@ public class ItemDataUpdater : MonoBehaviour
             yield return StartCoroutine(FetchDataFromURL(medicineSheetURL, ItemType.Medicine));
         }
         
+        // Fetch Monster Data (both common and uncommon)
+        if (!string.IsNullOrEmpty(monsterSheetURL))
+        {
+            OnUpdateProgress?.Invoke("Fetching monster data...");
+            yield return StartCoroutine(FetchDataFromURL(monsterSheetURL, ItemType.CommonMonster)); // Will auto-detect type based on CSV data
+        }
+        
         OnUpdateCompleted?.Invoke();
         #else
         Debug.LogWarning("CSV updates not available in builds");
@@ -88,7 +97,7 @@ public class ItemDataUpdater : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 OnUpdateProgress?.Invoke($"Processing {itemType} data...");
-                // ItemDataGenerator.GenerateFromCSV(request.downloadHandler.text, itemType);
+                ItemDataGenerator.GenerateFromCSV(request.downloadHandler.text, itemType); // Uncomment this line
             }
             else
             {
