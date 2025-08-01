@@ -11,5 +11,6 @@ namespace MagicalGarden.Farm
         public int requiredCoins = 0;
         public int requiredHarvest = 0;
         public int requiredHarvestEgg = 0;
+        public GameObject bubbleUI;
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Manager;
+using System.IO;
 namespace MagicalGarden.Farm
 {
     public class FieldManager : MonoBehaviour
@@ -10,6 +11,7 @@ namespace MagicalGarden.Farm
         public GameObject bubbleLockUI;
         public GameObject unlockVFX;
         public List<FieldBlock> blocks = new List<FieldBlock>();
+        private string SaveFilePath => Application.persistentDataPath + "/field_save.json";
         public static FieldManager Instance;
 
         private void Awake()
@@ -22,7 +24,8 @@ namespace MagicalGarden.Farm
             {
                 UpdateOverlayVisual(item.blockId, false);
                 var bubble = Instantiate(bubbleLockUI, gameObject.transform);
-                bubble.GetComponent<UnlockBubbleUI>().Setup(item, new Vector3Int(item.blockId.x,item.blockId.y, 0));
+                bubble.GetComponent<UnlockBubbleUI>().Setup(item, new Vector3Int(item.blockId.x, item.blockId.y, 0));
+                item.bubbleUI = bubble;
             }
         }
         public FieldBlock GetBlockById(Vector2Int id)
@@ -92,5 +95,66 @@ namespace MagicalGarden.Farm
                 }
             }
         }
+
+        public void SaveToJson()
+        {
+            FieldSaveData saveData = new FieldSaveData();
+
+            foreach (var block in blocks)
+            {
+                saveData.blocks.Add(new FieldBlockSaveData
+                {
+                    blockId = block.blockId,
+                    isUnlocked = block.isUnlocked
+                });
+            }
+
+            string json = JsonUtility.ToJson(saveData, true);
+            File.WriteAllText(SaveFilePath, json);
+            Debug.Log("Field data saved to " + SaveFilePath);
+        }
+
+        public void LoadFromJson()
+        {
+            if (!File.Exists(SaveFilePath))
+            {
+                Debug.LogWarning("Save file not found.");
+                return;
+            }
+
+            string json = File.ReadAllText(SaveFilePath);
+            FieldSaveData loadedData = JsonUtility.FromJson<FieldSaveData>(json);
+
+            foreach (var data in loadedData.blocks)
+            {
+                FieldBlock block = GetBlockById(data.blockId);
+                if (block != null)
+                {
+                    block.isUnlocked = data.isUnlocked;
+                    UpdateOverlayVisual(block.blockId, block.isUnlocked);
+
+                    // Destroy bubble jika blok sudah terbuka
+                    if (block.isUnlocked && block.bubbleUI != null)
+                    {
+                        Destroy(block.bubbleUI);
+                        block.bubbleUI = null;
+                    }
+                }
+            }
+
+            Debug.Log("Field data loaded.");
+        }
+    }
+    [System.Serializable]
+    public class FieldBlockSaveData
+    {
+        public Vector2Int blockId;
+        public bool isUnlocked;
+    }
+
+    [System.Serializable]
+    public class FieldSaveData
+    {
+        public List<FieldBlockSaveData> blocks = new List<FieldBlockSaveData>();
     }
 }

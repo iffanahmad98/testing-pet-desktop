@@ -129,6 +129,16 @@ namespace MagicalGarden.Farm
             spriteRenderer.sortingLayerName = "World";
             spriteRenderer.sortingOrder = 10;
 
+            // Ambil posisi tile di world space
+            Vector3 tileWorldPos = TileManager.Instance.tilemapSeed.CellToWorld(cellPosition);
+
+            // Sesuaikan posisi visual agar berada di tengah tile (0.5f, 0.5f) + offset ke atas
+            float tileHeightOffset = 0.8f; // Atur sesuai tinggi tile kamu
+            Vector3 spawnPos = tileWorldPos + new Vector3(0, 0.5f + tileHeightOffset, 0f);
+
+            // Atur posisi awal visual
+            bounceVisual.transform.position = spawnPos;
+
             // Tween: scale up (bounce), then scale down, then destroy
             bounceVisual.transform.DOScale(3f, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
             {

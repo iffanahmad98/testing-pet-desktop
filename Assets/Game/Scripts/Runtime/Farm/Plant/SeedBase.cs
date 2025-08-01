@@ -8,6 +8,7 @@ using MagicalGarden.Inventory;
 using MagicalGarden.Manager;
 using MagicalGarden.AI;
 using DG.Tweening;
+using UnityEditor.PackageManager;
 
 namespace MagicalGarden.Farm
 {
@@ -134,11 +135,19 @@ namespace MagicalGarden.Farm
             double hoursSince = (now - checkFrom).TotalHours;
 
             if (hoursSince > 48)
+            {
                 status = PlantStatus.Mati;
+                TileManager.Instance.tilemapSeed.SetTile(cellPosition, PlantManager.Instance.stageWilted);
+            }
             else if (hoursSince > 24)
+            {
                 status = PlantStatus.Layu;
+                TileManager.Instance.tilemapSeed.SetTile(cellPosition, PlantManager.Instance.stageWilted);
+            }
             else
+            { 
                 status = PlantStatus.Normal;
+            }
         }
 
         public void ForceToHarvestStage()

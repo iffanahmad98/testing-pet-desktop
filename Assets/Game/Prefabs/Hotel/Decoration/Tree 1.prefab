@@ -105,7 +105,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: 5745
+  m_SortingOrder: -1128
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &4219786231335174860
 MonoBehaviour:
@@ -256,6 +256,14 @@ PrefabInstance:
     - target: {fileID: 19800002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800002, guid: 064135babc94c734c884325240d4a732, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800002, guid: 064135babc94c734c884325240d4a732, type: 3}
+      propertyPath: InitialModule.startLifetime.minMaxState
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 19900002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_SortingLayer

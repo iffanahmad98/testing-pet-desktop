@@ -52,11 +52,15 @@ namespace MagicalGarden.Farm
         public void SaveGame()
         {
             PlantManager.Instance.SaveToJson();
+            FieldManager.Instance.SaveToJson();
+            //add other seting
         }
 
         public void LoadGame()
         {
             PlantManager.Instance.LoadFromJson();
+            FieldManager.Instance.LoadFromJson();
+            //add other seting
         }
 
         public void DisableCameraRig()
