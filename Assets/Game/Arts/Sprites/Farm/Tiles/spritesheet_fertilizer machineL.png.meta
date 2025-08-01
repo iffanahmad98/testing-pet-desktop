@@ -153,8 +153,8 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 512
+  spriteBorder: {x: 0, y: 0, z: 22546, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -174,12 +174,12 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 16384
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
-    crunchedCompression: 0
+    crunchedCompression: 1
     allowsAlphaSplitting: 0
     overridden: 0
     ignorePlatformSupport: 0
@@ -241,37 +241,15 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_0
-      rect:
-        serializedVersion: 2
-        x: 17746
-        y: 1982
-        width: 140
-        height: 53
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: dc38e879a1227d260800000000000000
-      internalID: 7122198833316922317
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: spritesheet_fertilizer machineL_1
       rect:
         serializedVersion: 2
-        x: 19748
-        y: 1788
-        width: 283
-        height: 238
+        x: 4096
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -288,12 +266,12 @@ TextureImporter:
       name: spritesheet_fertilizer machineL_2
       rect:
         serializedVersion: 2
-        x: 19794
-        y: 1997
-        width: 140
-        height: 51
+        x: 6144
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -310,12 +288,12 @@ TextureImporter:
       name: spritesheet_fertilizer machineL_3
       rect:
         serializedVersion: 2
-        x: 21873
-        y: 2020
-        width: 98
-        height: 21
+        x: 8192
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -332,12 +310,12 @@ TextureImporter:
       name: spritesheet_fertilizer machineL_4
       rect:
         serializedVersion: 2
-        x: 23872
-        y: 1810
-        width: 219
-        height: 235
+        x: 10240
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -351,433 +329,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_5
-      rect:
-        serializedVersion: 2
-        x: 11602
-        y: 1935
-        width: 140
-        height: 52
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 09641778bc8196d20800000000000000
-      internalID: 3272173866691151504
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_6
-      rect:
-        serializedVersion: 2
-        x: 13604
-        y: 1741
-        width: 283
-        height: 238
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ada9e5c9671761940800000000000000
-      internalID: 5266521568499899098
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_7
-      rect:
-        serializedVersion: 2
-        x: 13650
-        y: 1949
-        width: 140
-        height: 53
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3e93cc2b0c670b8c0800000000000000
-      internalID: -3985555100217361949
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_8
-      rect:
-        serializedVersion: 2
-        x: 15652
-        y: 1757
-        width: 282
-        height: 238
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c1054dca52845f070800000000000000
-      internalID: 8139491228192624668
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_9
-      rect:
-        serializedVersion: 2
-        x: 15698
-        y: 1966
-        width: 141
-        height: 53
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ee3b684cae5cc4850800000000000000
-      internalID: 6362677985677849582
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_10
-      rect:
-        serializedVersion: 2
-        x: 17700
-        y: 1773
-        width: 283
-        height: 238
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 83c2da33ebe1c6450800000000000000
-      internalID: 6083270998930304056
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_11
-      rect:
-        serializedVersion: 2
-        x: 21823
-        y: 1801
-        width: 225
-        height: 201
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b36fc4e3cdd1452b0800000000000000
-      internalID: -5596815605139442117
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_12
-      rect:
-        serializedVersion: 2
-        x: 22026
-        y: 1936
-        width: 51
-        height: 76
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1412396f1f9a4f230800000000000000
-      internalID: 3671746452902846785
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_13
-      rect:
-        serializedVersion: 2
-        x: 24106
-        y: 1971
-        width: 10
-        height: 12
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 53cc1cabe01b42d40800000000000000
-      internalID: 5558762516902956085
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_14
-      rect:
-        serializedVersion: 2
-        x: 6421
-        y: 397
-        width: 1443
-        height: 1544
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7bb88ae6bc5183220800000000000000
-      internalID: 2465744759464430519
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_15
-      rect:
-        serializedVersion: 2
-        x: 9585
-        y: 1933
-        width: 98
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 96f4f4b2b75500890800000000000000
-      internalID: -7493895792448549015
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_16
-      rect:
-        serializedVersion: 2
-        x: 11556
-        y: 1726
-        width: 282
-        height: 238
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cdc34f922f09842f0800000000000000
-      internalID: -988380748447466276
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_17
-      rect:
-        serializedVersion: 2
-        x: 9535
-        y: 1714
-        width: 225
-        height: 201
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6ae3e49bcba70e090800000000000000
-      internalID: -8007265186483388762
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_18
-      rect:
-        serializedVersion: 2
-        x: 9738
-        y: 1848
-        width: 51
-        height: 76
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2445cb6027ff4d9c0800000000000000
-      internalID: -3903214111819017150
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_19
-      rect:
-        serializedVersion: 2
-        x: 11790
-        y: 1703
-        width: 39
-        height: 69
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7ca3ca14a615e2890800000000000000
-      internalID: -7480952414205625657
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_20
-      rect:
-        serializedVersion: 2
-        x: 13838
-        y: 1718
-        width: 39
-        height: 68
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1ffa192f597b221a0800000000000000
-      internalID: -6835699429747347471
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_21
-      rect:
-        serializedVersion: 2
-        x: 15886
-        y: 1734
-        width: 39
-        height: 69
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 76c53533802e57b80800000000000000
-      internalID: -8397557405313704857
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_22
-      rect:
-        serializedVersion: 2
-        x: 17934
-        y: 1750
-        width: 39
-        height: 69
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8102f4e81e621def0800000000000000
-      internalID: -85244167746281448
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_23
-      rect:
-        serializedVersion: 2
-        x: 19982
-        y: 1765
-        width: 39
-        height: 69
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 29a5a706ec71f1fc0800000000000000
-      internalID: -3522070208431105390
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: spritesheet_fertilizer machineL_24
       rect:
         serializedVersion: 2
-        x: 277
-        y: 401
-        width: 1443
-        height: 1355
+        x: 0
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -791,221 +351,155 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_25
+      name: spritesheet_fertilizer machineL_0
       rect:
         serializedVersion: 2
-        x: 2325
-        y: 400
-        width: 1443
-        height: 1352
+        x: 2048
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d497bdd37ee5ddd10800000000000000
-      internalID: 2151980544221215053
+      spriteID: 9165c90fdfb908643a27eda1a49eb183
+      internalID: 7122198833316922317
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_26
+      name: spritesheet_fertilizer machineL_5
       rect:
         serializedVersion: 2
-        x: 4373
-        y: 399
-        width: 1443
-        height: 1341
+        x: 12288
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 33a2f358193a819a0800000000000000
-      internalID: -6262075436457579981
+      spriteID: d9182f0ecc5f335438aaa04c8f4a5c39
+      internalID: 3272173866691151504
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_27
+      name: spritesheet_fertilizer machineL_6
       rect:
         serializedVersion: 2
-        x: 8469
-        y: 395
-        width: 1443
-        height: 1316
+        x: 14336
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 62aa7e68649e83a10800000000000000
-      internalID: 1889516532802234918
+      spriteID: e26a3845852995c4b85b6ca3713e1dcc
+      internalID: 5266521568499899098
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_28
+      name: spritesheet_fertilizer machineL_7
       rect:
         serializedVersion: 2
-        x: 10517
-        y: 393
-        width: 1443
-        height: 1306
+        x: 16384
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 1302d164891311cf0800000000000000
-      internalID: -283390771466526671
+      spriteID: 48d5d4992374633419d13a1a7076289c
+      internalID: -3985555100217361949
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_29
+      name: spritesheet_fertilizer machineL_8
       rect:
         serializedVersion: 2
-        x: 12565
-        y: 392
-        width: 1443
-        height: 1303
+        x: 18432
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 67b54bfbb1e553e30800000000000000
-      internalID: 4482592477390592886
+      spriteID: db2ff289e69e85c48b7cb2fcb005c368
+      internalID: 8139491228192624668
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_30
+      name: spritesheet_fertilizer machineL_9
       rect:
         serializedVersion: 2
-        x: 14613
-        y: 393
-        width: 1443
-        height: 1306
+        x: 20480
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 685efaed60ca570e0800000000000000
-      internalID: -2272721291432696442
+      spriteID: 47fe932e6766cf146b2428632ab3d298
+      internalID: 6362677985677849582
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_31
+      name: spritesheet_fertilizer machineL_10
       rect:
         serializedVersion: 2
-        x: 16661
-        y: 394
-        width: 1443
-        height: 1317
+        x: 22528
+        y: 0
+        width: 2048
+        height: 2048
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f10c5dabe9b61c270800000000000000
-      internalID: 8269008720312516639
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_32
-      rect:
-        serializedVersion: 2
-        x: 18709
-        y: 396
-        width: 1443
-        height: 1330
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3ce00c832f1f301b0800000000000000
-      internalID: -5691439481429684541
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_33
-      rect:
-        serializedVersion: 2
-        x: 20757
-        y: 399
-        width: 1443
-        height: 1341
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 17b91ded235c77880800000000000000
-      internalID: -8613198940045468815
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: spritesheet_fertilizer machineL_34
-      rect:
-        serializedVersion: 2
-        x: 22805
-        y: 400
-        width: 1443
-        height: 1352
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 158cf197919ce8ed0800000000000000
-      internalID: -2409767639353145263
+      spriteID: 45276cb536194654d9ab6d318fcb4d46
+      internalID: 6083270998930304056
       vertices: []
       indices: 
       edges: []
@@ -1014,8 +508,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
-    internalID: 0
+    spriteID: 829b32fa4cf192b48aead2535d0c1c01
+    internalID: 1728309425
     vertices: []
     indices: 
     edges: []
