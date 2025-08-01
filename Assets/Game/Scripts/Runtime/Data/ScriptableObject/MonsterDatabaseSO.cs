@@ -8,6 +8,7 @@ public class MonsterDatabaseSO : ScriptableObject
 
     public MonsterDataSO GetMonsterByID(string id)
     {
+        id = id.ToLower();
         return monsters.Find(monster => monster.id == id);
     }
 

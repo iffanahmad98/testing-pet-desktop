@@ -13,7 +13,7 @@ public class MonsterCardUI : MonoBehaviour
     public Image highlightBorder; // Optional: For showing selection
 
     [Header("Data")]
-    public MonsterDataSO monsterData;
+    public ItemDataSO monsterItemData;
 
     private bool isSelected = false;
 
@@ -33,19 +33,17 @@ public class MonsterCardUI : MonoBehaviour
         SetSelected(false);
     }
 
-    public void Setup(MonsterDataSO data)
+    public void Setup(ItemDataSO data)
     {
-        monsterData = data;
-
-        if (monsterIcon != null && data.CardIcon != null && data.CardIcon.Length > 0)
-            monsterIcon.sprite = data.CardIcon[0]; // Use first sprite as default icon
-
+        monsterItemData = data;
+        if (monsterIcon != null && data != null && data.itemImgs.Length > 0)
+        {
+            monsterIcon.sprite = data.itemImgs[0];
+        }
         if (monsterNameText != null)
-            monsterNameText.text = data.monsterName;
-
+            monsterNameText.text = data.itemName;
         if (priceText != null)
-            priceText.text = data.monsterPrice.ToString();
-
+            priceText.text = data.price.ToString();
         SetSelected(false);
     }
 

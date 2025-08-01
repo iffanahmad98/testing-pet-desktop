@@ -18,7 +18,7 @@ public class MonsterShopManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI descriptionText;
 
     [Header("Monster Data")]
-    [SerializeField] private MonsterDatabaseSO monsterDatabase;
+    [SerializeField] private ItemDatabaseSO monsterItemDatabase;
 
     public MonsterCardUI selectedCard;
 
@@ -38,13 +38,10 @@ public class MonsterShopManager : MonoBehaviour
                 ShowAllMonsters();
                 break;
             case 1:
-                FilterByRarity(MonsterType.Common);
+                FilterByRarity(ItemType.CommonMonster);
                 break;
             case 2:
-                FilterByRarity(MonsterType.Uncommon);
-                break;
-            case 3:
-                FilterByRarity(MonsterType.Rare);
+                FilterByRarity(ItemType.UncommonMonster);
                 break;
                 // Add more cases if you support more rarities
         }
@@ -52,22 +49,22 @@ public class MonsterShopManager : MonoBehaviour
 
     private void ShowAllMonsters()
     {
-        if (monsterDatabase != null && monsterDatabase.monsters != null)
+        if (monsterItemDatabase != null && monsterItemDatabase.allItems != null)
         {
-            Populate(monsterDatabase.monsters);
+            Populate(monsterItemDatabase.allItems);
         }
     }
 
-    private void FilterByRarity(MonsterType rarity)
+    private void FilterByRarity(ItemType rarity)
     {
-        if (monsterDatabase != null && monsterDatabase.monsters != null)
+        if (monsterItemDatabase != null && monsterItemDatabase.allItems != null)
         {
-            var filtered = monsterDatabase.monsters.Where(m => m.monType == rarity).ToList();
+            var filtered = monsterItemDatabase.allItems.Where(m => m.category == rarity).ToList();
             Populate(filtered);
         }
     }
 
-    private void Populate(List<MonsterDataSO> list)
+    private void Populate(List<ItemDataSO> list)
     {
         ClearMonsterGrid();
 
@@ -90,38 +87,34 @@ public class MonsterShopManager : MonoBehaviour
 
         selectedCard = card;
         selectedCard.SetSelected(true);
-        Debug.Log($"Selected Monster: {card.monsterData.monsterName}");
+        Debug.Log($"Selected Monster: {card.monsterItemData.itemName}");
         detailPanel.SetActive(true);
-        ShowMonsterInfo(card.monsterData);
+        ShowMonsterInfo(card.monsterItemData);
     }
 
     private void OnMonsterBuy(MonsterCardUI card)
     {
-        var monster = card.monsterData;
-
-        if (SaveSystem.TryBuyMonster(monster)) // You'll need to implement this method
+        var monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
+        if (SaveSystem.TryBuyMonster(monsterItem))
         {
             OnMonsterSelected(card);
 
-            // Refresh monster inventory if you have one
-            // ServiceLocator.Get<MonsterInventoryUI>().StartPopulateAllInventories();
-
             // Success message
-            ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monster.monsterName}!", 2f);
-            ServiceLocator.Get<MonsterManager>().SpawnMonster(monster);
+            ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monsterItem.name}!", 2f);
+            ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
         }
         else
         {
             // Failure message
-            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {monster.monsterName}!", 2f);
+            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {monsterItem.name}!", 2f);
         }
     }
 
-    private void ShowMonsterInfo(MonsterDataSO monster)
+    private void ShowMonsterInfo(ItemDataSO monster)
     {
 
-        titleText.text = monster.monsterName;
-        priceText.text = $"Price: {monster.monsterPrice}";
+        titleText.text = monster.itemName;
+        priceText.text = $"Price: {monster.price}";
         descriptionText.text = monster.description; // Assuming you have this field
 
     }
