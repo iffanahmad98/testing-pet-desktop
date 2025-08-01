@@ -21,8 +21,6 @@ namespace MagicalGarden.Manager
         public Transform poolHotelRoom;
         public Vector2Int targetCheckOut;
         public List<HotelController> hotelControllers = new List<HotelController>();
-        public List<HotelRoom> hotelRooms = new();
-        public List<GameObject> guestPrefab;
         public List<GuestStageGroup> guestStageGroup;
         public NPCHotel npcHotel;
         [Header("Guest Queue")]
@@ -55,7 +53,6 @@ namespace MagicalGarden.Manager
             PlayerPrefs.Save();
             FindAllHotelRoom();
             LoadLastDate();
-            // LoadHotelRooms();
             LoadGuestRequests();
             CheckGenerateGuestList();
         }
@@ -73,8 +70,8 @@ namespace MagicalGarden.Manager
 
         public GameObject GetRandomGuestPrefab()
         {
-            int randomIndex = UnityEngine.Random.Range(0, guestPrefab.Count);
-            return guestPrefab[randomIndex];
+            int randomIndex = UnityEngine.Random.Range(0, guestStageGroup.Count);
+            return guestStageGroup[randomIndex].stage1;
         }
 
         public GuestStageGroup GetRandomGuestStagePrefab()
@@ -99,11 +96,6 @@ namespace MagicalGarden.Manager
             Instantiate(rayCleaningVfx, pos.position, Quaternion.identity);
             Destroy(currentCleaningVFX);
         }
-        // public HotelRoom AssignGuestToAvailableRoom_backup(GuestRequest guest)
-        // {
-
-        //     SaveHotelRooms();
-        // }
         public void AssignGuestToAvailableRoom(GuestRequest guest)
         {
             List<HotelController> availableRooms = new List<HotelController>();
@@ -279,26 +271,31 @@ namespace MagicalGarden.Manager
         public void SaveHotelRooms()
         {
             var savedRooms = new List<SavedHotelRoom>();
-
-            foreach (var room in hotelRooms)
+            foreach (var room in hotelControllers)
             {
-                if (!room.IsOccupied || room.guest == null)
+                if (!room.IsOccupied)
                     continue;
-
-                var guest = room.guest;
-
-                var saved = new SavedHotelRoom
-                {
-                    x = room.hotelPosition.x,
-                    y = room.hotelPosition.y,
-                    z = room.hotelPosition.z,
-                    guest = guest.ToRequest(),
-                    checkInDate = guest.checkInDate.ToString("yyyy-MM-dd"),
-                    happiness = guest.happiness
-                };
-
-                savedRooms.Add(saved);
             }
+
+            // foreach (var room in hotelRooms)
+            // {
+            //     if (!room.IsOccupied || room.guest == null)
+            //         continue;
+
+            //     var guest = room.guest;
+
+            //     var saved = new SavedHotelRoom
+            //     {
+            //         x = room.hotelPosition.x,
+            //         y = room.hotelPosition.y,
+            //         z = room.hotelPosition.z,
+            //         guest = guest.ToRequest(),
+            //         checkInDate = guest.checkInDate.ToString("yyyy-MM-dd"),
+            //         happiness = guest.happiness
+            //     };
+
+            //     savedRooms.Add(saved);
+            // }
 
             string json = JsonUtility.ToJson(new Wrapper<List<SavedHotelRoom>> { data = savedRooms });
             Debug.LogError(json);
@@ -342,19 +339,19 @@ namespace MagicalGarden.Manager
 
                 // Tamu masih menginap
                 Vector3Int pos = new Vector3Int(saved.x, saved.y, saved.z);
-                var room = hotelRooms.FirstOrDefault(r => r.hotelPosition == pos);
-                if (room != null)
-                {
-                    // var guestObj = Instantiate(occupiedIconPrefab, objectGuestPool);
-                    var guestController = room.guest;
-                    guestController.SetupFromRequest(saved.guest);
-                    guestController.happiness = (int)saved.happiness;
-                    guestController.SetHappiness(saved.happiness);
-                    room.AssignGuestLoad(guestController);
+                // var room = hotelRooms.FirstOrDefault(r => r.hotelPosition == pos);
+                // if (room != null)
+                // {
+                //     // var guestObj = Instantiate(occupiedIconPrefab, objectGuestPool);
+                //     var guestController = room.guest;
+                //     guestController.SetupFromRequest(saved.guest);
+                //     guestController.happiness = (int)saved.happiness;
+                //     guestController.SetHappiness(saved.happiness);
+                //     room.AssignGuestLoad(guestController);
 
-                    Vector3 worldPos = TileManager.Instance.tilemapHotel.GetCellCenterWorld(pos) + new Vector3(0, 3f, 0);
-                    room.transform.position = worldPos;
-                }
+                //     Vector3 worldPos = TileManager.Instance.tilemapHotel.GetCellCenterWorld(pos) + new Vector3(0, 3f, 0);
+                //     room.transform.position = worldPos;
+                // }
             }
         }
         #endregion
