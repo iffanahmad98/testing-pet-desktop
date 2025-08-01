@@ -8,6 +8,7 @@ public class MonsterDataSO : ScriptableObject
     [Header("Basic Info")]
     public string monsterName;
     public string id;
+    public string description;
 
     [Header("Classification")]
     public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)

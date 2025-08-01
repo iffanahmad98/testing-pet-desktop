@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using Unity.VisualScripting;
 
 public class MonsterShopManager : MonoBehaviour
 {
@@ -9,17 +11,23 @@ public class MonsterShopManager : MonoBehaviour
     [Header("UI References")]
     public Transform monsterCardParent;
     public GameObject monsterCardPrefab;
-    public MonsterDetailPanel detailPanel;
+    [Header("Detail Panel References")]
+    [SerializeField] public GameObject detailPanel;
+    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private TextMeshProUGUI priceText;
+    [SerializeField] private TextMeshProUGUI descriptionText;
 
     [Header("Monster Data")]
-    public List<MonsterDataSO> allMonsters;
+    [SerializeField] private ItemDatabaseSO monsterItemDatabase;
 
+    public MonsterCardUI selectedCard;
 
     private void Start()
     {
-        // rarityTabController.OnTabChanged += OnRarityTabChanged;
-        // OnRarityTabChanged(0); // Default to "All"
-        // detailPanel.SetVisible(false);
+        rarityTabController.OnTabChanged += OnRarityTabChanged;
+        OnRarityTabChanged(0); // Default to "All"
+        detailPanel.SetActive(false);
+        ClearMonsterInfo();
     }
 
     private void OnRarityTabChanged(int index)
@@ -30,13 +38,10 @@ public class MonsterShopManager : MonoBehaviour
                 ShowAllMonsters();
                 break;
             case 1:
-                FilterByRarity(MonsterType.Common);
+                FilterByRarity(ItemType.CommonMonster);
                 break;
             case 2:
-                FilterByRarity(MonsterType.Uncommon);
-                break;
-            case 3:
-                FilterByRarity(MonsterType.Rare);
+                FilterByRarity(ItemType.UncommonMonster);
                 break;
                 // Add more cases if you support more rarities
         }
@@ -44,30 +49,94 @@ public class MonsterShopManager : MonoBehaviour
 
     private void ShowAllMonsters()
     {
-        Populate(allMonsters);
-    }
-
-    private void FilterByRarity(MonsterType rarity)
-    {
-        var filtered = allMonsters.Where(m => m.monType == rarity).ToList();
-        Populate(filtered);
-    }
-
-    private void Populate(List<MonsterDataSO> list)
-    {
-        foreach (Transform child in monsterCardParent)
-            Destroy(child.gameObject);
-
-        foreach (var mon in list)
+        if (monsterItemDatabase != null && monsterItemDatabase.allItems != null)
         {
-            var card = Instantiate(monsterCardPrefab, monsterCardParent);
-            card.GetComponent<MonsterCardUI>().Setup(mon, this);
+            Populate(monsterItemDatabase.allItems);
         }
     }
 
+    private void FilterByRarity(ItemType rarity)
+    {
+        if (monsterItemDatabase != null && monsterItemDatabase.allItems != null)
+        {
+            var filtered = monsterItemDatabase.allItems.Where(m => m.category == rarity).ToList();
+            Populate(filtered);
+        }
+    }
+
+    private void Populate(List<ItemDataSO> list)
+    {
+        ClearMonsterGrid();
+
+        foreach (var monster in list)
+        {
+            GameObject obj = Instantiate(monsterCardPrefab, monsterCardParent);
+            MonsterCardUI card = obj.GetComponent<MonsterCardUI>();
+            card.Setup(monster);
+            card.OnSelected = OnMonsterSelected;
+            card.OnBuy = OnMonsterBuy;
+        }
+
+        ClearMonsterInfo(); // Reset info panel
+    }
+
+    private void OnMonsterSelected(MonsterCardUI card)
+    {
+        if (selectedCard != null)
+            selectedCard.SetSelected(false);
+
+        selectedCard = card;
+        selectedCard.SetSelected(true);
+        Debug.Log($"Selected Monster: {card.monsterItemData.itemName}");
+        detailPanel.SetActive(true);
+        ShowMonsterInfo(card.monsterItemData);
+    }
+
+    private void OnMonsterBuy(MonsterCardUI card)
+    {
+        var monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
+        if (SaveSystem.TryBuyMonster(monsterItem))
+        {
+            OnMonsterSelected(card);
+
+            // Success message
+            ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monsterItem.name}!", 2f);
+            ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
+        }
+        else
+        {
+            // Failure message
+            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {monsterItem.name}!", 2f);
+        }
+    }
+
+    private void ShowMonsterInfo(ItemDataSO monster)
+    {
+
+        titleText.text = monster.itemName;
+        priceText.text = $"Price: {monster.price}";
+        descriptionText.text = monster.description; // Assuming you have this field
+
+    }
+
+    private void ClearMonsterGrid()
+    {
+        foreach (Transform child in monsterCardParent)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    private void ClearMonsterInfo()
+    {
+        titleText.text = "";
+        priceText.text = "";
+        descriptionText.text = "";
+    }
+
+    // Keep this method for backward compatibility with the detail panel
     public void ShowMonsterDetail(MonsterDataSO data)
     {
-        detailPanel.SetVisible(true);
-        detailPanel.SetData(data);
+        detailPanel.SetActive(true);
     }
 }
