@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterName: Llasalix
   id: llasalix
+  description: 
   monType: 0
   poopType: 1
   moveSpd: 120
   foodDetectionRange: 200
   eatDistance: 5
-  baseHappiness: 0
+  baseHappiness: 100
   baseHunger: 50
   hungerDepleteRate: 0.05
   maxHealthStage1: 25
@@ -44,9 +45,7 @@ MonoBehaviour:
   hungerHappinessDrainRate: 2
   canEvolve: 1
   isEvolved: 0
-  evolutionLevel: 1
-  timeToEvolveStage1: 0
-  timeToEvolveStage2: 0
+  evolutionLevel: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
     minTimeAlive: 604800

@@ -254,7 +254,7 @@ public class MonsterDataGenerator
 
     private static void MapCSVToMonsterData(MonsterCSVData csvData, MonsterDataSO asset)
     {
-        asset.monsterName = csvData.name;
+        asset.name = csvData.name;
         asset.monType = csvData.type;
         asset.maxHealthStage1 = csvData.stage1.hp;
         asset.maxHealthStage2 = csvData.stage2 != null ? csvData.stage2.hp : csvData.stage1.hp * 2f;

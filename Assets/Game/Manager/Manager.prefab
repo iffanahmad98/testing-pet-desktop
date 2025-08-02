@@ -297,6 +297,11 @@ MonoBehaviour:
     activeSprite: {fileID: -4515780251570375455, guid: 4bb4c814a0b09ea42b36ea693f4ebf89, type: 3}
     inactiveSprite: {fileID: 6563412092030730750, guid: 86d3b26ab7223bc44a40e11fdf9628a1, type: 3}
     buttonImage: {fileID: 0}
+  - sidebarButton: {fileID: 0}
+    linkedPanel: {fileID: 0}
+    activeSprite: {fileID: 8498903324148628765, guid: 2db7bf0a692c3f94ba82854dd5990c1f, type: 3}
+    inactiveSprite: {fileID: 5413941449982313884, guid: c21ae5faa076bb943aaf25c16b919715, type: 3}
+    buttonImage: {fileID: 0}
 --- !u!1 &2240938270952959010
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,6 +311,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3237431783048085357}
+  - component: {fileID: 7742885387128257351}
   - component: {fileID: 82540597057440134}
   - component: {fileID: 8408899965472176798}
   m_Layer: 0
@@ -330,6 +336,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5686940728437541436}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7742885387128257351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240938270952959010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7d1597f9915f14aaa6630116a793b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rarityTabController: {fileID: 0}
+  monsterCardParent: {fileID: 0}
+  monsterCardPrefab: {fileID: 8574520169144158271, guid: 1a8ec1a343184d746b3db0a98cc8b0be, type: 3}
+  detailPanel: {fileID: 0}
+  titleText: {fileID: 0}
+  priceText: {fileID: 0}
+  descriptionText: {fileID: 0}
+  monsterItemDatabase: {fileID: 11400000, guid: c609fc9cf304c2b42a2d42094601f43e, type: 2}
+  selectedCard: {fileID: 0}
 --- !u!114 &82540597057440134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -375,10 +402,7 @@ MonoBehaviour:
   biomeNameText: {fileID: 0}
   biomePriceText: {fileID: 0}
   biomeDescText: {fileID: 0}
-  biomes:
-  - {fileID: 11400000, guid: 47cfd80aee5ee654c98d6cf67e714e0c, type: 2}
-  - {fileID: 11400000, guid: fa5c9ffbf28b69c4c81d6cfbf934e933, type: 2}
-  - {fileID: 11400000, guid: b30e993d59a9f8e48b2a067071f95f8c, type: 2}
+  biomes: {fileID: 11400000, guid: 25cd78c2cdca6bd46ac7b9de77dac8d3, type: 2}
 --- !u!1 &3370980008875664216
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,6 +465,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   foodSheetURL: https://docs.google.com/spreadsheets/d/e/2PACX-1vRGWsxKa9JdmzroEJk1LklOifIxja-Xk2uuSeZdnnb26RIJfRULg-rsypm4g41Sw7NtD-jW0nx9dJC-/pub?gid=493053584&single=true&output=csv
   medicineSheetURL: https://docs.google.com/spreadsheets/d/e/2PACX-1vRGWsxKa9JdmzroEJk1LklOifIxja-Xk2uuSeZdnnb26RIJfRULg-rsypm4g41Sw7NtD-jW0nx9dJC-/pub?gid=1147237945&single=true&output=csv
+  monsterSheetURL: https://docs.google.com/spreadsheets/d/e/2PACX-1vRGWsxKa9JdmzroEJk1LklOifIxja-Xk2uuSeZdnnb26RIJfRULg-rsypm4g41Sw7NtD-jW0nx9dJC-/pub?gid=1870944277&single=true&output=csv
   updateOnGameStart: 0
   manualUpdateKey: 287
 --- !u!1 &3584082463542408610
@@ -488,10 +513,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f85ebb041fcfab142bf425c397b0a2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  availableBiomes:
-  - {fileID: 11400000, guid: 47cfd80aee5ee654c98d6cf67e714e0c, type: 2}
-  - {fileID: 11400000, guid: b30e993d59a9f8e48b2a067071f95f8c, type: 2}
-  - {fileID: 11400000, guid: fa5c9ffbf28b69c4c81d6cfbf934e933, type: 2}
+  availableBiomes: {fileID: 11400000, guid: 25cd78c2cdca6bd46ac7b9de77dac8d3, type: 2}
   biomeDropdown: {fileID: 0}
   skyLayer:
     layerObject: {fileID: 0}
@@ -634,7 +656,7 @@ MonoBehaviour:
   itemDatabase: {fileID: 11400000, guid: 79e271fae5dcdbd4c8132afce8b425a3, type: 2}
   biomeDatabase: {fileID: 11400000, guid: 25cd78c2cdca6bd46ac7b9de77dac8d3, type: 2}
   facilityDatabase: {fileID: 11400000, guid: f7b83edb8479dd240943066774f89590, type: 2}
-  npcMonsterDatabase: {fileID: 11400000, guid: 58fa8007c66f5e84984ceb56cfb79d58, type: 2}
+  npcMonsterDatabase: {fileID: 11400000, guid: d88e49c9a756df743b7d9ec643fe611f, type: 2}
 --- !u!1 &3692531053933370386
 GameObject:
   m_ObjectHideFlags: 0

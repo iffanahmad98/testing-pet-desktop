@@ -55,17 +55,11 @@ public class MonsterSeparationHandler
         {
             separationVector /= count;
             
-            // Get game area size
+            // Don't completely disable separation in small areas
             var gameAreaSize = _controller.MonsterManager.gameAreaRT.sizeDelta;
-            
-            // Scale force by available area (smaller area = gentler force)
             float areaFactor = Mathf.Clamp01(gameAreaSize.x * gameAreaSize.y / (500f * 500f));
+            areaFactor = Mathf.Max(areaFactor, 0.3f); // Minimum 30% separation force
             separationVector *= areaFactor;
-            
-            // Reduce horizontal component when height is small
-            if (gameAreaSize.y < 300f) {
-                separationVector.x *= gameAreaSize.y / 300f;
-            }
             
             return separationVector;
         }

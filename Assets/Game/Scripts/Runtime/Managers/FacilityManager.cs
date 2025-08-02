@@ -98,4 +98,26 @@ public class FacilityManager : MonoBehaviour
 
         Debug.Log("Magic Shovel used to clean all poop in the current area.");
     }
+
+    public float GetCooldownRemaining(string facilityID)
+    {
+        var facility = GetFacilityByID(facilityID);
+        if (facility == null) return 0f;
+
+        if (!lastUsedTime.ContainsKey(facilityID))
+            return 0f;
+
+        float elapsed = Time.time - lastUsedTime[facilityID];
+        float remaining = facility.cooldownSeconds - elapsed;
+        return Mathf.Max(0f, remaining);
+    }
+
+    public void CancelFacilityCooldown(string facilityID)
+    {
+        if (lastUsedTime.ContainsKey(facilityID))
+        {
+            lastUsedTime.Remove(facilityID);
+            Debug.Log($"Cooldown cancelled for facility: {facilityID}");
+        }
+    }
 }

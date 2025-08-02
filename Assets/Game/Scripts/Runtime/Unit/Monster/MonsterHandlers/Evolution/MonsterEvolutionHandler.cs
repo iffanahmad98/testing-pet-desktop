@@ -194,7 +194,7 @@ public class MonsterEvolutionHandler
             {
                 _controller.evolutionLevel = _targetLevel;
                 ResetMonsterData();
-                ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.monsterName} evolved to level {_targetLevel}!", 3f);
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"{_controller.MonsterData.name} evolved to level {_targetLevel}!", 3f);
                 // DON'T set sequenceDone here - this is just the transformation moment
             }
         );

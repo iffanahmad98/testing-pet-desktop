@@ -280,6 +280,7 @@ public class NPCPetCaretakerHandler
         {
             // Just reached the idle station, no special action needed
             // The DoIdling method will handle the waiting
+            
             OnMove = false;
             _monsterController.StateMachine.ChangeState(MonsterState.Idle);
             return;

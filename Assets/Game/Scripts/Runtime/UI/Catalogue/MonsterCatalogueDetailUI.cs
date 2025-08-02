@@ -84,7 +84,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             // Set details using CatalogueMonsterData
             canvasGroup.alpha = 1f;
             monsterImage.sprite = catalogueMonsterData.GetMonsterIcon(MonsterIconType.Detail);
-            monsterNameText.text = catalogueMonsterData.monsterData.monsterName;
+            monsterNameText.text = catalogueMonsterData.monsterData.name;
             monsterTypeText.text = catalogueMonsterData.monsterData.monType.ToString();
             monsterEvolutionText.text = $"Stage {catalogueMonsterData.GetEvolutionStageName()}";
             monsterFullnessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHunger * 0.01f);

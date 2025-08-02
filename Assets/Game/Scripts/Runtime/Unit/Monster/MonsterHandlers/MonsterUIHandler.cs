@@ -72,7 +72,7 @@ public class MonsterUIHandler
 
         if (monsterController != null)
         {
-            monsterNameText.text = monsterController.MonsterData.monsterName;
+            monsterNameText.text = monsterController.MonsterData.name;
             monsterEvolStageText.text = $"Stage: {monsterController.evolutionLevel}";
         }
     }

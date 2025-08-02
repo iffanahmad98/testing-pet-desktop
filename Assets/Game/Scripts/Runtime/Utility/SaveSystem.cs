@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -342,14 +343,14 @@ public static class SaveSystem
         // Deduct coins via CoinManager (handles check, update, save, event)
         if (!CoinManager.SpendCoins(monsterPrice))
         {
-            Debug.Log($"Not enough coins to buy {monsterData.monsterName}. Needed: {monsterPrice}, Owned: {CoinManager.Coins}");
+            Debug.Log($"Not enough coins to buy {monsterData.name}. Needed: {monsterPrice}, Owned: {CoinManager.Coins}");
             return false;
         }
 
         // Save changes (monster update only, coins already saved by CoinManager)
         SaveAll();
 
-        Debug.Log($"Bought {monsterData.monsterName} for {monsterPrice} coins. Remaining: {CoinManager.Coins}");
+        Debug.Log($"Bought {monsterData.name} for {monsterPrice} coins. Remaining: {CoinManager.Coins}");
 
         return true;
     }
@@ -408,13 +409,7 @@ public static class SaveSystem
     public static void SetActiveBiome(string biomeID)
     {
         // If blank or null, clear the active biome
-        if (string.IsNullOrEmpty(biomeID))
-        {
-            _playerConfig.SetActiveBiome("");
-            SaveAll();
-            Debug.Log("Active biome cleared.");
-            return;
-        }
+        if (string.IsNullOrEmpty(biomeID)) return;
 
         // Otherwise, validate ownership before setting
         if (_playerConfig.HasBiome(biomeID))
@@ -462,28 +457,31 @@ public static class SaveSystem
     }
     #endregion
     #region  Facility Operations
-    public static bool TryPurchaseFacility(FacilityDataSO facilityData)
+    public static bool IsFacilityOwned(string facilityID)
     {
-        if (_playerConfig == null || facilityData == null)
+        return GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
+    }
+
+    public static bool TryPurchaseFacility(FacilityDataSO facility)
+    {
+        var config = GetPlayerConfig();
+        
+        if (config.ownedFacilities.Any(f => f.facilityID == facility.facilityID))
+            return true; // Already owned
+            
+        // Use CoinManager for consistency
+        if (!CoinManager.SpendCoins(facility.price))
         {
-            Debug.LogWarning("PlayerConfig or FacilityData is null.");
+            Debug.Log($"Not enough coins to buy {facility.name}. Needed: {facility.price}, Owned: {CoinManager.Coins}");
             return false;
         }
 
-        int playerCoins = _playerConfig.coins;
-        int price = facilityData.price;
-
-        if (playerCoins < price)
-        {
-            Debug.Log($"Not enough coins to buy {facilityData.facilityName}. Needed: {price}, Owned: {playerCoins}");
-            return false;
-        }
-
-        _playerConfig.coins -= price;
-        _playerConfig.AddFacility(facilityData.facilityID);
+        // Create OwnedFacilityData object using constructor
+        var ownedFacility = new OwnedFacilityData(facility.facilityID, facility.cooldownSeconds);
+        config.ownedFacilities.Add(ownedFacility);
+        
         SaveAll();
-
-        Debug.Log($"Purchased facility {facilityData.facilityName} for {price} coins. Remaining: {_playerConfig.coins}");
+        Debug.Log($"Bought facility {facility.name} for {facility.price} coins. Remaining: {CoinManager.Coins}");
         return true;
     }
     #endregion
