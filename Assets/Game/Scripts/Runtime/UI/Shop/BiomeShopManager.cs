@@ -27,13 +27,55 @@ public class BiomeShopManager : MonoBehaviour
     private RectTransform biomeParentRect;
     BiomeManager biomeManager;
 
+    // Object pooling
+    private Queue<BiomeCardUI> cardPool = new Queue<BiomeCardUI>();
+    private List<BiomeCardUI> activeCards = new List<BiomeCardUI>();
+
     private void Awake()
     {
         biomeParentRect = biomeParent.GetComponent<RectTransform>();
         originalBiomeParentHeight = biomeParentRect.sizeDelta.y;
+        
+        // Pre-populate pool with initial cards
+        InitializeCardPool();
     }
 
+    private void InitializeCardPool()
+    {
+        // Create initial pool size based on expected biome count
+        int initialPoolSize = Mathf.Max(10, biomes?.allBiomes?.Count ?? 10);
+        
+        for (int i = 0; i < initialPoolSize; i++)
+        {
+            GameObject cardObj = Instantiate(biomeCardPrefab, cardParent);
+            BiomeCardUI card = cardObj.GetComponent<BiomeCardUI>();
+            card.gameObject.SetActive(false);
+            cardPool.Enqueue(card);
+        }
+    }
 
+    private BiomeCardUI GetPooledCard()
+    {
+        if (cardPool.Count > 0)
+        {
+            BiomeCardUI card = cardPool.Dequeue();
+            card.gameObject.SetActive(true);
+            return card;
+        }
+        else
+        {
+            // Pool is empty, create new card
+            GameObject cardObj = Instantiate(biomeCardPrefab, cardParent);
+            return cardObj.GetComponent<BiomeCardUI>();
+        }
+    }
+
+    private void ReturnCardToPool(BiomeCardUI card)
+    {
+        card.gameObject.SetActive(false);
+        card.transform.SetAsLastSibling(); // Move to end to keep pool organized
+        cardPool.Enqueue(card);
+    }
 
     private void Start()
     {
@@ -62,19 +104,26 @@ public class BiomeShopManager : MonoBehaviour
 
     private void RefreshBiomeCards()
     {
-        foreach (Transform child in cardParent)
-            Destroy(child.gameObject);
+        // Return all active cards to pool
+        foreach (var card in activeCards)
+        {
+            ReturnCardToPool(card);
+        }
+        activeCards.Clear();
 
+        // Get cards from pool and setup
         foreach (var biome in biomes.allBiomes)
         {
-            GameObject cardObj = Instantiate(biomeCardPrefab, cardParent);
-            BiomeCardUI card = cardObj.GetComponent<BiomeCardUI>();
+            BiomeCardUI card = GetPooledCard();
             card.Setup(biome);
             card.OnSelected = OnBiomeSelected;
             card.OnApplyClicked = OnBiomeApply;
             card.OnCancelApplied = OnBiomeCancel;
             card.OnBuyClicked = OnBiomeBuy;
+            
+            activeCards.Add(card);
         }
+        
         AdjustBiomeParentHeight(biomes.allBiomes.Count);
         ClearInfo();
     }

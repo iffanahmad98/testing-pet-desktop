@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using TMPro;
 using DG.Tweening;
-using Coffee.UIExtensions;
+using System.Collections;
 
 [System.Serializable]
 public class BiomeLayer
@@ -16,15 +15,16 @@ public class BiomeLayer
 public class BiomeManager : MonoBehaviour
 {
     [Header("Biome Data")]
-    // [SerializeField] private BiomeDataSO[] availableBiomes;
     [SerializeField] public BiomeDatabaseSO availableBiomes;
     [SerializeField] public BiomeDataSO currentBiome { get; private set; }
-    [SerializeField] private TMP_Dropdown biomeDropdown;
 
     [Header("Biome Layers")]
     public BiomeLayer skyLayer;
     public BiomeLayer ambientLayer;
     public Image groundLayerFilter;
+    public Image groundLayerOverlay;
+    public CanvasGroup groundLayerCanvasGroup;
+    public Image baseGround;
 
     [Header("Biome Filters")]
     public CanvasGroup darkenFilter;
@@ -44,28 +44,16 @@ public class BiomeManager : MonoBehaviour
     private const float ambientBGMinY = -800f;
     private SettingsManager settingsManager;
 
-    [Header("Testing Controls")]
-    public KeyCode toggleSkyKey = KeyCode.Alpha1;
-    public KeyCode toggleAmbientKey = KeyCode.Alpha2;
-    public KeyCode toggleCloudsKey = KeyCode.Alpha3;
-    public KeyCode nextBiomeKey = KeyCode.Alpha4;
-    public KeyCode prevBiomeKey = KeyCode.Alpha5;
-
     [Header("Events")]
-    public UnityEngine.Events.UnityEvent<string, bool> OnLayerToggled;
     public UnityEngine.Events.UnityEvent<bool> OnCloudsToggled;
-    public UnityEngine.Events.UnityEvent<BiomeDataSO> OnBiomeChanged;
 
     // Spawned objects tracking
     private List<GameObject> spawnedSkyObjects = new List<GameObject>();
     private List<GameObject> spawnedEffectObjects = new List<GameObject>();
 
-    private int currentBiomeIndex = 0;
-
     private void Awake()
     {
         ServiceLocator.Register(this);
-        InitializeBiome();
 
         // Store original positions
         if (skyBG != null) originalSkyBGPosition = skyBG.anchoredPosition;
@@ -81,87 +69,31 @@ public class BiomeManager : MonoBehaviour
 
     private void Start()
     {
+        StartCoroutine(InitializeBiome());
+    }
+
+    private IEnumerator InitializeBiome()
+    {
+        yield return new WaitForSeconds(0.1f); // Ensure all systems are ready
         // Get reference to SettingsManager
         settingsManager = ServiceLocator.Get<SettingsManager>();
         if (settingsManager != null)
         {
             // Subscribe to game area resize events
             settingsManager.OnGameAreaChanged.AddListener(UpdateBackgroundPositions);
-
             // Initialize positions with current game area size
             UpdateBackgroundPositions();
         }
 
-        // Initialize dropdown if available
-        if (biomeDropdown != null)
-        {
-            InitializeDropdown();
-            biomeDropdown.onValueChanged.AddListener(OnDropdownValueChanged);
-        }
+        yield return new WaitForSeconds(0.1f); // Allow time for settings to initialize
 
         string savedBiomeID = SaveSystem.GetActiveBiome();
         if (!string.IsNullOrEmpty(savedBiomeID))
         {
             ChangeBiomeByID(savedBiomeID);
-        }
-        else
-        {
-            DeactiveBiome();
-        }
-
-        SetSkyLayerActive(SaveSystem.IsSkyEnabled());
-        SetAmbientLayerActive(SaveSystem.IsAmbientEnabled());
-        ToggleClouds(SaveSystem.IsCloudEnabled());
-    }
-
-    private void Update()
-    {
-        HandleTestingInput();
-    }
-
-    private void InitializeBiome()
-    {
-        // Set initial states
-        SetLayerActive(skyLayer, skyLayer.isActive);
-        SetLayerActive(ambientLayer, ambientLayer.isActive);
-
-        // Set current biome index
-        if (availableBiomes != null && availableBiomes.allBiomes.Count > 0 && currentBiome != null)
-        {
-            for (int i = 0; i < availableBiomes.allBiomes.Count; i++)
-            {
-                if (availableBiomes.allBiomes[i] == currentBiome)
-                {
-                    currentBiomeIndex = i;
-                    break;
-                }
-            }
-        }
-    }
-
-    private void InitializeDropdown()
-    {
-        biomeDropdown.ClearOptions();
-
-        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
-        foreach (BiomeDataSO biome in availableBiomes.allBiomes)
-        {
-            options.Add(new TMP_Dropdown.OptionData(biome.biomeName));
-        }
-
-        biomeDropdown.AddOptions(options);
-
-        // Set initial selection to match current biome
-        if (currentBiome != null)
-        {
-            for (int i = 0; i < availableBiomes.allBiomes.Count; i++)
-            {
-                if (availableBiomes.allBiomes[i] == currentBiome)
-                {
-                    biomeDropdown.value = i;
-                    break;
-                }
-            }
+            SetSkyLayerActive(SaveSystem.IsSkyEnabled());
+            SetAmbientLayerActive(SaveSystem.IsAmbientEnabled());
+            ToggleClouds(SaveSystem.IsCloudEnabled());
         }
     }
 
@@ -178,32 +110,6 @@ public class BiomeManager : MonoBehaviour
         {
             Debug.LogWarning($"BiomeManager: Unknown filter '{filterName}'");
         }
-    }
-
-    //for testing purposes
-    private void HandleTestingInput()
-    {
-        if (Input.GetKeyDown(toggleSkyKey))
-        {
-            bool newSkyState = !skyLayer.isActive;
-            ToggleLayer(ref skyLayer, newSkyState);
-        }
-
-        if (Input.GetKeyDown(toggleAmbientKey))
-        {
-            bool newAmbientState = !ambientLayer.isActive;
-            ToggleLayer(ref ambientLayer, newAmbientState);
-        }
-
-        if (Input.GetKeyDown(toggleCloudsKey))
-        {
-            bool currentCloudState = skyBG != null && skyBG.gameObject.activeSelf;
-            ToggleClouds(!currentCloudState);
-        }
-
-        // Biome cycling
-        if (Input.GetKeyDown(nextBiomeKey)) ChangeBiome(1);
-        if (Input.GetKeyDown(prevBiomeKey)) ChangeBiome(-1);
     }
 
     private void UpdateBackgroundPositions()
@@ -250,13 +156,6 @@ public class BiomeManager : MonoBehaviour
         {
             cloudSystem.ToggleCloud(active);
         }
-
-        // Optional UI feedback
-        var uiManager = ServiceLocator.Get<UIManager>();
-        if (uiManager != null)
-        {
-            uiManager.ShowMessage($"Clouds: {(active ? "ON" : "OFF")}", 1f);
-        }
     }
 
 
@@ -266,16 +165,13 @@ public class BiomeManager : MonoBehaviour
     {
         layer.isActive = active;
         SetLayerActive(layer, active);
-        OnLayerToggled?.Invoke(layer.layerName, active);
 
         if (layer.layerName == "Sky")
             SaveSystem.SetSkyEnabled(active);
         else if (layer.layerName == "Ambient")
             SaveSystem.SetAmbientEnabled(active);
-
-        var uiManager = ServiceLocator.Get<UIManager>();
-        uiManager?.ShowMessage($"{layer.layerName}: {(active ? "ON" : "OFF")}", 1f);
     }
+
     public void DeactiveBiome()
     {
         SetSkyLayerActive(false);
@@ -306,57 +202,12 @@ public class BiomeManager : MonoBehaviour
 
     #region Biome Management
 
-    private void OnDropdownValueChanged(int index)
-    {
-        if (index >= 0 && index < availableBiomes.allBiomes.Count)
-        {
-            ChangeBiomeByIndex(index);
-        }
-    }
-
-    /// <summary>
-    /// Change biome by relative offset (1 for next, -1 for previous)
-    /// </summary>
-    public void ChangeBiome(int offset)
-    {
-        if (availableBiomes == null || availableBiomes.allBiomes.Count == 0) return;
-
-        // Calculate new index with wrap-around
-        int newIndex = (currentBiomeIndex + offset) % availableBiomes.allBiomes.Count;
-        if (newIndex < 0) newIndex = availableBiomes.allBiomes.Count - 1;
-
-        ChangeBiomeByIndex(newIndex);
-    }
-
-    /// <summary>
-    /// Change biome by index in the available biomes array
-    /// </summary>
-    public void ChangeBiomeByIndex(int index)
-    {
-        if (availableBiomes == null || index < 0 || index >= availableBiomes.allBiomes.Count) return;
-
-        BiomeDataSO newBiome = availableBiomes.allBiomes[index];
-        ApplyBiomeData(newBiome);
-        currentBiomeIndex = index;
-
-        // Update dropdown if available
-        if (biomeDropdown != null && biomeDropdown.value != index)
-        {
-            biomeDropdown.SetValueWithoutNotify(index);
-        }
-    }
     /// <summary>
     /// Change biome by its biomeID (string)
     /// </summary>
     public void ChangeBiomeByID(string biomeID)
     {
-        if (string.IsNullOrEmpty(biomeID))
-        {
-            // No biome set, deactivate everything
-            DeactiveBiome();
-            currentBiome = null;
-            return;
-        }
+        if (string.IsNullOrEmpty(biomeID)) return;
 
         if (availableBiomes == null) return;
 
@@ -364,12 +215,11 @@ public class BiomeManager : MonoBehaviour
         {
             if (availableBiomes.allBiomes[i].biomeID == biomeID)
             {
-                ChangeBiomeByIndex(i);
+                BiomeDataSO newBiome = availableBiomes.allBiomes[i];
+                ApplyBiomeData(newBiome);
                 return;
             }
         }
-
-        Debug.LogWarning($"BiomeManager: Biome with ID '{biomeID}' not found!");
     }
 
     /// <summary>
@@ -383,12 +233,11 @@ public class BiomeManager : MonoBehaviour
         {
             if (availableBiomes.allBiomes[i].biomeName == biomeName)
             {
-                ChangeBiomeByIndex(i);
+                BiomeDataSO newBiome = availableBiomes.allBiomes[i];
+                ApplyBiomeData(newBiome);
                 return;
             }
         }
-
-        Debug.LogWarning($"BiomeManager: Biome with name '{biomeName}' not found!");
     }
 
     /// <summary>
@@ -420,6 +269,10 @@ public class BiomeManager : MonoBehaviour
                 ambientImage.sprite = biome.ambientBackground;
             }
         }
+        
+        SetSkyLayerActive(true);
+        SetAmbientLayerActive(true);
+        ToggleClouds(true);
 
         // Set ground layer filter color and alpha
         if (groundLayerFilter != null)
@@ -431,15 +284,18 @@ public class BiomeManager : MonoBehaviour
             {
                 if (groundImage != null)
                 {
-                    groundImage.sprite = biome.groundBackground;
+                    groundLayerOverlay.sprite = biome.groundBackground;
+                    groundLayerCanvasGroup.DOFade(1f, 0.5f).SetEase(Ease.InOutQuad).OnPlay(() =>
+                    {
+                        baseGround.enabled = false;
+                    });
                 }
             }
 
             if (groundFilterCg != null)
             {
-                groundLayerFilter.color = Color.clear; // Reset to clear before applying new color
-                groundFilterCg.alpha = 0f; // Reset alpha before applying new value
-
+                groundLayerFilter.color = Color.clear; 
+                groundFilterCg.alpha = 0f; 
                 groundLayerFilter.color = biome.groundFilterColor;
                 groundFilterCg.DOFade(biome.groundFilterAlpha, 0.5f).SetEase(Ease.InOutQuad);
             }
@@ -483,15 +339,11 @@ public class BiomeManager : MonoBehaviour
             }
         }
 
-        // Invoke the biome changed event
-        OnBiomeChanged?.Invoke(biome);
-
-        // Show message if UIManager is available
-        var uiManager = ServiceLocator.Get<UIManager>();
-        if (uiManager != null)
-        {
-            uiManager.ShowMessage($"Biome: {biome.biomeName}", 1.5f);
-        }
+        SaveSystem.AddOwnedBiome(biome.biomeID);
+        SaveSystem.SetActiveBiome(biome.biomeID);
+        SaveSystem.SetSkyEnabled(true);
+        SaveSystem.SetAmbientEnabled(true);
+        SaveSystem.SetCloudEnabled(true);
     }
 
     private void ClearSpawnedObjects(List<GameObject> objects)
@@ -514,13 +366,6 @@ public class BiomeManager : MonoBehaviour
         {
             rainSystem.SetActive(!rainSystem.activeSelf);
             SaveSystem.GetPlayerConfig().isRainEnabled = rainSystem.activeSelf;
-
-            // Optional: Show message if UIManager is available
-            var uiManager = ServiceLocator.Get<UIManager>();
-            if (uiManager != null)
-            {
-                uiManager.ShowMessage($"Rain System: {(!rainSystem.activeSelf ? "Disabled" : "Enabled")}", 1f);
-            }
         }
         else
         {
@@ -534,11 +379,6 @@ public class BiomeManager : MonoBehaviour
         if (settingsManager != null)
         {
             settingsManager.OnGameAreaChanged.RemoveListener(UpdateBackgroundPositions);
-        }
-
-        if (biomeDropdown != null)
-        {
-            biomeDropdown.onValueChanged.RemoveListener(OnDropdownValueChanged);
         }
 
         ClearSpawnedObjects(spawnedSkyObjects);

@@ -142,7 +142,7 @@ public class MonsterManager : MonoBehaviour
 
         controller.LoadMonData();
         var finalData = controller.MonsterData;
-        monster.name = $"{finalData.monsterName}_{controller.monsterID}";
+        monster.name = $"{finalData.name}_{controller.monsterID}";
 
         if (string.IsNullOrEmpty(id))
         {
@@ -702,17 +702,6 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    public MonsterController GetMonsterByID(string monsterID)
-    {
-        if (SaveSystem.LoadMon(monsterID, out var saveData))
-        {
-            MonsterController monster = new MonsterController();
-            monster.StatsHandler.Initialize(saveData.currentHunger, saveData.currentHappiness, saveData.currentHealth, monster.MonsterData.GetMaxHealth(saveData.currentEvolutionLevel));
-            return monster;
-        }
-        return null;
-    }
-
     private void SaveGameData()
     {
         SaveAllMonsters();
@@ -794,7 +783,7 @@ public class MonsterManager : MonoBehaviour
 
         string npcID = id ?? $"NPC_{monsterData.id}_{System.Guid.NewGuid().ToString("N").Substring(0, 8)}";
         controller.monsterID = npcID;
-        controller.gameObject.name = $"{monsterData.monsterName}_{npcID}";
+        controller.gameObject.name = $"{monsterData.name}_{npcID}";
         controller.SetMonsterData(monsterData);
 
         npcObj.GetComponent<RectTransform>().anchoredPosition = movementBounds.GetRandomSpawnTarget();

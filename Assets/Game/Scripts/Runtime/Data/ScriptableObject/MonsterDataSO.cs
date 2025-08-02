@@ -18,7 +18,7 @@ public class MonsterDataSO : ScriptableObject
     public float moveSpd = 100f;       // Move speed
     public float foodDetectionRange = 100f;     // Range to detect food
     public float eatDistance = 5f;              // Distance to eat food
-    public float baseHappiness = 50f;            // Add base happiness
+    public float baseHappiness = 100f;            // Add base happiness
     public float baseHunger = 100f;               // Add base hunger
     public float hungerDepleteRate = 0.1f;  // How fast hunger depletes
     public float maxHealthStage1 = 0f;
@@ -46,16 +46,13 @@ public class MonsterDataSO : ScriptableObject
     [Header("Happiness Settings")]
     public float areaHappinessRate = 0.1f; // Rate at which happiness increases in the area
     public float pokeHappinessValue = 5f;
-    public float hungerHappinessThreshold = 50f; // threshold below which hunger affects happiness
+    public float hungerHappinessThreshold = 40f; // threshold below which hunger affects happiness
     public float hungerHappinessDrainRate = 0.1f; // how much happiness drains when hungry
 
     [Header("Evolution")]
     public bool canEvolve = true;
     public bool isEvolved = false;
     public int evolutionLevel = 1;
-
-    public int timeToEvolveStage1 = 0; // Time to evolve from Stage 1 to Stage 2 (in days)
-    public int timeToEvolveStage2 = 0; // Time to evolve from Stage 2 to Stage 3 (in days)
 
     // Helper method to get evolution stage name
     public string GetEvolutionStageName(int level)
@@ -172,8 +169,8 @@ public class MonsterDataSO : ScriptableObject
         switch (evolutionLevel)
         {
             case 1: return maxNutritionStage1 > 0 ? maxNutritionStage1 : 100f; // Default to 100 if not set
-            case 2: return maxNutritionStage2 > 0 ? maxNutritionStage2 : 100f * 2f;
-            case 3: return maxNutritionStage3 > 0 ? maxNutritionStage3 : 100f * 3f;
+            case 2: return maxNutritionStage2 > 0 ? maxNutritionStage2 : 0f;
+            case 3: return maxNutritionStage3 > 0 ? maxNutritionStage3 : 0f;
             default: return maxNutritionStage1;
         }
     }
@@ -182,8 +179,8 @@ public class MonsterDataSO : ScriptableObject
         switch (evolutionLevel)
         {
             case 1: return maxHealthStage1 > 0 ? maxHealthStage1 : 100f; // Default to 100 if not set
-            case 2: return maxHealthStage2 > 0 ? maxHealthStage2 : 100f * 1.5f;
-            case 3: return maxHealthStage3 > 0 ? maxHealthStage3 : 100f * 3f;
+            case 2: return maxHealthStage2 > 0 ? maxHealthStage2 : 0f;
+            case 3: return maxHealthStage3 > 0 ? maxHealthStage3 : 0f;
             default: return maxHealthStage1;
         }
     }

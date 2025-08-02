@@ -22,6 +22,10 @@ public class MonsterShopManager : MonoBehaviour
 
     public MonsterCardUI selectedCard;
 
+    // Object pool for monster cards
+    private List<MonsterCardUI> cardPool = new List<MonsterCardUI>();
+    private List<MonsterCardUI> activeCards = new List<MonsterCardUI>();
+
     private void Start()
     {
         rarityTabController.OnTabChanged += OnRarityTabChanged;
@@ -66,18 +70,52 @@ public class MonsterShopManager : MonoBehaviour
 
     private void Populate(List<ItemDataSO> list)
     {
-        ClearMonsterGrid();
+        // Return all active cards to pool
+        ReturnCardsToPool();
 
-        foreach (var monster in list)
+        // Get or create cards for the list
+        for (int i = 0; i < list.Count; i++)
         {
-            GameObject obj = Instantiate(monsterCardPrefab, monsterCardParent);
-            MonsterCardUI card = obj.GetComponent<MonsterCardUI>();
-            card.Setup(monster);
+            MonsterCardUI card = GetCardFromPool();
+            card.Setup(list[i]);
             card.OnSelected = OnMonsterSelected;
             card.OnBuy = OnMonsterBuy;
+            card.gameObject.SetActive(true);
+            activeCards.Add(card);
         }
 
         ClearMonsterInfo(); // Reset info panel
+    }
+
+    private MonsterCardUI GetCardFromPool()
+    {
+        // Try to find an inactive card in the pool
+        for (int i = 0; i < cardPool.Count; i++)
+        {
+            if (!cardPool[i].gameObject.activeInHierarchy)
+            {
+                return cardPool[i];
+            }
+        }
+
+        // If no inactive card found, create a new one
+        GameObject obj = Instantiate(monsterCardPrefab, monsterCardParent);
+        MonsterCardUI card = obj.GetComponent<MonsterCardUI>();
+        cardPool.Add(card);
+        return card;
+    }
+
+    private void ReturnCardsToPool()
+    {
+        // Deactivate all active cards
+        foreach (var card in activeCards)
+        {
+            card.gameObject.SetActive(false);
+        }
+        activeCards.Clear();
+
+        // Clear selection
+        selectedCard = null;
     }
 
     private void OnMonsterSelected(MonsterCardUI card)

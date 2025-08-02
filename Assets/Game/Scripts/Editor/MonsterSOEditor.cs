@@ -465,8 +465,34 @@ public class MonsterDataSOEditor : Editor
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("isEvolved"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("evolutionLevel"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage1"), new GUIContent("Time to Evolve Stage 2 (days)"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("timeToEvolveStage2"), new GUIContent("Time to Evolve Stage 3 (days)"));
+
+            // Add time-based evolution settings for regular monsters too
+            EditorGUILayout.Space(3);
+            EditorGUILayout.LabelField("Time-Based Evolution", EditorStyles.boldLabel);
+            
+            // Check if the properties exist before trying to display them
+            var timeToEvolveStage1Prop = serializedObject.FindProperty("timeToEvolveStage1");
+            var timeToEvolveStage2Prop = serializedObject.FindProperty("timeToEvolveStage2");
+            
+            if (timeToEvolveStage1Prop != null)
+            {
+                EditorGUILayout.PropertyField(timeToEvolveStage1Prop, 
+                    new GUIContent("Days to Stage 2", "Time required to evolve to stage 2"));
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("timeToEvolveStage1 property not found in MonsterDataSO", MessageType.Warning);
+            }
+            
+            if (timeToEvolveStage2Prop != null)
+            {
+                EditorGUILayout.PropertyField(timeToEvolveStage2Prop, 
+                    new GUIContent("Days to Stage 3", "Time required to evolve to stage 3"));
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("timeToEvolveStage2 property not found in MonsterDataSO", MessageType.Warning);
+            }
 
             EditorGUILayout.Space(3);
             EditorGUILayout.LabelField("Requirements & Behaviors", EditorStyles.boldLabel);

@@ -21,7 +21,7 @@ public class MonsterDetailPanel : MonoBehaviour
     {
         currentData = data;
 
-        nameText.text = data.monsterName;
+        nameText.text = data.name;
         typeText.text = $"Type: {data.monType}";
         fullnessSlider.value = data.baseHunger / 100f;
         happinessSlider.value = data.baseHappiness / 100f;

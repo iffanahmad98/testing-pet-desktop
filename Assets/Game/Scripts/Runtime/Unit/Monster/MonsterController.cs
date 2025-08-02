@@ -564,7 +564,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         if (monsterID.StartsWith("temp_") || string.IsNullOrEmpty(monsterID))
         {
             monsterID = $"{monsterData.id}_Lv{evolutionLevel}_{System.Guid.NewGuid().ToString("N")[..8]}";
-            gameObject.name = $"{monsterData.monsterName}_{monsterID}";
+            gameObject.name = $"{monsterData.name}_{monsterID}";
             timeCreated = DateTime.UtcNow.ToString("o"); // ISO 8601
         }
     }

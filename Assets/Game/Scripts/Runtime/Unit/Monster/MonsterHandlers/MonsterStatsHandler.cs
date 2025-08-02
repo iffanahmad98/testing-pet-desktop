@@ -38,9 +38,7 @@ public class MonsterStatsHandler
         }
         else
         {
-            _currentHunger = 50f;
-            _currentHappiness = 100f;
-            _currentHP = 100f;
+            Debug.LogError("MonsterData is not set in MonsterStatsHandler.");
         }
 
         _isSick = false;

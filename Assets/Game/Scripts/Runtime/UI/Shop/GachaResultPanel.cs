@@ -126,7 +126,7 @@ public class GachaResultPanel : MonoBehaviour
         // 4. Show monster info 
         seq.AppendCallback(() =>
         {
-            monsterNameText.text = monster.monsterName;
+            monsterNameText.text = monster.name;
             monsterSkeletonGraphic.skeletonDataAsset = monster.monsterSpine[0];
             monsterSkeletonGraphic.material = monsterMaterial;
             monsterSkeletonGraphic.startingAnimation = monsterSkeletonGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";

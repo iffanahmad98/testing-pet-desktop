@@ -1,15 +1,17 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "FacilityData", menuName = "Facility/FacilityData")]
+[CreateAssetMenu(fileName = "New Facility", menuName = "Facility/Facility Data")]
 public class FacilityDataSO : ScriptableObject
 {
-    [Header("Facility Info")]
-    public string facilityID;
-    public string facilityName;
-    [TextArea] public string description;
-    public Sprite icon;
+    [Header("Metadata")]
+    public string facilityID = "facility_default";
+    public string facilityName = "New Facility";
+    public string description = "Description here.";
+    public int price = 100;
+    public Sprite thumbnail; // Used in shop card UI
 
-    [Header("Usage Settings")]
-    public int price;                         // Player must pay to use
-    public float cooldownSeconds;             // Time before it can be used again
+    [Header("Functionality")]
+    public float cooldownSeconds = 30f;
+    
+    // Add any other facility-specific properties here
 }
