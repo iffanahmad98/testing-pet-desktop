@@ -257,7 +257,7 @@ public class MonsterManager : MonoBehaviour
         var allMonstersForSorting = new List<MonsterController>();
         allMonstersForSorting.AddRange(activeMonsters.Where(m => m != null && m.gameObject.activeInHierarchy));
         allMonstersForSorting.AddRange(npcMonsters.Where(m => m != null && m.gameObject.activeInHierarchy));
-        
+
         if (allMonstersForSorting.Count <= 1) return;
 
         // Sort by Y position (higher Y = lower sibling index)
@@ -795,6 +795,15 @@ public class MonsterManager : MonoBehaviour
         var settingsManager = ServiceLocator.Get<SettingsManager>();
         if (settingsManager != null)
             settingsManager.ApplyCurrentPetScaleToMonster(controller);
+    }
+    public void RemoveNPC(string npcID)
+    {
+        var npc = npcMonsters.FirstOrDefault(n => n.monsterID == npcID);
+        if (npc != null)
+        {
+            DespawnToPool(npc.gameObject);
+            npcMonsters.Remove(npc);
+        }
     }
 
     #endregion

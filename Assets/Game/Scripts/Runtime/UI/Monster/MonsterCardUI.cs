@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Spine.Unity;
-using Unity.Android.Gradle.Manifest;
 
 public class MonsterCardUI : MonoBehaviour
 {
@@ -84,7 +83,7 @@ public class MonsterCardUI : MonoBehaviour
             {
                 int _random = Random.Range(0, 2);
                 string randomAnim = _random == 0 ? "itching" : "jumping";
-                
+
                 // Play random animation once, then queue idle to loop
                 monsterGraphic.AnimationState.SetAnimation(0, randomAnim, false);
                 monsterGraphic.AnimationState.AddAnimation(0, "idle", true, 0f);

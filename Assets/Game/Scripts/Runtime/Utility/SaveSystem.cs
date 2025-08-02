@@ -456,19 +456,61 @@ public static class SaveSystem
         return _playerConfig.isAmbientEnabled;
     }
     #endregion
+    #region NPC Operations
+    public static bool IsNPCOwned(string npcID)
+    {
+        return GetPlayerConfig().ownedNPCMonsters.Any(n => n.monsterId == npcID);
+    }
+    public static bool HasNPC(string npcID)
+    {
+        if (string.IsNullOrEmpty(npcID))
+            return false;
+
+        return _playerConfig.ownedNPCMonsters.Any(npc => npc.monsterId == npcID);
+    }
+
+    public static void AddNPC(string npcID)
+    {
+        if (string.IsNullOrEmpty(npcID))
+        {
+            Debug.LogWarning("Tried to add null or empty NPC ID.");
+            return;
+        }
+
+        if (HasNPC(npcID))
+        {
+            Debug.LogWarning($"NPC '{npcID}' already owned.");
+            return;
+        }
+
+        // Create a new entry and add it to the list
+        var npcData = new NPCSaveData
+        {
+            monsterId = npcID,
+            instanceId = Guid.NewGuid().ToString(), // generate a unique instance ID
+        };
+
+        _playerConfig.ownedNPCMonsters.Add(npcData);
+        SaveAll();
+        Debug.Log($"Added NPC '{npcID}' to owned NPCs.");
+    }
+
+    #endregion
     #region  Facility Operations
     public static bool IsFacilityOwned(string facilityID)
     {
         return GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
     }
 
+
+
     public static bool TryPurchaseFacility(FacilityDataSO facility)
     {
         var config = GetPlayerConfig();
-        
+
         if (config.ownedFacilities.Any(f => f.facilityID == facility.facilityID))
             return true; // Already owned
-            
+
         // Use CoinManager for consistency
         if (!CoinManager.SpendCoins(facility.price))
         {
@@ -479,7 +521,7 @@ public static class SaveSystem
         // Create OwnedFacilityData object using constructor
         var ownedFacility = new OwnedFacilityData(facility.facilityID, facility.cooldownSeconds);
         config.ownedFacilities.Add(ownedFacility);
-        
+
         SaveAll();
         Debug.Log($"Bought facility {facility.name} for {facility.price} coins. Remaining: {CoinManager.Coins}");
         return true;

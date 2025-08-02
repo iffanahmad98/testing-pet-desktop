@@ -243,6 +243,30 @@ public class PlayerConfig
         if (!HasFacility(id))
             ownedFacilities.Add(new OwnedFacilityData(id, Time.time + cooldown));
     }
+    public bool HasNPC(string npcId)
+    {
+        return ownedNPCMonsters.Any(n => n.monsterId == npcId);
+    }
+    public void AddNPC(string npcId)
+    {
+        if (!HasNPC(npcId))
+        {
+            string instanceId = Guid.NewGuid().ToString(); // Generate unique instance
+            ownedNPCMonsters.Add(new NPCSaveData
+            {
+                instanceId = instanceId,
+                monsterId = npcId
+            });
+        }
+    }
+    public void ClearAllNPCs()
+    {
+        ownedNPCMonsters.Clear();
+    }
+    public List<string> GetOwnedNPCIDs()
+    {
+        return ownedNPCMonsters.Select(n => n.monsterId).ToList();
+    }
 }
 
 [Serializable]
@@ -290,5 +314,6 @@ public class OwnedFacilityData
         nextUsableTime = cooldownTime;
     }
 }
+
 
 
