@@ -34,7 +34,6 @@ public class UIManager : MonoBehaviour
     public Button catalogueButton;
     public Button closeCatalogueButton;
     public Button mainInventoryButton;
-    public Button closeMainInventoryButton;
 
     public TextMeshProUGUI messageText;
 
@@ -159,7 +158,21 @@ public class UIManager : MonoBehaviour
                 FadePanel(InventoryPanel, InventoryCanvasGroup, true, 0.3f, 1.08f, 0.15f, true);
             }
         });
+        mainInventoryButton?.onClick.AddListener(() =>
+        {
+            bool isActive = InventoryCanvasGroup.interactable;
 
+            if (isActive)
+            {
+                // Fade out and disable
+                FadePanel(InventoryPanel, InventoryCanvasGroup, false, 0.3f, 1.08f, 0.15f, true);
+            }
+            else
+            {
+                // Fade in and enable
+                FadePanel(InventoryPanel, InventoryCanvasGroup, true, 0.3f, 1.08f, 0.15f, true);
+            }
+        });
         catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
@@ -182,7 +195,6 @@ public class UIManager : MonoBehaviour
         closeCatalogueButton?.onClick.RemoveAllListeners();
         miniInventoryButton?.onClick.RemoveAllListeners();
         mainInventoryButton?.onClick.RemoveAllListeners();
-        closeMainInventoryButton?.onClick.RemoveAllListeners();
     }
 
     #endregion
@@ -526,6 +538,12 @@ public class UIManager : MonoBehaviour
 
     private void MinimizeApplication()
     {
+#if UNITY_EDITOR
+        // Stop play mode if running in Unity Editor
+        UnityEditor.EditorApplication.isPlaying = false;
+        return;
+#endif
+        // Minimize the application in standalone builds
         var transparentWindow = ServiceLocator.Get<TransparentWindow>();
         if (transparentWindow != null)
         {

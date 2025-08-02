@@ -26,6 +26,8 @@ public class GachaResultPanel : MonoBehaviour
     [Header("Effects")]
     public UIParticle shineVFX;
     public UIParticle confettiVFX;
+    public UIParticle fireworkVFX;
+    public UIParticle[] miniFireworkVFX;
 
     [Header("Buttons")]
     public Button spawnBtn;
@@ -131,6 +133,7 @@ public class GachaResultPanel : MonoBehaviour
             monsterSkeletonGraphic.material = monsterMaterial;
             monsterSkeletonGraphic.startingAnimation = monsterSkeletonGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";
             monsterSkeletonGraphic.Initialize(true);
+            monsterSkeletonGraphic.AnimationState.SetAnimation(0, "idle", true);
             rarityText.text = monster.monType.ToString().ToUpperInvariant();
             sellPriceText.text = monster.sellPriceStage1.ToString();
         });
@@ -138,6 +141,12 @@ public class GachaResultPanel : MonoBehaviour
         seq.Append(monsterCanvas.DOFade(1, 0.2f).SetEase(fadeInMonsterEase));
         seq.Join(monsterDisplay.transform.DOPunchScale(Vector3.one * 1.25f, 0.4f, 8, 0.8f).SetEase(punchMonsterEase));
         seq.JoinCallback(() => confettiVFX?.Play());
+        seq.JoinCallback(() =>
+        {
+            fireworkVFX.gameObject.SetActive(true);
+            fireworkVFX?.Play();
+        });
+        seq.AppendCallback(() => StartCoroutine(PlayMiniFireworksWithDelay()));
         seq.AppendCallback(() =>
         {
             shineVFX.gameObject.SetActive(false);
@@ -173,7 +182,7 @@ public class GachaResultPanel : MonoBehaviour
         // Hide and reset egg
         egg.SetActive(false);
         if (eggCanvas != null) eggCanvas.alpha = 0f;
-        
+
         // Reset egg monster
         if (eggMonsterCanvasGroup != null) eggMonsterCanvasGroup.alpha = 0f;
 
@@ -185,6 +194,11 @@ public class GachaResultPanel : MonoBehaviour
         // Stop effects
         shineVFX.Stop();
         confettiVFX.Stop();
+        fireworkVFX.Stop();
+        foreach (var miniFirework in miniFireworkVFX)
+        {
+            if (miniFirework != null) miniFirework.Stop();
+        }
     }
 
     private void HideResultPanel()
@@ -210,6 +224,16 @@ public class GachaResultPanel : MonoBehaviour
         else
         {
             root.SetActive(false);
+        }
+    }
+
+    private IEnumerator PlayMiniFireworksWithDelay()
+    {
+        foreach (var miniFirework in miniFireworkVFX)
+        {
+            miniFirework.gameObject.SetActive(true);
+            miniFirework?.Play();
+            yield return new WaitForSeconds(0.5f);
         }
     }
 }

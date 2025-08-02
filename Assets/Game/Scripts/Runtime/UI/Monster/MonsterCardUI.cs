@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Spine.Unity;
+using Unity.Android.Gradle.Manifest;
 
 public class MonsterCardUI : MonoBehaviour
 {
@@ -11,6 +13,8 @@ public class MonsterCardUI : MonoBehaviour
     public Button selectButton;
     public Button buyButton;
     public Image highlightBorder; // Optional: For showing selection
+    public SkeletonGraphic monsterGraphic;
+    public Material monsterMaterial; // Optional: For custom material effects
 
     [Header("Data")]
     public ItemDataSO monsterItemData;
@@ -36,14 +40,22 @@ public class MonsterCardUI : MonoBehaviour
     public void Setup(ItemDataSO data)
     {
         monsterItemData = data;
-        if (monsterIcon != null && data != null && data.itemImgs.Length > 0)
+        if (data.skeletonDataAsset != null)
         {
+            monsterIcon.gameObject.SetActive(false);
+            monsterGraphic.gameObject.SetActive(true);
+            monsterGraphic.skeletonDataAsset = data.skeletonDataAsset;
+            monsterGraphic.Initialize(true);
+            monsterGraphic.AnimationState.SetAnimation(0, "idle", true);
+        }
+        else if (data != null && data.itemImgs.Length > 0)
+        {
+            monsterGraphic.gameObject.SetActive(false);
+            monsterIcon.gameObject.SetActive(true);
             monsterIcon.sprite = data.itemImgs[0];
         }
-        if (monsterNameText != null)
-            monsterNameText.text = data.itemName;
-        if (priceText != null)
-            priceText.text = data.price.ToString();
+        monsterNameText.text = data.itemName;
+        priceText.text = data.price.ToString();
         SetSelected(false);
     }
 
@@ -63,16 +75,25 @@ public class MonsterCardUI : MonoBehaviour
 
         if (highlightBorder != null)
         {
-            // Solution 1: Use SetActive (most reliable)
             highlightBorder.gameObject.SetActive(selected);
+        }
 
-            // Alternative Solution 2: Use color with alpha
-            // Color borderColor = highlightBorder.color;
-            // borderColor.a = selected ? 1f : 0f;
-            // highlightBorder.color = borderColor;
-
-            // Alternative Solution 3: Use different colors
-            // highlightBorder.color = selected ? selectedBorderColor : normalBorderColor;
+        if (monsterGraphic != null && monsterGraphic.skeletonDataAsset != null)
+        {
+            if (selected)
+            {
+                int _random = Random.Range(0, 2);
+                string randomAnim = _random == 0 ? "itching" : "jumping";
+                
+                // Play random animation once, then queue idle to loop
+                monsterGraphic.AnimationState.SetAnimation(0, randomAnim, false);
+                monsterGraphic.AnimationState.AddAnimation(0, "idle", true, 0f);
+            }
+            else
+            {
+                // When deselected, just play idle
+                monsterGraphic.AnimationState.SetAnimation(0, "idle", true);
+            }
         }
     }
 
