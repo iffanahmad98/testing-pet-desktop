@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Spine.Unity;
-using Unity.Android.Gradle.Manifest;
 
 public class MonsterCardUI : MonoBehaviour
 {

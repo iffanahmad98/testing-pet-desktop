@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MagicalGarden.Manager;
 using UnityEngine;
 
 namespace MagicalGarden.Farm
@@ -53,6 +54,7 @@ namespace MagicalGarden.Farm
         {
             PlantManager.Instance.SaveToJson();
             FieldManager.Instance.SaveToJson();
+            HotelManager.Instance.SaveGuestRequests();
             //add other seting
         }
 
