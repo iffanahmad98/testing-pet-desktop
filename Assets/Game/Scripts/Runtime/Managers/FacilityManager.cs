@@ -16,8 +16,8 @@ public class FacilityManager : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register(this);
-        
-        SaveSystem.TryPurchaseFacility(facilityDatabase.GetFacility("F1"));
+
+        // SaveSystem.TryPurchaseFacility(facilityDatabase.GetFacility("F1"));
         magicShovelButton.onClick.AddListener(() => UseFacility("F1"));
     }
 
@@ -74,7 +74,7 @@ public class FacilityManager : MonoBehaviour
 
         return true;
     }
-    
+
     private IEnumerator UseMagicShovel()
     {
         var monsterManager = ServiceLocator.Get<MonsterManager>();

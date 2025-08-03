@@ -44,10 +44,12 @@ public class FacilityCardUI : MonoBehaviour
         priceText.text = data.monsterPrice.ToString();
 
         bool isOwned = SaveSystem.IsNPCOwned(data.id);
+        bool isActive = SaveSystem.IsNPCActive(data.id);
+        Debug.Log($"Setting up NPC: {data.id}, Owned: {isOwned}, Active: {isActive}");
 
-        useButton.gameObject.SetActive(isOwned);
         buyButton.gameObject.SetActive(!isOwned);
-        cancelButton?.gameObject.SetActive(false); // NPCs have no cooldown
+        useButton.gameObject.SetActive(isOwned && !isActive);   // Show Apply button only if owned but not active
+        cancelButton?.gameObject.SetActive(isOwned && isActive); // Show Cancel button only if already active
         cooldownOverlay?.gameObject.SetActive(false);
 
         SetupButtonListeners(data.id);

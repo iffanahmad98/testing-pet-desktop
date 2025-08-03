@@ -278,7 +278,6 @@ public class MonsterManager : MonoBehaviour
         {
             var saveData = new NPCSaveData
             {
-                instanceId = npc.monsterID,
                 monsterId = npc.MonsterData.id
             };
             SaveSystem.SaveNPCMon(saveData);
@@ -293,14 +292,18 @@ public class MonsterManager : MonoBehaviour
         {
             if (SaveSystem.LoadNPCMon(id, out NPCSaveData saveData))
             {
-                var monsterData = npcMonsterDatabase.monsters.Find(m => m.id == saveData.monsterId);
-                if (monsterData != null)
+                // Only spawn if isActive == 1
+                if (saveData.isActive == 1)
                 {
-                    SpawnNPCMonster(monsterData, saveData.instanceId);
-                }
-                else
-                {
-                    Debug.LogWarning($"NPC monster data not found for ID: {saveData.monsterId}");
+                    var monsterData = npcMonsterDatabase.monsters.Find(m => m.id == saveData.monsterId);
+                    if (monsterData != null)
+                    {
+                        SpawnNPCMonster(monsterData, saveData.monsterId);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"NPC monster data not found for ID: {saveData.monsterId}");
+                    }
                 }
             }
         }
@@ -705,7 +708,6 @@ public class MonsterManager : MonoBehaviour
     private void SaveGameData()
     {
         SaveAllMonsters();
-        SaveAllNPCMons();
         SaveSystem.SavePoop(poopCollected);
         SaveSystem.Flush();
     }
@@ -781,7 +783,7 @@ public class MonsterManager : MonoBehaviour
         var movementBounds = new MonsterBoundsHandler(this, npcObj.GetComponent<RectTransform>());
         controller.isNPC = true;
 
-        string npcID = id ?? $"NPC_{monsterData.id}_{System.Guid.NewGuid().ToString("N").Substring(0, 8)}";
+        string npcID = id ?? monsterData.id;
         controller.monsterID = npcID;
         controller.gameObject.name = $"{monsterData.name}_{npcID}";
         controller.SetMonsterData(monsterData);
@@ -796,15 +798,17 @@ public class MonsterManager : MonoBehaviour
         if (settingsManager != null)
             settingsManager.ApplyCurrentPetScaleToMonster(controller);
     }
-    public void RemoveNPC(string npcID)
+    public void DespawnNPC(string npcID)
     {
         var npc = npcMonsters.FirstOrDefault(n => n.monsterID == npcID);
         if (npc != null)
         {
             DespawnToPool(npc.gameObject);
             npcMonsters.Remove(npc);
+            SaveSystem.ToggleNPCActiveState(npc.monsterID, false);
         }
     }
+
 
     #endregion
 }

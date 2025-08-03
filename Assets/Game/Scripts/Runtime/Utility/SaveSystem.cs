@@ -80,7 +80,7 @@ public static class SaveSystem
     }
     public static void SaveNPCMon(NPCSaveData data)
     {
-        if (data == null || string.IsNullOrEmpty(data.instanceId))
+        if (data == null || string.IsNullOrEmpty(data.monsterId))
         {
             Debug.LogWarning("Tried to save null or invalid NPC monster data.");
             return;
@@ -487,12 +487,43 @@ public static class SaveSystem
         var npcData = new NPCSaveData
         {
             monsterId = npcID,
-            instanceId = Guid.NewGuid().ToString(), // generate a unique instance ID
+            isActive = 1 // Set active by default
         };
 
         _playerConfig.ownedNPCMonsters.Add(npcData);
         SaveAll();
         Debug.Log($"Added NPC '{npcID}' to owned NPCs.");
+    }
+    public static void ToggleNPCActiveState(string monsterId, bool isActive)
+    {
+        if (string.IsNullOrEmpty(monsterId))
+        {
+            Debug.LogWarning("Tried to toggle active state for null or empty instance ID.");
+            return;
+        }
+
+        var npc = _playerConfig.ownedNPCMonsters.FirstOrDefault(n => n.monsterId == monsterId);
+        if (npc == null)
+        {
+            Debug.LogWarning($"NPC with monster ID '{monsterId}' not found.");
+            return;
+        }
+
+        npc.isActive = isActive ? 1 : 0; // 1 for active, 0 for inactive
+        SaveAll();
+        Debug.Log($"Set NPC '{npc.monsterId}' active state to {isActive}.");
+    }
+    public static bool IsNPCActive(string npcID)
+    {
+        if (string.IsNullOrEmpty(npcID))
+        {
+            Debug.LogWarning("Tried to check active state for null or empty NPC ID.");
+            return false;
+        }
+
+        var npc = _playerConfig.ownedNPCMonsters.FirstOrDefault(n => n.monsterId == npcID);
+        Debug.Log($"Checking if NPC '{npcID}' is active: {npc != null}");
+        return npc != null && npc.isActive == 1; // 1 means active
     }
 
     #endregion

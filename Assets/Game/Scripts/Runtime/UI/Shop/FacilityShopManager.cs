@@ -31,15 +31,15 @@ public class FacilityShopManager : MonoBehaviour
     {
         facilityParentRect = facilityParent.GetComponent<RectTransform>();
         originalFacilityParentHeight = facilityParentRect.sizeDelta.y;
+        ServiceLocator.Register(this);
     }
 
     private void Start()
     {
         facilityManager = ServiceLocator.Get<FacilityManager>();
-        RefreshFacilityCards();
     }
 
-    private void RefreshFacilityCards()
+    public void RefreshFacilityCards()
     {
         // Destroy all existing cards
         foreach (Transform child in cardParent)
@@ -198,23 +198,29 @@ public class FacilityShopManager : MonoBehaviour
 
     private void OnNPCUse(FacilityCardUI card)
     {
-        string npcID = GetNPCIDFromCard(card);
-
-        if (facilityManager != null)
+        if (card == null || card.npc == null)
         {
-            bool success = facilityManager.UseFacility(npcID);
-
-            if (success)
-            {
-                ServiceLocator.Get<UIManager>()?.ShowMessage("Used NPC!");
-            }
-            else
-            {
-                ServiceLocator.Get<UIManager>()?.ShowMessage("NPC is on cooldown!");
-            }
-
-            RefreshFacilityCards();
+            Debug.LogWarning("OnNPCUse called with null card or npc.");
+            return;
         }
+        string npcID = GetNPCIDFromCard(card);
+        if (string.IsNullOrEmpty(npcID))
+        {
+            Debug.LogWarning("NPC ID is null or empty from card.");
+            return;
+        }
+        var npcData = npcDatabases.GetMonsterByID(npcID);
+        if (npcData == null)
+        {
+            Debug.LogWarning($"NPC data not found for ID: {npcID}");
+            return;
+        }
+        SaveSystem.ToggleNPCActiveState(npcID, true);
+        ServiceLocator.Get<MonsterManager>()?.SpawnNPCMonster(npcData);
+        ServiceLocator.Get<UIManager>()?.ShowMessage($"Activated NPC '{npcData.monsterName}'!");
+        card.UpdateStateNPC(npcID);
+        RefreshFacilityCards();
+        SaveSystem.SaveAll();
     }
 
 
@@ -274,14 +280,16 @@ public class FacilityShopManager : MonoBehaviour
     private void OnNPCCancel(FacilityCardUI card)
     {
         string npcID = GetNPCIDFromCard(card);
-
-        if (facilityManager != null)
+        if (string.IsNullOrEmpty(npcID))
         {
-            facilityManager.CancelFacilityCooldown(npcID);
-            ServiceLocator.Get<UIManager>()?.ShowMessage("Cancelled NPC cooldown!");
-            ServiceLocator.Get<MonsterManager>()?.RemoveNPC(npcID);
-            RefreshFacilityCards();
+            Debug.LogWarning("NPC ID is null or empty from card.");
+            return;
         }
+        ServiceLocator.Get<MonsterManager>()?.DespawnNPC(npcID);
+        SaveSystem.ToggleNPCActiveState(npcID, false);
+        ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled NPC '{npcID}'!");
+        RefreshFacilityCards();
+        SaveSystem.SaveAll();
     }
 
     private void Update()
