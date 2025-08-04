@@ -23,6 +23,7 @@ public class PlayerConfig
     public List<OwnedItemData> ownedItems = new();
     public List<string> ownedBiomes = new();
     public List<OwnedFacilityData> ownedFacilities = new();
+    public List<OwnedDecorationData> ownedDecorations = new();
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
     public bool isCloudEnabled = false;
@@ -247,6 +248,17 @@ public class PlayerConfig
     {
         return ownedNPCMonsters.Any(n => n.monsterId == npcId);
     }
+    #region Decoration Logic
+    public bool HasDecoration(string decorationID)
+    {
+        return ownedDecorations.Any(d => d.decorationID == decorationID);
+    }
+    public void AddDecoration(string decorationID, bool isActive = false)
+    {
+        if (!HasDecoration(decorationID))
+            ownedDecorations.Add(new OwnedDecorationData { decorationID = decorationID, isActive = isActive });
+    }
+    #endregion
 }
 
 [Serializable]
@@ -293,6 +305,12 @@ public class OwnedFacilityData
         facilityID = id;
         nextUsableTime = cooldownTime;
     }
+}
+[Serializable]
+public class OwnedDecorationData
+{
+    public string decorationID;
+    public bool isActive;
 }
 
 

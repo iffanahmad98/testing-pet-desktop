@@ -558,6 +558,66 @@ public static class SaveSystem
         return true;
     }
     #endregion
+    #region Decoration Operations
+    public static bool IsDecorationOwned(string decorationID)
+    {
+        return _playerConfig.ownedDecorations.Any(d => d.decorationID == decorationID);
+    }
+    public static string GetActiveDecoration()
+    {
+        var activeDecoration = _playerConfig.ownedDecorations.FirstOrDefault(d => d.isActive);
+        return activeDecoration?.decorationID ?? string.Empty;
+    }
+    public static bool TryPurchaseDecoration(DecorationDataSO decoration)
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, cannot buy decoration.");
+            return false;
+        }
+
+        if (decoration == null)
+        {
+            Debug.LogWarning("DecorationData is null.");
+            return false;
+        }
+
+        int decorationPrice = decoration.price;
+
+        // Deduct coins via CoinManager (handles check, update, save, event)
+        if (!CoinManager.SpendCoins(decorationPrice))
+        {
+            Debug.Log($"Not enough coins to buy {decoration.decorationName}. Needed: {decorationPrice}, Owned: {CoinManager.Coins}");
+            return false;
+        }
+
+        // Add decoration to owned list
+        _playerConfig.AddDecoration(decoration.decorationID);
+
+        SaveAll();
+        Debug.Log($"Bought decoration {decoration.decorationName} for {decorationPrice} coins. Remaining: {CoinManager.Coins}");
+        return true;
+    }
+    public static void ToggleDecorationActiveState(string decorationID, bool isActive)
+    {
+        if (string.IsNullOrEmpty(decorationID))
+        {
+            Debug.LogWarning("Tried to toggle active state for null or empty decoration ID.");
+            return;
+        }
+
+        var decoration = _playerConfig.ownedDecorations.FirstOrDefault(d => d.decorationID == decorationID);
+        if (decoration == null)
+        {
+            Debug.LogWarning($"Decoration with ID '{decorationID}' not found.");
+            return;
+        }
+
+        decoration.isActive = isActive;
+        SaveAll();
+        Debug.Log($"Set decoration '{decoration.decorationID}' active state to {isActive}.");
+    }
+    #endregion
 
     #region Game Area Operations
     public static void SaveActiveGameAreaIndex(int areaIndex)
