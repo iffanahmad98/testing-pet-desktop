@@ -105,7 +105,8 @@ namespace MagicalGarden.AI
 
         private IEnumerator SetupPetHotelRoutine()
         {
-            yield return new WaitForSeconds(1f); // ← Delay 1.5 detik sebelum mulai
+            float delay = Random.Range(1f, 4f); // ← Delay antara 1 hingga 4 detik
+            yield return new WaitForSeconds(delay);
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
             Vector2Int? destinationOpt = hotelContrRef.GetRandomWanderingTile2D();
             if (!destinationOpt.HasValue)

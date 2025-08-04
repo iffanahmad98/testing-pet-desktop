@@ -12,6 +12,7 @@ public class BridgeTeleport : MonoBehaviour
 
     public TeleportTarget targetArea;
     public CameraDragMove camMove;
+    public GameObject menuBarFarm;
 
     [Header("Spawn Points")]
     public Transform farmSpawnPoint;
@@ -62,12 +63,18 @@ public class BridgeTeleport : MonoBehaviour
         {
             case TeleportTarget.ToHotel:
                 if (hotelSpawnPoint != null)
+                { 
                     camMove.FocusOnTarget(hotelSpawnPoint.position, targetZoom, transitionDuration, isHotel: true);
+                    menuBarFarm.SetActive(false);
+                }
                 break;
 
             case TeleportTarget.ToFarm:
                 if (farmSpawnPoint != null)
+                { 
                     camMove.FocusOnTarget(farmSpawnPoint.position, targetZoom, transitionDuration, isHotel: false);
+                    menuBarFarm.SetActive(false);
+                }
                 break;
         }
     }
