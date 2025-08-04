@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterName: Mushkino
   id: 100
+  description: 
   monType: 5
   poopType: 1
   moveSpd: 100
@@ -28,9 +29,6 @@ MonoBehaviour:
   maxNutritionStage1: 0
   maxNutritionStage2: 0
   maxNutritionStage3: 0
-  maxFullnessStage1: 0
-  maxFullnessStage2: 0
-  maxFullnessStage3: 0
   poopRate: 20
   goldCoinDropRateStage1: 2
   platCoinDropRateStage1: 60
@@ -48,15 +46,13 @@ MonoBehaviour:
   canEvolve: 0
   isEvolved: 0
   evolutionLevel: 1
-  timeToEvolveStage1: 0
-  timeToEvolveStage2: 0
   evolutionRequirements: []
   monsterSpine:
   - {fileID: 11400000, guid: 91cac1279ab1871408a25730754e6e9a, type: 2}
   CardIcon:
-  - {fileID: 1937041300548807071, guid: de0e873b20b588d4e8be4384dee094f8, type: 3}
+  - {fileID: 2634895422312728203, guid: f7ab93b2cfcc29549b17aa1f109792a5, type: 3}
   DetailsIcon:
-  - {fileID: 1937041300548807071, guid: 1d4dba39ebcf6f940b187a3b19e71640, type: 3}
+  - {fileID: 2634895422312728203, guid: f7ab93b2cfcc29549b17aa1f109792a5, type: 3}
   CatalogueIcon:
   - {fileID: 1937041300548807071, guid: 4ca7bf1adad9f3f4f81633ce860771da, type: 3}
   evolutionAnimationSets:
