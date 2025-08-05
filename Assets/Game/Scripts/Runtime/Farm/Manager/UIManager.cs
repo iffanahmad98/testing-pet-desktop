@@ -34,6 +34,9 @@ namespace MagicalGarden.Farm
         public GameObject guestUI;
         public GameObject inventoryUI;
         public GameObject menuBar;
+        private float showY;
+        private float hideY;
+        private bool isInitialized = false;
         //coroutine for click popupHotel
         [HideInInspector] public Coroutine autoCloseCoroutine;
         private void Awake()
@@ -103,14 +106,22 @@ namespace MagicalGarden.Farm
             coinText.text = "coin : " + coins;
             harvestText.text = "harvest : " + harvests;
         }
-        private float showY = 69.7f;
-        private float hideY;
+        [ContextMenu("Toggle Menu Bar")]
         public void ToggleMenuBar()
         {
             RectTransform rect = menuBar.GetComponent<RectTransform>();
+
+            // ✅ Simpan posisi awal (hanya sekali)
+            if (!isInitialized)
+            {
+                showY = rect.anchoredPosition.y;
+                hideY = showY - rect.rect.height;
+                isInitialized = true;
+            }
+
             if (!menuBar.activeSelf)
             {
-                hideY = showY - rect.rect.height;
+                // Mulai dari posisi tersembunyi
                 rect.anchoredPosition = new Vector2(0, hideY);
                 menuBar.SetActive(true);
                 rect.DOAnchorPosY(showY, 0.5f).SetEase(Ease.OutBack);

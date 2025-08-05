@@ -9,6 +9,7 @@ using MagicalGarden.Manager;
 using MagicalGarden.AI;
 using DG.Tweening;
 using UnityEditor.PackageManager;
+using Spine.Unity;
 
 namespace MagicalGarden.Farm
 {
@@ -202,7 +203,7 @@ namespace MagicalGarden.Farm
         public virtual void Harvest()
         {
             Debug.Log($"{seedName} harvested at {cellPosition}");
-            if (!typeMonster)
+            if (typeMonster)
             {
                 GatchaMonsterEgg(TileManager.Instance.tilemapSeed.CellToWorld(cellPosition));
                 markHarvest.gameObject.SetActive(false);
@@ -252,6 +253,9 @@ namespace MagicalGarden.Farm
             monsterPrefab.transform.localScale = Vector3.zero;
             monsterPrefab.transform.DOScale(new Vector3(0.2f, 0.2f, 0.2f), 0.5f).SetEase(Ease.OutBack);
             monsterPrefab.GetComponent<PetMonsterHotel>().RunIdle();
+            var skeleton = monsterPrefab.GetComponent<SkeletonAnimation>();
+            var meshRenderer = skeleton.GetComponent<MeshRenderer>();
+            meshRenderer.sortingLayerName = "Particle Effect"; // Ganti dengan nama layer kamu
             monsterEggPrefab.GetComponent<EggMonsterController>().menu.SetActive(true);
             monsterEggPrefab.GetComponent<EggMonsterController>().monsterGatcha = monsterPrefab;
             // yield return new WaitForSeconds(5f);

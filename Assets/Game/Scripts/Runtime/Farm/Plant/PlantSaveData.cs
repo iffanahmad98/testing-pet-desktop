@@ -17,6 +17,7 @@ namespace MagicalGarden.Manager
         public string lastWateredTime;
         public PlantStatus status;
         public bool isFertilized;
+        public bool isMonsterSeed;
     }
 
     [Serializable]

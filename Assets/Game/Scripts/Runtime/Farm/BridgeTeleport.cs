@@ -73,7 +73,7 @@ public class BridgeTeleport : MonoBehaviour
                 if (farmSpawnPoint != null)
                 { 
                     camMove.FocusOnTarget(farmSpawnPoint.position, targetZoom, transitionDuration, isHotel: false);
-                    menuBarFarm.SetActive(false);
+                    menuBarFarm.SetActive(true);
                 }
                 break;
         }

@@ -348,7 +348,8 @@ namespace MagicalGarden.Farm
                     lastUpdateTime = seed.lastUpdateTime.ToString("o"),
                     lastWateredTime = seed.lastWateredTime.ToString("o"),
                     status = seed.status,
-                    isFertilized = plant.Fertilize != null
+                    isFertilized = plant.Fertilize != null,
+                    isMonsterSeed = plant.seed.typeMonster
                 };
 
                 saveList.Add(data);
@@ -359,6 +360,13 @@ namespace MagicalGarden.Farm
 
         public void LoadFromSaveData(List<Manager.PlantSaveData> saveDataList)
         {
+            // 🔁 Kosongkan poolPlant terlebih dahulu
+            foreach (Transform child in poolPlant)
+            {
+                Destroy(child.gameObject);
+            }
+
+            plants.Clear(); // Juga kosongkan dictionary plants jika itu menyimpan data aktif tanaman
             foreach (var data in saveDataList)
             {
                 ItemData item = GetItemById(data.itemId);
@@ -392,6 +400,10 @@ namespace MagicalGarden.Farm
                 {
                     plant.Fertilize = item;
                     TileManager.Instance.tilemapFertilizer.SetTile(data.cellPosition, TileManager.Instance.tileFertilizer);
+                }
+                if (data.isMonsterSeed)
+                {
+                    plant.seed.typeMonster = data.isMonsterSeed;
                 }
 
                 if (seed.IsReadyToHarvest())
