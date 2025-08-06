@@ -80,7 +80,7 @@ public static class SaveSystem
     }
     public static void SaveNPCMon(NPCSaveData data)
     {
-        if (data == null || string.IsNullOrEmpty(data.instanceId))
+        if (data == null || string.IsNullOrEmpty(data.monsterId))
         {
             Debug.LogWarning("Tried to save null or invalid NPC monster data.");
             return;
@@ -456,19 +456,92 @@ public static class SaveSystem
         return _playerConfig.isAmbientEnabled;
     }
     #endregion
+    #region NPC Operations
+    public static bool IsNPCOwned(string npcID)
+    {
+        return GetPlayerConfig().ownedNPCMonsters.Any(n => n.monsterId == npcID);
+    }
+    public static bool HasNPC(string npcID)
+    {
+        if (string.IsNullOrEmpty(npcID))
+            return false;
+
+        return _playerConfig.ownedNPCMonsters.Any(npc => npc.monsterId == npcID);
+    }
+
+    public static void AddNPC(string npcID)
+    {
+        if (string.IsNullOrEmpty(npcID))
+        {
+            Debug.LogWarning("Tried to add null or empty NPC ID.");
+            return;
+        }
+
+        if (HasNPC(npcID))
+        {
+            Debug.LogWarning($"NPC '{npcID}' already owned.");
+            return;
+        }
+
+        // Create a new entry and add it to the list
+        var npcData = new NPCSaveData
+        {
+            monsterId = npcID,
+            isActive = 1 // Set active by default
+        };
+
+        _playerConfig.ownedNPCMonsters.Add(npcData);
+        SaveAll();
+        Debug.Log($"Added NPC '{npcID}' to owned NPCs.");
+    }
+    public static void ToggleNPCActiveState(string monsterId, bool isActive)
+    {
+        if (string.IsNullOrEmpty(monsterId))
+        {
+            Debug.LogWarning("Tried to toggle active state for null or empty instance ID.");
+            return;
+        }
+
+        var npc = _playerConfig.ownedNPCMonsters.FirstOrDefault(n => n.monsterId == monsterId);
+        if (npc == null)
+        {
+            Debug.LogWarning($"NPC with monster ID '{monsterId}' not found.");
+            return;
+        }
+
+        npc.isActive = isActive ? 1 : 0; // 1 for active, 0 for inactive
+        SaveAll();
+        Debug.Log($"Set NPC '{npc.monsterId}' active state to {isActive}.");
+    }
+    public static bool IsNPCActive(string npcID)
+    {
+        if (string.IsNullOrEmpty(npcID))
+        {
+            Debug.LogWarning("Tried to check active state for null or empty NPC ID.");
+            return false;
+        }
+
+        var npc = _playerConfig.ownedNPCMonsters.FirstOrDefault(n => n.monsterId == npcID);
+        Debug.Log($"Checking if NPC '{npcID}' is active: {npc != null}");
+        return npc != null && npc.isActive == 1; // 1 means active
+    }
+
+    #endregion
     #region  Facility Operations
     public static bool IsFacilityOwned(string facilityID)
     {
         return GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
     }
 
+
+
     public static bool TryPurchaseFacility(FacilityDataSO facility)
     {
         var config = GetPlayerConfig();
-        
+
         if (config.ownedFacilities.Any(f => f.facilityID == facility.facilityID))
             return true; // Already owned
-            
+
         // Use CoinManager for consistency
         if (!CoinManager.SpendCoins(facility.price))
         {
@@ -479,10 +552,70 @@ public static class SaveSystem
         // Create OwnedFacilityData object using constructor
         var ownedFacility = new OwnedFacilityData(facility.facilityID, facility.cooldownSeconds);
         config.ownedFacilities.Add(ownedFacility);
-        
+
         SaveAll();
         Debug.Log($"Bought facility {facility.name} for {facility.price} coins. Remaining: {CoinManager.Coins}");
         return true;
+    }
+    #endregion
+    #region Decoration Operations
+    public static bool IsDecorationOwned(string decorationID)
+    {
+        return _playerConfig.ownedDecorations.Any(d => d.decorationID == decorationID);
+    }
+    public static string GetActiveDecoration()
+    {
+        var activeDecoration = _playerConfig.ownedDecorations.FirstOrDefault(d => d.isActive);
+        return activeDecoration?.decorationID ?? string.Empty;
+    }
+    public static bool TryPurchaseDecoration(DecorationDataSO decoration)
+    {
+        if (_playerConfig == null)
+        {
+            Debug.LogWarning("PlayerConfig is null, cannot buy decoration.");
+            return false;
+        }
+
+        if (decoration == null)
+        {
+            Debug.LogWarning("DecorationData is null.");
+            return false;
+        }
+
+        int decorationPrice = decoration.price;
+
+        // Deduct coins via CoinManager (handles check, update, save, event)
+        if (!CoinManager.SpendCoins(decorationPrice))
+        {
+            Debug.Log($"Not enough coins to buy {decoration.decorationName}. Needed: {decorationPrice}, Owned: {CoinManager.Coins}");
+            return false;
+        }
+
+        // Add decoration to owned list
+        _playerConfig.AddDecoration(decoration.decorationID);
+
+        SaveAll();
+        Debug.Log($"Bought decoration {decoration.decorationName} for {decorationPrice} coins. Remaining: {CoinManager.Coins}");
+        return true;
+    }
+    public static void ToggleDecorationActiveState(string decorationID, bool isActive)
+    {
+        if (string.IsNullOrEmpty(decorationID))
+        {
+            Debug.LogWarning("Tried to toggle active state for null or empty decoration ID.");
+            return;
+        }
+
+        var decoration = _playerConfig.ownedDecorations.FirstOrDefault(d => d.decorationID == decorationID);
+        if (decoration == null)
+        {
+            Debug.LogWarning($"Decoration with ID '{decorationID}' not found.");
+            return;
+        }
+
+        decoration.isActive = isActive;
+        SaveAll();
+        Debug.Log($"Set decoration '{decoration.decorationID}' active state to {isActive}.");
     }
     #endregion
 

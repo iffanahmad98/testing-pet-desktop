@@ -17,114 +17,97 @@ public class FacilityShopManager : MonoBehaviour
     public TMP_Text facilityCooldownText;
 
     [Header("Data")]
-    public FacilityDatabaseSO facilities; // List of all available facilities
-    public MonsterDatabaseSO npcDatabases; // List of all NPCs
+    public FacilityDatabaseSO facilities;
+    public MonsterDatabaseSO npcDatabases;
 
     private FacilityCardUI selectedCard;
     private float originalFacilityParentHeight;
     private RectTransform facilityParentRect;
     private FacilityManager facilityManager;
 
-    // Object pool for facility cards
-    private List<FacilityCardUI> cardPool = new List<FacilityCardUI>();
     private List<FacilityCardUI> activeCards = new List<FacilityCardUI>();
 
     private void Awake()
     {
         facilityParentRect = facilityParent.GetComponent<RectTransform>();
         originalFacilityParentHeight = facilityParentRect.sizeDelta.y;
+        ServiceLocator.Register(this);
     }
 
     private void Start()
     {
         facilityManager = ServiceLocator.Get<FacilityManager>();
-        RefreshFacilityCards();
     }
 
-    private void RefreshFacilityCards()
+    public void RefreshFacilityCards()
     {
-        // Return all active cards to pool
-        ReturnCardsToPool();
-
-        // Get or create cards for each facility
-        foreach (var facility in facilities.allFacilities)
+        // Destroy all existing cards
+        foreach (Transform child in cardParent)
         {
-            FacilityCardUI card = GetCardFromPool();
-            card.SetupFacility(facility);
-            card.OnSelected = OnFacilitySelected;
-            card.OnUseClicked = OnFacilityUse;
-            card.OnBuyClicked = OnFacilityBuy;
-            card.OnCancelClicked = OnFacilityCancel; // Add cancel handler
-            card.gameObject.SetActive(true);
-            activeCards.Add(card);
+            Destroy(child.gameObject);
         }
 
-        // Get or create cards for each NPC
+        activeCards.Clear();
+        selectedCard = null;
+
+        int totalCount = 0;
+
+
+        // NPCs
         if (npcDatabases != null && npcDatabases.monsters != null)
         {
             foreach (var npc in npcDatabases.monsters)
             {
-                FacilityCardUI card = GetCardFromPool();
+                GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
+                FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
+
                 card.SetupNPC(npc);
                 card.OnSelected = OnNPCSelected;
                 card.OnUseClicked = OnNPCUse;
                 card.OnBuyClicked = OnNPCBuy;
-                card.OnCancelClicked = OnNPCCancel; // Add cancel handler
-                card.gameObject.SetActive(true);
+                card.OnCancelClicked = OnNPCCancel;
+
                 activeCards.Add(card);
+                totalCount++;
+            }
+        }
+        if (facilities != null && facilities.allFacilities != null)
+        {
+            foreach (var facility in facilities.allFacilities)
+            {
+                GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
+                FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
+
+                card.SetupFacility(facility);
+                card.OnSelected = OnFacilitySelected;
+                card.OnUseClicked = OnFacilityUse;
+                card.OnBuyClicked = OnFacilityBuy;
+                card.OnCancelClicked = OnFacilityCancel;
+
+                activeCards.Add(card);
+                totalCount++;
             }
         }
 
-        int totalCount = facilities.allFacilities.Count + (npcDatabases.monsters?.Count ?? 0);
-        AdjustFacilityParentHeight(totalCount);
         ClearInfo();
     }
 
-    private FacilityCardUI GetCardFromPool()
-    {
-        // Try to find an inactive card in the pool
-        for (int i = 0; i < cardPool.Count; i++)
-        {
-            if (!cardPool[i].gameObject.activeInHierarchy)
-            {
-                return cardPool[i];
-            }
-        }
 
-        // If no inactive card found, create a new one
-        GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
-        FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
-        cardPool.Add(card);
-        return card;
+
+    private void ClearInfo()
+    {
+        facilityNameText.text = "";
+        facilityPriceText.text = "";
+        facilityDescText.text = "";
+        facilityCooldownText.text = "";
     }
 
-    private void ReturnCardsToPool()
+    private void ShowFacilityInfo(FacilityDataSO facility)
     {
-        // Deactivate all active cards
-        foreach (var card in activeCards)
-        {
-            card.gameObject.SetActive(false);
-        }
-        activeCards.Clear();
-
-        // Clear selection
-        selectedCard = null;
-    }
-
-    private void AdjustFacilityParentHeight(int facilityCount)
-    {
-        int rows = Mathf.CeilToInt(facilityCount / 2f);
-        int baseRows = 1; // first 2 items (1 row) doesn't need extra height
-        int extraRows = Mathf.Max(0, rows - baseRows);
-
-        float newHeight = originalFacilityParentHeight + (extraRows * 248.8f);
-
-        if (facilityParentRect != null)
-        {
-            Vector2 size = facilityParentRect.sizeDelta;
-            size.y = newHeight;
-            facilityParentRect.sizeDelta = size;
-        }
+        facilityNameText.text = facility.name;
+        facilityPriceText.text = $"Price: {facility.price}";
+        facilityDescText.text = facility.description;
+        facilityCooldownText.text = $"Cooldown: {facility.cooldownSeconds}s";
     }
 
     private void OnFacilitySelected(FacilityCardUI card)
@@ -142,21 +125,17 @@ public class FacilityShopManager : MonoBehaviour
         if (facilityManager != null)
         {
             bool success = facilityManager.UseFacility(card.FacilityData.facilityID);
-            
+
             if (success)
             {
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Used '{card.FacilityData.name}'!");
-                
-                // Update all cards to reflect cooldown changes
-                foreach (var activeCard in activeCards)
-                {
-                    activeCard.UpdateState();
-                }
             }
             else
             {
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"'{card.FacilityData.name}' is on cooldown!");
             }
+
+            RefreshFacilityCards();
         }
     }
 
@@ -167,11 +146,6 @@ public class FacilityShopManager : MonoBehaviour
         if (SaveSystem.TryPurchaseFacility(facility))
         {
             ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{facility.name}'!");
-            // Update all cards to reflect ownership
-            foreach (var activeCard in activeCards)
-            {
-                activeCard.UpdateState();
-            }
         }
         else
         {
@@ -183,41 +157,18 @@ public class FacilityShopManager : MonoBehaviour
         OnFacilitySelected(card);
     }
 
-    private void ShowFacilityInfo(FacilityDataSO facility)
+    private void OnFacilityCancel(FacilityCardUI card)
     {
-        facilityNameText.text = facility.name;
-        facilityPriceText.text = $"Price: {facility.price}";
-        facilityDescText.text = facility.description;
-        facilityCooldownText.text = $"Cooldown: {facility.cooldownSeconds}s";
-    }
-
-    private void ClearInfo()
-    {
-        facilityNameText.text = "";
-        facilityPriceText.text = "";
-        facilityDescText.text = "";
-        facilityCooldownText.text = "";
-    }
-
-    private void Update()
-    {
-        // Update all active cards every frame to handle cooldown displays
-        foreach (var card in activeCards)
+        if (facilityManager != null)
         {
-            if (card.FacilityData != null)
-            {
-                card.UpdateState();
-            }
-            else
-            {
-                // For NPC cards, you'll need to pass the NPC ID
-                string npcID = GetNPCIDFromCard(card);
-                card.UpdateStateNPC(npcID);
-            }
+            facilityManager.CancelFacilityCooldown(card.FacilityData.facilityID);
+            ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled cooldown for '{card.FacilityData.facilityName}'!");
+            RefreshFacilityCards();
         }
     }
 
-    // Add new handlers for NPCs
+    // ---- NPC Methods ----
+
     private void OnNPCSelected(FacilityCardUI card)
     {
         if (selectedCard != null)
@@ -225,101 +176,136 @@ public class FacilityShopManager : MonoBehaviour
 
         selectedCard = card;
         selectedCard.SetSelected(true);
-        // You'll need to create ShowNPCInfo method or modify ShowFacilityInfo to handle NPCs
+        var npcData = npcDatabases.GetMonsterByID(card.npc.id);
+        ShowNPCInfo(npcData);
+
+        // You can show custom NPC info here if needed
+    }
+    public void ShowNPCInfo(MonsterDataSO npcData)
+    {
+        if (npcData != null)
+        {
+            facilityNameText.text = npcData.monsterName;
+            facilityPriceText.text = $"Price: {npcData.monsterPrice}";
+            facilityDescText.text = npcData.description;
+            facilityCooldownText.text = "";
+        }
+        else
+        {
+            ClearInfo();
+        }
     }
 
     private void OnNPCUse(FacilityCardUI card)
     {
-        // Get NPC data from the card (you might need to store this in the card)
-        // For now, assuming the card has a way to get NPC ID
-        string npcID = GetNPCIDFromCard(card); // You'll need to implement this
-        
-        if (facilityManager != null)
+        if (card == null || card.npc == null)
         {
-            bool success = facilityManager.UseFacility(npcID);
-            
-            if (success)
-            {
-                ServiceLocator.Get<UIManager>()?.ShowMessage($"Used NPC!");
-                
-                // Update all cards to reflect cooldown changes
-                foreach (var activeCard in activeCards)
-                {
-                    if (activeCard.FacilityData != null)
-                        activeCard.UpdateState();
-                    else
-                        activeCard.UpdateStateNPC(npcID); // Update NPC state
-                }
-            }
-            else
-            {
-                ServiceLocator.Get<UIManager>()?.ShowMessage("NPC is on cooldown!");
-            }
+            Debug.LogWarning("OnNPCUse called with null card or npc.");
+            return;
         }
+        string npcID = GetNPCIDFromCard(card);
+        if (string.IsNullOrEmpty(npcID))
+        {
+            Debug.LogWarning("NPC ID is null or empty from card.");
+            return;
+        }
+        var npcData = npcDatabases.GetMonsterByID(npcID);
+        if (npcData == null)
+        {
+            Debug.LogWarning($"NPC data not found for ID: {npcID}");
+            return;
+        }
+        SaveSystem.ToggleNPCActiveState(npcID, true);
+        ServiceLocator.Get<MonsterManager>()?.SpawnNPCMonster(npcData);
+        ServiceLocator.Get<UIManager>()?.ShowMessage($"Activated NPC '{npcData.monsterName}'!");
+        card.UpdateStateNPC(npcID);
+        RefreshFacilityCards();
+        SaveSystem.SaveAll();
     }
+
 
     private void OnNPCBuy(FacilityCardUI card)
     {
-        string npcID = GetNPCIDFromCard(card);
-        var npcData = npcDatabases.GetMonsterByID(npcID);
-
-        if (npcData != null && SaveSystem.TryBuyMonster(npcData)) // You might need this method
+        // Safety check
+        if (card == null)
         {
+            Debug.LogWarning("OnNPCBuy called with null card.");
+            return;
+        }
+
+        // Get NPC ID and data
+        string npcID = GetNPCIDFromCard(card);
+        if (string.IsNullOrEmpty(npcID))
+        {
+            Debug.LogWarning("NPC ID is null or empty from card.");
+            return;
+        }
+
+        var npcData = npcDatabases.GetMonsterByID(npcID);
+        if (npcData == null)
+        {
+            Debug.LogWarning($"NPC data not found for ID: {npcID}");
+            return;
+        }
+
+        // Check if already owned
+        if (SaveSystem.HasNPC(npcID))
+        {
+            ServiceLocator.Get<UIManager>()?.ShowMessage($"You already own '{npcData.monsterName}'!");
+            return;
+        }
+
+        // Try to buy
+        if (SaveSystem.TryBuyMonster(npcData))
+        {
+            SaveSystem.AddNPC(npcID);
             ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{npcData.monsterName}'!");
+            ServiceLocator.Get<MonsterManager>()?.SpawnNPCMonster(npcData);
+
+            // Immediately update card UI state after purchase
+            card.UpdateStateNPC(npcID);
         }
         else
         {
             ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy NPC!");
         }
 
+        // Finalize
         SaveSystem.SaveAll();
-        RefreshFacilityCards();
         OnNPCSelected(card);
     }
 
-    // Add cancel handlers
-    private void OnFacilityCancel(FacilityCardUI card)
-    {
-        if (facilityManager != null)
-        {
-            facilityManager.CancelFacilityCooldown(card.FacilityData.facilityID);
-            ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled cooldown for '{card.FacilityData.facilityName}'!");
-            
-            // Update all cards
-            foreach (var activeCard in activeCards)
-            {
-                activeCard.UpdateState();
-            }
-        }
-    }
+
 
     private void OnNPCCancel(FacilityCardUI card)
     {
         string npcID = GetNPCIDFromCard(card);
-        
-        if (facilityManager != null)
+        if (string.IsNullOrEmpty(npcID))
         {
-            facilityManager.CancelFacilityCooldown(npcID);
-            ServiceLocator.Get<UIManager>()?.ShowMessage("Cancelled NPC cooldown!");
-            
-            // Update all cards
-            foreach (var activeCard in activeCards)
+            Debug.LogWarning("NPC ID is null or empty from card.");
+            return;
+        }
+        ServiceLocator.Get<MonsterManager>()?.DespawnNPC(npcID);
+        SaveSystem.ToggleNPCActiveState(npcID, false);
+        ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled NPC '{npcID}'!");
+        RefreshFacilityCards();
+        SaveSystem.SaveAll();
+    }
+
+    private void Update()
+    {
+        foreach (var card in activeCards)
+        {
+            if (card.FacilityData != null)
             {
-                if (activeCard.FacilityData != null)
-                    activeCard.UpdateState();
-                else
-                    activeCard.UpdateStateNPC(npcID);
+                card.UpdateState(); // cooldown timer update
             }
         }
     }
 
-    // Helper method - you'll need to implement this based on how you store NPC data in the card
+
     private string GetNPCIDFromCard(FacilityCardUI card)
     {
-
-        // This depends on how you want to store/retrieve NPC ID from the card
-        // You might need to add a property to FacilityCardUI to store NPC data
-        // For now, returning placeholder
-        return card.npc?.id ?? ""; // Replace with actual implementation
+        return card.npc?.id ?? "";
     }
 }
