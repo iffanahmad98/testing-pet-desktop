@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UIPanelDrag : MonoBehaviour, IPointerDownHandler, IDragHandler, IEndDragHandler
+public class UIPanelDrag : MonoBehaviour, IPointerDownHandler, IDragHandler, IEndDragHandler, IPointerUpHandler
 {
     [Header("Drag Settings")]
     [SerializeField] private bool constrainToScreen = true;
@@ -22,6 +22,8 @@ public class UIPanelDrag : MonoBehaviour, IPointerDownHandler, IDragHandler, IEn
     private float originalOpacity;
     private int originalSiblingIndex;
     
+    private bool isDragging = false;
+    
     private void Awake()
     {
         rectTransform = dragTarget != null ? dragTarget : GetComponent<RectTransform>();
@@ -39,6 +41,7 @@ public class UIPanelDrag : MonoBehaviour, IPointerDownHandler, IDragHandler, IEn
         // Store original position and state
         originalPosition = rectTransform.anchoredPosition;
         originalSiblingIndex = rectTransform.GetSiblingIndex();
+        isDragging = false;
         
         // Calculate offset from pointer to panel center
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -66,6 +69,8 @@ public class UIPanelDrag : MonoBehaviour, IPointerDownHandler, IDragHandler, IEn
     public void OnDrag(PointerEventData eventData)
     {
         if (rectTransform == null || canvas == null) return;
+        
+        isDragging = true;
 
         Vector2 localPointerPosition;
         
@@ -90,16 +95,30 @@ public class UIPanelDrag : MonoBehaviour, IPointerDownHandler, IDragHandler, IEn
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // Restore visual feedback
-        if (showDragFeedback && canvasGroup != null)
-        {
-            canvasGroup.alpha = originalOpacity;
-        }
+        RestoreVisualFeedback();
         
         // Snap to grid if enabled
         if (snapToGrid)
         {
             SnapToGrid();
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        // Handle case where user clicks but doesn't drag
+        if (!isDragging)
+        {
+            RestoreVisualFeedback();
+        }
+    }
+
+    private void RestoreVisualFeedback()
+    {
+        // Restore visual feedback
+        if (showDragFeedback && canvasGroup != null)
+        {
+            canvasGroup.alpha = originalOpacity;
         }
     }
 

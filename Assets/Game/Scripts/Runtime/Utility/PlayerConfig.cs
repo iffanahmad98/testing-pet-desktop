@@ -23,6 +23,7 @@ public class PlayerConfig
     public List<OwnedItemData> ownedItems = new();
     public List<string> ownedBiomes = new();
     public List<OwnedFacilityData> ownedFacilities = new();
+    public List<OwnedDecorationData> ownedDecorations = new();
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
     public bool isCloudEnabled = false;
@@ -123,9 +124,9 @@ public class PlayerConfig
 
     public void SaveNPCMonsterData(NPCSaveData data)
     {
-        if (data == null || string.IsNullOrEmpty(data.instanceId)) return;
+        if (data == null || string.IsNullOrEmpty(data.monsterId)) return;
 
-        var existing = ownedNPCMonsters.Find(m => m.instanceId == data.instanceId);
+        var existing = ownedNPCMonsters.Find(m => m.monsterId == data.monsterId);
         if (existing != null)
         {
             int index = ownedNPCMonsters.IndexOf(existing);
@@ -137,25 +138,25 @@ public class PlayerConfig
         }
     }
 
-    public bool LoadNPCMonsterData(string instanceId, out NPCSaveData data)
+    public bool LoadNPCMonsterData(string monsterId, out NPCSaveData data)
     {
-        data = ownedNPCMonsters.Find(m => m.instanceId == instanceId);
+        data = ownedNPCMonsters.Find(m => m.monsterId == monsterId);
         return data != null;
     }
 
-    public void DeleteNPCMonster(string instanceId)
+    public void DeleteNPCMonster(string monsterId)
     {
-        ownedNPCMonsters.RemoveAll(m => m.instanceId == instanceId);
+        ownedNPCMonsters.RemoveAll(m => m.monsterId == monsterId);
     }
 
     public List<string> GetAllNPCMonsterIDs()
     {
-        return ownedNPCMonsters.Select(m => m.instanceId).ToList();
+        return ownedNPCMonsters.Select(m => m.monsterId).ToList();
     }
 
     public void SetAllNPCMonsterIDs(List<string> ids)
     {
-        ownedNPCMonsters = ownedNPCMonsters.Where(m => ids.Contains(m.instanceId)).ToList();
+        ownedNPCMonsters = ownedNPCMonsters.Where(m => ids.Contains(m.monsterId)).ToList();
     }
 
     public void ClearAllNPCMonsterData()
@@ -243,6 +244,21 @@ public class PlayerConfig
         if (!HasFacility(id))
             ownedFacilities.Add(new OwnedFacilityData(id, Time.time + cooldown));
     }
+    public bool HasNPC(string npcId)
+    {
+        return ownedNPCMonsters.Any(n => n.monsterId == npcId);
+    }
+    #region Decoration Logic
+    public bool HasDecoration(string decorationID)
+    {
+        return ownedDecorations.Any(d => d.decorationID == decorationID);
+    }
+    public void AddDecoration(string decorationID, bool isActive = false)
+    {
+        if (!HasDecoration(decorationID))
+            ownedDecorations.Add(new OwnedDecorationData { decorationID = decorationID, isActive = isActive });
+    }
+    #endregion
 }
 
 [Serializable]
@@ -256,8 +272,8 @@ public class OwnedItemData
 [Serializable]
 public class NPCSaveData
 {
-    public string instanceId;
     public string monsterId;
+    public int isActive; // 0 = inactive, 1 = active
 }
 
 [Serializable]
@@ -290,5 +306,12 @@ public class OwnedFacilityData
         nextUsableTime = cooldownTime;
     }
 }
+[Serializable]
+public class OwnedDecorationData
+{
+    public string decorationID;
+    public bool isActive;
+}
+
 
 

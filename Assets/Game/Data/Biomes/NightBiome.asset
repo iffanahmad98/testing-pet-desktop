@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d43525788b090c4aacd2306bac8c1b1, type: 3}
+  m_Name: NightBiome
+  m_EditorClassIdentifier: 
+  biomeID: night_biome
+  biomeName: Night
+  description: Description here.
+  price: 7
+  thumbnail: {fileID: -6026290202229535829, guid: ef8c56371a9fd2a42a8775fa83b807bf, type: 3}
+  skyBackground: {fileID: -4724065527059522205, guid: f9e6a923aaf701b42bcb461e6a5555ee, type: 3}
+  skyObjects:
+  - {fileID: 33214316413452072, guid: f9cee63d16dd2224aaf2da39064efd81, type: 3}
+  - {fileID: 6657934145057623522, guid: 447c292ceefae9b47aa1e3e3a1847047, type: 3}
+  - {fileID: 3464137264603674326, guid: d21847fc641b8424da1aa28b7fe58e21, type: 3}
+  cloudSprites:
+  - {fileID: 3284913643740411436, guid: d2f63bae855fd2a409a2bd70f05e7005, type: 3}
+  - {fileID: -7812984902041020738, guid: d2f63bae855fd2a409a2bd70f05e7005, type: 3}
+  - {fileID: 9029393661664194462, guid: d2f63bae855fd2a409a2bd70f05e7005, type: 3}
+  - {fileID: 254535895082099424, guid: d2f63bae855fd2a409a2bd70f05e7005, type: 3}
+  - {fileID: -2220048754926534718, guid: d2f63bae855fd2a409a2bd70f05e7005, type: 3}
+  - {fileID: 2916713871850811985, guid: d2f63bae855fd2a409a2bd70f05e7005, type: 3}
+  - {fileID: 2455019546675788420, guid: d2f63bae855fd2a409a2bd70f05e7005, type: 3}
+  cloudSpawnRate: 3
+  cloudMinSpeed: 20
+  cloudMaxSpeed: 50
+  cloudMinScale: 0.5
+  cloudMaxScale: 1.5
+  maxClouds: 8
+  effectPrefabs: []
+  ambientBackground: {fileID: -7653506221281130329, guid: 2fed74087e53a574b86572881c6496af, type: 3}
+  groundBackground: {fileID: 0}
+  groundFilterColor: {r: 0, g: 0.047058824, b: 0.105882354, a: 0.49019608}
+  groundFilterAlpha: 0.85
