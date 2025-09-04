@@ -10,11 +10,11 @@ namespace MagicalGarden.Farm
     public class UIManager : MonoBehaviour
     {
         public static UIManager Instance;
-        private Coroutine hideInfoCoroutine;
         private Tween currentTween;
 
         [Header("Crop Information")]
         public CropInformation plantInfoPanel;
+        private Coroutine hideInfoCoroutine;
         public Sprite goodCropIcon;
         public Sprite wiltCropIcon;
         public Sprite dieCropIcon;
@@ -25,6 +25,8 @@ namespace MagicalGarden.Farm
         public Sprite sapFertiIcon;
         [Header("Hotel Information")]
         public HotelInformation hotelInfoPanel;
+        private Coroutine hideInfoHotelCoroutine;
+        private bool isHotelInfoVisible = false;
         [Header("UI")]
         public TextMeshProUGUI coinText;
         public TextMeshProUGUI harvestText;
@@ -86,7 +88,7 @@ namespace MagicalGarden.Farm
             // Jika sebelumnya tidak aktif, nyalakan yang diklik
             // if (!isActive)
             // {
-                targetUI.SetActive(true);
+            targetUI.SetActive(true);
             // }
         }
         private void OnDestroy()
@@ -163,6 +165,37 @@ namespace MagicalGarden.Farm
         //     justOpenedThisFrame = true;
         //     StartCoroutine(ClearJustOpenedFlag());
         // }
+
+        #region Show Hotel Information
+        public void ShowHotelInfo(HotelController hotelController,Vector3 screenPos)
+        {
+            if (hotelInfoPanel == null) return;
+            GameObject panel = hotelInfoPanel.transform.gameObject;
+            panel.transform.localScale = Vector3.one;
+            panel.transform.position = hotelController.gameObject.transform.position + new Vector3(0f, 5f, 0f);
+            panel.SetActive(true);
+            hotelInfoPanel.Setup(hotelController);
+            if (hideInfoHotelCoroutine != null)
+                StopCoroutine(hideInfoHotelCoroutine);
+            hideInfoHotelCoroutine = StartCoroutine(AutoHideHotelInfo());
+        }
+        public void HideHotelInfo()
+        {
+            currentTween?.Kill();
+            currentTween = hotelInfoPanel.transform.DOScale(0f, 0.2f)
+                .SetEase(Ease.InBack)
+                .OnComplete(() =>
+                {
+                    hotelInfoPanel.transform.gameObject.SetActive(false);
+                });
+        }
+        private IEnumerator AutoHideHotelInfo()
+        {
+            yield return new WaitForSeconds(4f);
+            HideHotelInfo();
+        }
+        #endregion
+        #region Show Plant Information
         public void ShowPlantInfo(PlantController plant, Vector3 screenPos)
         {
             if (plantInfoPanel == null) return;
@@ -230,6 +263,7 @@ namespace MagicalGarden.Farm
             yield return new WaitForSeconds(4f);
             HidePlantInfo();
         }
+        #endregion
 #endregion
     }
 

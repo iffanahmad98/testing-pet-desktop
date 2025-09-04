@@ -8,7 +8,7 @@ using MagicalGarden.Inventory;
 using MagicalGarden.Manager;
 using MagicalGarden.AI;
 using DG.Tweening;
-using UnityEditor.PackageManager;
+// using UnityEditor.PackageManager;
 using Spine.Unity;
 
 namespace MagicalGarden.Farm

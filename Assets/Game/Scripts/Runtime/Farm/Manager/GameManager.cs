@@ -8,6 +8,7 @@ namespace MagicalGarden.Farm
     {
         public static GameManager Instance;
         public CameraDragMove cameraRig;
+        [HideInInspector] public bool isDebugMode = false;
 
         [Header("Cloud Settings")]
         public bool moveRightInstead = false;

@@ -106,8 +106,6 @@ namespace MagicalGarden.Farm
 
             if (zoomCoroutine != null)
                 StopCoroutine(zoomCoroutine);
-
-            // zoomCoroutine = StartCoroutine(ZoomAndFocus(target, zoomSize, duration));
             zoomCoroutine = StartCoroutine(MoveToTarget(target, duration));
         }
 
@@ -116,38 +114,7 @@ namespace MagicalGarden.Farm
         {
             if (zoomCoroutine != null)
                 StopCoroutine(zoomCoroutine);
-
-            // zoomCoroutine = StartCoroutine(ZoomAndFocus(transform.position, maxZoom / 2, duration));
-            
             zoomCoroutine = StartCoroutine(MoveToTarget(transform.position, duration));
-        }
-
-        IEnumerator ZoomAndFocus(Vector3 targetPosition, float targetZoom, float duration)
-        {
-            yield return null; // wait 1 frame to ensure correct start position
-
-            Vector3 startPos = transform.position;
-            float startZoom = cam.orthographicSize;
-
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / duration);
-                float easedT = EaseInOutSine(t);
-
-                float zoom = Mathf.Lerp(startZoom, targetZoom, easedT);
-                Vector3 pos = Vector3.Lerp(startPos, new Vector3(targetPosition.x, targetPosition.y, startPos.z), easedT);
-
-                cam.orthographicSize = zoom;
-                transform.position = ClampCameraPosition(pos, zoom);
-
-                yield return null;
-            }
-
-            cam.orthographicSize = targetZoom;
-            transform.position = ClampCameraPosition(new Vector3(targetPosition.x, targetPosition.y, startPos.z), targetZoom);
         }
 
         IEnumerator MoveToTarget(Vector3 targetPosition, float duration)

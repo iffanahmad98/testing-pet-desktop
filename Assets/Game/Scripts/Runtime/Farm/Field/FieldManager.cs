@@ -144,6 +144,61 @@ namespace MagicalGarden.Farm
 
             Debug.Log("Field data loaded.");
         }
+        #region Testing
+        public FieldBlock SetBlockConfig(
+            Vector2Int blockId,
+            int? requiredCoins = null,
+            int? requiredHarvest = null,
+            int? requiredHaveMonster = null,
+            int? requiredHarvestEgg = null,
+            bool? unlocked = null,
+            bool refreshVisual = true,
+            bool spawnBubbleIfLocked = true,
+            bool autoSave = false)
+        {
+            // Cari block
+            var block = GetBlockById(blockId);
+            if (block == null)
+            {
+                block = new FieldBlock { blockId = blockId };
+                blocks.Add(block);
+            }
+
+            // Update nilai hanya jika disuplai
+            if (requiredCoins.HasValue)       block.requiredCoins = requiredCoins.Value;
+            if (requiredHarvest.HasValue)     block.requiredHarvest = requiredHarvest.Value;
+            if (requiredHaveMonster.HasValue) block.requiredHaveMonster = requiredHaveMonster.Value;
+            if (requiredHarvestEgg.HasValue)  block.requiredHarvestEgg = requiredHarvestEgg.Value;
+            if (unlocked.HasValue)            block.isUnlocked = unlocked.Value;
+
+            // Refresh overlay tiles
+            if (refreshVisual)
+                UpdateOverlayVisual(block.blockId, block.isUnlocked);
+
+            // Kelola bubble UI
+            if (block.isUnlocked)
+            {
+                if (block.bubbleUI != null)
+                {
+                    Destroy(block.bubbleUI);
+                    block.bubbleUI = null;
+                }
+            }
+            else if (spawnBubbleIfLocked && block.bubbleUI == null && bubbleLockUI != null)
+            {
+                var bubble = Instantiate(bubbleLockUI, transform);
+                var ui = bubble.GetComponent<UnlockBubbleUI>();
+                if (ui != null)
+                    ui.Setup(block, new Vector3Int(block.blockId.x, block.blockId.y, 0));
+                block.bubbleUI = bubble;
+            }
+
+            if (autoSave)
+                SaveToJson();
+
+            return block;
+        }
+        #endregion
     }
     [System.Serializable]
     public class FieldBlockSaveData
@@ -157,4 +212,6 @@ namespace MagicalGarden.Farm
     {
         public List<FieldBlockSaveData> blocks = new List<FieldBlockSaveData>();
     }
+
+    
 }

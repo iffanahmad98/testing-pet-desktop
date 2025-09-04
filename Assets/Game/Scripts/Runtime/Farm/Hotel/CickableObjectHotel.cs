@@ -30,25 +30,14 @@ namespace MagicalGarden.Hotel
         {
             Vector3 targetScale = isHovered ? originalScale * hoverScaleMultiplier : originalScale;
             transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * scaleSpeed);
-            if (!isMenuShown && Input.GetMouseButtonDown(1)) // right-click to open
+            if (Input.GetMouseButtonDown(1)) // right-click to open
             {
                 Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Collider2D col = Physics2D.OverlapPoint(mouseWorldPos);
 
                 if (col != null && col.gameObject == gameObject && hotelController.IsOccupied)
                 {
-                    ShowMenu();
-                }
-            }
-
-            if (currentOpenMenuHotel == this && isMenuShown && Input.GetMouseButtonDown(1))
-            {
-                Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Collider2D col = Physics2D.OverlapPoint(mouseWorldPos);
-
-                if (col == null || col.gameObject != gameObject)
-                {
-                    HideMenu();
+                    Farm.UIManager.Instance.ShowHotelInfo(hotelController, mouseWorldPos);
                 }
             }
         }
