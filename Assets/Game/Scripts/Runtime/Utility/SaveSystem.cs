@@ -124,7 +124,7 @@ public static class SaveSystem
 
     public static void ResetSaveData()
     {
-        CoinManager.Coins = 100;
+        CoinManager.Coins = 10000;
         SavePoop(0);
         _playerConfig.ClearAllMonsterData();
         _playerConfig.ClearAllNPCMonsterData();

@@ -58,31 +58,50 @@ public class MonsterStateMachine : MonoBehaviour
 
         if (_stateTimer >= _currentStateDuration && _currentState != MonsterState.Eating)
         {
-            var nextState = _behaviorHandler.SelectNextState(_currentState);
+            if (_behaviorHandler == null)
+            {
+                Debug.LogError("[AI] _behaviorHandler is NULL", this);
+                _currentStateDuration += 0.5f; // cegah loop ketat
+                return;
+            }
+
+            MonsterState nextState;
+            try
+            {
+                nextState = _behaviorHandler.SelectNextState(_currentState);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogException(ex, this);   // log stacktrace yang asli
+                _currentStateDuration += 0.5f;
+                return;
+            }
 
             if (IsValidStateTransition(_currentState, nextState))
-            {
                 ChangeState(nextState);
-            }
             else
-            {
-                _currentStateDuration += 1f;
-            }
+                _currentStateDuration += 0.5f;
         }
     }
 
     public void ChangeState(MonsterState newState)
     {
         if (_controller == null) return;
-        if (!_animationHandler.HasValidAnimationForState(newState)) newState = MonsterState.Idle;
+
+        // ✅ Amanin null di sini
+        if (!(_animationHandler?.HasValidAnimationForState(newState) ?? false))
+            newState = MonsterState.Idle;
 
         _previousState = _currentState;
-        _currentState = newState;
-        _stateTimer = 0f;
+        _currentState  = newState;
+        _stateTimer    = 0f;
 
-        _animationHandler.PlayStateAnimation(newState);
+        _animationHandler?.PlayStateAnimation(newState); // aman kalau null
         OnStateChanged?.Invoke(_currentState);
-        _currentStateDuration = _behaviorHandler.GetStateDuration(newState, _animationHandler);
+
+        _currentStateDuration = (_behaviorHandler != null)
+            ? _behaviorHandler.GetStateDuration(newState, _animationHandler)
+            : 1f; // fallback durasi default
     }
 
     public float GetCurrentStateDuration() => _currentStateDuration;

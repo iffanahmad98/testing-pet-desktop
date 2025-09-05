@@ -145,98 +145,123 @@ public static class MonsterEvolutionSequenceHelper
         
         // NEW: Add skeleton swapping sequence after background particle starts
         seq.AppendInterval(0.5f); // Wait for background particle to fade in
-        seq.AppendCallback(() => {
-            // Store original skeleton for swapping back
+        seq.AppendCallback(() =>
+        {
+            // Simpan skeleton awal
             var originalSkeleton = spineGraphic.skeletonDataAsset;
+            var rt = spineGraphic.rectTransform;
             var swapSeq = DOTween.Sequence();
-            
-            // Start foreground particle 1 at the beginning of swaps
+
+            // Particle foreground 1 di awal
             if (foregroundParticle1 != null)
             {
                 foregroundParticle1.gameObject.SetActive(true);
                 foreground1Cg.alpha = 0f;
                 foreground1Cg.DOFade(1f, 0.8f).SetEase(Ease.InOutSine);
             }
-            
-            // Swap 1: Original -> Evolved (slow)
-            swapSeq.AppendCallback(() => {
-                spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
-                spineGraphic.Initialize(true);
-                spineGraphic.rectTransform.DOShakePosition(0.3f, strength: 15f, vibrato: 20, randomness: 90f);
-                spineGraphic.rectTransform.DOShakeScale(0.3f, strength: 0.1f, vibrato: 10, randomness: 90f);
-                // Add scale up/down effect
-                spineGraphic.rectTransform.DOScale(Vector3.one * 1.3f, 0.15f).SetEase(Ease.OutBack)
-                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.15f).SetEase(Ease.InBack));
-            });
-            swapSeq.AppendInterval(0.8f);
-            
-            // Swap 2: Evolved -> Original (medium speed)
-            swapSeq.AppendCallback(() => {
-                spineGraphic.skeletonDataAsset = originalSkeleton;
-                spineGraphic.Initialize(true);
-                spineGraphic.rectTransform.DOShakePosition(0.25f, strength: 18f, vibrato: 25, randomness: 90f);
-                spineGraphic.rectTransform.DOShakeScale(0.25f, strength: 0.12f, vibrato: 12, randomness: 90f);
-                // Add scale up/down effect
-                spineGraphic.rectTransform.DOScale(Vector3.one * 1.25f, 0.12f).SetEase(Ease.OutBack)
-                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.13f).SetEase(Ease.InBack));
-            });
-            swapSeq.AppendInterval(0.6f);
-            
-            // Swap 3: Original -> Evolved (faster) - Start foreground particle 2 here
-            swapSeq.AppendCallback(() => {
-                spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
-                spineGraphic.Initialize(true);
-                spineGraphic.rectTransform.DOShakePosition(0.2f, strength: 22f, vibrato: 30, randomness: 90f);
-                spineGraphic.rectTransform.DOShakeScale(0.2f, strength: 0.15f, vibrato: 15, randomness: 90f);
-                // Add scale up/down effect
-                spineGraphic.rectTransform.DOScale(Vector3.one * 1.4f, 0.1f).SetEase(Ease.OutBack)
-                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.1f).SetEase(Ease.InBack));
-                
-                // Start foreground particle 2 during this swap
-                if (foregroundParticle2 != null)
+
+            void AppendSwap(
+                SkeletonDataAsset asset,
+                float upDur,                 // durasi scale 0->1 (juga dipakai untuk shake)
+                float posShakeStrength,
+                int posVibrato,
+                bool triggerFg2 = false,
+                float fg2Fade = 1.0f,
+                bool endAtOne = false,       // true untuk step terakhir agar berhenti di 1
+                float downMult = 0.6f,       // pengali durasi turun 1->0
+                float holdAtOne = 0f         // 0 = tanpa hold supaya benar2 no-gap
+            )
+            {
+                float downDur = Mathf.Max(0.02f, upDur * downMult);
+
+                // ganti skeleton + reset scale
+                swapSeq.AppendCallback(() =>
                 {
-                    foregroundParticle2.gameObject.SetActive(true);
-                    foreground2Cg.alpha = 0f;
-                    foreground2Cg.DOFade(1f, 1.0f).SetEase(Ease.InOutSine);
+                    spineGraphic.skeletonDataAsset = asset;
+                    spineGraphic.Initialize(true);
+
+                    rt.DOKill();
+                    rt.localScale = Vector3.zero;
+
+                    if (triggerFg2 && foregroundParticle2)
+                    {
+                        foregroundParticle2.gameObject.SetActive(true);
+                        if (foreground2Cg) { foreground2Cg.alpha = 0f; foreground2Cg.DOFade(1f, fg2Fade).SetEase(Ease.InOutSine); }
+                    }
+                });
+
+                // 0 -> 1 sambil shake posisi (tidak ada interval tambahan)
+                swapSeq.Append(rt.DOScale(Vector3.one, upDur).SetEase(Ease.OutBack));
+                swapSeq.Join(rt.DOShakePosition(upDur, posShakeStrength, posVibrato, 90f));
+
+                if (holdAtOne > 0f)
+                    swapSeq.AppendInterval(holdAtOne);
+
+                // shake scale singkat persis setelah mencapai 1 (opsional, durasi pendek)
+                swapSeq.Append(rt.DOShakeScale(0.06f, 0.10f, 10, 90f));
+
+                if (!endAtOne)
+                {
+                    // langsung turun 1 -> 0 TANPA interval
+                    swapSeq.Append(rt.DOScale(Vector3.zero, downDur).SetEase(Ease.InBack));
                 }
-            });
-            swapSeq.AppendInterval(0.4f);
-            
-            // Swap 4: Evolved -> Original (even faster)
-            swapSeq.AppendCallback(() => {
-                spineGraphic.skeletonDataAsset = originalSkeleton;
-                spineGraphic.Initialize(true);
-                spineGraphic.rectTransform.DOShakePosition(0.15f, strength: 25f, vibrato: 35, randomness: 90f);
-                spineGraphic.rectTransform.DOShakeScale(0.15f, strength: 0.18f, vibrato: 18, randomness: 90f);
-                // Add scale up/down effect
-                spineGraphic.rectTransform.DOScale(Vector3.one * 1.35f, 0.08f).SetEase(Ease.OutBack)
-                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.07f).SetEase(Ease.InBack));
-            });
-            swapSeq.AppendInterval(0.3f);
-            
-            // Swap 5: Original -> Evolved (fastest)
-            swapSeq.AppendCallback(() => {
+                else
+                {
+                    // final: tetap di 1 (boleh kasih settle kecil)
+                    swapSeq.Append(rt.DOScale(1.02f, 0.05f).SetLoops(2, LoopType.Yoyo).SetEase(Ease.InOutSine));
+                }
+
+                // ⛔️ TIDAK ADA AppendInterval di sini → benar2 no delay antar swap
+            }
+
+            // nyalakan FG1 di awal kalau perlu
+            if (foregroundParticle1)
+            {
+                foregroundParticle1.gameObject.SetActive(true);
+                if (foreground1Cg) { foreground1Cg.alpha = 0f; foreground1Cg.DOFade(1f, 0.6f).SetEase(Ease.InOutSine); }
+            }
+
+            // jumlah step
+            int steps = 16;
+
+            // generate swap bolak-balik tanpa jeda
+            for (int i = 0; i < steps - 1; i++)
+            {
+                // variasi durasi & shake makin cepat/kuat
+                float t = (float)i / (steps - 1);
+                float up = Mathf.Lerp(0.28f, 0.08f, t);             // 0.28s → 0.08s
+                float strength = Mathf.Lerp(16f, 36f, t);           // 16 → 36
+                int vibrato = Mathf.RoundToInt(Mathf.Lerp(20f, 44f, t));
+
+                bool toEvolved = (i % 2 == 0); // ganjil/genap
+                var asset = toEvolved ? nextEvolutionSkeleton : originalSkeleton;
+
+                AppendSwap(asset, up, strength, vibrato,
+                        triggerFg2: (i == 2)); // contoh: FG2 nyala pada step 3
+            }
+
+            // FINAL: berhenti di EVOLUSI & scale=1 (tanpa delay)
+            // AppendSwap(nextEvolutionSkeleton, 0.08f, 38f, 45, endAtOne: true);
+            swapSeq.AppendCallback(() =>
+            {
+                // Paksa skeleton akhir = evolusi
                 spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
                 spineGraphic.Initialize(true);
-                spineGraphic.rectTransform.DOShakePosition(0.1f, strength: 30f, vibrato: 40, randomness: 90f);
-                spineGraphic.rectTransform.DOShakeScale(0.1f, strength: 0.2f, vibrato: 20, randomness: 90f);
-                // Add scale up/down effect
-                spineGraphic.rectTransform.DOScale(Vector3.one * 1.5f, 0.05f).SetEase(Ease.OutBack)
-                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.05f).SetEase(Ease.InBack));
+
+                // Hentikan semua tween yg mungkin masih nempel
+                rt.DOKill(true);              // true = complete tweens, aman
+
+                // Tampilkan langsung
+                rt.localScale = Vector3.one;  // langsung 1 (no DOScale)
+
+                // (opsional) rapikan supaya pasti “diam” dan terlihat
+                // rt.anchoredPosition3D = Vector3.zero;
+                // rt.localRotation = Quaternion.identity;
+
+                // (opsional) kalau pakai CanvasGroup untuk FG
+                if (foreground1Cg) foreground1Cg.alpha = 1f;
+                if (foreground2Cg) foreground2Cg.alpha = 1f;
             });
-            swapSeq.AppendInterval(0.2f);
-            
-            // Final swap: Evolved -> Original (very fast)
-            swapSeq.AppendCallback(() => {
-                spineGraphic.skeletonDataAsset = originalSkeleton;
-                spineGraphic.Initialize(true);
-                spineGraphic.rectTransform.DOShakePosition(0.1f, strength: 35f, vibrato: 45, randomness: 90f);
-                spineGraphic.rectTransform.DOShakeScale(0.1f, strength: 0.25f, vibrato: 25, randomness: 90f);
-                // Add scale up/down effect
-                spineGraphic.rectTransform.DOScale(Vector3.one * 1.6f, 0.04f).SetEase(Ease.OutBack)
-                    .OnComplete(() => spineGraphic.rectTransform.DOScale(Vector3.one, 0.04f).SetEase(Ease.InBack));
-            });
-            swapSeq.AppendInterval(0.15f);
         });
         
         // Wait for swap sequence to complete (total duration: ~2.6 seconds)
@@ -261,7 +286,7 @@ public static class MonsterEvolutionSequenceHelper
         seq.Append(monsterCanvasGroup.DOFade(1f, 0.8f).SetEase(Ease.InOutSine));
         
         // Wait a moment, then transition to finish particle
-        seq.AppendInterval(1.0f);
+        seq.AppendInterval(3.0f);
         seq.AppendCallback(() => {
             // Fade out background particle
             backgroundCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() => {
@@ -307,9 +332,23 @@ public static class MonsterEvolutionSequenceHelper
         seq.AppendCallback(() =>
         {
             // Play jumping animation
-            if (spineGraphic.AnimationState != null)
+            if (spineGraphic != null && spineGraphic.AnimationState != null)
             {
-                spineGraphic.AnimationState.SetAnimation(0, "jumping", false);
+                var data = spineGraphic.Skeleton?.Data;
+                if (data != null)
+                {
+                    string name = null;
+
+                    if (data.FindAnimation("Jumping") != null)      name = "Jumping";
+                    else if (data.FindAnimation("jumping") != null) name = "jumping";
+                    else if (data.FindAnimation("jump") != null) name = "jump";
+                    else if (data.FindAnimation("Jump") != null) name = "Jump";
+
+                    if (name != null)
+                        spineGraphic.AnimationState.SetAnimation(0, name, false);
+                    else
+                        Debug.LogWarning("Animation 'Jumping/jumping' tidak ditemukan.", spineGraphic);
+                }
             }
         });
 
