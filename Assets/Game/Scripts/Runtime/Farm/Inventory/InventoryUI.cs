@@ -12,7 +12,7 @@ namespace MagicalGarden.Inventory
         public GridContentResizer gridContentResizer;
         public List<ItemType> itemTypes;
 
-        private List<InventorySlot> slotList = new List<InventorySlot>();
+        private List<InventoryItemCell> slotList = new List<InventoryItemCell>();
 
         private void OnEnable()
         {
@@ -29,7 +29,7 @@ namespace MagicalGarden.Inventory
             while (slotList.Count < items.Count)
             {
                 var slotGO = Instantiate(slotPrefab, itemContainer);
-                var slot = slotGO.GetComponent<InventorySlot>();
+                var slot = slotGO.GetComponent<InventoryItemCell>();
                 // slot.button.onClick.AddListener(slot.OnClick);
                 slotList.Add(slot);
             }

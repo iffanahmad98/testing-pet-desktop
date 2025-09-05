@@ -19,6 +19,7 @@ namespace MagicalGarden.Manager
         public static ShopManager Instance;
         [Header("Information Shop")]
         public Image iconSeed;
+        public GameObject descSeed;
         public TextMeshProUGUI priceText;
         public TextMeshProUGUI timeWateringText;
         public TextMeshProUGUI timeGrowText;
@@ -57,13 +58,13 @@ namespace MagicalGarden.Manager
                 {
                     // Debug.Log($"{item.seedName} - Harga: {item.seedPrice}");
                     var prefabItem = Instantiate(itemShop);
-                    prefabItem.GetComponent<ItemShop>().Setup(item, null);
+                    prefabItem.GetComponent<ShopItemCell>().Setup(item, null);
                     prefabItem.transform.SetParent(contentSeed, false);
                 }
                 if (item.farmingType.ToLower() == "monster")
                 {
                     var prefabItem = Instantiate(itemShop);
-                    prefabItem.GetComponent<ItemShop>().Setup(item, null);
+                    prefabItem.GetComponent<ShopItemCell>().Setup(item, null);
                     prefabItem.transform.SetParent(contentMonster, false);
                 }
             }
@@ -72,6 +73,7 @@ namespace MagicalGarden.Manager
 
         public void SetInformation(SheetData currentItemData, Sprite iconData)
         {
+            descSeed.SetActive(true);
             iconSeed.sprite = iconData;
             timeGrowText.text = currentItemData.totalGrowTime;
             priceText.text = currentItemData.seedPrice;

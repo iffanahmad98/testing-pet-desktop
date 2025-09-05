@@ -264,15 +264,15 @@ namespace MagicalGarden.Farm
 
         // private void AnimateDrop(ItemData item, Vector3 worldPos)
         // {
-        //     var inventorySlot = InventoryManager.Instance.inventoryUI.GetSlotForItem(item);
+        //     var InventoryItemCell = InventoryManager.Instance.inventoryUI.GetSlotForItem(item);
 
-        //     if (inventorySlot == null) return;
+        //     if (InventoryItemCell == null) return;
 
         //     var prefab = InventoryManager.Instance.dropFlyIcon;
         //     var instance = Instantiate(prefab, worldPos, Quaternion.identity);
 
         //     var fly = instance.GetComponent<FlyToInventory>();
-        //     fly.Init(item.icon, worldPos, inventorySlot.GetComponent<RectTransform>());
+        //     fly.Init(item.icon, worldPos, InventoryItemCell.GetComponent<RectTransform>());
         // }
 
         public virtual void Clear()

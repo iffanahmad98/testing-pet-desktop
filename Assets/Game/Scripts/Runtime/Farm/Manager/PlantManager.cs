@@ -14,7 +14,7 @@ namespace MagicalGarden.Farm
     public class PlantManager : MonoBehaviour
     {
         public static PlantManager Instance;
-        [Header("Plant")]
+        [Header("Plant Setting")]
         public GameObject plantPrefab;
         public Transform poolPlant;
         public TileBase stageWilted;
@@ -22,12 +22,12 @@ namespace MagicalGarden.Farm
         private int totalHarvest = 0;
         public event Action OnHarvestChanged;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        [Header("Simulated Time")]
+        [Header("Simulated Time Plant")]
         public float updateIntervalSeconds = 60f;
         public float timeMultiplier = 60f; // 1 detik real = 1 menit in-game
         public DateTime simulatedNow = DateTime.Now;
 
-        [Header("Monster")]
+        [Header("Monster Egg Harvest")]
         public GameObject monsterEggPrefab;
         public Vector3 offsetEgg;
         public CameraDragMove cameraMove;
