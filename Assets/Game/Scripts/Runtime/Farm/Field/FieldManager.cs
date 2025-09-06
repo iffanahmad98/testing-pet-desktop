@@ -8,10 +8,15 @@ namespace MagicalGarden.Farm
 {
     public class FieldManager : MonoBehaviour
     {
+        [Header("UI Setting")]
         public GameObject bubbleLockUI;
         public GameObject unlockVFX;
-        public List<FieldBlock> blocks = new List<FieldBlock>();
+        [HideInInspector] public List<FieldBlock> blocks = new List<FieldBlock>();
         private string SaveFilePath => Application.persistentDataPath + "/field_save.json";
+
+        [Header("Config (JSON)")]
+        public TextAsset fieldConfigJson;           // assign file JSON (Resources atau drag ke Inspector)
+        public bool loadConfigOnStart = true;
         public static FieldManager Instance;
 
         private void Awake()
@@ -20,6 +25,12 @@ namespace MagicalGarden.Farm
         }
         void Start()
         {
+            // 1) Jika diinginkan, load config JSON (requirement, default unlock)
+            if (loadConfigOnStart && fieldConfigJson != null && blocks.Count == 0)
+            {
+                LoadConfigFromText(fieldConfigJson.text, clearExisting: true);
+            }
+            // 2) Buat overlay & bubble untuk semua block yang terkunci
             foreach (var item in blocks)
             {
                 UpdateOverlayVisual(item.blockId, false);
@@ -27,6 +38,8 @@ namespace MagicalGarden.Farm
                 bubble.GetComponent<UnlockBubbleUI>().Setup(item, new Vector3Int(item.blockId.x, item.blockId.y, 0));
                 item.bubbleUI = bubble;
             }
+            // 3) Overlay save pemain (jika ada), akan auto-destroy bubble yang sudah unlock
+            // LoadFromJson();
         }
         public FieldBlock GetBlockById(Vector2Int id)
         {
@@ -94,6 +107,76 @@ namespace MagicalGarden.Farm
                     }
                 }
             }
+        }
+
+        // === CONFIG LOADER ===
+        [System.Serializable]
+        private class FieldBlockConfig
+        {
+            public int x;
+            public int y;
+            public int requiredCoins;
+            public int requiredHarvest;
+            public int requiredHaveMonster;
+            public int requiredHarvestEgg;
+            public bool defaultUnlocked;
+        }
+
+        [System.Serializable]
+        private class FieldConfigFile
+        {
+            public List<FieldBlockConfig> blocks = new List<FieldBlockConfig>();
+        }
+
+        public void LoadConfigFromText(string json, bool clearExisting = true)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Debug.LogWarning("[FieldManager] fieldConfigJson kosong.");
+                return;
+            }
+
+            var cfg = JsonUtility.FromJson<FieldConfigFile>(json);
+            if (cfg == null || cfg.blocks == null || cfg.blocks.Count == 0)
+            {
+                Debug.LogWarning("[FieldManager] Tidak ada blocks pada config JSON.");
+                return;
+            }
+
+            if (clearExisting)
+            {
+                // bersihkan block & bubble lama
+                foreach (var b in blocks)
+                {
+                    if (b?.bubbleUI != null)
+                    {
+                        if (Application.isPlaying) Destroy(b.bubbleUI);
+                        else DestroyImmediate(b.bubbleUI);
+                    }
+                }
+                blocks.Clear();
+            }
+
+            // apply semua dari config
+            foreach (var c in cfg.blocks)
+            {
+                var id = new Vector2Int(c.x, c.y);
+                SetBlockConfig(
+                    id,
+                    requiredCoins: c.requiredCoins,
+                    requiredHarvest: c.requiredHarvest,
+                    requiredHaveMonster: c.requiredHaveMonster,
+                    requiredHarvestEgg: c.requiredHarvestEgg,
+                    unlocked: c.defaultUnlocked,
+                    refreshVisual: false,
+                    spawnBubbleIfLocked: false,   // bubble dibuat setelah ini
+                    autoSave: false
+                );
+            }
+
+            // refresh visual sekali
+            foreach (var b in blocks)
+                UpdateOverlayVisual(b.blockId, b.isUnlocked);
         }
 
         public void SaveToJson()
@@ -212,6 +295,5 @@ namespace MagicalGarden.Farm
     {
         public List<FieldBlockSaveData> blocks = new List<FieldBlockSaveData>();
     }
-
     
 }

@@ -314,6 +314,7 @@ namespace MagicalGarden.Farm
         // IsCellOccupied(Vector3Int pos)
         // GetNeighbors(Vector3Int pos)
         // GetSeedTypeAt(Vector3Int pos)
+        [HideInInspector]
         public List<ItemData> allItems;
         public ItemData GetItemById(string id)
         {

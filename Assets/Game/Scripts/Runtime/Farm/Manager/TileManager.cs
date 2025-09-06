@@ -23,6 +23,7 @@ namespace MagicalGarden.Manager
     public class TileManager : MonoBehaviour
     {
         public static TileManager Instance;
+        // [HideInInspector]
         public TileAction currentAction = TileAction.None;
         [Header("Tilemap")]
         public Tilemap tilemapSoil;
@@ -30,7 +31,6 @@ namespace MagicalGarden.Manager
         public Tilemap tilemapWater;
         public Tilemap tilemapFertilizer;
         public Tilemap tilemapHighlight;
-        public Tilemap tilemapHotel;
         public Tilemap tilemapWalkingAreaHotel;
         [Header("Tiles")]
         public TileBase tileWater;
@@ -111,11 +111,11 @@ namespace MagicalGarden.Manager
                 SetAction("None");
                 Farm.UIManager.Instance.HidePlantInfo();
             }
-            HighlightHoverTiles();
+            UpdateHoverHighlight();
             ActionToTile();
         }
 
-        void HighlightHoverTiles()
+        void UpdateHoverHighlight()
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int cellPos = tilemapSoil.WorldToCell(mouseWorldPos);
@@ -223,7 +223,7 @@ namespace MagicalGarden.Manager
         {
             currentAction = TileAction.None;
         }
-
+        #region Queries
         public bool IsTileLocked(Vector3Int position)
         {
             // return tilemapLocked.HasTile(position);
@@ -265,6 +265,7 @@ namespace MagicalGarden.Manager
                 Farm.UIManager.Instance.ShowPlantInfo(plant, worldPos);
             }
         }
+        #endregion
 
         // public bool IsValidPlantingSpot(Vector3Int cellPos)
         // {

@@ -56,7 +56,6 @@ namespace MagicalGarden.Farm
         {
             GameManager.Instance.isDebugMode = true;
             SetInventory();
-            SetFieldUnlock();
             // DebugPlantReadyHarvest(new Vector2Int(0, 0), tomatoSeed);
 
         }
@@ -67,11 +66,6 @@ namespace MagicalGarden.Farm
             HotelManager.Instance.lastGeneratedDate = TimeManager.Instance.currentTime;
             HotelManager.Instance.SaveLastDate();
             Debug.Log("📅 Simulasi hari baru. Guest request akan dibuat ulang saat start.");
-        }
-        private void SetFieldUnlock()
-        {
-            var field = FieldManager.Instance;
-            field.SetBlockConfig(new Vector2Int(2, 1),requiredCoins: 100,requiredHarvest: 10,unlocked: false,autoSave: true);
         }
         private void SetInventory()
         { 

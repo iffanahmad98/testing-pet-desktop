@@ -13,11 +13,13 @@ namespace MagicalGarden.Manager
     public class HotelManager : MonoBehaviour
     {
         public static HotelManager Instance;
-        [Header("Hotel")]
+        [Header("Visual FX")]
         public GameObject cleaningVfx;
         public GameObject rayCleaningVfx;
         public GameObject brokenHeartVfx;
         GameObject currentCleaningVFX;
+
+        [Header("Hotel Setting")]
         public Transform poolHotelRoom;
         public Vector2Int targetCheckOut;
         public List<HotelController> hotelControllers = new List<HotelController>();
@@ -28,7 +30,7 @@ namespace MagicalGarden.Manager
         public List<GuestRequest> todayGuestRequests = new List<GuestRequest>();
         [Header("UI")]
         [SerializeField] private GameObject prefabGuestItem;
-        public GameObject roomHotelPrefab;
+        [SerializeField] private GameObject emptyGuest;
         [SerializeField] private Transform content;
         [SerializeField] public Transform objectGuestPool;
         private string[] types = { "Fire", "Water", "Earth", "Air", "Plant" };
@@ -48,7 +50,7 @@ namespace MagicalGarden.Manager
         IEnumerator InitializeAfterDelay()
         {
             yield return new WaitForSeconds(1f);
-
+            emptyGuest.SetActive(false);
             PlayerPrefs.DeleteAll();
             PlayerPrefs.Save();
             FindAllHotelRoom();
@@ -135,6 +137,9 @@ namespace MagicalGarden.Manager
                 pet.hotelContrRef = hotelController;
                 pet.SetupPetHotel();
             }
+
+            bool removed = todayGuestRequests.Remove(guest);
+            emptyGuest.SetActive(todayGuestRequests.Count == 0);
         }
 
         private List<int> GetStageDistribution(int partySize)
@@ -170,7 +175,7 @@ namespace MagicalGarden.Manager
         public void GenerateGuestRequestsForToday()
         {
             todayGuestRequests.Clear();
-            int requestCount = UnityEngine.Random.Range(3, 6);
+            int requestCount = UnityEngine.Random.Range(5, 7);
             for (int i = 0; i < requestCount; i++)
             {
                 string type = types[UnityEngine.Random.Range(0, types.Length)];
