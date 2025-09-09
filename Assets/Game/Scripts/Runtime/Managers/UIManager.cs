@@ -69,6 +69,9 @@ public class UIManager : MonoBehaviour
     private RectTransform _windowButtonRect;
     private TransparentWindow transparentWindow;
 
+    private static GameObject currentPanel;     // simpan panel aktif sekarang
+    private static CanvasGroup currentCanvas;   // simpan canvas group aktif
+
     #endregion
 
     #region Unity Lifecycle
@@ -205,54 +208,88 @@ public class UIManager : MonoBehaviour
     {
         UIFloatMenuPanel.SetActive(false);
 
-        // Hide Setting Panel
-        SettingCanvasGroup.alpha = 0f;
-        SettingCanvasGroup.interactable = false;
-        SettingCanvasGroup.blocksRaycasts = false;
+        // // Hide Setting Panel
+        // SettingCanvasGroup.alpha = 0f;
+        // SettingCanvasGroup.interactable = false;
+        // SettingCanvasGroup.blocksRaycasts = false;
 
-        // Hide Shop Panel
-        ShopCanvasGroup.alpha = 0f;
-        ShopCanvasGroup.interactable = false;
-        ShopCanvasGroup.blocksRaycasts = false;
+        // // Hide Shop Panel
+        // ShopCanvasGroup.alpha = 0f;
+        // ShopCanvasGroup.interactable = false;
+        // ShopCanvasGroup.blocksRaycasts = false;
 
-        // Hide Inventory Panel
-        InventoryCanvasGroup.alpha = 0f;
-        InventoryCanvasGroup.interactable = false;
-        InventoryCanvasGroup.blocksRaycasts = false;
+        // // Hide Inventory Panel
+        // InventoryCanvasGroup.alpha = 0f;
+        // InventoryCanvasGroup.interactable = false;
+        // InventoryCanvasGroup.blocksRaycasts = false;
 
-        // Hide Catalogue Panel
-        CatalogueCanvasGroup.alpha = 0f;
-        CatalogueCanvasGroup.interactable = false;
-        CatalogueCanvasGroup.blocksRaycasts = false;
+        // // Hide Catalogue Panel
+        // CatalogueCanvasGroup.alpha = 0f;
+        // CatalogueCanvasGroup.interactable = false;
+        // CatalogueCanvasGroup.blocksRaycasts = false;
     }
 
     public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f, bool isActive = false)
     {
-        RectTransform rect = panel.GetComponent<RectTransform>();
         if (fadeIn)
         {
+            if (currentPanel != null && currentPanel != panel)
+            {
+                currentPanel.SetActive(false);
+            }
             panel.SetActive(true);
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.alpha = 0f;
-            rect.localScale = Vector3.one;
-
-            canvasGroup.DOFade(1f, duration)
-                .SetEase(Ease.OutQuad)
-                .OnComplete(() =>
-                {
-                    canvasGroup.interactable = true;
-                    canvasGroup.blocksRaycasts = true;
-                });
+            currentPanel = panel;
         }
         else
         {
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.DOFade(0f, duration)
-                .SetEase(Ease.InQuad)
-                .OnComplete(() => panel.SetActive(isActive));
+            if (currentPanel == panel)
+            {
+                panel.SetActive(false);
+                currentPanel = null;
+            }
         }
+        // RectTransform rect = panel.GetComponent<RectTransform>();
+        // if (fadeIn)
+        // {
+        //     if (currentPanel != null && currentPanel != panel)
+        //     {
+        //         currentCanvas.interactable = false;
+        //         currentCanvas.blocksRaycasts = false;
+        //         currentCanvas.DOFade(0f, duration)
+        //             .SetEase(Ease.InQuad)
+        //             .OnComplete(() => currentPanel.SetActive(false));
+        //     }
+
+        //     panel.SetActive(true);
+        //     canvasGroup.interactable = false;
+        //     canvasGroup.blocksRaycasts = false;
+        //     canvasGroup.alpha = 0f;
+        //     rect.localScale = Vector3.one;
+
+        //     canvasGroup.DOFade(1f, duration)
+        //         .SetEase(Ease.OutQuad)
+        //         .OnComplete(() =>
+        //         {
+        //             canvasGroup.interactable = true;
+        //             canvasGroup.blocksRaycasts = true;
+        //         });
+        //     // update current
+        //     currentPanel = panel;
+        //     currentCanvas = canvasGroup;
+        // }
+        // else
+        // {
+        //     canvasGroup.interactable = false;
+        //     canvasGroup.blocksRaycasts = false;
+        //     canvasGroup.DOFade(0f, duration)
+        //         .SetEase(Ease.InQuad)
+        //         .OnComplete(() => panel.SetActive(isActive));
+        //     if (currentPanel == panel)
+        //     {
+        //         currentPanel = null;
+        //         currentCanvas = null;
+        //     }
+        // }
     }
 
     #endregion

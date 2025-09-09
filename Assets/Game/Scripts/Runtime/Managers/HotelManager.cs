@@ -36,6 +36,10 @@ namespace MagicalGarden.Manager
         private string[] types = { "Fire", "Water", "Earth", "Air", "Plant" };
         public DateTime lastGeneratedDate;
 
+        [Header("Debug")]
+        public int minRequestCount = 5;
+        public int maxRequestCount = 7;
+
         private void Awake()
         {
             if (Instance == null)
@@ -175,7 +179,7 @@ namespace MagicalGarden.Manager
         public void GenerateGuestRequestsForToday()
         {
             todayGuestRequests.Clear();
-            int requestCount = UnityEngine.Random.Range(5, 7);
+            int requestCount = UnityEngine.Random.Range(minRequestCount, maxRequestCount);
             for (int i = 0; i < requestCount; i++)
             {
                 string type = types[UnityEngine.Random.Range(0, types.Length)];
