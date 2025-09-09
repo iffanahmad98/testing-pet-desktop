@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using Spine.Unity;
 
 public class FacilityCardUI : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class FacilityCardUI : MonoBehaviour
     public Image thumbnail;
     public Image cooldownOverlay;
     public TMP_Text cooldownText;
+    public SkeletonGraphic _anim;
 
     [Header("Events")]
     public Action<FacilityCardUI> OnSelected;
@@ -29,6 +31,9 @@ public class FacilityCardUI : MonoBehaviour
     private FacilityManager facilityManager;
     private bool isNPC = false;
 
+    private bool _isSelected;
+    public bool IsSelected => _isSelected;
+
     private void Start()
     {
         facilityManager = ServiceLocator.Get<FacilityManager>();
@@ -39,7 +44,19 @@ public class FacilityCardUI : MonoBehaviour
         isNPC = true;
         npc = data;
 
-        nameText.text = data.monsterName;
+        print("setup NPC");
+
+        if (data.monsterSpine != null)
+        {
+            print("npc data skeleton not null");
+            thumbnail.gameObject.SetActive(false);
+            _anim.gameObject.SetActive(true);
+            _anim.skeletonDataAsset = data.monsterSpine[0];
+            _anim.Initialize(true);
+            AnimUtils.SetIdle(_anim);            
+        }        
+
+            nameText.text = data.monsterName;
         thumbnail.sprite = data.CardIcon[data.isEvolved ? 1 : 0];
         priceText.text = data.monsterPrice.ToString();
 
@@ -141,7 +158,24 @@ public class FacilityCardUI : MonoBehaviour
 
     public void SetSelected(bool selected)
     {
+        _isSelected = selected;
         highlightImage?.gameObject.SetActive(selected);
+
+        if(_anim!=null && _anim.skeletonDataAsset != null)
+        {
+            if (selected)
+            {
+                int _random = UnityEngine.Random.Range(0, 2);
+                string randomAnim = _random == 0 ? "eating" : "jumping";
+                
+                AnimUtils.SetAnim(_anim, randomAnim);
+                AnimUtils.AddIdle(_anim);
+            }
+            else
+            {
+                AnimUtils.SetIdle(_anim);                
+            }
+        }
     }
 
     public void OnClickCard()
