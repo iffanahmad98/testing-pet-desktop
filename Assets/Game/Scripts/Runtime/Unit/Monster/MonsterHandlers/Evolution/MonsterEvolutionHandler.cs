@@ -12,6 +12,8 @@ public class MonsterEvolutionHandler
 {
     private MonsterController _controller;
     private SkeletonGraphic _skeletonGraphic;
+    private SkeletonGraphic _skeletonGraphicBefore;
+    private SkeletonGraphic _skeletonGraphicAfter;
     public bool IsEvolving => _isEvolving;
     private bool _isEvolving = false;
     private int _evolutionLevel = 1; // Current evolution level
@@ -31,10 +33,12 @@ public class MonsterEvolutionHandler
 
     public static event Action<MonsterController> OnMonsterEvolved;
 
-    public MonsterEvolutionHandler(MonsterController controller, SkeletonGraphic skeletonGraphic)
+    public MonsterEvolutionHandler(MonsterController controller, SkeletonGraphic skeletonGraphic, SkeletonGraphic skeletonGraphicBefore, SkeletonGraphic skeletonGraphicAfter)
     {
         _controller = controller;
         _skeletonGraphic = skeletonGraphic;
+        _skeletonGraphicBefore = skeletonGraphicBefore;
+        _skeletonGraphicAfter = skeletonGraphicAfter;
     }
 
     private EvolutionRequirement[] GetAvailableEvolutions()
@@ -82,19 +86,19 @@ public class MonsterEvolutionHandler
 
     private void CheckEvolutionConditions()
     {
-        if (!CanEvolve || _isEvolving) return;
+        // if (!CanEvolve || _isEvolving) return;
 
         var nextEvolution = GetNextEvolutionRequirement();
         if (nextEvolution == null) return;
 
-        if (MeetsEvolutionRequirements(nextEvolution))
-        {
+        // if (MeetsEvolutionRequirements(nextEvolution))
+        // {
             _controller.StateMachine?.ChangeState(MonsterState.Idle);
             if (_controller.StateMachine?.CurrentState == MonsterState.Idle)
             {
                 TriggerEvolution();
             }
-        }
+        // }
     }
 
     private EvolutionRequirement GetNextEvolutionRequirement()
@@ -152,39 +156,42 @@ public class MonsterEvolutionHandler
         // Get references to required components
         var evolveCam = MainCanvas.MonsterCamera;
         var spineGraphic = _skeletonGraphic;
+        var spineGraphicBefore = _skeletonGraphicBefore;
+        var spineGraphicAfter = _skeletonGraphicAfter;
         var evolutionParticle = _controller.UI.evolutionVFX;
         var whiteFlashMaterial = _controller.UI.evolutionMaterial;
 
-        // turn other monsters invisible
+        
+        // hide semua monster kecuali yang evolve
         int _remaining = 0;
         foreach (var monster in _controller.MonsterManager.activeMonsters)
         {
-            _remaining = _controller.MonsterManager.activeMonsters.Count - 1; // -1 for self
             if (monster != _controller)
             {
-                monster.transform.GetChild(0).GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
-                _remaining--;
-                yield return new WaitForSeconds(0.1f); // stagger the fade 
+                // visual = child(0), root = monster root
+                var visual = monster.transform.GetChild(0)?.gameObject;
+                var root   = monster.gameObject;
+                FadeUtils.FadeOutVisualThenHideRoot(visual, root, 0.25f);
+
+                yield return new WaitForSeconds(0.1f); // stagger
             }
         }
 
-        //turn coin, poop, and food collection invisible
+        // hide coin, poop, food (anggap visual = object itu sendiri, root = object itu sendiri)
+        // karena biasanya mereka 1 GO saja; jika pun punya child visual, sesuaikan seperti di monster
         foreach (var coin in _controller.MonsterManager.activeCoins)
-        {
-            coin.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
-            coin.GetComponent<CanvasGroup>().interactable = false;
-        }
+            FadeUtils.FadeOutVisualThenHideRoot(coin.gameObject, coin.gameObject, 0.25f);
+
         foreach (var poop in _controller.MonsterManager.activePoops)
-        {
-            poop.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
-            poop.GetComponent<CanvasGroup>().interactable = false;
-        }
+            FadeUtils.FadeOutVisualThenHideRoot(poop.gameObject, poop.gameObject, 0.25f);
+
         foreach (var food in _controller.MonsterManager.activeFoods)
-        {
-            food.GetComponent<CanvasGroup>().DOFade(0f, 0.25f).SetEase(Ease.InOutSine);
-            food.GetComponent<CanvasGroup>().interactable = false;
-        }
-        
+            FadeUtils.FadeOutVisualThenHideRoot(food.gameObject, food.gameObject, 0.25f);
+
+        spineGraphicBefore.skeletonDataAsset = spineGraphic.skeletonDataAsset;
+        spineGraphicBefore.Initialize(true);
+        spineGraphicAfter.skeletonDataAsset = nextSkeleton;
+        spineGraphicAfter.Initialize(true);
         var evolutionSequence = MonsterEvolutionSequenceHelper.PlayEvolutionUISequence(
             evolveCam,
             spineGraphic,
@@ -217,22 +224,24 @@ public class MonsterEvolutionHandler
             }
         }
 
-        //turn coin, poop, and food collection visible
+        foreach (var monster in _controller.MonsterManager.activeMonsters)
+        {
+            if (monster != _controller)
+            {
+                var visual = monster.transform.GetChild(0)?.gameObject;
+                var root   = monster.gameObject;
+                FadeUtils.ShowRootThenFadeInVisual(visual, root, 0.25f);
+            }
+        }
+
         foreach (var coin in _controller.MonsterManager.activeCoins)
-        {
-            coin.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
-            coin.GetComponent<CanvasGroup>().interactable = true;
-        }
+            FadeUtils.ShowRootThenFadeInVisual(coin.gameObject, coin.gameObject, 0.25f);
+
         foreach (var poop in _controller.MonsterManager.activePoops)
-        {
-            poop.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
-            poop.GetComponent<CanvasGroup>().interactable = true;
-        }
+            FadeUtils.ShowRootThenFadeInVisual(poop.gameObject, poop.gameObject, 0.25f);
+
         foreach (var food in _controller.MonsterManager.activeFoods)
-        {
-            food.GetComponent<CanvasGroup>().DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
-            food.GetComponent<CanvasGroup>().interactable = true;
-        }
+            FadeUtils.ShowRootThenFadeInVisual(food.gameObject, food.gameObject, 0.25f);
 
         yield return new WaitForSeconds(1f);
         _isEvolving = false;

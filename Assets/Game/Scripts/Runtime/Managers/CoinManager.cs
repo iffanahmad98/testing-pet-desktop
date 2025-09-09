@@ -6,13 +6,20 @@ public static class CoinManager
 
     public static int Coins
     {
-        get => SaveSystem.PlayerConfig.coins;
+        get => SaveSystem.PlayerConfig != null 
+            ? SaveSystem.PlayerConfig.coins 
+            : 0;
         set
         {
+            if (SaveSystem.PlayerConfig == null)
+            {
+                return;
+            }
+
             if (SaveSystem.PlayerConfig.coins != value)
             {
                 SaveSystem.PlayerConfig.coins = value;
-                SaveSystem.SaveAll(); // Save to disk immediately
+                SaveSystem.SaveAll();
                 OnCoinChanged?.Invoke(value);
             }
         }

@@ -68,6 +68,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     // Unity components
     private SkeletonGraphic _monsterSpineGraphic;
+    public SkeletonGraphic _beforeMonsterSpineGraphic;
+    public SkeletonGraphic _afterMonsterSpineGraphic;
     private RectTransform _rectTransform;
     private MonsterManager _monsterManager;
     public MonsterManager MonsterManager => _monsterManager;
@@ -147,7 +149,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         // 2. Create handlers that depend on core handlers
         _coroutineHandler = new MonsterCoroutineHandler(this);
         _saveHandler = new MonsterSaveHandler(this);
-        _evolutionHandler = new MonsterEvolutionHandler(this, _monsterSpineGraphic);
+        _evolutionHandler = new MonsterEvolutionHandler(this, _monsterSpineGraphic, _beforeMonsterSpineGraphic, _afterMonsterSpineGraphic);
 
         // 3. Create handlers that depend on the state machine
         _visualHandler = new MonsterVisualHandler(this, _monsterSpineGraphic);

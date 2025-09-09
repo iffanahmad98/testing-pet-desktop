@@ -60,7 +60,7 @@ public class MonsterStateMachine : MonoBehaviour
         {
             if (_behaviorHandler == null)
             {
-                Debug.LogError("[AI] _behaviorHandler is NULL", this);
+                // Debug.LogError("[AI] _behaviorHandler is NULL", this);
                 _currentStateDuration += 0.5f; // cegah loop ketat
                 return;
             }
