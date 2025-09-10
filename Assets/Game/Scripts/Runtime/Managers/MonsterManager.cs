@@ -141,6 +141,17 @@ public class MonsterManager : MonoBehaviour
         }
 
         controller.LoadMonData();
+
+        var sg = controller.GetComponentInChildren<Spine.Unity.SkeletonGraphic>(true);
+        if (sg != null)
+        {
+            // (opsional) kalau skeleton per level-mu ganti asset, set di sini:
+            sg.skeletonDataAsset = controller.MonsterData.monsterSpine[0];
+
+            sg.Initialize(true);                   // re-init atlas/pose
+            sg.Skeleton?.SetToSetupPose();         // reset ke setup pose
+            sg.AnimationState?.SetAnimation(0, "idle", true);  // set anim idle (atau anim defaultmu)
+        }
         var finalData = controller.MonsterData;
         monster.name = $"{finalData.name}_{controller.monsterID}";
 
