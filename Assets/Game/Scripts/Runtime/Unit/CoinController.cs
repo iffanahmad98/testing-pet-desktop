@@ -1,8 +1,9 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable
+public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, IPointerEnterHandler
 {
     [SerializeField] CoinType type;
     [SerializeField] float rate;
@@ -14,6 +15,7 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable
 
     private Animator animator;
     private RectTransform rectTransform;
+    private bool isCollected = false;
 
     void Awake()
     {
@@ -23,6 +25,7 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable
 
     public void Initialize(CoinType coinType)
     {
+        isCollected = false;
         type = coinType;
         value = (int)type;
         if (coinType == CoinType.Platinum)
@@ -39,11 +42,22 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable
 
     public void OnCollected()
     {
-        CoinManager.AddCoins(value);
-        ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
+        if (isCollected) return;
+        
+        rectTransform.DOJump(rectTransform.position, 200, 1, 0.5f).SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                CoinManager.AddCoins(value);
+                ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
+            });        
     }
 
     public void OnPointerDown(PointerEventData eventData)
+    {
+        OnCollected();
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
     {
         OnCollected();
     }
