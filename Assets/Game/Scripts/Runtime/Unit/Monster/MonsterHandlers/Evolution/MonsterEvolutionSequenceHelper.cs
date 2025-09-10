@@ -91,237 +91,69 @@ public static class MonsterEvolutionSequenceHelper
         var originalParentPivot = parentRect.pivot;
 
         var seq = DOTween.Sequence();
+        // Sequence seq = DOTween.Sequence().SetUpdate(true); // pake unscaled time (opsional)
 
-        // 1. Enable darken filter if BiomeManager exists
+        // 0) Setup awal (anchor/pivot/orient)
         seq.AppendCallback(() =>
         {
-            if (biomeManager != null)
-            {
-                biomeManager.ToggleFilters("Darken", true);
-            }
+            if (biomeManager != null) biomeManager.ToggleFilters("Darken", true);
 
             var monsterRect = spineGraphic.rectTransform;
-            var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
+            var parentRect0 = spineGraphic.transform.parent.GetComponent<RectTransform>();
 
-            // Set anchor and pivot to center for proper scaling
-            monsterRect.anchorMin = new Vector2(0.5f, 0.5f);
-            monsterRect.anchorMax = new Vector2(0.5f, 0.5f);
-            monsterRect.pivot = new Vector2(0.5f, 0.5f);
+            // anchor & pivot center
+            monsterRect.anchorMin = monsterRect.anchorMax = new Vector2(0.5f, 0.5f);
+            monsterRect.pivot     = new Vector2(0.5f, 0.5f);
 
-            // Also set parent anchor/pivot for proper centering
-            parentRect.anchorMin = new Vector2(0.5f, 0.5f);
-            parentRect.anchorMax = new Vector2(0.5f, 0.5f);
-            parentRect.pivot = new Vector2(0.5f, 0.5f);
+            parentRect0.anchorMin = parentRect0.anchorMax = new Vector2(0.5f, 0.5f);
+            parentRect0.pivot     = new Vector2(0.5f, 0.5f);
 
-            // Change orientation to face left (positive scale)
-            if (spineGraphic.rectTransform.localScale.x < 0)
+            // face ke kiri (x scale positif)
+            if (monsterRect.localScale.x < 0f)
             {
-                var currentScale = spineGraphic.rectTransform.localScale;
-                currentScale.x = Mathf.Abs(currentScale.x); // Make it positive to face left
-                spineGraphic.rectTransform.localScale = currentScale;
+                var s = monsterRect.localScale;
+                s.x = Mathf.Abs(s.x);
+                monsterRect.localScale = s;
             }
         });
 
-        // Phase 1: Move parent MonsterController to center and start scaling (simulates camera focusing)
-        parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
-        seq.Append(parentRect.DOAnchorPos(new Vector2(0f, -50f), 1.5f).SetEase(Ease.InOutCubic));
-        seq.Join(parentRect.DOScale(Vector3.one * 4.0f, 1.5f).SetEase(Ease.InOutCubic));
-
-        // Phase 2: Continue scaling parent bigger (simulates zoom-in effect)  
-        seq.Append(parentRect.DOScale(Vector3.one * 4.0f, 2.0f).SetEase(Ease.InOutSine));
-
-        var anim = spineGraphic.GetComponentInParent<Animator>();   // ambil Animator di parent (atau ganti referensinya)
-        const string STATE_NAME = "StepEvolved 1";                     // ganti sesuai nama state di Animator Controller
+        // Siapkan Animator dan konstanta ANIM lebih awal
+        var anim = spineGraphic.GetComponentInParent<Animator>();
+        const string STATE_NAME = "StepEvolved 1";
         const int    LAYER      = 0;
-        const float  XFADE      = 0.1f;
+        const float  XFADE      = 0.10f;
 
-        seq.AppendCallback(() =>
+        // 1) MULAI ANIMASI DI AWAL (tanpa menunggu tween move/scale)
+        seq.InsertCallback(0f, () =>
         {
             if (anim == null)
             {
                 Debug.LogWarning("[EvolutionUI] Animator not found near spineGraphic.");
                 return;
             }
-
-            // Kalau pakai Trigger:
-            // anim.ResetTrigger("Evolve");
-            // anim.SetTrigger("Evolve");
-
-            // Atau langsung crossfade ke state:
             anim.CrossFadeInFixedTime(STATE_NAME, XFADE, LAYER, 0f);
         });
 
-        // Tahan sequence sampai animasinya benar-benar selesai (atau timeout)
+        // 2) Phase 1: Move + Scale (simulasi fokus kamera)
+        parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
+        seq.Append(parentRect.DOAnchorPos(new Vector2(0f, -50f), 1.5f).SetEase(Ease.InOutCubic));
+        seq.Join(  parentRect.DOScale(Vector3.one * 4.0f, 1.5f).SetEase(Ease.InOutCubic));
+
+        // 3) Phase 2: lanjut zoom-in (pakai nilai lebih besar agar terasa naik)
+        seq.Append(parentRect.DOScale(Vector3.one * 4.5f, 1.0f).SetEase(Ease.InOutSine));
+
+        // 4) Tunggu anim state selesai (atau timeout) — pakai helper kamu
         seq.Append(WaitForAnimatorState(anim, STATE_NAME, LAYER, timeout: 8f));
 
-        // Add shake to parent during zoom
-        // seq.JoinCallback(() =>
-        // {
-        //     parentRect.DOShakePosition(3.5f, strength: 8f, vibrato: 15, randomness: 50f);
-        // });
-
-        // // 2. Play RAMP UP particle during zoom (monster still visible)
-        // seq.JoinCallback(() =>
-        // {
-        //     rampUpParticle.gameObject.SetActive(true);
-        //     rampUpCg.alpha = 0f;
-        //     rampUpCg.DOFade(1f, 1.0f).SetEase(Ease.InOutSine);
-
-        //     // Scale shake effect during zoom (apply to parent)
-        //     parentRect.DOShakeScale(3.5f, strength: 0.2f, vibrato: 8, randomness: 90f);
-        // });
-
-        // // 3. Peak zoom moment - transition to background particle
-        // seq.AppendInterval(2.5f); // Wait for initial ramp up
-        // seq.AppendCallback(() => {
-        //     // Fade out ramp up particle
-        //     rampUpCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() => {
-        //         rampUpParticle.gameObject.SetActive(false);
-        //     });
-
-        //     // Start background particle behind the pet
-        //     backgroundParticle.gameObject.SetActive(true);
-        //     backgroundParticle.transform.SetSiblingIndex(0); // Move to back
-        //     backgroundCg.alpha = 0f;
-        //     backgroundCg.DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
-
-        //     // Intense shake at transformation moment
-        //     spineGraphic.rectTransform.DOShakePosition(0.5f, strength: 20f, vibrato: 40, randomness: 90f);
-        // });
-
-        // // NEW: Add skeleton swapping sequence after background particle starts
-        // seq.AppendInterval(0.5f); // Wait for background particle to fade in
-        // seq.AppendCallback(() =>
-        // {
-        //     // Simpan skeleton awal
-        //     var originalSkeleton = spineGraphic.skeletonDataAsset;
-        //     var rt = spineGraphic.rectTransform;
-        //     var swapSeq = DOTween.Sequence();
-
-        //     // Particle foreground 1 di awal
-        //     if (foregroundParticle1 != null)
-        //     {
-        //         foregroundParticle1.gameObject.SetActive(true);
-        //         foreground1Cg.alpha = 0f;
-        //         foreground1Cg.DOFade(1f, 0.8f).SetEase(Ease.InOutSine);
-        //     }
-
-        //     void AppendSwap(
-        //         SkeletonDataAsset asset,
-        //         float upDur,                 // durasi scale 0->1 (juga dipakai untuk shake)
-        //         float posShakeStrength,
-        //         int posVibrato,
-        //         bool triggerFg2 = false,
-        //         float fg2Fade = 1.0f,
-        //         bool endAtOne = false,       // true untuk step terakhir agar berhenti di 1
-        //         float downMult = 0.6f,       // pengali durasi turun 1->0
-        //         float holdAtOne = 0f         // 0 = tanpa hold supaya benar2 no-gap
-        //     )
-        //     {
-        //         float downDur = Mathf.Max(0.02f, upDur * downMult);
-
-        //         // ganti skeleton + reset scale
-        //         swapSeq.AppendCallback(() =>
-        //         {
-        //             spineGraphic.skeletonDataAsset = asset;
-        //             spineGraphic.Initialize(true);
-
-        //             rt.DOKill();
-        //             rt.localScale = Vector3.zero;
-
-        //             if (triggerFg2 && foregroundParticle2)
-        //             {
-        //                 foregroundParticle2.gameObject.SetActive(true);
-        //                 if (foreground2Cg) { foreground2Cg.alpha = 0f; foreground2Cg.DOFade(1f, fg2Fade).SetEase(Ease.InOutSine); }
-        //             }
-        //         });
-
-        //         // 0 -> 1 sambil shake posisi (tidak ada interval tambahan)
-        //         swapSeq.Append(rt.DOScale(Vector3.one, upDur).SetEase(Ease.OutBack));
-        //         swapSeq.Join(rt.DOShakePosition(upDur, posShakeStrength, posVibrato, 90f));
-
-        //         if (holdAtOne > 0f)
-        //             swapSeq.AppendInterval(holdAtOne);
-
-        //         // shake scale singkat persis setelah mencapai 1 (opsional, durasi pendek)
-        //         swapSeq.Append(rt.DOShakeScale(0.06f, 0.10f, 10, 90f));
-
-        //         if (!endAtOne)
-        //         {
-        //             // langsung turun 1 -> 0 TANPA interval
-        //             swapSeq.Append(rt.DOScale(Vector3.zero, downDur).SetEase(Ease.InBack));
-        //         }
-        //         else
-        //         {
-        //             // final: tetap di 1 (boleh kasih settle kecil)
-        //             swapSeq.Append(rt.DOScale(1.02f, 0.05f).SetLoops(2, LoopType.Yoyo).SetEase(Ease.InOutSine));
-        //         }
-
-        //         // ⛔️ TIDAK ADA AppendInterval di sini → benar2 no delay antar swap
-        //     }
-
-        //     // nyalakan FG1 di awal kalau perlu
-        //     if (foregroundParticle1)
-        //     {
-        //         foregroundParticle1.gameObject.SetActive(true);
-        //         if (foreground1Cg) { foreground1Cg.alpha = 0f; foreground1Cg.DOFade(1f, 0.6f).SetEase(Ease.InOutSine); }
-        //     }
-
-        //     // jumlah step
-        //     int steps = 16;
-
-        //     // generate swap bolak-balik tanpa jeda
-        //     for (int i = 0; i < steps - 1; i++)
-        //     {
-        //         // variasi durasi & shake makin cepat/kuat
-        //         float t = (float)i / (steps - 1);
-        //         float up = Mathf.Lerp(0.28f, 0.08f, t);             // 0.28s → 0.08s
-        //         float strength = Mathf.Lerp(16f, 36f, t);           // 16 → 36
-        //         int vibrato = Mathf.RoundToInt(Mathf.Lerp(20f, 44f, t));
-
-        //         bool toEvolved = (i % 2 == 0); // ganjil/genap
-        //         var asset = toEvolved ? nextEvolutionSkeleton : originalSkeleton;
-
-        //         AppendSwap(asset, up, strength, vibrato,
-        //                 triggerFg2: (i == 2)); // contoh: FG2 nyala pada step 3
-        //     }
-
-        // // FINAL: berhenti di EVOLUSI & scale=1 (tanpa delay)
-        // // AppendSwap(nextEvolutionSkeleton, 0.08f, 38f, 45, endAtOne: true);
-        // swapSeq.AppendCallback(() =>
-        //     {
-        //         // Paksa skeleton akhir = evolusi
-        //         spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
-        //         spineGraphic.Initialize(true);
-
-        //         // Hentikan semua tween yg mungkin masih nempel
-        //         rt.DOKill(true);              // true = complete tweens, aman
-
-        //         // Tampilkan langsung
-        //         rt.localScale = Vector3.one;  // langsung 1 (no DOScale)
-
-        //         // (opsional) rapikan supaya pasti “diam” dan terlihat
-        //         // rt.anchoredPosition3D = Vector3.zero;
-        //         // rt.localRotation = Quaternion.identity;
-
-        //         // (opsional) kalau pakai CanvasGroup untuk FG
-        //         if (foreground1Cg) foreground1Cg.alpha = 1f;
-        //         if (foreground2Cg) foreground2Cg.alpha = 1f;
-        //     });
-        // });
-
-        // Wait for swap sequence to complete (total duration: ~2.6 seconds)
+        // 5) Jeda sebentar sebelum fade-out monster
         seq.AppendInterval(2.7f);
 
-        // Fade out monster while background particle is on (monster fades, background stays)
+        // 6) Fade-out monster (background particle tetap main)
         var monsterCanvasGroup = spineGraphic.GetComponent<CanvasGroup>();
-        if (monsterCanvasGroup == null)
-        {
-            monsterCanvasGroup = spineGraphic.gameObject.AddComponent<CanvasGroup>();
-        }
+        if (monsterCanvasGroup == null) monsterCanvasGroup = spineGraphic.gameObject.AddComponent<CanvasGroup>();
         seq.Append(monsterCanvasGroup.DOFade(0f, 0.5f).SetEase(Ease.InOutSine));
 
-        // Change skeleton while monster is invisible (background particle still playing behind)
+        // 7) Ganti skeleton saat invisible
         seq.AppendCallback(() =>
         {
             spineGraphic.skeletonDataAsset = nextEvolutionSkeleton;
@@ -329,23 +161,25 @@ public static class MonsterEvolutionSequenceHelper
             onEvolutionDataUpdate?.Invoke();
         });
 
-        // Fade monster back in with new skeleton (background particle still playing behind)
+        // 8) Fade-in monster dengan skeleton baru
         seq.Append(monsterCanvasGroup.DOFade(1f, 0.8f).SetEase(Ease.InOutSine));
 
-        // Wait a moment, then transition to finish particle
+        // 9) Jeda lalu matikan background/foreground particle
         seq.AppendInterval(3.0f);
         seq.AppendCallback(() =>
         {
-            // Fade out background particle
-            backgroundCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() =>
+            // Background
+            if (backgroundCg != null)
             {
-                backgroundParticle.gameObject.SetActive(false);
-                // Reset sibling index when done
-                backgroundParticle.transform.SetSiblingIndex(-1);
-            });
+                backgroundCg.DOFade(0f, 0.5f).SetEase(Ease.InOutSine).OnComplete(() =>
+                {
+                    if (backgroundParticle) backgroundParticle.gameObject.SetActive(false);
+                    if (backgroundParticle) backgroundParticle.transform.SetSiblingIndex(-1);
+                });
+            }
 
-            // Fade out foreground particles
-            if (foreground1Cg != null)
+            // Foreground 1
+            if (foreground1Cg != null && foregroundParticle1 != null)
             {
                 foreground1Cg.DOFade(0f, 0.8f).SetEase(Ease.InOutSine).OnComplete(() =>
                 {
@@ -353,104 +187,84 @@ public static class MonsterEvolutionSequenceHelper
                 });
             }
 
-            if (foreground2Cg != null)
+            // Foreground 2
+            if (foreground2Cg != null && foregroundParticle2 != null)
             {
                 foreground2Cg.DOFade(0f, 0.8f).SetEase(Ease.InOutSine).OnComplete(() =>
                 {
                     foregroundParticle2.gameObject.SetActive(false);
                 });
             }
-
-            // Start finish particle
-            // finishParticle.gameObject.SetActive(true);
-            // finishCg.alpha = 0f;
-            // finishCg.DOFade(1f, 0.5f).SetEase(Ease.InOutSine);
         });
 
-        // Let finish particle play for a while, then fade out
-        // seq.AppendInterval(2.0f); // Monster visible with finish particle
-        // seq.AppendCallback(() => {
-        //     // Fade out finish particle
-        //     finishCg.DOFade(0f, 1.5f).SetEase(Ease.InOutSine).OnComplete(() => {
-        //         finishParticle.gameObject.SetActive(false);
-        //     });
-        // });
+        // 10) Tunggu fade particle selesai
+        seq.AppendInterval(2f);
 
-        // 4. Wait for finish particle fade to complete
-        seq.AppendInterval(2f); // Wait for particle fade
-
-        // 5. Play jumping animation sequence after evolution completes (BEFORE zoom out)
+        // 11) Mainkan anim “Jumping” singkat sebelum zoom-out
         seq.AppendCallback(() =>
         {
-            // Play jumping animation
             if (spineGraphic != null && spineGraphic.AnimationState != null)
             {
                 var data = spineGraphic.Skeleton?.Data;
                 if (data != null)
                 {
                     string name = null;
-
-                    if (data.FindAnimation("Jumping") != null) name = "Jumping";
+                    if      (data.FindAnimation("Jumping") != null) name = "Jumping";
                     else if (data.FindAnimation("jumping") != null) name = "jumping";
-                    else if (data.FindAnimation("jump") != null) name = "jump";
-                    else if (data.FindAnimation("Jump") != null) name = "Jump";
+                    else if (data.FindAnimation("jump")    != null) name = "jump";
+                    else if (data.FindAnimation("Jump")    != null) name = "Jump";
 
-                    if (name != null)
-                        spineGraphic.AnimationState.SetAnimation(0, name, false);
-                    else
-                        Debug.LogWarning("Animation 'Jumping/jumping' tidak ditemukan.", spineGraphic);
+                    if (name != null) spineGraphic.AnimationState.SetAnimation(0, name, false);
+                    else Debug.LogWarning("Animation 'Jumping/jumping/jump/Jump' tidak ditemukan.", spineGraphic);
                 }
             }
         });
 
-        // Wait for jump animation to complete (adjust duration as needed)
+        // 12) Tunggu jump singkat, lalu kembali idle
         seq.AppendInterval(1.0f);
-
-        // Return to idle animation
         seq.AppendCallback(() =>
         {
             if (spineGraphic.AnimationState != null)
-            {
                 spineGraphic.AnimationState.SetAnimation(0, "idle", true);
-            }
         });
 
-        // Wait a moment in idle before starting zoom out
+        // 13) Jeda kecil sebelum zoom-out
         seq.AppendInterval(0.5f);
 
-        // 6. SIMULATE ZOOM OUT: Scale back down and return to original position
-        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(Vector3.one * 1.2f, 1.0f).SetEase(Ease.InOutCubic));
-        seq.Join(spineGraphic.rectTransform.DOAnchorPos(originalPos, 1.0f).SetEase(Ease.InOutCubic));
-        // ADD: Return parent to original position
-        seq.Join(spineGraphic.transform.parent.GetComponent<RectTransform>().DOAnchorPos(originalParentPos, 1.0f).SetEase(Ease.InOutCubic));
+        // 14) Zoom-out & kembali ke posisi/skalanya
+        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>()
+            .DOScale(Vector3.one * 1.2f, 1.0f).SetEase(Ease.InOutCubic));
+        seq.Join(spineGraphic.rectTransform
+            .DOAnchorPos(originalPos, 1.0f).SetEase(Ease.InOutCubic));
+        seq.Join(spineGraphic.transform.parent.GetComponent<RectTransform>()
+            .DOAnchorPos(originalParentPos, 1.0f).SetEase(Ease.InOutCubic));
 
-        // 7. Final scale to normal size and ensure final positioning
-        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>().DOScale(originalParentScale, 0.5f).SetEase(Ease.OutBack));
+        // 15) Final scale parent ke ukuran normal
+        seq.Append(spineGraphic.transform.parent.GetComponent<RectTransform>()
+            .DOScale(originalParentScale, 0.5f).SetEase(Ease.OutBack));
 
+        // 16) Restore semua properti & matikan filter
         seq.AppendCallback(() =>
         {
-            // Restore original anchor and pivot settings
+            // restore anak
             spineGraphic.rectTransform.anchoredPosition = originalPos;
             spineGraphic.rectTransform.anchorMin = originalAnchorMin;
             spineGraphic.rectTransform.anchorMax = originalAnchorMax;
-            spineGraphic.rectTransform.pivot = originalPivot;
-            spineGraphic.rectTransform.localScale = originalScale;
+            spineGraphic.rectTransform.pivot     = originalPivot;
+            spineGraphic.rectTransform.localScale= originalScale;
 
-            // Restore parent anchor and pivot settings
-            var parentRect = spineGraphic.transform.parent.GetComponent<RectTransform>();
-            parentRect.anchoredPosition = originalParentPos;
-            parentRect.localScale = originalParentScale;
-            parentRect.anchorMin = originalParentAnchorMin;
-            parentRect.anchorMax = originalParentAnchorMax;
-            parentRect.pivot = originalParentPivot;
+            // restore parent
+            var pr = spineGraphic.transform.parent.GetComponent<RectTransform>();
+            pr.anchoredPosition = originalParentPos;
+            pr.localScale       = originalParentScale;
+            pr.anchorMin        = originalParentAnchorMin;
+            pr.anchorMax        = originalParentAnchorMax;
+            pr.pivot            = originalParentPivot;
 
-            // Disable blur effect at the end of evolution
-            if (biomeManager != null)
-            {
-                biomeManager.ToggleFilters("Darken", false);
-            }
+            if (biomeManager != null) biomeManager.ToggleFilters("Darken", false);
         });
 
+        // jangan lupa return sequence
         return seq;
     }
 }
