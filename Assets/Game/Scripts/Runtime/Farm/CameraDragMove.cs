@@ -25,6 +25,10 @@ namespace MagicalGarden.Farm
         public bool canDrag = true;
         public bool canZoom = true;
 
+        [Header("Keyboard/Pad Pan")]
+        public float panSpeed = 10f;
+        public bool allowLeftClickDrag = true;
+
         private Camera cam;
         private Coroutine zoomCoroutine;
 
@@ -36,6 +40,8 @@ namespace MagicalGarden.Farm
 
         void Update()
         {
+            HandleKeyboardPan();
+
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
 
@@ -43,22 +49,42 @@ namespace MagicalGarden.Farm
             HandleZoom();
         }
 
+        void HandleKeyboardPan()
+        {
+            if (!canDrag) return;
+            if (cam == null) cam = Camera.main;
+
+            // WASD / Arrow keys (juga support gamepad via Input Manager default)
+            float x = Input.GetAxisRaw("Horizontal"); // A/D, ←/→, gamepad left stick X
+            float y = Input.GetAxisRaw("Vertical");   // W/S, ↑/↓, gamepad left stick Y
+
+            if (Mathf.Abs(x) > 0.001f || Mathf.Abs(y) > 0.001f)
+            {
+                // Kecepatan bisa disesuaikan terhadap zoom biar terasa konsisten
+                float speed = panSpeed * Time.deltaTime * cam.orthographicSize;
+                Vector3 move = new Vector3(x, y, 0f).normalized * speed;
+                Vector3 target = transform.position + move;
+                transform.position = ClampCameraPosition(target, cam.orthographicSize);
+            }
+        }
+
         void HandleDrag()
         {
             if (!canDrag) return;
+            if (cam == null) cam = Camera.main;
 
-            if (Input.GetMouseButtonDown(2)) // Middle mouse
+            bool down = Input.GetMouseButtonDown(2) || (allowLeftClickDrag && Input.GetMouseButtonDown(0));
+            bool up   = Input.GetMouseButtonUp(2)   || (allowLeftClickDrag && Input.GetMouseButtonUp(0));
+            bool hold = Input.GetMouseButton(2)     || (allowLeftClickDrag && Input.GetMouseButton(0));
+
+            if (down)
             {
                 isDragging = true;
                 dragOrigin = cam.ScreenToWorldPoint(Input.mousePosition);
             }
+            if (up) isDragging = false;
 
-            if (Input.GetMouseButtonUp(2))
-            {
-                isDragging = false;
-            }
-
-            if (isDragging)
+            if (isDragging && hold)
             {
                 Vector3 currentPos = cam.ScreenToWorldPoint(Input.mousePosition);
                 Vector3 difference = dragOrigin - currentPos;
