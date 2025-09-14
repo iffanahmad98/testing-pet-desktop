@@ -65,11 +65,31 @@ MonoBehaviour:
     evolutionName: Peacendra Stage 3
     description: Evolve to Peacendra Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 7cab28211bceb4c45b6706aa30bb6e2d, type: 2}
+  - {fileID: 11400000, guid: dadf7de8a0f17084893ccaf9246792a5, type: 2}
+  CardIcon:
+  - {fileID: -4619715049958479734, guid: 9dac95ae2579b58409e30bb821fd7538, type: 3}
+  - {fileID: 539475682486072095, guid: ef16e5c196fdda54c8ee4114af9a4114, type: 3}
+  DetailsIcon:
+  - {fileID: -4619715049958479734, guid: 9dac95ae2579b58409e30bb821fd7538, type: 3}
+  - {fileID: 539475682486072095, guid: ef16e5c196fdda54c8ee4114af9a4114, type: 3}
+  CatalogueIcon:
+  - {fileID: -4619715049958479734, guid: 9dac95ae2579b58409e30bb821fd7538, type: 3}
+  - {fileID: 539475682486072095, guid: ef16e5c196fdda54c8ee4114af9a4114, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 400
   sellPriceStage1: 260

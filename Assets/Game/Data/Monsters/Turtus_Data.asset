@@ -67,10 +67,29 @@ MonoBehaviour:
     progressRetentionPercentage: 0
   monsterSpine:
   - {fileID: 11400000, guid: 6ce651ee06f63af469274d9ed5ab2027, type: 2}
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  - {fileID: 11400000, guid: 021588076dc66684790a1a8948895304, type: 2}
+  CardIcon:
+  - {fileID: 5521529974716403671, guid: 703159b5ededa8442958eab2a2e57994, type: 3}
+  - {fileID: -4936267769707997585, guid: 1cf85620b5b039c4a8f199e148d9aa48, type: 3}
+  DetailsIcon:
+  - {fileID: 5521529974716403671, guid: 703159b5ededa8442958eab2a2e57994, type: 3}
+  - {fileID: -4936267769707997585, guid: 1cf85620b5b039c4a8f199e148d9aa48, type: 3}
+  CatalogueIcon:
+  - {fileID: 5521529974716403671, guid: 703159b5ededa8442958eab2a2e57994, type: 3}
+  - {fileID: -4936267769707997585, guid: 1cf85620b5b039c4a8f199e148d9aa48, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 320
   sellPriceStage1: 200
