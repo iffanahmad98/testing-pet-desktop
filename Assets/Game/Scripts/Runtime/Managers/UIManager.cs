@@ -8,8 +8,7 @@ public class UIManager : MonoBehaviour
 {
     #region Inspector Fields
 
-    [Header("UI Panels")]
-    public GameObject UIFloatMenuPanel;
+    [Header("UI Panels")] public GameObject UIFloatMenuPanel;
     public CanvasGroup UIFloatMenuCanvasGroup;
     public GameObject SettingPanel;
     public CanvasGroup SettingCanvasGroup;
@@ -20,8 +19,7 @@ public class UIManager : MonoBehaviour
     public GameObject InventoryPanel;
     public CanvasGroup InventoryCanvasGroup;
 
-    [Header("Buttons")]
-    public Button UIMenuButton;
+    [Header("Buttons")] public Button UIMenuButton;
     public Button miniInventoryButton;
     public Button groundButton;
     public Button doorButton;
@@ -37,14 +35,16 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI messageText;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float animationDuration = 0.4f;
+    [Header("Animation Settings")] [SerializeField]
+    private float animationDuration = 0.4f;
+
     [SerializeField] private float buttonSlideDistance = 100f;
     [SerializeField] private AnimationCurve easeOutCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private AnimationCurve easeInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-    [Header("Mini Window Mode")]
-    [SerializeField] private GameObject gameContentParent;
+    [Header("Mini Window Mode")] [SerializeField]
+    private GameObject gameContentParent;
+
     [SerializeField] private float miniWindowScale = 3f;
     [SerializeField] private float gameAreaOpacity = 0.15f;
     [SerializeField] private float scaleAnimDuration = 0.3f;
@@ -69,8 +69,8 @@ public class UIManager : MonoBehaviour
     private RectTransform _windowButtonRect;
     private TransparentWindow transparentWindow;
 
-    private static GameObject currentPanel;     // simpan panel aktif sekarang
-    private static CanvasGroup currentCanvas;   // simpan canvas group aktif
+    private static GameObject currentPanel; // simpan panel aktif sekarang
+    private static CanvasGroup currentCanvas; // simpan canvas group aktif
 
     #endregion
 
@@ -229,67 +229,34 @@ public class UIManager : MonoBehaviour
         // CatalogueCanvasGroup.blocksRaycasts = false;
     }
 
-    public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f, float scalePop = 1.08f, float scaleDuration = 0.15f, bool isActive = false)
+    public void FadePanel(GameObject panel, CanvasGroup canvasGroup, bool fadeIn, float duration = 0.3f,
+        float scalePop = 1.08f, float scaleDuration = 0.15f, bool isActive = false)
     {
+        RectTransform rect = panel.GetComponent<RectTransform>();
         if (fadeIn)
         {
-            if (currentPanel != null && currentPanel != panel)
-            {
-                currentPanel.SetActive(false);
-            }
             panel.SetActive(true);
-            currentPanel = panel;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.alpha = 0f;
+            rect.localScale = Vector3.one;
+
+            canvasGroup.DOFade(1f, duration)
+                .SetEase(Ease.OutQuad)
+                .OnComplete(() =>
+                {
+                    canvasGroup.interactable = true;
+                    canvasGroup.blocksRaycasts = true;
+                });
         }
         else
         {
-            if (currentPanel == panel)
-            {
-                panel.SetActive(false);
-                currentPanel = null;
-            }
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.DOFade(0f, duration)
+                .SetEase(Ease.InQuad)
+                .OnComplete(() => panel.SetActive(isActive));
         }
-        // RectTransform rect = panel.GetComponent<RectTransform>();
-        // if (fadeIn)
-        // {
-        //     if (currentPanel != null && currentPanel != panel)
-        //     {
-        //         currentCanvas.interactable = false;
-        //         currentCanvas.blocksRaycasts = false;
-        //         currentCanvas.DOFade(0f, duration)
-        //             .SetEase(Ease.InQuad)
-        //             .OnComplete(() => currentPanel.SetActive(false));
-        //     }
-
-        //     panel.SetActive(true);
-        //     canvasGroup.interactable = false;
-        //     canvasGroup.blocksRaycasts = false;
-        //     canvasGroup.alpha = 0f;
-        //     rect.localScale = Vector3.one;
-
-        //     canvasGroup.DOFade(1f, duration)
-        //         .SetEase(Ease.OutQuad)
-        //         .OnComplete(() =>
-        //         {
-        //             canvasGroup.interactable = true;
-        //             canvasGroup.blocksRaycasts = true;
-        //         });
-        //     // update current
-        //     currentPanel = panel;
-        //     currentCanvas = canvasGroup;
-        // }
-        // else
-        // {
-        //     canvasGroup.interactable = false;
-        //     canvasGroup.blocksRaycasts = false;
-        //     canvasGroup.DOFade(0f, duration)
-        //         .SetEase(Ease.InQuad)
-        //         .OnComplete(() => panel.SetActive(isActive));
-        //     if (currentPanel == panel)
-        //     {
-        //         currentPanel = null;
-        //         currentCanvas = null;
-        //     }
-        // }
     }
 
     #endregion
@@ -463,7 +430,8 @@ public class UIManager : MonoBehaviour
             }
 
             if (_windowButtonRect != null)
-                StartCoroutine(AnimateButtonScale(_originalWindowButtonScale, _originalWindowButtonScale * miniWindowScale));
+                StartCoroutine(AnimateButtonScale(_originalWindowButtonScale,
+                    _originalWindowButtonScale * miniWindowScale));
         }
 
         transparentWindow?.SetTopMostMode(false);
@@ -566,7 +534,6 @@ public class UIManager : MonoBehaviour
 
     private void UpdatePoopCounterValue(int newPoopAmount)
     {
-
     }
 
     #endregion

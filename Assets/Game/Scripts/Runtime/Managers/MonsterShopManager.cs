@@ -144,7 +144,7 @@ public class MonsterShopManager : MonoBehaviour
         else
         {
             // Failure message
-            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {monsterItem.name}!", 2f);
+            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy!", 2f);
         }
     }
 

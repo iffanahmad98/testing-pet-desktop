@@ -1,52 +1,14 @@
 {
   "dependencies": {
     "com.coffee.ui-particle": {
-      "version": "https://github.com/mob-sakai/ParticleEffectForUGUI.git",
+      "version": "5.0.0-preview.16",
       "depth": 0,
-      "source": "git",
+      "source": "registry",
       "dependencies": {
         "com.unity.ugui": "1.0.0",
         "com.unity.modules.particlesystem": "1.0.0"
       },
-      "hash": "4b98abd7469b10d55c9c623830cb6e1518f72731"
-    },
-    "com.esotericsoftware.spine.spine-csharp": {
-      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-csharp/src#4.2",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "c7cf50907129bb67c750c166459bfa4db23f1510"
-    },
-    "com.esotericsoftware.spine.spine-unity": {
-      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Assets/Spine#4.2",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0",
-        "com.unity.modules.animation": "1.0.0",
-        "com.unity.modules.physics": "1.0.0",
-        "com.unity.modules.physics2d": "1.0.0",
-        "com.esotericsoftware.spine.spine-csharp": "4.2.0"
-      },
-      "hash": "c7cf50907129bb67c750c166459bfa4db23f1510"
-    },
-    "com.esotericsoftware.spine.spine-unity-examples": {
-      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Assets/Spine Examples#4.2",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.esotericsoftware.spine.spine-unity": "4.2.0"
-      },
-      "hash": "c7cf50907129bb67c750c166459bfa4db23f1510"
-    },
-    "com.esotericsoftware.spine.urp-shaders": {
-      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Modules/com.esotericsoftware.spine.urp-shaders#4.2",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.render-pipelines.universal": "7.1.5"
-      },
-      "hash": "c7cf50907129bb67c750c166459bfa4db23f1510"
+      "url": "https://package.openupm.com"
     },
     "com.unity.2d.animation": {
       "version": "10.1.4",
@@ -354,8 +316,8 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.settings-manager": {
-      "version": "2.0.1",
-      "depth": 2,
+      "version": "2.1.0",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
