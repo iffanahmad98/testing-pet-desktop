@@ -50,7 +50,8 @@ public class GachaResultPanel : MonoBehaviour
     private CanvasGroup monsterCanvas;
     
     private UIAnimator chestAnimatorUI;
-    private UIAnimator eggAnimatorUI;
+    private TweenUIAnimator eggAnimatorUI;
+    private Animator eggAnimator; // TEST
 
     private void Start()
     {
@@ -67,7 +68,8 @@ public class GachaResultPanel : MonoBehaviour
         eggCanvas = egg.GetComponent<CanvasGroup>() ?? egg.AddComponent<CanvasGroup>();
         monsterCanvas = monsterDisplay.GetComponent<CanvasGroup>() ?? monsterDisplay.AddComponent<CanvasGroup>();
         chestAnimatorUI = chest.GetComponent<UIAnimator>() ?? chest.AddComponent<UIAnimator>();
-        eggAnimatorUI = egg.GetComponent<UIAnimator>() ?? egg.AddComponent<UIAnimator>();
+        //eggAnimatorUI = egg.GetComponent<TweenUIAnimator>() ?? egg.AddComponent<TweenUIAnimator>();
+        eggAnimator = egg.GetComponent<Animator>() ?? egg.AddComponent<Animator>();
 
 
         // Reset all states
@@ -108,10 +110,11 @@ public class GachaResultPanel : MonoBehaviour
         {
             egg.SetActive(true);
             eggAnimatorUI?.Play();
+            eggAnimator?.SetTrigger("Crack");
         });
         
         // Wait for egg animation to complete, then fade in egg monster
-        seq.AppendInterval(eggAnimatorUI?.TotalDuration * 0.5f ?? 0.5f);
+        seq.AppendInterval(1.5f);
         seq.AppendCallback(() =>
         {
             // Fade in egg monster and assign spine graphic
@@ -120,8 +123,8 @@ public class GachaResultPanel : MonoBehaviour
             eggMonsterGraphic.startingAnimation = eggMonsterGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";
             eggMonsterGraphic.Initialize(true);
             eggMonsterCanvasGroup.DOFade(1, 0.5f);
-            shineVFX.gameObject.SetActive(true);
-            shineVFX.Play();
+            shineVFX?.gameObject.SetActive(true);
+            shineVFX?.Play();
         });
         seq.AppendInterval(1f);
         seq.Append(eggCanvas.DOFade(0, 0.2f).SetEase(fadeOutEggEase));
@@ -194,7 +197,7 @@ public class GachaResultPanel : MonoBehaviour
         // Stop effects
         shineVFX.Stop();
         confettiVFX.Stop();
-        fireworkVFX.Stop();
+        fireworkVFX?.Stop();
         foreach (var miniFirework in miniFireworkVFX)
         {
             if (miniFirework != null) miniFirework.Stop();
