@@ -198,7 +198,7 @@ public static class MonsterEvolutionSequenceHelper
         });
 
         // 10) Tunggu fade particle selesai
-        seq.AppendInterval(2f);
+        seq.AppendInterval(0.5f);
 
         // 11) Mainkan anim “Jumping” singkat sebelum zoom-out
         seq.AppendCallback(() =>
@@ -221,7 +221,7 @@ public static class MonsterEvolutionSequenceHelper
         });
 
         // 12) Tunggu jump singkat, lalu kembali idle
-        seq.AppendInterval(1.0f);
+        seq.AppendInterval(2.0f);
         seq.AppendCallback(() =>
         {
             if (spineGraphic.AnimationState != null)
