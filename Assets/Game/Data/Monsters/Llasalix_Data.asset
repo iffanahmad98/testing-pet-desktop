@@ -65,11 +65,25 @@ MonoBehaviour:
     evolutionName: Llasalix Stage 3
     description: Evolve to Llasalix Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 7fbc419f63f986546af95dc5032084f9, type: 2}
+  - {fileID: 11400000, guid: a35f8c88d46a7df4b8a8f927eba47c11, type: 2}
   CardIcon: []
   DetailsIcon: []
   CatalogueIcon: []
-  evolutionAnimationSets: []
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - idle
+    - eating
+    - jump
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - idle
+    - eating
+    - jump
+    - walking
   evolutionBehaviors: []
   monsterPrice: 320
   sellPriceStage1: 200

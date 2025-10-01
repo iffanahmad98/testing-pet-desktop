@@ -65,11 +65,25 @@ MonoBehaviour:
     evolutionName: Mossybara Stage 3
     description: Evolve to Mossybara Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 53ae6dd29b53ebd4cb37ab675c7ecde9, type: 2}
+  - {fileID: 11400000, guid: 68685e775e0a1e84c90a9a133c348e1a, type: 2}
   CardIcon: []
   DetailsIcon: []
   CatalogueIcon: []
-  evolutionAnimationSets: []
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - idle
+    - eating
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - idle
+    - eating
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 360
   sellPriceStage1: 240

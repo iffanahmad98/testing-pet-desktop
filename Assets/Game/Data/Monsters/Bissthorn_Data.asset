@@ -66,11 +66,24 @@ MonoBehaviour:
     description: Evolve to Bissthorn Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 74f351c17ff780549afdac84f6d8cc76, type: 2}
+  - {fileID: 11400000, guid: 4200f3e3e39cd1541a5c9167e571dec8, type: 2}
   CardIcon: []
   DetailsIcon: []
   CatalogueIcon: []
-  evolutionAnimationSets: []
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 360
   sellPriceStage1: 240
