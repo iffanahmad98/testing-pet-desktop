@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using Spine.Unity;
+using UnityEngine.Localization.SmartFormat.Core.Parsing;
 
 public class FacilityCardUI : MonoBehaviour
 {
@@ -17,7 +18,8 @@ public class FacilityCardUI : MonoBehaviour
     public Image thumbnail;
     public Image cooldownOverlay;
     public TMP_Text cooldownText;
-    public SkeletonGraphic _anim;
+    [SerializeField] private SkeletonGraphic _anim;
+    [SerializeField] private Animator _animator;
 
     [Header("Events")]
     public Action<FacilityCardUI> OnSelected;
@@ -25,8 +27,8 @@ public class FacilityCardUI : MonoBehaviour
     public Action<FacilityCardUI> OnBuyClicked;
     public Action<FacilityCardUI> OnCancelClicked;
 
-    public FacilityDataSO FacilityData { get; private set; }
-    public MonsterDataSO npc { get; private set; }
+    public FacilityDataSO FacilityData;
+    public MonsterDataSO npc;
 
     private FacilityManager facilityManager;
     private bool isNPC = false;
@@ -50,13 +52,14 @@ public class FacilityCardUI : MonoBehaviour
         {
             print("npc data skeleton not null");
             thumbnail.gameObject.SetActive(false);
+            _animator.gameObject.SetActive(false);
             _anim.gameObject.SetActive(true);
             _anim.skeletonDataAsset = data.monsterSpine[0];
             _anim.Initialize(true);
-            AnimUtils.SetIdle(_anim);            
-        }        
+            AnimUtils.SetIdle(_anim);
+        }
 
-            nameText.text = data.monsterName;
+        nameText.text = data.monsterName;
         thumbnail.sprite = data.CardIcon[data.isEvolved ? 1 : 0];
         priceText.text = data.monsterPrice.ToString();
 
@@ -76,6 +79,15 @@ public class FacilityCardUI : MonoBehaviour
     {
         isNPC = false;
         FacilityData = data;
+
+        if (data.animator != null)
+        {
+            thumbnail.gameObject.SetActive(false);            
+            _anim.gameObject.SetActive(false);
+            _animator.gameObject.SetActive(true);
+
+            _animator.runtimeAnimatorController = data.animator;
+        }
 
         nameText.text = data.facilityName;
         thumbnail.sprite = data.thumbnail;
@@ -161,20 +173,36 @@ public class FacilityCardUI : MonoBehaviour
         _isSelected = selected;
         highlightImage?.gameObject.SetActive(selected);
 
-        if(_anim!=null && _anim.skeletonDataAsset != null)
+        if (_anim != null && _anim.skeletonDataAsset != null)
         {
-            if (selected)
-            {
-                int _random = UnityEngine.Random.Range(0, 2);
-                string randomAnim = _random == 0 ? "eating" : "jumping";
-                
-                AnimUtils.SetAnim(_anim, randomAnim);
-                AnimUtils.AddIdle(_anim);
-            }
-            else
-            {
-                AnimUtils.SetIdle(_anim);                
-            }
+            AnimateNPC();
+        }
+        else if (_animator.runtimeAnimatorController != null)
+        {
+            AnimateFacility();
+        }
+    }
+    private void AnimateNPC()
+    {
+        if (_isSelected)
+        {
+            int _random = UnityEngine.Random.Range(0, 2);
+            string randomAnim = _random == 0 ? "eating" : "jumping";
+
+            AnimUtils.SetAnim(_anim, randomAnim);
+            AnimUtils.AddIdle(_anim);
+        }
+        else
+        {
+            AnimUtils.SetIdle(_anim);
+        }
+    }
+
+    private void AnimateFacility()
+    {
+        if (_isSelected)
+        {
+            _animator.SetTrigger("selected");
         }
     }
 

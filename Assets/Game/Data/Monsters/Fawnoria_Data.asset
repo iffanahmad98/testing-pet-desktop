@@ -65,11 +65,30 @@ MonoBehaviour:
     evolutionName: Fawnoria Stage 3
     description: Evolve to Fawnoria Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: 8ad1849d37b3494409db609089e26aa8, type: 2}
+  CardIcon:
+  - {fileID: 5514561082981320056, guid: e7c6e3f713ad25d46876d5722f0a63f6, type: 3}
+  - {fileID: 4583121120032746132, guid: d7a7a45c7b257bb4ba6b7c7ea5a2b422, type: 3}
+  DetailsIcon:
+  - {fileID: 5514561082981320056, guid: e7c6e3f713ad25d46876d5722f0a63f6, type: 3}
+  - {fileID: 4583121120032746132, guid: d7a7a45c7b257bb4ba6b7c7ea5a2b422, type: 3}
+  CatalogueIcon:
+  - {fileID: 5514561082981320056, guid: e7c6e3f713ad25d46876d5722f0a63f6, type: 3}
+  - {fileID: 4583121120032746132, guid: d7a7a45c7b257bb4ba6b7c7ea5a2b422, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 400
   sellPriceStage1: 260

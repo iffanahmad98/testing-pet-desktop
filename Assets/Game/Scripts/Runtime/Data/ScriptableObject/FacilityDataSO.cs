@@ -1,3 +1,4 @@
+using UnityEditor.Animations;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Facility", menuName = "Facility/Facility Data")]
@@ -9,6 +10,7 @@ public class FacilityDataSO : ScriptableObject
     public string description = "Description here.";
     public int price = 100;
     public Sprite thumbnail; // Used in shop card UI
+    public AnimatorController animator;
 
     [Header("Functionality")]
     public float cooldownSeconds = 30f;

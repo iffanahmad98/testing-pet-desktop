@@ -66,22 +66,28 @@ MonoBehaviour:
     description: Evolve to Mossybara Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 53ae6dd29b53ebd4cb37ab675c7ecde9, type: 2}
-  - {fileID: 11400000, guid: 68685e775e0a1e84c90a9a133c348e1a, type: 2}
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
+  - {fileID: 11400000, guid: 8de977d50dac41b42b3f63472394e0c4, type: 2}
+  - {fileID: 11400000, guid: 3ae58585a08cbbc4db7b0a05fe4092c0, type: 2}
+  CardIcon:
+  - {fileID: -4509298385892514490, guid: 64eef90ffad57d44cb6f7adffd45f6b0, type: 3}
+  - {fileID: 6938787739452873571, guid: 804cc37489a33744dad88d688865ea03, type: 3}
+  DetailsIcon:
+  - {fileID: -4509298385892514490, guid: 64eef90ffad57d44cb6f7adffd45f6b0, type: 3}
+  - {fileID: 6938787739452873571, guid: 804cc37489a33744dad88d688865ea03, type: 3}
+  CatalogueIcon:
+  - {fileID: -4509298385892514490, guid: 64eef90ffad57d44cb6f7adffd45f6b0, type: 3}
+  - {fileID: 6938787739452873571, guid: 804cc37489a33744dad88d688865ea03, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
-    - idle
     - eating
+    - idle
     - jumping
     - walking
   - evolutionLevel: 2
     availableAnimations:
-    - idle
     - eating
+    - idle
     - jumping
     - walking
   evolutionBehaviors: []

@@ -65,11 +65,31 @@ MonoBehaviour:
     evolutionName: Wolcissus Stage 3
     description: Evolve to Wolcissus Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
-  evolutionAnimationSets: []
+  monsterSpine:
+  - {fileID: 11400000, guid: f4acdcd8299ecff4fb5b37a06d9ab9b3, type: 2}
+  - {fileID: 11400000, guid: 27c8a7766bcd9d9478efa81c7ad4ddb8, type: 2}
+  CardIcon:
+  - {fileID: -7407515236491278367, guid: 072b2ea49f57c8046a5077c9d9feb6c0, type: 3}
+  - {fileID: -4198230826818451331, guid: db8218f7ebd107048bc42302a3574e3a, type: 3}
+  DetailsIcon:
+  - {fileID: -7407515236491278367, guid: 072b2ea49f57c8046a5077c9d9feb6c0, type: 3}
+  - {fileID: -4198230826818451331, guid: db8218f7ebd107048bc42302a3574e3a, type: 3}
+  CatalogueIcon:
+  - {fileID: -7407515236491278367, guid: 072b2ea49f57c8046a5077c9d9feb6c0, type: 3}
+  - {fileID: -4198230826818451331, guid: db8218f7ebd107048bc42302a3574e3a, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 360
   sellPriceStage1: 240
