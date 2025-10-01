@@ -65,11 +65,25 @@ MonoBehaviour:
     evolutionName: Squillac Stage 3
     description: Evolve to Squillac Stage 3
     progressRetentionPercentage: 0
-  monsterSpine: []
+  monsterSpine:
+  - {fileID: 11400000, guid: a960dbe454c1a6048a1e17035512058c, type: 2}
+  - {fileID: 11400000, guid: a0019c1a08b82364a8b27c396a81042b, type: 2}
   CardIcon: []
   DetailsIcon: []
   CatalogueIcon: []
-  evolutionAnimationSets: []
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
   evolutionBehaviors: []
   monsterPrice: 400
   sellPriceStage1: 260
