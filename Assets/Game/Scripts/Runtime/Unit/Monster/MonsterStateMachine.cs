@@ -51,6 +51,29 @@ public class MonsterStateMachine : MonoBehaviour
             }
         }
 
+        // Force Idle if movement states have been running for more than 10 seconds
+        if ((_currentState == MonsterState.Walking ||
+             _currentState == MonsterState.Running ||
+             _currentState == MonsterState.Flying) &&
+            _stateTimer >= 10f)
+        {
+            ChangeState(MonsterState.Idle);
+            return;
+        }
+
+        // Force movement if Idle has been running for more than 10 seconds
+        if (_currentState == MonsterState.Idle && _stateTimer >= 10f)
+        {
+            if (_behaviorHandler != null)
+            {
+                // Force movement state based on position
+                bool isInAir = IsMonsterInAir(GetComponent<RectTransform>().anchoredPosition);
+                MonsterState forcedMovement = isInAir ? MonsterState.Flying : MonsterState.Walking;
+                ChangeState(forcedMovement);
+                return;
+            }
+        }
+
         if (ShouldContinueCurrentMovement())
         {
             return;
@@ -92,9 +115,25 @@ public class MonsterStateMachine : MonoBehaviour
         if (!(_animationHandler?.HasValidAnimationForState(newState) ?? false))
             newState = MonsterState.Idle;
 
+        // PREVENT CONSECUTIVE IDLE: If trying to go from Idle to Idle, force movement instead
+        // BUT: Allow it if this is the first state change (previous == current, meaning just spawned)
+        if (_currentState == MonsterState.Idle && newState == MonsterState.Idle && _previousState != _currentState)
+        {
+            var rectTransform = GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                bool isInAir = IsMonsterInAir(rectTransform.anchoredPosition);
+                newState = isInAir ? MonsterState.Flying : MonsterState.Walking;
+                Debug.Log($"[{_controller.gameObject.name}] Prevented Idle→Idle! Forcing {newState}");
+            }
+        }
+
         _previousState = _currentState;
         _currentState  = newState;
         _stateTimer    = 0f;
+
+        // Log state transition
+        Debug.Log($"[{_controller.gameObject.name}] State changed: {_previousState} → {_currentState} (duration will be set)");
 
         _animationHandler?.PlayStateAnimation(newState); // aman kalau null
         OnStateChanged?.Invoke(_currentState);
@@ -129,7 +168,25 @@ public class MonsterStateMachine : MonoBehaviour
 
         Vector2 currentPos = rectTransform.anchoredPosition;
         Vector2 targetPos = _controller.GetTargetPosition();
-        float distanceToTarget = Vector2.Distance(currentPos, targetPos);
+
+        // Check if using horizontal-only movement (small game area height)
+        var monsterManager = _controller.MonsterManager;
+        bool isHorizontalOnly = false;
+        if (monsterManager != null)
+        {
+            var gameAreaRect = monsterManager.gameAreaRT;
+            if (gameAreaRect != null)
+            {
+                float currentHeight = gameAreaRect.sizeDelta.y;
+                float maxHeight = monsterManager.GetMaxGameAreaHeight();
+                isHorizontalOnly = currentHeight <= maxHeight / 2f;
+            }
+        }
+
+        // For horizontal-only movement, only check X distance
+        float distanceToTarget = isHorizontalOnly
+            ? Mathf.Abs(currentPos.x - targetPos.x)
+            : Vector2.Distance(currentPos, targetPos);
 
         return distanceToTarget > 30f;
     }

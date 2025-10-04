@@ -398,9 +398,9 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     private void HandleSeparationLogic(bool useRelaxedBounds)
     {
         if (_separationBehavior == null) return;
-        
+
         Vector2 separationForce = _separationBehavior.CalculateSeparationForce();
-        
+
         if (useRelaxedBounds)
         {
             if (Time.frameCount % 3 != 0) return;
@@ -427,12 +427,12 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
                 newPos.x = Mathf.Clamp(newPos.x, -gameAreaSize.x / 2 + padding, gameAreaSize.x / 2 - padding);
                 newPos.y = Mathf.Clamp(newPos.y, -gameAreaSize.y / 2 + padding, gameAreaSize.y / 2 - padding);
             }
-            
+
             _rectTransform.anchoredPosition = newPos;
         }
 
-        // Apply separation to target (this modifies the target, doesn't move the monster)
-        _targetPosition = _separationBehavior.ApplySeparationToTarget(_targetPosition);
+        // REMOVED: Don't constantly override target with separation
+        // The separation force already pushes the monster position directly above
     }
 
     private void HandleConsumableLogic()
@@ -504,8 +504,22 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     private void HandleTargetReaching(bool useRelaxedBounds)
     {
         bool isPursuingFood = _consumableHandler?.NearestConsumable != null;
-        float distanceToTarget = Vector2.Distance(_rectTransform.anchoredPosition, _targetPosition);
-        
+
+        // Check if using horizontal-only movement (small game area height)
+        bool isHorizontalOnly = false;
+        var gameAreaRect = _monsterManager.gameAreaRT;
+        if (gameAreaRect != null)
+        {
+            float currentHeight = gameAreaRect.sizeDelta.y;
+            float maxHeight = _monsterManager.GetMaxGameAreaHeight();
+            isHorizontalOnly = currentHeight <= maxHeight / 2f;
+        }
+
+        // For horizontal-only movement, only check X distance
+        float distanceToTarget = isHorizontalOnly
+            ? Mathf.Abs(_rectTransform.anchoredPosition.x - _targetPosition.x)
+            : Vector2.Distance(_rectTransform.anchoredPosition, _targetPosition);
+
         if (distanceToTarget < 10f && !isPursuingFood)
         {
             float targetReachCooldown = useRelaxedBounds ? TARGET_CHANGE_COOLDOWN * 2f : TARGET_CHANGE_COOLDOWN;
@@ -530,7 +544,30 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     private void SetRandomTargetForCurrentState()
     {
         MonsterState currentState = _stateMachine?.CurrentState ?? MonsterState.Idle;
-        _targetPosition = _boundHandler?.GetRandomTargetForState(currentState) ?? Vector2.zero;
+        Vector2 newTarget = _boundHandler?.GetRandomTargetForState(currentState) ?? Vector2.zero;
+
+        // Validate that the new target is within bounds before setting it
+        if (_boundHandler != null && !isNPC)
+        {
+            if (_boundHandler.IsWithinBoundsForState(newTarget, currentState))
+            {
+                _targetPosition = newTarget;
+            }
+            else
+            {
+                // If generated target is invalid, try once more
+                newTarget = _boundHandler.GetRandomTargetForState(currentState);
+                if (_boundHandler.IsWithinBoundsForState(newTarget, currentState))
+                {
+                    _targetPosition = newTarget;
+                }
+                // else keep current target
+            }
+        }
+        else
+        {
+            _targetPosition = newTarget;
+        }
     }
 
     public void SetRandomTarget()

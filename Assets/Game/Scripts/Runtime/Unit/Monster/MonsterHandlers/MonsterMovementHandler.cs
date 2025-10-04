@@ -18,23 +18,47 @@ public class MonsterMovementHandler
     
     public void UpdateMovement(ref Vector2 targetPosition, MonsterDataSO data)
     {
-        // Validate target is in bounds before moving toward it
-        if (_controller.BoundHandler != null &&
-            !_controller.BoundHandler.IsWithinBoundsForState(targetPosition, _controller.StateMachine.CurrentState) && !_controller.isNPC)
-        {
-            targetPosition = _controller.BoundHandler.GetRandomTargetForState(_controller.StateMachine.CurrentState);
-        }
-
         if (_controller.EvolutionHandler != null && _controller.EvolutionHandler.IsEvolving)
             return;
 
         Vector2 pos = _transform.anchoredPosition;
         float currentSpeed = GetCurrentMoveSpeed(data);
 
-        // Only move horizontally - keep Y position fixed
-        Vector2 horizontalTarget = new Vector2(targetPosition.x, pos.y);
-        _transform.anchoredPosition = Vector2.MoveTowards(pos, horizontalTarget, currentSpeed * Time.deltaTime);
-        HandleStateSpecificBehavior(pos, horizontalTarget);
+        // Check if diagonal movement is allowed based on game area height
+        bool allowDiagonalMovement = ShouldAllowDiagonalMovement();
+
+        Vector2 actualTarget;
+        if (allowDiagonalMovement)
+        {
+            // Diagonal movement: move to both X and Y
+            actualTarget = targetPosition;
+        }
+        else
+        {
+            // Horizontal only: keep Y position fixed
+            actualTarget = new Vector2(targetPosition.x, pos.y);
+        }
+
+        _transform.anchoredPosition = Vector2.MoveTowards(pos, actualTarget, currentSpeed * Time.deltaTime);
+        HandleStateSpecificBehavior(pos, actualTarget);
+    }
+
+    private bool ShouldAllowDiagonalMovement()
+    {
+        // Only allow diagonal movement for ground-based states (not flying)
+        if (_controller.StateMachine != null && _controller.StateMachine.CurrentState == MonsterState.Flying)
+            return false;
+
+        var monsterManager = _controller.MonsterManager;
+        if (monsterManager == null) return false;
+
+        var gameAreaRect = monsterManager.gameAreaRT;
+        if (gameAreaRect == null) return false;
+
+        float currentHeight = gameAreaRect.sizeDelta.y;
+        float maxHeight = monsterManager.GetMaxGameAreaHeight();
+
+        return currentHeight > maxHeight / 2f;
     }
     
     private float GetCurrentMoveSpeed(MonsterDataSO data)

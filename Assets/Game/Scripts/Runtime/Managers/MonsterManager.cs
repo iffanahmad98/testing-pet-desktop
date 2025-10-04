@@ -697,6 +697,17 @@ public class MonsterManager : MonoBehaviour
         return SaveSystem.PlayerConfig.GetMonsterCountForGameArea(areaIndex);
     }
 
+    // Helper method to get max game area height from SettingsManager
+    public float GetMaxGameAreaHeight()
+    {
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
+        {
+            return settingsManager.GetMaxGameAreaHeight();
+        }
+        return 1080f; // Default fallback value
+    }
+
     // Helper method to move monster to different area
     public void MoveMonsterToArea(string monsterID, int targetAreaIndex)
     {

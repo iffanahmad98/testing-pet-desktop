@@ -22,6 +22,10 @@ public class MonsterBehaviorHandler
             return Random.value < 0.5f ? MonsterState.Idle : MonsterState.Walking;
         }
 
+        // Get previous state to prevent consecutive Idle
+        MonsterState previousState = _controller.StateMachine?.PreviousState ?? MonsterState.Idle;
+        bool wasIdleBeforeCurrent = previousState == MonsterState.Idle;
+
         // Skip stat-dependent transitions for NPCs
         if (_controller.isNPC)
         {
@@ -42,7 +46,7 @@ public class MonsterBehaviorHandler
             }
             return GetSimpleDefaultNextState(currentState);
         }
-        
+
         // Original code for pet monsters
         var possibleTransitions = GetValidTransitions(currentState);
 
@@ -61,16 +65,19 @@ public class MonsterBehaviorHandler
         float randomValue = Random.value * totalWeight;
         float currentWeight = 0f;
 
+        MonsterState selectedState = currentState;
         for (int i = 0; i < possibleTransitions.Count; i++)
         {
             currentWeight += possibleTransitions[i].probability;
             if (randomValue <= currentWeight)
             {
-                return possibleTransitions[i].toState;
+                selectedState = possibleTransitions[i].toState;
+                break;
             }
         }
 
-        return GetSimpleDefaultNextState(currentState);
+        // Note: Consecutive Idle prevention is now handled in MonsterStateMachine.ChangeState()
+        return selectedState;
     }
 
     // Simple fallback - only Idle and Walking
@@ -82,11 +89,17 @@ public class MonsterBehaviorHandler
         // Prevent movement if happiness is too low
         bool restrictMovement = false; //currentHappiness < 0.25f;
 
+        // Get previous state from state machine to prevent consecutive Idle
+        MonsterState previousState = _controller.StateMachine?.PreviousState ?? MonsterState.Idle;
+        bool wasIdle = previousState == MonsterState.Idle;
+
         return currentState switch
         {
+            // Prevent consecutive Idle: if was Idle before, force movement state
             MonsterState.Idle => restrictMovement ? MonsterState.Idle :
-                (isInAir ? (Random.Range(0, 3) == 0 ? MonsterState.Flying : MonsterState.Idle)
-                         : (Random.Range(0, 2) == 0 ? MonsterState.Walking : MonsterState.Idle)),
+                (wasIdle ? (isInAir ? MonsterState.Flying : MonsterState.Walking)  // Force movement if was idle
+                         : (isInAir ? (Random.Range(0, 3) == 0 ? MonsterState.Flying : MonsterState.Idle)
+                                    : (Random.Range(0, 2) == 0 ? MonsterState.Walking : MonsterState.Idle))),
 
             MonsterState.Walking => restrictMovement ? MonsterState.Idle :
                 (Random.Range(0, 2) == 0 ? MonsterState.Idle : MonsterState.Walking),
@@ -189,8 +202,8 @@ public class MonsterBehaviorHandler
         {
             // GROUP 1: Non-movement states - use exact animation duration
             case MonsterState.Idle:
-                return useExactDuration ? baseAnimDuration :
-                    GetRandomDuration(behaviorConfig?.minIdleDuration, behaviorConfig?.maxIdleDuration, 2f, 4f);
+                // Idle state always uses random duration between 3-10 seconds
+                return Random.Range(3f, 10f);
 
             case MonsterState.Jumping:
                 return useExactDuration ? baseAnimDuration :

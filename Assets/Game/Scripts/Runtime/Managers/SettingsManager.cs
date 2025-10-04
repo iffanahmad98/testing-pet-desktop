@@ -394,13 +394,22 @@ public class SettingsManager : MonoBehaviour
                 -gameAreaSize.y / 2 + (gameAreaSize.y * GROUND_AREA_HEIGHT_RATIO) - monsterHalfHeight
             );
 
-            // Calculate center Y position of ground area for horizontal-only movement
-            float centerY = (boundsMin.y + boundsMax.y) / 2f;
+            // Determine Y position based on game area height
+            float newY;
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            {
+                // Random Y within ground area when height is above half
+                newY = Random.Range(boundsMin.y, boundsMax.y);
+            }
+            else
+            {
+                // Center Y when height is below or equal to half
+                newY = (boundsMin.y + boundsMax.y) / 2f;
+            }
 
-            // Always reposition monster to ground center Y, clamp X if needed
             Vector2 newPos = new Vector2(
                 Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
-                centerY
+                newY
             );
 
             rectTransform.anchoredPosition = newPos;
@@ -416,40 +425,68 @@ public class SettingsManager : MonoBehaviour
             }
 
             // Generate target with minimum distance from current position
-            float targetX;
-            int attempts = 0;
-            int maxAttempts = 10;
+            Vector2 targetPosition;
 
-            do
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
             {
-                // Random target within bounds
-                targetX = Random.Range(boundsMin.x, boundsMax.x);
-                attempts++;
-            }
-            while (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE && attempts < maxAttempts);
+                // Diagonal movement: generate random X and Y target
+                float targetX;
+                float targetY;
+                int attempts = 0;
+                int maxAttempts = 10;
 
-            // If still too close after max attempts, force minimum distance
-            if (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE)
-            {
-                // Try moving right first
-                targetX = newPos.x + MIN_MOVEMENT_DISTANCE;
-
-                // If out of bounds, move left instead
-                if (targetX > boundsMax.x)
+                do
                 {
-                    targetX = newPos.x - MIN_MOVEMENT_DISTANCE;
+                    targetX = Random.Range(boundsMin.x, boundsMax.x);
+                    targetY = Random.Range(boundsMin.y, boundsMax.y);
+                    attempts++;
+                }
+                while (Vector2.Distance(new Vector2(targetX, targetY), newPos) < MIN_MOVEMENT_DISTANCE && attempts < maxAttempts);
+
+                // If still too close after max attempts, force minimum distance
+                if (Vector2.Distance(new Vector2(targetX, targetY), newPos) < MIN_MOVEMENT_DISTANCE)
+                {
+                    // Try moving right and up
+                    targetX = newPos.x + MIN_MOVEMENT_DISTANCE;
+                    targetY = newPos.y + MIN_MOVEMENT_DISTANCE;
+
+                    // Clamp to bounds
+                    targetX = Mathf.Clamp(targetX, boundsMin.x, boundsMax.x);
+                    targetY = Mathf.Clamp(targetY, boundsMin.y, boundsMax.y);
                 }
 
-                // Final clamp to ensure within bounds
-                targetX = Mathf.Clamp(targetX, boundsMin.x, boundsMax.x);
+                targetPosition = new Vector2(targetX, targetY);
+            }
+            else
+            {
+                // Horizontal only movement
+                float targetX;
+                int attempts = 0;
+                int maxAttempts = 10;
+
+                do
+                {
+                    targetX = Random.Range(boundsMin.x, boundsMax.x);
+                    attempts++;
+                }
+                while (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE && attempts < maxAttempts);
+
+                // If still too close after max attempts, force minimum distance
+                if (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE)
+                {
+                    targetX = newPos.x + MIN_MOVEMENT_DISTANCE;
+                    if (targetX > boundsMax.x)
+                        targetX = newPos.x - MIN_MOVEMENT_DISTANCE;
+                    targetX = Mathf.Clamp(targetX, boundsMin.x, boundsMax.x);
+                }
+
+                targetPosition = new Vector2(targetX, newPos.y);
             }
 
-            // Set target position (Y same as current for horizontal-only movement)
-            Vector2 targetPosition = new Vector2(targetX, centerY);
             monster.SetTargetPosition(targetPosition);
 
             // Debug log for movement target
-            float distance = Mathf.Abs(targetX - newPos.x);
+            float distance = Vector2.Distance(targetPosition, newPos);
             Debug.Log($"Monster {monster.name} repositioned - Current: {newPos}, Target: {targetPosition}, Distance: {distance:F2}");
         }
     }

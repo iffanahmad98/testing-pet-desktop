@@ -16,6 +16,7 @@ public class MonsterBoundsHandler
     private const float BOUNDS_SCALE_FACTOR = 0.3f;
     private const float CONSTRAINED_PADDING = 20f;
     private const float SMALL_Y_JITTER = 15f;
+    private const float MIN_TARGET_DISTANCE = 50f;
 
     public MonsterBoundsHandler(MonsterManager manager, RectTransform rectTransform)
     {
@@ -25,14 +26,29 @@ public class MonsterBoundsHandler
     
     public Vector2 GetRandomSpawnTarget()
     {
-        // Get ground bounds and spawn at the center Y position of ground area
+        // Get ground bounds
         var bounds = CalculateGroundBounds();
-        float centerY = (bounds.min.y + bounds.max.y) / 2f;
 
-        return new Vector2(
-            Random.Range(bounds.min.x, bounds.max.x),
-            centerY
-        );
+        // Check if game area height is above half of max height
+        var gameAreaRect = _manager.gameAreaRT;
+        float currentHeight = gameAreaRect.sizeDelta.y;
+        float maxHeight = _manager.GetMaxGameAreaHeight();
+
+        float spawnX = Random.Range(bounds.min.x, bounds.max.x);
+        float spawnY;
+
+        if (currentHeight > maxHeight / 2f)
+        {
+            // Random Y position within ground area when height is above half
+            spawnY = Random.Range(bounds.min.y, bounds.max.y);
+        }
+        else
+        {
+            // Center Y position when height is below or equal to half
+            spawnY = (bounds.min.y + bounds.max.y) / 2f;
+        }
+
+        return new Vector2(spawnX, spawnY);
     }
     
     public Vector2 GetRandomTargetForState(MonsterState state)
@@ -61,7 +77,66 @@ public class MonsterBoundsHandler
 
     private Vector2 GetGroundTarget()
     {
-        return GetRandomPositionInBounds(CalculateGroundBounds());
+        var bounds = CalculateGroundBounds();
+
+        // Check if game area height is above half of max height
+        var gameAreaRect = _manager.gameAreaRT;
+        float currentHeight = gameAreaRect.sizeDelta.y;
+        float maxHeight = _manager.GetMaxGameAreaHeight();
+
+        Vector2 currentPos = _rectTransform.anchoredPosition;
+        Vector2 targetPos;
+        int attempts = 0;
+        int maxAttempts = 10;
+
+        if (currentHeight > maxHeight / 2f)
+        {
+            // Diagonal movement: random X and Y within ground bounds
+            do
+            {
+                targetPos = new Vector2(
+                    Random.Range(bounds.min.x, bounds.max.x),
+                    Random.Range(bounds.min.y, bounds.max.y)
+                );
+                attempts++;
+            }
+            while (Vector2.Distance(targetPos, currentPos) < MIN_TARGET_DISTANCE && attempts < maxAttempts);
+
+            // If still too close, force minimum distance
+            if (Vector2.Distance(targetPos, currentPos) < MIN_TARGET_DISTANCE)
+            {
+                Vector2 direction = (targetPos - currentPos).normalized;
+                targetPos = currentPos + direction * MIN_TARGET_DISTANCE;
+                targetPos.x = Mathf.Clamp(targetPos.x, bounds.min.x, bounds.max.x);
+                targetPos.y = Mathf.Clamp(targetPos.y, bounds.min.y, bounds.max.y);
+            }
+
+            return targetPos;
+        }
+        else
+        {
+            // Horizontal only: random X, center Y with minimum distance
+            float centerY = (bounds.min.y + bounds.max.y) / 2f;
+            float targetX;
+
+            do
+            {
+                targetX = Random.Range(bounds.min.x, bounds.max.x);
+                attempts++;
+            }
+            while (Mathf.Abs(targetX - currentPos.x) < MIN_TARGET_DISTANCE && attempts < maxAttempts);
+
+            // If still too close, force minimum distance
+            if (Mathf.Abs(targetX - currentPos.x) < MIN_TARGET_DISTANCE)
+            {
+                targetX = currentPos.x + MIN_TARGET_DISTANCE;
+                if (targetX > bounds.max.x)
+                    targetX = currentPos.x - MIN_TARGET_DISTANCE;
+                targetX = Mathf.Clamp(targetX, bounds.min.x, bounds.max.x);
+            }
+
+            return new Vector2(targetX, centerY);
+        }
     }
 
     private Vector2 GetFlyingTarget()
