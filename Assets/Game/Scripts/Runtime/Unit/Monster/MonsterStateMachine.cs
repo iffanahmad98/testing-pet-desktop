@@ -124,7 +124,7 @@ public class MonsterStateMachine : MonoBehaviour
             {
                 bool isInAir = IsMonsterInAir(rectTransform.anchoredPosition);
                 newState = isInAir ? MonsterState.Flying : MonsterState.Walking;
-                Debug.Log($"[{_controller.gameObject.name}] Prevented Idle→Idle! Forcing {newState}");
+                //Debug.Log($"[{_controller.gameObject.name}] Prevented Idle→Idle! Forcing {newState}");
             }
         }
 
