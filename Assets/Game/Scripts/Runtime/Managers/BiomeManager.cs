@@ -40,8 +40,8 @@ public class BiomeManager : MonoBehaviour
     [Header("Background Positioning")]
     private Vector2 originalSkyBGPosition;
     private Vector2 originalAmbientBGPosition;
-    private const float skyBGMinY = -1000f;
-    private const float ambientBGMinY = -800f;
+    private const float skyBGMinY = -1200f;
+    private const float ambientBGMinY = -900f;
     private SettingsManager settingsManager;
 
     [Header("Events")]
