@@ -24,14 +24,17 @@ public class MonsterMovementHandler
         {
             targetPosition = _controller.BoundHandler.GetRandomTargetForState(_controller.StateMachine.CurrentState);
         }
-        
+
         if (_controller.EvolutionHandler != null && _controller.EvolutionHandler.IsEvolving)
             return;
 
         Vector2 pos = _transform.anchoredPosition;
         float currentSpeed = GetCurrentMoveSpeed(data);
-        _transform.anchoredPosition = Vector2.MoveTowards(pos, targetPosition, currentSpeed * Time.deltaTime);
-        HandleStateSpecificBehavior(pos, targetPosition);
+
+        // Only move horizontally - keep Y position fixed
+        Vector2 horizontalTarget = new Vector2(targetPosition.x, pos.y);
+        _transform.anchoredPosition = Vector2.MoveTowards(pos, horizontalTarget, currentSpeed * Time.deltaTime);
+        HandleStateSpecificBehavior(pos, horizontalTarget);
     }
     
     private float GetCurrentMoveSpeed(MonsterDataSO data)

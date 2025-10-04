@@ -379,36 +379,78 @@ public class SettingsManager : MonoBehaviour
             float monsterHalfWidth = rectTransform.rect.width / 2;
             float monsterHalfHeight = rectTransform.rect.height / 2;
 
-            // Calculate actual movement bounds with consistent padding
+            // Calculate ground area bounds (same as MonsterBoundsHandler)
+            const float PADDING = 10f;
+            const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
+            const float MIN_MOVEMENT_DISTANCE = 10f;
+
             Vector2 boundsMin = new Vector2(
-                -gameAreaSize.x / 2 + monsterHalfWidth + MONSTER_BOUNDS_PADDING,
-                -gameAreaSize.y / 2 + monsterHalfHeight + MONSTER_BOUNDS_PADDING
+                -gameAreaSize.x / 2 + monsterHalfWidth + PADDING,
+                -gameAreaSize.y / 2 + monsterHalfHeight + PADDING
             );
 
             Vector2 boundsMax = new Vector2(
-                gameAreaSize.x / 2 - monsterHalfWidth - MONSTER_BOUNDS_PADDING,
-                gameAreaSize.y / 2 - monsterHalfHeight - MONSTER_BOUNDS_PADDING
+                gameAreaSize.x / 2 - monsterHalfWidth - PADDING,
+                -gameAreaSize.y / 2 + (gameAreaSize.y * GROUND_AREA_HEIGHT_RATIO) - monsterHalfHeight
             );
 
-            // Check if monster is outside new bounds
-            bool isOutside = currentPos.x < boundsMin.x ||
-                            currentPos.x > boundsMax.x ||
-                            currentPos.y < boundsMin.y ||
-                            currentPos.y > boundsMax.y;
+            // Calculate center Y position of ground area for horizontal-only movement
+            float centerY = (boundsMin.y + boundsMax.y) / 2f;
 
-            if (isOutside)
+            // Always reposition monster to ground center Y, clamp X if needed
+            Vector2 newPos = new Vector2(
+                Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
+                centerY
+            );
+
+            rectTransform.anchoredPosition = newPos;
+
+            // Set walking state to make monster move
+            if (monster.StateMachine != null)
             {
-                // Clamp to new bounds with consistent padding
-                Vector2 newPos = new Vector2(
-                    Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
-                    Mathf.Clamp(currentPos.y, boundsMin.y, boundsMax.y)
-                );
-
-                rectTransform.anchoredPosition = newPos;
-
-                // Give monster new random target within new bounds
-                monster.SetRandomTarget();
+                monster.StateMachine.ChangeState(MonsterState.Walking);
             }
+            else
+            {
+                Debug.LogWarning($"Failed to change state for monster {monster.name}: StateMachine is null");
+            }
+
+            // Generate target with minimum distance from current position
+            float targetX;
+            int attempts = 0;
+            int maxAttempts = 10;
+
+            do
+            {
+                // Random target within bounds
+                targetX = Random.Range(boundsMin.x, boundsMax.x);
+                attempts++;
+            }
+            while (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE && attempts < maxAttempts);
+
+            // If still too close after max attempts, force minimum distance
+            if (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE)
+            {
+                // Try moving right first
+                targetX = newPos.x + MIN_MOVEMENT_DISTANCE;
+
+                // If out of bounds, move left instead
+                if (targetX > boundsMax.x)
+                {
+                    targetX = newPos.x - MIN_MOVEMENT_DISTANCE;
+                }
+
+                // Final clamp to ensure within bounds
+                targetX = Mathf.Clamp(targetX, boundsMin.x, boundsMax.x);
+            }
+
+            // Set target position (Y same as current for horizontal-only movement)
+            Vector2 targetPosition = new Vector2(targetX, centerY);
+            monster.SetTargetPosition(targetPosition);
+
+            // Debug log for movement target
+            float distance = Mathf.Abs(targetX - newPos.x);
+            Debug.Log($"Monster {monster.name} repositioned - Current: {newPos}, Target: {targetPosition}, Distance: {distance:F2}");
         }
     }
     

@@ -25,8 +25,14 @@ public class MonsterBoundsHandler
     
     public Vector2 GetRandomSpawnTarget()
     {
-        // Default to ground target
-        return GetGroundTarget();
+        // Get ground bounds and spawn at the center Y position of ground area
+        var bounds = CalculateGroundBounds();
+        float centerY = (bounds.min.y + bounds.max.y) / 2f;
+
+        return new Vector2(
+            Random.Range(bounds.min.x, bounds.max.x),
+            centerY
+        );
     }
     
     public Vector2 GetRandomTargetForState(MonsterState state)
@@ -45,9 +51,11 @@ public class MonsterBoundsHandler
     
     private Vector2 GetRandomPositionInBounds((Vector2 min, Vector2 max) bounds)
     {
+        // Only move horizontally - use center Y position of bounds
+        float centerY = (bounds.min.y + bounds.max.y) / 2f;
         return new Vector2(
             Random.Range(bounds.min.x, bounds.max.x),
-            Random.Range(bounds.min.y, bounds.max.y)
+            centerY
         );
     }
 
@@ -55,14 +63,16 @@ public class MonsterBoundsHandler
     {
         return GetRandomPositionInBounds(CalculateGroundBounds());
     }
-    
+
     private Vector2 GetFlyingTarget()
     {
         var bounds = CalculateFlyingBounds();
-        
+
+        // Only move horizontally - use center Y position of bounds
+        float centerY = (bounds.min.y + bounds.max.y) / 2f;
         return new Vector2(
             Random.Range(bounds.min.x, bounds.max.x),
-            Random.Range(bounds.min.y, bounds.max.y)
+            centerY
         );
     }
     
@@ -84,23 +94,28 @@ public class MonsterBoundsHandler
     {
         var gameAreaRect = _manager.gameAreaRT;
         Vector2 size = gameAreaRect.sizeDelta;
-        
+
         float halfWidth = _rectTransform.rect.width / 2;
         float availableWidth = size.x - (halfWidth * 2) - (CONSTRAINED_PADDING * 2);
-        
+
+        // Calculate center Y from ground bounds for consistent horizontal movement
+        var bounds = CalculateGroundBounds();
+        float centerY = (bounds.min.y + bounds.max.y) / 2f;
+
+        // Only move horizontally - use center Y position
         if (availableWidth > MINIMAL_X_SPACE)
         {
             return new Vector2(
-                UnityEngine.Random.Range(-size.x / 2 + halfWidth + CONSTRAINED_PADDING, 
+                UnityEngine.Random.Range(-size.x / 2 + halfWidth + CONSTRAINED_PADDING,
                                         size.x / 2 - halfWidth - CONSTRAINED_PADDING),
-                UnityEngine.Random.Range(-SMALL_Y_JITTER, SMALL_Y_JITTER)
+                centerY
             );
         }
         else
         {
             return new Vector2(
                 UnityEngine.Random.Range(-JITTER_RANGE, JITTER_RANGE),
-                UnityEngine.Random.Range(-JITTER_RANGE, JITTER_RANGE)
+                centerY
             );
         }
     }
@@ -139,15 +154,12 @@ public class MonsterBoundsHandler
     private Vector2 GetAirIdleTarget()
     {
         var flyingBounds = CalculateFlyingBounds();
-        var groundBounds = CalculateGroundBounds();
-        
-        // Stay in the upper portion of flying area (above ground)
-        float minY = groundBounds.max.y + AIR_IDLE_HEIGHT_BUFFER; 
-        float maxY = flyingBounds.max.y;
-        
+
+        // Only move horizontally - use center Y position of flying bounds
+        float centerY = (flyingBounds.min.y + flyingBounds.max.y) / 2f;
         return new Vector2(
             UnityEngine.Random.Range(flyingBounds.min.x, flyingBounds.max.x),
-            UnityEngine.Random.Range(minY, maxY)
+            centerY
         );
     }
 
