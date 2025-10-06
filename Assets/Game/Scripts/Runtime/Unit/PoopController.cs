@@ -16,8 +16,8 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
-        rectTransform = GetComponent<RectTransform>();
+        animator = GetComponentInChildren<Animator>();
+        rectTransform = GetComponentInChildren<RectTransform>();
     }
 
     public void Initialize(PoopType type)

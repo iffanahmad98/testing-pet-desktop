@@ -19,8 +19,8 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
 
     void Awake()
     {
-        animator = GetComponent<Animator>();
-        rectTransform = GetComponent<RectTransform>();
+        animator = GetComponentInChildren<Animator>();
+        rectTransform = GetComponentInChildren<RectTransform>();
     }
 
     public void Initialize(CoinType coinType)

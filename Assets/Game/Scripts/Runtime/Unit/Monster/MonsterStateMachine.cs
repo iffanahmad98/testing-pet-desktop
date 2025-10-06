@@ -36,6 +36,22 @@ public class MonsterStateMachine : MonoBehaviour
 
         if (_controller?.EvolutionHandler?.IsEvolving == true) return;
 
+        // Force idle if happiness or hunger is 0
+        if (_controller?.StatsHandler != null)
+        {
+            float happiness = _controller.StatsHandler.CurrentHappiness;
+            float hunger = _controller.StatsHandler.CurrentHunger;
+
+            if (happiness <= 0f || hunger <= 0f)
+            {
+                if (_currentState != MonsterState.Idle)
+                {
+                    ChangeState(MonsterState.Idle);
+                }
+                return;
+            }
+        }
+
         if (_currentState == MonsterState.Eating)
         {
             var foodHandler = _controller.ConsumableHandler;
@@ -117,14 +133,23 @@ public class MonsterStateMachine : MonoBehaviour
 
         // PREVENT CONSECUTIVE IDLE: If trying to go from Idle to Idle, force movement instead
         // BUT: Allow it if this is the first state change (previous == current, meaning just spawned)
-        if (_currentState == MonsterState.Idle && newState == MonsterState.Idle && _previousState != _currentState)
+        // UNLESS happiness or hunger is 0, then allow staying idle
+        bool shouldStayIdle = false;
+        if (_controller?.StatsHandler != null)
+        {
+            float happiness = _controller.StatsHandler.CurrentHappiness;
+            float hunger = _controller.StatsHandler.CurrentHunger;
+            shouldStayIdle = (happiness <= 0f || hunger <= 0f);
+        }
+
+        if (_currentState == MonsterState.Idle && newState == MonsterState.Idle && _previousState != _currentState && !shouldStayIdle)
         {
             var rectTransform = GetComponent<RectTransform>();
             if (rectTransform != null)
             {
                 bool isInAir = IsMonsterInAir(rectTransform.anchoredPosition);
                 newState = isInAir ? MonsterState.Flying : MonsterState.Walking;
-                //Debug.Log($"[{_controller.gameObject.name}] Prevented Idle→Idle! Forcing {newState}");
+                // Debug.Log($"[{_controller.gameObject.name}] Prevented Idle→Idle! Forcing {newState}");
             }
         }
 
