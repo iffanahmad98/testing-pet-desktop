@@ -12947,12 +12947,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1850078279}
     - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: enableHardPity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: gachaResultPanel
       value: 
       objectReference: {fileID: 330894949}
     - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: rarityWeights.Array.size
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: pityCounterDisplay.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: rarityWeights.Array.data[1].type
@@ -12989,6 +12997,86 @@ PrefabInstance:
     - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: rarityWeights.Array.data[4].weight
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[0].hardPityAt
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[2].hardPityAt
+      value: 160
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[3].hardPityAt
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[4].hardPityAt
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[0].hasHardPity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[0].hasSoftPity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[2].hasHardPity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[2].hasSoftPity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[3].hasHardPity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[4].hasHardPity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[2].softPityStartAt
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[0].hardPityRateRange.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[0].hardPityRateRange.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[2].hardPityRateRange.x
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[2].hardPityRateRange.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[3].hardPityRateRange.x
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[3].hardPityRateRange.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[4].hardPityRateRange.x
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[4].hardPityRateRange.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: rarityWeights.Array.data[2].softPityIncreasePercent
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 4704557194109182815, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: poolContainer
@@ -14765,7 +14853,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2170820378451702666, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2319831024075146168, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
       propertyPath: m_Enabled

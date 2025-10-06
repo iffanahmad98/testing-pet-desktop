@@ -43,8 +43,10 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
     public void OnCollected()
     {
         if (isCollected) return;
+
+        var coinRectTransform = rectTransform.GetChild(1).transform;
         
-        rectTransform.DOJump(rectTransform.position, 200, 1, 0.5f).SetEase(Ease.OutQuad)
+        coinRectTransform.DOJump(coinRectTransform.position, 200, 1, 0.5f).SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
                 CoinManager.AddCoins(value);
