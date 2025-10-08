@@ -10,8 +10,11 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
     [SerializeField] int value;
     public CoinType Type => type;
 
-    public bool IsTargetable => gameObject.activeInHierarchy;
+    public bool IsTargetable => gameObject.activeInHierarchy && ReservedBy == null;
     public Vector2 Position => rectTransform.anchoredPosition;
+
+    // NPC reservation system to prevent multiple NPCs targeting the same coin
+    public MonsterController ReservedBy { get; private set; }
 
     private Animator animator;
     private RectTransform rectTransform;
@@ -26,6 +29,7 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
     public void Initialize(CoinType coinType)
     {
         isCollected = false;
+        ReservedBy = null; // Reset reservation
         type = coinType;
         value = (int)type;
         if (coinType == CoinType.Platinum)
@@ -38,6 +42,22 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
             animator.SetTrigger("Gold");
             transform.localScale = Vector3.one * 0.7f;
         }
+    }
+
+    /// <summary>
+    /// Reserve this coin for a specific NPC
+    /// </summary>
+    public void Reserve(MonsterController npc)
+    {
+        ReservedBy = npc;
+    }
+
+    /// <summary>
+    /// Release the reservation (e.g., if NPC changes target)
+    /// </summary>
+    public void ReleaseReservation()
+    {
+        ReservedBy = null;
     }
 
     public void OnCollected()

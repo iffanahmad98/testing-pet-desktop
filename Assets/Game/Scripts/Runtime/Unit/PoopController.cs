@@ -11,8 +11,11 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     private Animator animator;
     private RectTransform rectTransform;
 
-    public bool IsTargetable => gameObject.activeInHierarchy;
+    public bool IsTargetable => gameObject.activeInHierarchy && ReservedBy == null;
     public Vector2 Position => rectTransform.anchoredPosition;
+
+    // NPC reservation system to prevent multiple NPCs targeting the same poop
+    public MonsterController ReservedBy { get; private set; }
 
     private void Awake()
     {
@@ -24,6 +27,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     {
         poopType = type;
         poopValue = (int)poopType;
+        ReservedBy = null; // Reset reservation
 
         // Set animator trigger based on poop type
         if (type == PoopType.Normal)
@@ -37,6 +41,22 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             animator.SetTrigger("Special");
             poopId = "poop_rare";
         }
+    }
+
+    /// <summary>
+    /// Reserve this poop for a specific NPC
+    /// </summary>
+    public void Reserve(MonsterController npc)
+    {
+        ReservedBy = npc;
+    }
+
+    /// <summary>
+    /// Release the reservation (e.g., if NPC changes target)
+    /// </summary>
+    public void ReleaseReservation()
+    {
+        ReservedBy = null;
     }
 
     public void OnCollected()

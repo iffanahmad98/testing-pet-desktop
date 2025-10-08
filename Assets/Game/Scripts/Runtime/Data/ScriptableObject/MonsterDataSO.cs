@@ -90,8 +90,12 @@ public class MonsterDataSO : ScriptableObject
     [Header("Pricing")]
     public int monsterPrice = 10; // Buy price (Stage 1 only)
     public int sellPriceStage1 = 0;  // Stage 1 sell price
-    public int sellPriceStage2 = 0;  // Stage 2 sell price  
+    public int sellPriceStage2 = 0;  // Stage 2 sell price
     public int sellPriceStage3 = 0;  // Stage 3 sell price
+
+    [Header("Purchase Requirements")]
+    [Tooltip("NPC ID yang harus dimiliki player sebelum bisa membeli NPC ini (kosongkan jika tidak ada)")]
+    public string prerequisiteNPCId = ""; // e.g., "mushikino" untuk Mushikina
 
     [Header("Sound Effects")]
     public AudioClip[] idleSounds;      // Randomly played during idle state

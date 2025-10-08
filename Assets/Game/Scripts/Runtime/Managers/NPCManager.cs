@@ -11,18 +11,9 @@ public class NPCManager : MonoBehaviour
     public GameObject GetIdleTarget(int npcIndex)
     {
         GameObject target;
-        if (npcIndex == 0)
-        {
-            target = NPCIdleFlower.GetComponent<NPCIdleFlower>().GetIdleStation(npcIndex);
-        }
-        else if (npcIndex == 1)
-        {
-            target = NPCIdleFlower.GetComponent<NPCIdleFlower>().GetIdleStation(npcIndex);
-        }
-        else
-        {
-            target = null; // Default position if index is invalid
-        }
+        Debug.Log($"NPC INDEX {npcIndex}");
+        target = NPCIdleFlower.GetComponent<NPCIdleFlower>().GetIdleStation(npcIndex);
+        
         return target;
     }
 }

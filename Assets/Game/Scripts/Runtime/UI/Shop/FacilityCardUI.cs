@@ -65,9 +65,11 @@ public class FacilityCardUI : MonoBehaviour
 
         bool isOwned = SaveSystem.IsNPCOwned(data.id);
         bool isActive = SaveSystem.IsNPCActive(data.id);
-        Debug.Log($"Setting up NPC: {data.id}, Owned: {isOwned}, Active: {isActive}");
+        bool hasPrerequisite = CheckNPCPrerequisite(data);
+        Debug.Log($"Setting up NPC: {data.id}, Owned: {isOwned}, Active: {isActive}, HasPrerequisite: {hasPrerequisite}");
 
         buyButton.gameObject.SetActive(!isOwned);
+        buyButton.interactable = hasPrerequisite; // Disable buy button if prerequisite not met
         useButton.gameObject.SetActive(isOwned && !isActive);   // Show Apply button only if owned but not active
         cancelButton?.gameObject.SetActive(isOwned && isActive); // Show Cancel button only if already active
         cooldownOverlay?.gameObject.SetActive(false);
@@ -137,8 +139,11 @@ public class FacilityCardUI : MonoBehaviour
     public void UpdateStateNPC(string npcID)
     {
         bool isOwned = SaveSystem.IsNPCOwned(npcID);
+        bool hasPrerequisite = npc != null ? CheckNPCPrerequisite(npc) : true;
+
         useButton.gameObject.SetActive(isOwned);
         buyButton.gameObject.SetActive(!isOwned);
+        buyButton.interactable = hasPrerequisite; // Disable buy button if prerequisite not met
         cancelButton?.gameObject.SetActive(false);
         useButton.interactable = true;
     }
@@ -214,5 +219,22 @@ public class FacilityCardUI : MonoBehaviour
     public void SetCancelActive(bool isActive)
     {
         cancelButton?.gameObject.SetActive(isActive);
+    }
+
+    /// <summary>
+    /// Check if prerequisite NPC is owned
+    /// </summary>
+    /// <param name="npcData">NPC data to check</param>
+    /// <returns>True if no prerequisite or prerequisite is met, false otherwise</returns>
+    private bool CheckNPCPrerequisite(MonsterDataSO npcData)
+    {
+        // If no prerequisite, return true
+        if (string.IsNullOrEmpty(npcData.prerequisiteNPCId))
+        {
+            return true;
+        }
+
+        // Check if player owns the prerequisite NPC
+        return SaveSystem.HasNPC(npcData.prerequisiteNPCId);
     }
 }

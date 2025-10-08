@@ -27,7 +27,8 @@ public class NPCPetCaretakerHandler
     private bool OnIdling = false;
     private bool OnMove = false; 
     private float minDistanceFromTarget = 100f;
-
+    private int npcIndex = 0; // You may need to implement a way to get the NPC's index
+    
     private enum ActionType { CoinCollection, PoopCollection, PetInteraction, PetFeeding, Idling }
     private ActionType _currentAction = ActionType.Idling;
     private bool _isPerformingAction = false;
@@ -35,8 +36,9 @@ public class NPCPetCaretakerHandler
     public bool OnAction => OnDoingAction();
     public bool OnMoveAction => OnMove;
 
-    public NPCPetCaretakerHandler(MonsterController monsterController)
+    public NPCPetCaretakerHandler(MonsterController monsterController, int npcIdleStationIndex)
     {
+        npcIndex = npcIdleStationIndex;
         _monsterController = monsterController;
         _monsterManager = ServiceLocator.Get<MonsterManager>();
         _nPCManager = ServiceLocator.Get<NPCManager>();
@@ -73,6 +75,8 @@ public class NPCPetCaretakerHandler
     {
         _isPerformingAction = true;
 
+        Debug.Log($"NPC ACTIOn {_currentAction}");
+        
         switch (_currentAction)
         {
             case ActionType.CoinCollection when CoinCollectorEnabled:
@@ -92,6 +96,7 @@ public class NPCPetCaretakerHandler
                 Debug.Log("NPC is feeding a pet.");
                 break;
             case ActionType.Idling:
+                Debug.Log("NPC is do idling.");
                 yield return DoIdling();
                 Debug.Log("NPC is idling.");
                 _monsterController.StateMachine.ChangeState(MonsterState.Idle);
@@ -191,9 +196,7 @@ public class NPCPetCaretakerHandler
     private IEnumerator MoveTo(RectTransform target)
     {
         float distanceThreshold = OnIdling ? 2f : minDistanceFromTarget;
-        OnMove = true; 
-        // Set the target position in MonsterController - this will use the existing movement system
-        _monsterController.SetTargetPosition(target.anchoredPosition);
+        OnMove = true;
 
         // Keep moving until we reach the target
         while (OnAction)
@@ -201,9 +204,20 @@ public class NPCPetCaretakerHandler
             // Check if target still exists
             if (target == null || !target.gameObject.activeInHierarchy) yield break;
 
+            // Get target position and adjust for game area height constraints
+            Vector2 targetPos = target.anchoredPosition;
+            Vector2 adjustedTarget = GetAdjustedTargetPosition(targetPos);
+
+            // Update target position every frame with adjusted position
+            _monsterController.SetTargetPosition(adjustedTarget);
+
             // Check if we're close enough to the target
             NPCPosition = GetAnchoredPos(_monsterController.transform);
-            float distance = Vector2.Distance(NPCPosition, target.anchoredPosition);
+
+            // Calculate distance based on whether we allow diagonal movement
+            float distance = ShouldAllowDiagonalMovement()
+                ? Vector2.Distance(NPCPosition, adjustedTarget)
+                : Mathf.Abs(NPCPosition.x - adjustedTarget.x); // Only check X distance for horizontal-only movement
 
             if (distance <= distanceThreshold)
             {
@@ -212,6 +226,33 @@ public class NPCPetCaretakerHandler
             }
             yield return null;
         }
+    }
+
+    private Vector2 GetAdjustedTargetPosition(Vector2 targetPos)
+    {
+        // Check if we should only move horizontally
+        if (!ShouldAllowDiagonalMovement())
+        {
+            // Keep current Y position, only move to target X
+            Vector2 currentPos = GetAnchoredPos(_monsterController.transform);
+            return new Vector2(targetPos.x, currentPos.y);
+        }
+
+        return targetPos;
+    }
+
+    private bool ShouldAllowDiagonalMovement()
+    {
+        var monsterManager = _monsterManager;
+        if (monsterManager == null) return false;
+
+        var gameAreaRect = monsterManager.gameAreaRT;
+        if (gameAreaRect == null) return false;
+
+        float currentHeight = gameAreaRect.sizeDelta.y;
+        float maxHeight = monsterManager.GetMaxGameAreaHeight();
+
+        return currentHeight > maxHeight / 2f;
     }
 
     private void OnNearTarget(GameObject target)
@@ -229,9 +270,15 @@ public class NPCPetCaretakerHandler
         if (target.TryGetComponent<MonsterController>(out var pet))
         {
             _monsterController.StateMachine.ChangeState(MonsterState.Jumping);
-            if (_currentAction == ActionType.PetInteraction) pet.InteractionHandler.HandlePoke();
+            if (_currentAction == ActionType.PetInteraction)
+            {
+                Debug.Log($"NPC {_monsterController.monsterID} is POKING pet {pet.monsterID} at position {pet.Position}");
+                pet.InteractionHandler.HandlePoke();
+            }
             if (_currentAction == ActionType.PetFeeding)
             {
+                Debug.Log($"NPC {_monsterController.monsterID} is FEEDING pet {pet.monsterID} at position {pet.Position}");
+
                 var itemInventoryUI = ServiceLocator.Get<ItemInventoryUI>();
                 var itemDatabase = itemInventoryUI.ItemDatabase;
 
@@ -260,7 +307,7 @@ public class NPCPetCaretakerHandler
                     {
                         inventoryFood.amount -= 1;
                         _monsterManager.SpawnItem(cheapestFood, pet.GetComponent<RectTransform>().anchoredPosition);
-                        Debug.Log($"Feeding pet with {cheapestFood.itemID} (cost: {cheapestFood.price})");
+                        Debug.Log($"NPC successfully fed pet {pet.monsterID} with {cheapestFood.itemID} (cost: {cheapestFood.price})");
                     }
                     else
                     {
@@ -318,7 +365,13 @@ public class NPCPetCaretakerHandler
             }
             OnCollectingCoin = true;
             TargetCoin = FindNearestTarget(_coinList);
-            if (TargetCoin != null) yield return _monsterController.StartCoroutine(MoveTo(TargetCoin.transform as RectTransform));
+            if (TargetCoin != null)
+            {
+                // Reserve the coin so other NPCs won't target it
+                TargetCoin.Reserve(_monsterController);
+                Debug.Log($"NPC {_monsterController.monsterID} reserved coin at {TargetCoin.Position}");
+                yield return _monsterController.StartCoroutine(MoveTo(TargetCoin.transform as RectTransform));
+            }
             OnCollectingCoin = false;
             TargetCoin = null; // Reset target after collection
             // Wait before looking for next coin
@@ -337,7 +390,13 @@ public class NPCPetCaretakerHandler
             }
             OnCollectingPoop = true;
             TargetPoop = FindNearestTarget(_poopList);
-            if (TargetPoop != null) yield return _monsterController.StartCoroutine(MoveTo(TargetPoop.transform as RectTransform));
+            if (TargetPoop != null)
+            {
+                // Reserve the poop so other NPCs won't target it
+                TargetPoop.Reserve(_monsterController);
+                Debug.Log($"NPC {_monsterController.monsterID} reserved poop at {TargetPoop.Position}");
+                yield return _monsterController.StartCoroutine(MoveTo(TargetPoop.transform as RectTransform));
+            }
             OnCollectingPoop = false;
             TargetPoop = null; // Reset target after collection
             // Wait before looking for next poop
@@ -356,7 +415,15 @@ public class NPCPetCaretakerHandler
             }
             OnPetInteraction = true;
             TargetPet = FindNearestTarget(_petMonsterList);
-            if (TargetPet != null) yield return _monsterController.StartCoroutine(MoveTo(TargetPet.transform as RectTransform));
+            if (TargetPet != null)
+            {
+                Debug.Log($"NPC {_monsterController.monsterID} targeting pet {TargetPet.monsterID} for INTERACTION at position {TargetPet.Position}");
+                yield return _monsterController.StartCoroutine(MoveTo(TargetPet.transform as RectTransform));
+            }
+            else
+            {
+                Debug.Log($"NPC {_monsterController.monsterID} found no pet to interact with");
+            }
             OnPetInteraction = false;
             TargetPet = null; // Reset target after interaction
             // Wait before looking for next pet
@@ -387,12 +454,15 @@ public class NPCPetCaretakerHandler
     {
         OnIdling = true;
         
+        Debug.Log($"NPC NPCIdleFlower: TARGET {_nPCManager != null}");
+        
         if (_nPCManager != null)
         {
             // Assuming each NPC has an index - you might need to add this property to MonsterController
             // For now, using a default index of 0
-            int npcIndex = 0; // You may need to implement a way to get the NPC's index
             GameObject idleStation = _nPCManager.GetIdleTarget(npcIndex);
+            
+            Debug.Log($"NPC NPCIdleFlower: TARGET {idleStation.gameObject.name}");
             
             if (idleStation != null)
             {

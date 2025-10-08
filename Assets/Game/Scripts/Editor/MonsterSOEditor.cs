@@ -144,18 +144,35 @@ public class MonsterDataSOEditor : Editor
                 }
                 
                 EditorGUILayout.Space(8);
-                
+
                 // Movement section
                 DrawSectionHeader("Movement");
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("moveSpd"), new GUIContent("Move Speed"));
                 }
+
+                EditorGUILayout.Space(8);
+
+                // Purchase Requirements section
+                DrawSectionHeader("Purchase Requirements");
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterPrice"), new GUIContent("Price"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("prerequisiteNPCId"), new GUIContent("Prerequisite NPC ID", "NPC yang harus dimiliki player sebelum bisa membeli NPC ini"));
+
+                    // Show helpful info if prerequisite is set
+                    var prerequisiteId = serializedObject.FindProperty("prerequisiteNPCId").stringValue;
+                    if (!string.IsNullOrEmpty(prerequisiteId))
+                    {
+                        EditorGUILayout.HelpBox($"🔒 Requires player to own: {prerequisiteId}", MessageType.Info);
+                    }
+                }
             }
-            
+
             EditorGUILayout.Space(5);
         }
-        
+
         EditorGUILayout.Space(5);
     }
 

@@ -255,6 +255,18 @@ public class FacilityShopManager : MonoBehaviour
             return;
         }
 
+        // Check prerequisite NPC requirement
+        if (!string.IsNullOrEmpty(npcData.prerequisiteNPCId))
+        {
+            if (!SaveSystem.HasNPC(npcData.prerequisiteNPCId))
+            {
+                var prerequisiteNPC = npcDatabases.GetMonsterByID(npcData.prerequisiteNPCId);
+                string prerequisiteName = prerequisiteNPC != null ? prerequisiteNPC.monsterName : npcData.prerequisiteNPCId;
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"You need to own '{prerequisiteName}' first!");
+                return;
+            }
+        }
+
         // Try to buy
         if (SaveSystem.TryBuyMonster(npcData))
         {
@@ -262,8 +274,11 @@ public class FacilityShopManager : MonoBehaviour
             ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{npcData.monsterName}'!");
             ServiceLocator.Get<MonsterManager>()?.SpawnNPCMonster(npcData);
 
-            // Immediately update card UI state after purchase
-            card.UpdateStateNPC(npcID);
+            // Refresh NPCIdleFlower ownership check (untuk update idle station availability)
+            RefreshNPCIdleFlower();
+
+            // Refresh ALL facility cards (untuk update prerequisite check di cards lain)
+            RefreshFacilityCards();
         }
         else
         {
@@ -272,7 +287,6 @@ public class FacilityShopManager : MonoBehaviour
 
         // Finalize
         SaveSystem.SaveAll();
-        OnNPCSelected(card);
     }
 
 
@@ -307,5 +321,31 @@ public class FacilityShopManager : MonoBehaviour
     private string GetNPCIDFromCard(FacilityCardUI card)
     {
         return card.npc?.id ?? "";
+    }
+
+    /// <summary>
+    /// Refresh NPCIdleFlower untuk update ownership check dan image reference
+    /// Dipanggil setelah player membeli NPC facility
+    /// </summary>
+    private void RefreshNPCIdleFlower()
+    {
+        var npcManager = ServiceLocator.Get<NPCManager>();
+        if (npcManager != null && npcManager.NPCIdleFlower != null)
+        {
+            var npcIdleFlower = npcManager.NPCIdleFlower.GetComponent<NPCIdleFlower>();
+            if (npcIdleFlower != null)
+            {
+                npcIdleFlower.RefreshNPCOwnership();
+                Debug.Log("NPCIdleFlower ownership refreshed after NPC purchase");
+            }
+            else
+            {
+                Debug.LogWarning("NPCIdleFlower component not found on NPCIdleFlower GameObject");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("NPCManager or NPCIdleFlower GameObject not found");
+        }
     }
 }

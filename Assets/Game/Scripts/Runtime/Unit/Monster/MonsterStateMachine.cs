@@ -36,21 +36,8 @@ public class MonsterStateMachine : MonoBehaviour
 
         if (_controller?.EvolutionHandler?.IsEvolving == true) return;
 
-        // Force idle if happiness or hunger is 0
-        if (_controller?.StatsHandler != null)
-        {
-            float happiness = _controller.StatsHandler.CurrentHappiness;
-            float hunger = _controller.StatsHandler.CurrentHunger;
-
-            if (happiness <= 0f || hunger <= 0f)
-            {
-                if (_currentState != MonsterState.Idle)
-                {
-                    ChangeState(MonsterState.Idle);
-                }
-                return;
-            }
-        }
+        // Reduce movement intensity when happiness or hunger is low (but don't force 100% idle)
+        // The actual state selection logic is handled in MonsterBehaviorHandler
 
         if (_currentState == MonsterState.Eating)
         {
@@ -133,16 +120,8 @@ public class MonsterStateMachine : MonoBehaviour
 
         // PREVENT CONSECUTIVE IDLE: If trying to go from Idle to Idle, force movement instead
         // BUT: Allow it if this is the first state change (previous == current, meaning just spawned)
-        // UNLESS happiness or hunger is 0, then allow staying idle
-        bool shouldStayIdle = false;
-        if (_controller?.StatsHandler != null)
-        {
-            float happiness = _controller.StatsHandler.CurrentHappiness;
-            float hunger = _controller.StatsHandler.CurrentHunger;
-            shouldStayIdle = (happiness <= 0f || hunger <= 0f);
-        }
-
-        if (_currentState == MonsterState.Idle && newState == MonsterState.Idle && _previousState != _currentState && !shouldStayIdle)
+        // When stats are low, the BehaviorHandler will naturally select Idle more often
+        if (_currentState == MonsterState.Idle && newState == MonsterState.Idle && _previousState != _currentState)
         {
             var rectTransform = GetComponent<RectTransform>();
             if (rectTransform != null)

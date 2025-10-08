@@ -47,6 +47,21 @@ public class MonsterBehaviorHandler
             return GetSimpleDefaultNextState(currentState);
         }
 
+        // Check if stats are low - if so, heavily bias towards Idle but still allow movement
+        float currentHappiness = _controller.StatsHandler?.CurrentHappiness ?? 100f;
+        float currentHunger = _controller.StatsHandler?.CurrentHunger ?? 100f;
+        bool hasLowStats = currentHappiness <= 20f || currentHunger <= 20f;
+
+        if (hasLowStats && currentState == MonsterState.Idle)
+        {
+            // When stats are low and currently idle, 80% chance to stay idle, 20% to move
+            if (Random.value < 0.8f)
+            {
+                return MonsterState.Idle;
+            }
+            // Fall through to normal state selection for the 20% chance to move
+        }
+
         // Original code for pet monsters
         var possibleTransitions = GetValidTransitions(currentState);
 
@@ -76,18 +91,37 @@ public class MonsterBehaviorHandler
             }
         }
 
+        // When stats are low and a movement state is selected, reduce intensity further
+        if (hasLowStats && IsMovementState(selectedState))
+        {
+            // 50% chance to override movement with Idle when stats are very low
+            if (Random.value < 0.5f)
+            {
+                return MonsterState.Idle;
+            }
+        }
+
         // Note: Consecutive Idle prevention is now handled in MonsterStateMachine.ChangeState()
         return selectedState;
+    }
+
+    private bool IsMovementState(MonsterState state)
+    {
+        return state == MonsterState.Walking ||
+               state == MonsterState.Running ||
+               state == MonsterState.Flying;
     }
 
     // Simple fallback - only Idle and Walking
     private MonsterState GetSimpleDefaultNextState(MonsterState currentState)
     {
         bool isInAir = IsMonsterCurrentlyInAir();
-        float currentHappiness = _controller.StatsHandler?.CurrentHappiness ?? 0f;
+        float currentHappiness = _controller.StatsHandler?.CurrentHappiness ?? 100f;
+        float currentHunger = _controller.StatsHandler?.CurrentHunger ?? 100f;
 
-        // Prevent movement if happiness is too low
-        bool restrictMovement = false; //currentHappiness < 0.25f;
+        // When stats are low, bias heavily towards idle (80% idle, 20% movement)
+        bool hasLowStats = currentHappiness <= 20f || currentHunger <= 20f;
+        bool shouldBiasToIdle = hasLowStats && Random.value < 0.8f;
 
         // Get previous state from state machine to prevent consecutive Idle
         MonsterState previousState = _controller.StateMachine?.PreviousState ?? MonsterState.Idle;
@@ -95,27 +129,27 @@ public class MonsterBehaviorHandler
 
         return currentState switch
         {
-            // Prevent consecutive Idle: if was Idle before, force movement state
-            MonsterState.Idle => restrictMovement ? MonsterState.Idle :
+            // When stats are low, heavily prefer Idle
+            MonsterState.Idle => shouldBiasToIdle ? MonsterState.Idle :
                 (wasIdle ? (isInAir ? MonsterState.Flying : MonsterState.Walking)  // Force movement if was idle
                          : (isInAir ? (Random.Range(0, 3) == 0 ? MonsterState.Flying : MonsterState.Idle)
                                     : (Random.Range(0, 2) == 0 ? MonsterState.Walking : MonsterState.Idle))),
 
-            MonsterState.Walking => restrictMovement ? MonsterState.Idle :
+            MonsterState.Walking => shouldBiasToIdle ? MonsterState.Idle :
                 (Random.Range(0, 2) == 0 ? MonsterState.Idle : MonsterState.Walking),
 
-            MonsterState.Flying => restrictMovement ? MonsterState.Idle :
+            MonsterState.Flying => shouldBiasToIdle ? MonsterState.Idle :
                 (isInAir ? (Random.Range(0, 2) == 0 ? MonsterState.Flying : MonsterState.Idle)
                          : MonsterState.Walking),
 
-            MonsterState.Flapping => restrictMovement ? MonsterState.Idle :
+            MonsterState.Flapping => shouldBiasToIdle ? MonsterState.Idle :
                 (isInAir ? MonsterState.Flying : MonsterState.Idle),
 
-            MonsterState.Jumping => restrictMovement ? MonsterState.Idle :
+            MonsterState.Jumping => shouldBiasToIdle ? MonsterState.Idle :
                 (isInAir ? MonsterState.Flying : MonsterState.Idle),
 
             MonsterState.Itching => MonsterState.Idle,
-            MonsterState.Running => restrictMovement ? MonsterState.Idle : MonsterState.Walking,
+            MonsterState.Running => shouldBiasToIdle ? MonsterState.Idle : MonsterState.Walking,
 
             _ => MonsterState.Idle
         };
