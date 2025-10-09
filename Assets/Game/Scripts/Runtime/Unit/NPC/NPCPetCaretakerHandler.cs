@@ -441,8 +441,20 @@ public class NPCPetCaretakerHandler
                 continue;
             }
             OnFeedingPet = true;
-            TargetPet = FindNearestTarget(_petMonsterList);
-            if (TargetPet != null) yield return _monsterController.StartCoroutine(MoveTo(TargetPet.transform as RectTransform));
+
+            // Find a pet at moderate distance (not too close) for feeding
+            TargetPet = FindModerateDistanceTarget(_petMonsterList);
+
+            if (TargetPet != null)
+            {
+                Debug.Log($"NPC {_monsterController.monsterID} targeting pet {TargetPet.monsterID} for FEEDING at moderate distance");
+                yield return _monsterController.StartCoroutine(MoveTo(TargetPet.transform as RectTransform));
+            }
+            else
+            {
+                Debug.Log($"NPC {_monsterController.monsterID} found no pet at moderate distance to feed");
+            }
+
             OnFeedingPet = false;
             TargetPet = null; // Reset target after feeding
             // Wait before looking for next pet
@@ -501,6 +513,55 @@ public class NPCPetCaretakerHandler
             }
         }
         return nearest;
+    }
+
+    public MonsterController FindModerateDistanceTarget(List<MonsterController> list, float minDistance = 400f, float maxDistance = 1000f)
+    {
+        MonsterController bestTarget = null;
+        float bestScore = float.MaxValue;
+        Vector2 npcPos = GetAnchoredPos(_monsterController.transform);
+
+        foreach (var pet in list)
+        {
+            if (pet == null || !pet.IsTargetable) continue;
+
+            // Skip this NPC itself
+            if (pet == _monsterController) continue;
+
+            float distance = Vector2.Distance(npcPos, pet.Position);
+
+            // Prefer targets within the moderate distance range
+            if (distance >= minDistance && distance <= maxDistance)
+            {
+                // Score is how close to the middle of the range (closer to middle = better)
+                float midPoint = (minDistance + maxDistance) / 2f;
+                float score = Mathf.Abs(distance - midPoint);
+
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    bestTarget = pet;
+                }
+            }
+        }
+
+        // If no target in moderate range, find any valid target with hunger < 40%
+        if (bestTarget == null)
+        {
+            foreach (var pet in list)
+            {
+                if (pet == null || !pet.IsTargetable) continue;
+                if (pet == _monsterController) continue;
+
+                if (pet.StatsHandler.CurrentHunger < 100f * 0.4f)
+                {
+                    bestTarget = pet;
+                    break;
+                }
+            }
+        }
+
+        return bestTarget;
     }
 
     private bool OnDoingAction()
