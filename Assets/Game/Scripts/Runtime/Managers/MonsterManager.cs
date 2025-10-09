@@ -20,6 +20,7 @@ public class MonsterManager : MonoBehaviour
     [Header("Game Settings")]
     public RectTransform gameAreaRT;
     public RectTransform groundRT;
+    public Transform backgroundTransform; // Background object for poop parenting
     public MonsterDatabaseSO monsterDatabase;
     public MonsterDatabaseSO npcMonsterDatabase;
 
@@ -451,7 +452,13 @@ public class MonsterManager : MonoBehaviour
         Vector2 finalPos = FindNonOverlappingPosition(anchoredPos, 50f);
 
         var poop = GetPooledObject(_poopPool, poopPrefab);
-        SetupPooledObject(poop, gameAreaRT, finalPos);
+
+        // Use Background as parent if available, otherwise fallback to gameAreaRT
+        RectTransform parentTransform = backgroundTransform != null
+            ? backgroundTransform.GetComponent<RectTransform>()
+            : gameAreaRT;
+
+        SetupPooledObject(poop, parentTransform, finalPos);
         poop.GetComponent<PoopController>().Initialize(type);
         activePoops.Add(poop.GetComponent<PoopController>());
         return poop;

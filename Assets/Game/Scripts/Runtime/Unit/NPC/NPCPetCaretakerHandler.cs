@@ -9,9 +9,9 @@ public class NPCPetCaretakerHandler
     private MonsterManager _monsterManager;
     private NPCManager _nPCManager;
     private MonsterController _monsterController;
-    private List<MonsterController> _petMonsterList = new List<MonsterController>();
-    private List<CoinController> _coinList = new List<CoinController>();
-    private List<PoopController> _poopList = new List<PoopController>();
+    private List<MonsterController> _petMonsterList => _monsterManager?.activeMonsters ?? new List<MonsterController>();
+    private List<CoinController> _coinList => _monsterManager?.activeCoins ?? new List<CoinController>();
+    private List<PoopController> _poopList => _monsterManager?.activePoops ?? new List<PoopController>();
     private Vector2 NPCPosition;
     private CoinController TargetCoin;
     private PoopController TargetPoop;
@@ -52,7 +52,6 @@ public class NPCPetCaretakerHandler
 
     public void Initialize()
     {
-        InitList(_monsterManager);
         InitMode();
         InitState();
         _monsterController.StartCoroutine(ManageActions());
@@ -112,7 +111,15 @@ public class NPCPetCaretakerHandler
 
     private ActionType GetAction()
     {
-        // Priority 1: Check if any monster has hunger under 40%
+        // Priority 1: Collect coins if available
+        if (CoinCollectorEnabled && _coinList.Any(coin => coin != null && coin.IsTargetable))
+        {
+            int targetableCoins = _coinList.Count(coin => coin != null && coin.IsTargetable);
+            Debug.Log($"[NPC {_monsterController.monsterID}] GetAction: Found {targetableCoins} targetable coins out of {_coinList.Count} total coins");
+            return ActionType.CoinCollection;
+        }
+
+        // Priority 3: Check if any monster has hunger under 40%
         if (PetFeederEnabled)
         {
             foreach (var pet in _petMonsterList)
@@ -127,7 +134,7 @@ public class NPCPetCaretakerHandler
                 }
             }
         }
-
+        
         // Priority 2: Check if any monster has happiness under 50%
         if (PetInteractionEnabled)
         {
@@ -142,12 +149,6 @@ public class NPCPetCaretakerHandler
                     }
                 }
             }
-        }
-
-        // Priority 3: Collect coins if available
-        if (CoinCollectorEnabled && _coinList.Any(coin => coin != null && coin.IsTargetable))
-        {
-            return ActionType.CoinCollection;
         }
 
         // Priority 4: Collect poop if available
@@ -175,22 +176,6 @@ public class NPCPetCaretakerHandler
         OnPetInteraction = onPetInteraction;
         OnFeedingPet = onFeedingPet;
         OnIdling = onIdling;
-    }
-
-    public void InitList(MonsterManager manager)
-    {
-        _petMonsterList.Clear();
-        _coinList.Clear();
-        _poopList.Clear();
-        _petMonsterList = manager.activeMonsters;
-        _coinList = manager.activeCoins;
-        _poopList = manager.activePoops;
-
-        if (_petMonsterList.Count <= 0 || _coinList.Count <= 0 || _poopList.Count <= 0)
-        {
-            Debug.LogWarning($"NPCPetCaretakerHandler: No pets {_petMonsterList.Count}, coins {_coinList.Count}, or poops {_poopList.Count} found.");
-            return;
-        }
     }
 
     private IEnumerator MoveTo(RectTransform target)
@@ -262,11 +247,13 @@ public class NPCPetCaretakerHandler
             CollectCoin(coin);
             return;
         }
-        if (target.TryGetComponent<PoopController>(out var poop))
-        {
-            CollectPoop(poop);
-            return;
-        }
+        
+        //if (target.TryGetComponent<PoopController>(out var poop))
+        //{
+        //    CollectPoop(poop);
+        //    return;
+        //}
+        
         if (target.TryGetComponent<MonsterController>(out var pet))
         {
             _monsterController.StateMachine.ChangeState(MonsterState.Jumping);
@@ -306,8 +293,12 @@ public class NPCPetCaretakerHandler
                     if (inventoryFood != null && inventoryFood.amount > 0)
                     {
                         inventoryFood.amount -= 1;
-                        _monsterManager.SpawnItem(cheapestFood, pet.GetComponent<RectTransform>().anchoredPosition);
-                        Debug.Log($"NPC successfully fed pet {pet.monsterID} with {cheapestFood.itemID} (cost: {cheapestFood.price})");
+
+                        // Get position in front of the monster (based on facing direction)
+                        Vector2 spawnPosition = GetFoodSpawnOffsetPosition(pet, 100f);
+
+                        _monsterManager.SpawnItem(cheapestFood, spawnPosition);
+                        Debug.Log($"NPC successfully fed pet {pet.monsterID} with {cheapestFood.itemID} at offset position {spawnPosition} (cost: {cheapestFood.price})");
                     }
                     else
                     {
@@ -336,26 +327,22 @@ public class NPCPetCaretakerHandler
 
     private void CollectCoin(CoinController coin)
     {
+        Debug.Log($"[NPC {_monsterController.monsterID}] CollectCoin: Collecting coin at {coin.Position}");
         coin.OnCollected();
-        // Remove from active coins list
-        if (_coinList.Contains(coin))
-        {
-            _coinList.Remove(coin);
-        }
+        Debug.Log($"[NPC {_monsterController.monsterID}] CollectCoin: Coin collected successfully");
+        // No need to manually remove - DespawnToPool handles it via MonsterManager
     }
 
     private void CollectPoop(PoopController poop)
     {
         poop.OnCollected();
-        // Remove from active poops list
-        if (_poopList.Contains(poop))
-        {
-            _poopList.Remove(poop);
-        }
+        // No need to manually remove - DespawnToPool handles it via MonsterManager
     }
 
     public IEnumerator DoCoinCollection()
     {
+        Debug.Log($"[NPC {_monsterController.monsterID}] DoCoinCollection: Started. Total coins in list: {_coinList.Count}");
+
         while (CoinCollectorEnabled) // Add continuous loop
         {
             if (OnDoingAction())
@@ -364,14 +351,23 @@ public class NPCPetCaretakerHandler
                 continue;
             }
             OnCollectingCoin = true;
+
+            Debug.Log($"[NPC {_monsterController.monsterID}] DoCoinCollection: Searching for nearest coin...");
             TargetCoin = FindNearestTarget(_coinList);
+
             if (TargetCoin != null)
             {
                 // Reserve the coin so other NPCs won't target it
                 TargetCoin.Reserve(_monsterController);
-                Debug.Log($"NPC {_monsterController.monsterID} reserved coin at {TargetCoin.Position}");
+                Debug.Log($"[NPC {_monsterController.monsterID}] DoCoinCollection: Reserved coin at {TargetCoin.Position}, moving towards it");
                 yield return _monsterController.StartCoroutine(MoveTo(TargetCoin.transform as RectTransform));
+                Debug.Log($"[NPC {_monsterController.monsterID}] DoCoinCollection: Reached coin position");
             }
+            else
+            {
+                Debug.LogWarning($"[NPC {_monsterController.monsterID}] DoCoinCollection: No targetable coin found!");
+            }
+
             OnCollectingCoin = false;
             TargetCoin = null; // Reset target after collection
             // Wait before looking for next coin
@@ -417,8 +413,16 @@ public class NPCPetCaretakerHandler
             TargetPet = FindNearestTarget(_petMonsterList);
             if (TargetPet != null)
             {
-                Debug.Log($"NPC {_monsterController.monsterID} targeting pet {TargetPet.monsterID} for INTERACTION at position {TargetPet.Position}");
+                // Reserve the pet so other NPCs won't target it for interaction
+                TargetPet.ReserveForNPC(_monsterController);
+                Debug.Log($"NPC {_monsterController.monsterID} reserved and targeting pet {TargetPet.monsterID} for INTERACTION at position {TargetPet.Position}");
                 yield return _monsterController.StartCoroutine(MoveTo(TargetPet.transform as RectTransform));
+
+                // Release reservation after interaction is complete
+                if (TargetPet != null)
+                {
+                    TargetPet.ReleaseNPCReservation();
+                }
             }
             else
             {
@@ -447,8 +451,16 @@ public class NPCPetCaretakerHandler
 
             if (TargetPet != null)
             {
-                Debug.Log($"NPC {_monsterController.monsterID} targeting pet {TargetPet.monsterID} for FEEDING at moderate distance");
+                // Reserve the pet so other NPCs won't target it for feeding
+                TargetPet.ReserveForNPC(_monsterController);
+                Debug.Log($"NPC {_monsterController.monsterID} reserved and targeting pet {TargetPet.monsterID} for FEEDING at moderate distance");
                 yield return _monsterController.StartCoroutine(MoveTo(TargetPet.transform as RectTransform));
+
+                // Release reservation after feeding is complete
+                if (TargetPet != null)
+                {
+                    TargetPet.ReleaseNPCReservation();
+                }
             }
             else
             {
@@ -501,17 +513,28 @@ public class NPCPetCaretakerHandler
         T nearest = null;
         float shortestDistance = float.MaxValue;
         Vector2 npcPos = GetAnchoredPos(_monsterController.transform);
+        int totalCount = 0;
+        int targetableCount = 0;
 
         foreach (var t in list)
         {
-            if (t == null || !t.IsTargetable) continue;
+            totalCount++;
+            if (t == null || !t.IsTargetable)
+            {
+                Debug.Log($"[NPC {_monsterController.monsterID}] FindNearestTarget: Skipping target #{totalCount} - null: {t == null}, targetable: {t?.IsTargetable}");
+                continue;
+            }
+            targetableCount++;
             float d = Vector2.Distance(npcPos, t.Position);
+            Debug.Log($"[NPC {_monsterController.monsterID}] FindNearestTarget: Target #{totalCount} at {t.Position}, distance: {d:F2}");
             if (d < shortestDistance)
             {
                 shortestDistance = d;
                 nearest = t;
             }
         }
+
+        Debug.Log($"[NPC {_monsterController.monsterID}] FindNearestTarget: Total targets: {totalCount}, Targetable: {targetableCount}, Nearest distance: {shortestDistance:F2}");
         return nearest;
     }
 
@@ -588,6 +611,19 @@ public class NPCPetCaretakerHandler
             // Fallback to world position for non-UI objects
             return new Vector2(target.position.x, target.position.y);
         }
+    }
+
+    private Vector2 GetFoodSpawnOffsetPosition(MonsterController monster, float offsetDistance = 100f)
+    {
+        Vector2 monsterPos = monster.GetComponent<RectTransform>().anchoredPosition;
+
+        // Check monster's facing direction based on localScale.x
+        float facingDirection = monster.transform.localScale.x > 0 ? 1f : -1f;
+
+        // Spawn food slightly in front of the monster (in the direction it's facing)
+        Vector2 offsetPos = monsterPos + new Vector2(facingDirection * offsetDistance, 0f);
+
+        return offsetPos;
     }
 
 }

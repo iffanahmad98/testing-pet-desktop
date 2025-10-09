@@ -76,7 +76,10 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     private MonsterManager _monsterManager;
     public MonsterManager MonsterManager => _monsterManager;
 
-    public bool IsTargetable => gameObject.activeInHierarchy && !isNPC;
+    // NPC reservation system to prevent multiple NPCs targeting the same monster for feeding
+    public MonsterController ReservedByNPC { get; private set; }
+
+    public bool IsTargetable => gameObject.activeInHierarchy && !isNPC && ReservedByNPC == null;
     public Vector2 Position => _rectTransform.anchoredPosition;
 
     // Movement related
@@ -719,6 +722,26 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     public void DropPoop(PoopType type = PoopType.Normal) => _visualHandler?.SpawnPoopWithAnimation(type);
     public void DropCoin(CoinType type) => _visualHandler?.SpawnCoinWithAnimation(type);
     public Sprite GetMonsterIcon() => _visualHandler?.GetMonsterIcon();
+
+    #endregion
+
+    #region NPC Reservation System
+
+    /// <summary>
+    /// Reserve this monster for a specific NPC (for feeding/interaction)
+    /// </summary>
+    public void ReserveForNPC(MonsterController npc)
+    {
+        ReservedByNPC = npc;
+    }
+
+    /// <summary>
+    /// Release the reservation (e.g., if NPC changes target or completes feeding)
+    /// </summary>
+    public void ReleaseNPCReservation()
+    {
+        ReservedByNPC = null;
+    }
 
     #endregion
 }
