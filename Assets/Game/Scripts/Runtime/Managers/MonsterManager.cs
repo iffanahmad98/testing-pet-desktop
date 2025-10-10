@@ -265,21 +265,39 @@ public class MonsterManager : MonoBehaviour
 
     public void SortMonstersByDepth()
     {
-        // Combine both lists for sorting but keep them separate
-        var allMonstersForSorting = new List<MonsterController>();
-        allMonstersForSorting.AddRange(activeMonsters.Where(m => m != null && m.gameObject.activeInHierarchy));
-        allMonstersForSorting.AddRange(npcMonsters.Where(m => m != null && m.gameObject.activeInHierarchy));
+        // Create a list of all objects that need depth sorting (monsters, poops, coins)
+        var allObjectsForSorting = new List<Transform>();
 
-        if (allMonstersForSorting.Count <= 1) return;
+        // Add monsters
+        allObjectsForSorting.AddRange(activeMonsters
+            .Where(m => m != null && m.gameObject.activeInHierarchy)
+            .Select(m => m.transform));
 
-        // Sort by Y position (higher Y = lower sibling index)
-        allMonstersForSorting.Sort((a, b) =>
-            b.transform.position.y.CompareTo(a.transform.position.y));
+        // Add NPCs
+        allObjectsForSorting.AddRange(npcMonsters
+            .Where(m => m != null && m.gameObject.activeInHierarchy)
+            .Select(m => m.transform));
+
+        // Add poops
+        allObjectsForSorting.AddRange(activePoops
+            .Where(p => p != null && p.gameObject.activeInHierarchy)
+            .Select(p => p.transform));
+
+        // Add coins
+        allObjectsForSorting.AddRange(activeCoins
+            .Where(c => c != null && c.gameObject.activeInHierarchy)
+            .Select(c => c.transform));
+
+        if (allObjectsForSorting.Count <= 1) return;
+
+        // Sort by Y position (higher Y = lower sibling index, appears behind)
+        allObjectsForSorting.Sort((a, b) =>
+            b.position.y.CompareTo(a.position.y));
 
         // Update sibling indices
-        for (int i = 0; i < allMonstersForSorting.Count; i++)
+        for (int i = 0; i < allObjectsForSorting.Count; i++)
         {
-            allMonstersForSorting[i].transform.SetSiblingIndex(i + 1);
+            allObjectsForSorting[i].SetSiblingIndex(i + 1);
         }
     }
     #endregion
