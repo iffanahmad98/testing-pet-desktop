@@ -743,5 +743,54 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         ReservedByNPC = null;
     }
 
+    /// <summary>
+    /// Add evolution time when time is accelerated (Time Keeper facility)
+    /// </summary>
+    public void AddEvolutionTime(float seconds)
+    {
+        if (_evolutionHandler != null)
+        {
+            _evolutionHandler.AddEvolutionTime(seconds);
+            Debug.Log($"{monsterID}: Added {seconds}s evolution time");
+        }
+    }
+
+    /// <summary>
+    /// Generate coins based on time skipped (Time Keeper facility)
+    /// </summary>
+    public void GenerateCoinsFromTimeSkip(float totalSeconds)
+    {
+        if (MonsterData == null) return;
+
+        // Calculate how many coins should be generated based on time skipped
+        float goldCoinInterval = (float)System.TimeSpan.FromHours(MonsterData.goldCoinDropRateStage1).TotalSeconds;
+        float silverCoinInterval = (float)System.TimeSpan.FromHours(MonsterData.platCoinDropRateStage1).TotalSeconds;
+
+        int goldCoinsToGenerate = Mathf.FloorToInt(totalSeconds / goldCoinInterval);
+        int silverCoinsToGenerate = Mathf.FloorToInt(totalSeconds / silverCoinInterval);
+
+        Debug.Log($"{monsterID}: Generating {goldCoinsToGenerate} gold coins and {silverCoinsToGenerate} silver coins from time skip");
+
+        // Get monster position
+        Vector2 monsterPos = _rectTransform.anchoredPosition;
+
+        // Generate the coins with arc animation
+        for (int i = 0; i < goldCoinsToGenerate; i++)
+        {
+            // Spawn coin slightly offset to avoid stacking
+            Vector2 startPos = monsterPos + new Vector2(UnityEngine.Random.Range(-50f, 50f), UnityEngine.Random.Range(-50f, 50f));
+            Vector2 targetPos = monsterPos + new Vector2(UnityEngine.Random.Range(-100f, 100f), -150f);
+            _monsterManager.SpawnCoinWithArc(startPos, targetPos, CoinType.Gold);
+        }
+
+        for (int i = 0; i < silverCoinsToGenerate; i++)
+        {
+            // Spawn coin slightly offset to avoid stacking
+            Vector2 startPos = monsterPos + new Vector2(UnityEngine.Random.Range(-50f, 50f), UnityEngine.Random.Range(-50f, 50f));
+            Vector2 targetPos = monsterPos + new Vector2(UnityEngine.Random.Range(-100f, 100f), -150f);
+            _monsterManager.SpawnCoinWithArc(startPos, targetPos, CoinType.Platinum);
+        }
+    }
+
     #endregion
 }

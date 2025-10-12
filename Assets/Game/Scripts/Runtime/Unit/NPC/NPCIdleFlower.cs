@@ -18,11 +18,17 @@ public class NPCIdleFlower : MonoBehaviour, ITargetable
     [Header("NPC Monster Check")] [SerializeField]
     private string npcMonster2Id = "npc_monster_2"; // ID untuk NPC Monster ke-2
 
+    [Header("Height-Based Scaling")]
+    [SerializeField] private bool enableHeightScaling = true; // Enable/disable height-based scaling
+    [SerializeField] private float minScale = 0.5f; // Minimum scale when game area is at min height
+    [SerializeField] private float maxScale = 1.5f; // Maximum scale when game area is at max height
+
     public bool IsTargetable => _isTargetable;
     public Vector2 Position => _position;
 
     private bool _hasAnyNPC = false; // Player punya minimal 1 NPC
     private bool _hasSecondNPC = false; // Player punya NPC ke-2
+    private SettingsManager _settingsManager;
 
     void Awake()
     {
@@ -33,6 +39,12 @@ public class NPCIdleFlower : MonoBehaviour, ITargetable
     void Start()
     {
         Initialize();
+        SubscribeToSettings();
+    }
+
+    void OnDestroy()
+    {
+        UnsubscribeFromSettings();
     }
 
     /// <summary>
@@ -160,5 +172,60 @@ public class NPCIdleFlower : MonoBehaviour, ITargetable
     {
         CheckNPCOwnership();
         UpdateImageReference();
+    }
+
+    /// <summary>
+    /// Subscribe to SettingsManager events
+    /// </summary>
+    private void SubscribeToSettings()
+    {
+        _settingsManager = ServiceLocator.Get<SettingsManager>();
+
+        if (_settingsManager != null)
+        {
+            _settingsManager.OnGameAreaChanged.AddListener(UpdateScaleBasedOnHeight);
+            // Apply initial scale based on current game area height
+            UpdateScaleBasedOnHeight();
+        }
+        else
+        {
+            Debug.LogWarning("NPCIdleFlower: SettingsManager not found in ServiceLocator!");
+        }
+    }
+
+    /// <summary>
+    /// Unsubscribe from SettingsManager events
+    /// </summary>
+    private void UnsubscribeFromSettings()
+    {
+        if (_settingsManager != null)
+        {
+            _settingsManager.OnGameAreaChanged.RemoveListener(UpdateScaleBasedOnHeight);
+        }
+    }
+
+    /// <summary>
+    /// Update NPC Idle Flower scale based on game area height
+    /// Scale interpolates between minScale and maxScale based on current height relative to min/max height
+    /// </summary>
+    private void UpdateScaleBasedOnHeight()
+    {
+        if (!enableHeightScaling || _settingsManager == null || _rectTransform == null)
+            return;
+
+        float minHeight = _settingsManager.GetMinGameAreaHeight();
+        float maxHeight = _settingsManager.GetMaxGameAreaHeight();
+        float currentHeight = _settingsManager.gameArea.sizeDelta.y;
+
+        // Normalize current height to 0-1 range
+        float normalizedHeight = Mathf.InverseLerp(minHeight, maxHeight, currentHeight);
+
+        // Interpolate scale between minScale and maxScale
+        float targetScale = Mathf.Lerp(minScale, maxScale, normalizedHeight);
+
+        // Apply scale to the RectTransform
+        _rectTransform.localScale = Vector3.one * targetScale;
+
+        Debug.Log($"NPCIdleFlower: Height={currentHeight:F0}, Normalized={normalizedHeight:F2}, Scale={targetScale:F2}");
     }
 }

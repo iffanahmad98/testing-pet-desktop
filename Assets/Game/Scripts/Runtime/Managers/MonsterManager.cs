@@ -856,6 +856,32 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Simulate time skip for evolution and coin generation only
+    /// </summary>
+    /// <param name="hours">Number of hours to skip</param>
+    public void SimulateTimeSkip(float hours)
+    {
+        float totalSeconds = hours * 3600f; // Convert hours to seconds
+
+        Debug.Log($"Time Skip: Simulating {hours} hours ({totalSeconds} seconds) for evolution and coins");
+
+        // Apply time skip to all active monsters (not NPCs)
+        foreach (var monster in activeMonsters)
+        {
+            if (monster != null && !monster.isNPC)
+            {
+                // Add evolution time
+                monster.AddEvolutionTime(totalSeconds);
+
+                // Force coin generation based on time skipped
+                monster.GenerateCoinsFromTimeSkip(totalSeconds);
+            }
+        }
+
+        ServiceLocator.Get<UIManager>()?.ShowMessage($"Time accelerated by {hours} hours!");
+        Debug.Log($"Time Skip Complete: Affected {activeMonsters.Count} monsters");
+    }
 
     #endregion
 }

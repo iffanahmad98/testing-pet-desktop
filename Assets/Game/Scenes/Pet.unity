@@ -339,6 +339,8 @@ RectTransform:
   - {fileID: 880935774}
   - {fileID: 96335536}
   - {fileID: 235755938}
+  - {fileID: 473064869}
+  - {fileID: 1071457982}
   m_Father: {fileID: 1457136191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
@@ -3393,6 +3395,104 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 464775656}
   m_CullTransparentMesh: 1
+--- !u!1 &473064868
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 473064869}
+  - component: {fileID: 473064871}
+  - component: {fileID: 473064870}
+  - component: {fileID: 473064872}
+  m_Layer: 5
+  m_Name: Time Keeper Normal
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &473064869
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473064868}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 17609072}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 372, y: -19.999992}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &473064870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473064868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 6998041386288369310, guid: 6089e30538ef94d45baa0e6a43518af7, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &473064871
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473064868}
+  m_CullTransparentMesh: 1
+--- !u!95 &473064872
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473064868}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 78a5e14fe2797784f8b2cb4fad4e1337, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &475516868 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7686869362702395409, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
@@ -4494,6 +4594,9 @@ MonoBehaviour:
   imageSource1: {fileID: -5168412955403897906, guid: c8759da225fea9e48b69b6fae84b6a57, type: 3}
   imageSource2: {fileID: -3421239027720168597, guid: 4522d8a61a72b864db2f42eaef40d298, type: 3}
   npcMonster2Id: 200
+  enableHeightScaling: 1
+  minScale: 0.3
+  maxScale: 0.5
 --- !u!1 &784155137 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5023562820082573250, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
@@ -5706,6 +5809,104 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7844156664705100623, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
   m_PrefabInstance: {fileID: 7253384858265864500}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1071457981
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1071457982}
+  - component: {fileID: 1071457984}
+  - component: {fileID: 1071457983}
+  - component: {fileID: 1071457985}
+  m_Layer: 5
+  m_Name: Time Keeper Advance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1071457982
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071457981}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 17609072}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 372, y: -20}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1071457983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071457981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -4262921424128740195, guid: 6f3a9a5595ba55548bb9d105bf391a97, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1071457984
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071457981}
+  m_CullTransparentMesh: 1
+--- !u!95 &1071457985
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071457981}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6c65481d97d6c1846b522f00fd9a3f1d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!224 &1078044876 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 899295693782959623, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
@@ -11019,7 +11220,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2035462621341611338, guid: 054db2918cd51d947aced3a58161016e, type: 3}
       propertyPath: m_BlocksRaycasts
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2087235893521952411, guid: 054db2918cd51d947aced3a58161016e, type: 3}
       propertyPath: m_Enabled
@@ -12734,6 +12935,14 @@ PrefabInstance:
       propertyPath: magicShovelPrefab
       value: 
       objectReference: {fileID: 2084354196}
+    - target: {fileID: 1116526280812501543, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: timeKeeperNormalObject
+      value: 
+      objectReference: {fileID: 473064868}
+    - target: {fileID: 1116526280812501543, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: timeKeeperAdvanceObject
+      value: 
+      objectReference: {fileID: 1071457981}
     - target: {fileID: 1330516261618121772, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: m_Name
       value: Manager
@@ -12833,7 +13042,7 @@ PrefabInstance:
     - target: {fileID: 2080779024412686163, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: backgroundTransform
       value: 
-      objectReference: {fileID: 577750298}
+      objectReference: {fileID: 0}
     - target: {fileID: 2080779024412686163, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: foodPlacementIndicator
       value: 

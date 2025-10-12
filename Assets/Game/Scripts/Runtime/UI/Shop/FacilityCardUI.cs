@@ -127,10 +127,14 @@ public class FacilityCardUI : MonoBehaviour
         string id = FacilityData.facilityID;
         bool isOwned = SaveSystem.IsFacilityOwned(id);
         bool canUse = facilityManager?.CanUseFacility(id) ?? false;
+        bool isOnOwnCooldown = facilityManager?.IsOnOwnCooldown(id) ?? false;
 
-        useButton.gameObject.SetActive(isOwned);
+        // Show appropriate buttons based on ownership and cooldown state
+        useButton.gameObject.SetActive(isOwned && !isOnOwnCooldown);
         buyButton.gameObject.SetActive(!isOwned);
-        cancelButton?.gameObject.SetActive(isOwned && !canUse);
+        cancelButton?.gameObject.SetActive(isOwned && isOnOwnCooldown);
+
+        // Set interactable based on whether facility can be used
         useButton.interactable = canUse;
 
         UpdateCooldownDisplay();
@@ -163,13 +167,15 @@ public class FacilityCardUI : MonoBehaviour
         if (facilityManager == null || FacilityData == null) return;
 
         bool canUse = facilityManager.CanUseFacility(FacilityData.facilityID);
+        bool isOnOwnCooldown = facilityManager.IsOnOwnCooldown(FacilityData.facilityID);
 
-        cooldownOverlay?.gameObject.SetActive(!canUse);
+        // Only show cooldown overlay and text if THIS facility is on its own cooldown
+        cooldownOverlay?.gameObject.SetActive(isOnOwnCooldown);
         useButton.interactable = canUse;
 
         if (cooldownText != null)
         {
-            cooldownText.text = canUse ? "" : $"{facilityManager.GetCooldownRemaining(FacilityData.facilityID):F1}s";
+            cooldownText.text = isOnOwnCooldown ? $"{facilityManager.GetCooldownRemaining(FacilityData.facilityID):F1}s" : "";
         }
     }
 

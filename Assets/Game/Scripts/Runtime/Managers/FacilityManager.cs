@@ -2,16 +2,23 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class FacilityManager : MonoBehaviour
 {
     [SerializeField] private Button magicShovelButton;
     [SerializeField] private FacilityDatabaseSO facilityDatabase;
     [SerializeField] private GameObject magicShovelPrefab;
+    [SerializeField] private GameObject timeKeeperNormalObject;
+    [SerializeField] private GameObject timeKeeperAdvanceObject;
 
     public FacilityDatabaseSO FacilityDatabase => facilityDatabase;
 
+    // Event to notify when a Time Keeper facility state changes
+    public event Action OnTimeKeeperStateChanged;
+
     private Dictionary<string, float> lastUsedTime = new Dictionary<string, float>();
+    private Dictionary<string, Coroutine> activeCooldownCoroutines = new Dictionary<string, Coroutine>();
 
     private void Awake()
     {
@@ -39,11 +46,21 @@ public class FacilityManager : MonoBehaviour
         var facility = GetFacilityByID(facilityID);
         if (facility == null) return false;
 
+        // Check if this is a Time Keeper facility and if the other Time Keeper is on cooldown
+        if (IsTimeKeeperFacility(facilityID))
+        {
+            string otherTimeKeeperID = GetOtherTimeKeeperID(facilityID);
+            if (!string.IsNullOrEmpty(otherTimeKeeperID) && IsOnCooldown(otherTimeKeeperID))
+            {
+                Debug.LogWarning($"Cannot use {facilityID} while {otherTimeKeeperID} is on cooldown.");
+                return false;
+            }
+        }
+
         if (!lastUsedTime.ContainsKey(facilityID))
             return true;
 
         float elapsed = Time.time - lastUsedTime[facilityID];
-        Debug.Log(elapsed >= facility.cooldownSeconds);
         return elapsed >= facility.cooldownSeconds;
     }
 
@@ -60,6 +77,40 @@ public class FacilityManager : MonoBehaviour
         {
             case "F1":
                 StartCoroutine(UseMagicShovel());
+                break;
+
+            case "F2": // Time Keeper Pro (Advance)
+                if (activeCooldownCoroutines.ContainsKey(facilityID))
+                {
+                    StopCoroutine(activeCooldownCoroutines[facilityID]);
+                }
+                activeCooldownCoroutines[facilityID] = StartCoroutine(HandleTimeKeeperCooldown(facilityID, timeKeeperAdvanceObject));
+
+                // Apply time skip effect: +24 hours for evolution and coins
+                var monsterManagerAdvance = ServiceLocator.Get<MonsterManager>();
+                if (monsterManagerAdvance != null)
+                {
+                    monsterManagerAdvance.SimulateTimeSkip(24f); // 24 hours
+                }
+
+                OnTimeKeeperStateChanged?.Invoke(); // Notify state change
+                break;
+
+            case "F3": // Time Keeper Normal
+                if (activeCooldownCoroutines.ContainsKey(facilityID))
+                {
+                    StopCoroutine(activeCooldownCoroutines[facilityID]);
+                }
+                activeCooldownCoroutines[facilityID] = StartCoroutine(HandleTimeKeeperCooldown(facilityID, timeKeeperNormalObject));
+
+                // Apply time skip effect: +6 hours for evolution and coins
+                var monsterManager = ServiceLocator.Get<MonsterManager>();
+                if (monsterManager != null)
+                {
+                    monsterManager.SimulateTimeSkip(6f); // 6 hours
+                }
+
+                OnTimeKeeperStateChanged?.Invoke(); // Notify state change
                 break;
 
             // Add more cases like:
@@ -99,6 +150,39 @@ public class FacilityManager : MonoBehaviour
         Debug.Log("Magic Shovel used to clean all poop in the current area.");
     }
 
+    private IEnumerator HandleTimeKeeperCooldown(string facilityID, GameObject timeKeeperObject)
+    {
+        // Show the Time Keeper object
+        if (timeKeeperObject != null)
+        {
+            timeKeeperObject.SetActive(true);
+            Debug.Log($"Time Keeper {facilityID} is now visible during cooldown.");
+        }
+
+        // Get cooldown duration
+        var facility = GetFacilityByID(facilityID);
+        float cooldownDuration = facility != null ? facility.cooldownSeconds : 10f;
+
+        // Wait for cooldown to finish
+        yield return new WaitForSeconds(cooldownDuration);
+
+        // Hide the Time Keeper object
+        if (timeKeeperObject != null)
+        {
+            timeKeeperObject.SetActive(false);
+            Debug.Log($"Time Keeper {facilityID} cooldown finished, hiding object.");
+        }
+
+        // Remove coroutine reference
+        if (activeCooldownCoroutines.ContainsKey(facilityID))
+        {
+            activeCooldownCoroutines.Remove(facilityID);
+        }
+
+        // Notify that state changed when cooldown finished
+        OnTimeKeeperStateChanged?.Invoke();
+    }
+
     public float GetCooldownRemaining(string facilityID)
     {
         var facility = GetFacilityByID(facilityID);
@@ -117,7 +201,63 @@ public class FacilityManager : MonoBehaviour
         if (lastUsedTime.ContainsKey(facilityID))
         {
             lastUsedTime.Remove(facilityID);
+
+            // Stop active cooldown coroutine if exists
+            if (activeCooldownCoroutines.ContainsKey(facilityID))
+            {
+                if (activeCooldownCoroutines[facilityID] != null)
+                {
+                    StopCoroutine(activeCooldownCoroutines[facilityID]);
+                }
+                activeCooldownCoroutines.Remove(facilityID);
+            }
+
+            // Hide Time Keeper objects when cooldown is cancelled
+            if (facilityID == "F2" && timeKeeperAdvanceObject != null)
+            {
+                timeKeeperAdvanceObject.SetActive(false);
+                OnTimeKeeperStateChanged?.Invoke(); // Notify state change
+            }
+            else if (facilityID == "F3" && timeKeeperNormalObject != null)
+            {
+                timeKeeperNormalObject.SetActive(false);
+                OnTimeKeeperStateChanged?.Invoke(); // Notify state change
+            }
+
             Debug.Log($"Cooldown cancelled for facility: {facilityID}");
         }
+    }
+
+    // Helper method to check if a facility is a Time Keeper
+    private bool IsTimeKeeperFacility(string facilityID)
+    {
+        return facilityID == "F2" || facilityID == "F3";
+    }
+
+    // Helper method to get the other Time Keeper ID
+    private string GetOtherTimeKeeperID(string facilityID)
+    {
+        if (facilityID == "F2") return "F3"; // If Advance, return Normal
+        if (facilityID == "F3") return "F2"; // If Normal, return Advance
+        return null;
+    }
+
+    // Helper method to check if a facility is on cooldown
+    private bool IsOnCooldown(string facilityID)
+    {
+        if (!lastUsedTime.ContainsKey(facilityID))
+            return false;
+
+        var facility = GetFacilityByID(facilityID);
+        if (facility == null) return false;
+
+        float elapsed = Time.time - lastUsedTime[facilityID];
+        return elapsed < facility.cooldownSeconds;
+    }
+
+    // Public method to check if this specific facility is on its own cooldown (not blocked by another)
+    public bool IsOnOwnCooldown(string facilityID)
+    {
+        return IsOnCooldown(facilityID);
     }
 }

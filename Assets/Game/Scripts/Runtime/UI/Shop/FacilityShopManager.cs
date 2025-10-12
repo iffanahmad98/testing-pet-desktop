@@ -37,6 +37,34 @@ public class FacilityShopManager : MonoBehaviour
     private void Start()
     {
         facilityManager = ServiceLocator.Get<FacilityManager>();
+
+        // Subscribe to Time Keeper state changes
+        if (facilityManager != null)
+        {
+            facilityManager.OnTimeKeeperStateChanged += OnTimeKeeperStateChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from event
+        if (facilityManager != null)
+        {
+            facilityManager.OnTimeKeeperStateChanged -= OnTimeKeeperStateChanged;
+        }
+    }
+
+    private void OnTimeKeeperStateChanged()
+    {
+        // Update all Time Keeper cards when state changes
+        foreach (var card in activeCards)
+        {
+            if (card.FacilityData != null &&
+                (card.FacilityData.facilityID == "F2" || card.FacilityData.facilityID == "F3"))
+            {
+                card.UpdateState();
+            }
+        }
     }
 
     public void RefreshFacilityCards()

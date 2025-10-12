@@ -64,6 +64,17 @@ public class MonsterEvolutionHandler
         if (!CanEvolve) return;
         _timeSinceCreation += deltaTime;
     }
+
+    /// <summary>
+    /// Add evolution time directly (used by Time Keeper facility)
+    /// </summary>
+    public void AddEvolutionTime(float seconds)
+    {
+        if (!CanEvolve) return;
+        _timeSinceCreation += seconds;
+        Debug.Log($"Evolution time increased by {seconds}s. Total: {_timeSinceCreation}s");
+    }
+
     public void ResetEvolutionTracking()
     {
         _timeCreated = DateTime.UtcNow.ToString("o"); // ISO 8601 format
