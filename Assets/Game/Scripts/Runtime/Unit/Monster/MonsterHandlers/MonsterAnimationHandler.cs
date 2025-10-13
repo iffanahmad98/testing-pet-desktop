@@ -13,7 +13,7 @@ public class MonsterAnimationHandler
     private Dictionary<string, Spine.Animation> _animationCache = new Dictionary<string, Spine.Animation>();
     private static readonly Dictionary<MonsterState, string[]> StateAnimationMap = new()
     {
-        [MonsterState.Idle] = new[] { "idle" },
+        [MonsterState.Idle] = new[] { "idle", "idle2" },
         [MonsterState.Walking] = new[] { "walking" },
         [MonsterState.Running] = new[] { "running" },
         [MonsterState.Flying] = new[] { "flying" },

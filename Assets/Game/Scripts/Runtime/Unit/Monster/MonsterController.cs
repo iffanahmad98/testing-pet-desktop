@@ -19,6 +19,27 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     public float currentHealth;
     public int currentGameAreaIndex;
 
+    [Header("Evolution Progress (Debug View)")]
+    [Space(5)]
+    [Header("Current Progress")]
+    [SerializeField] private float _currentTimeSinceCreation;
+    [SerializeField] private int _currentNutritionConsumed;
+    [SerializeField] private int _currentInteractionCount;
+    [SerializeField] private float _currentHappiness;
+    [SerializeField] private float _currentHunger;
+
+    [Space(5)]
+    [Header("Target Requirements")]
+    [SerializeField] private float _targetTimeAlive;
+    [SerializeField] private int _targetNutrition;
+    [SerializeField] private int _targetInteractions;
+    [SerializeField] private float _targetHappiness;
+    [SerializeField] private float _targetHunger;
+
+    [Space(5)]
+    [Header("Overall Progress")]
+    [SerializeField] private float _evolutionProgressPercent;
+
     #region Fields & Properties
 
     // Monster identification & basic data
@@ -226,6 +247,9 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
             _evolutionHandler?.UpdateEvolutionTracking(Time.deltaTime);
             _interactionHandler?.UpdateTimers(Time.deltaTime);
+
+            // Update evolution progress display fields
+            UpdateEvolutionProgressDisplay();
             _interactionHandler?.UpdateOutsideInteraction();
         }
 
@@ -666,6 +690,57 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     public void
         LoadEvolutionData(float timeSinceCreation, string timeCreated, int foodConsumed, int interactionCount) =>
         _evolutionHandler?.LoadEvolutionData(timeSinceCreation, timeCreated, foodConsumed, interactionCount);
+
+    private void UpdateEvolutionProgressDisplay()
+    {
+        if (_evolutionHandler == null || monsterData == null || !monsterData.canEvolve) return;
+
+        // Update current progress values
+        _currentTimeSinceCreation = _evolutionHandler.TimeSinceCreation;
+        _currentNutritionConsumed = _evolutionHandler.NutritionConsumed;
+        _currentInteractionCount = _evolutionHandler.InteractionCount;
+        _currentHappiness = _statsHandler?.CurrentHappiness ?? 0f;
+        _currentHunger = _statsHandler?.CurrentHunger ?? 0f;
+
+        // Get next evolution requirement
+        var nextEvolutionReq = GetNextEvolutionRequirement();
+        if (nextEvolutionReq != null)
+        {
+            _targetTimeAlive = nextEvolutionReq.minTimeAlive;
+            _targetNutrition = nextEvolutionReq.minFoodConsumed;
+            _targetInteractions = nextEvolutionReq.minInteractions;
+            _targetHappiness = nextEvolutionReq.minCurrentHappiness;
+            _targetHunger = nextEvolutionReq.minCurrentHunger;
+        }
+        else
+        {
+            // Max level reached
+            _targetTimeAlive = 0;
+            _targetNutrition = 0;
+            _targetInteractions = 0;
+            _targetHappiness = 0;
+            _targetHunger = 0;
+        }
+
+        _evolutionProgressPercent = _evolutionHandler.GetEvolutionProgress() * 100f;
+    }
+
+    private EvolutionRequirement GetNextEvolutionRequirement()
+    {
+        if (monsterData?.evolutionRequirements == null || monsterData.evolutionRequirements.Length == 0)
+            return null;
+
+        // Find the evolution requirement for the next level
+        foreach (var req in monsterData.evolutionRequirements)
+        {
+            if (req.targetEvolutionLevel == evolutionLevel + 1)
+            {
+                return req;
+            }
+        }
+
+        return null;
+    }
 
     #endregion
 

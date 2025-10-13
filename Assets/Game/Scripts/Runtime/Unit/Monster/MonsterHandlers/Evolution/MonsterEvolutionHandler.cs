@@ -97,19 +97,25 @@ public class MonsterEvolutionHandler
 
     private void CheckEvolutionConditions()
     {
-        // if (!CanEvolve || _isEvolving) return;
+        if (!CanEvolve || _isEvolving) return;
 
         var nextEvolution = GetNextEvolutionRequirement();
         if (nextEvolution == null) return;
 
-        // if (MeetsEvolutionRequirements(nextEvolution))
-        // {
-            _controller.StateMachine?.ChangeState(MonsterState.Idle);
+        if (MeetsEvolutionRequirements(nextEvolution))
+        {
+            var currentState = _controller.StateMachine?.CurrentState;
+
+            if (currentState != MonsterState.Idle)
+            {
+                _controller.StateMachine?.ChangeState(MonsterState.Idle);
+            }
+
             if (_controller.StateMachine?.CurrentState == MonsterState.Idle)
             {
                 TriggerEvolution();
             }
-        // }
+        }
     }
 
     private EvolutionRequirement GetNextEvolutionRequirement()
