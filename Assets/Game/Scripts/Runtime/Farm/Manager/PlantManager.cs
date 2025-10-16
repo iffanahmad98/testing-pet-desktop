@@ -419,7 +419,7 @@ namespace MagicalGarden.Farm
                 if (deltaHours > 0f)
                 {
                     float fertilizerBoost = plant.Fertilize != null ? plant.Fertilize.boost : 0;
-                    seed.Update(deltaHours, fertilizerBoost);
+                    seed.UpdateGrowth(deltaHours, fertilizerBoost);
                     //cek status layu/mati untuk update tile
                     if (seed.status == PlantStatus.Mati)
                     {

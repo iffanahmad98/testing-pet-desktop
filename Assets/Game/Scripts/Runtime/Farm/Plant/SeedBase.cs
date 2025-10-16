@@ -40,7 +40,7 @@ namespace MagicalGarden.Farm
         public abstract List<GrowthStage> GetGrowthRequirements();
         public abstract Monster GetMonster();
 
-        public virtual void Update(float deltaHours, float fertilizerBoost = 0)
+        public virtual void UpdateGrowth(float deltaHours, float fertilizerBoost = 0)
         {
             if (deltaHours < 0f)
             {

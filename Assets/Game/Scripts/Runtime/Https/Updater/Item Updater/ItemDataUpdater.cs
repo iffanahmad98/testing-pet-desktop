@@ -97,7 +97,7 @@ public class ItemDataUpdater : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 OnUpdateProgress?.Invoke($"Processing {itemType} data...");
-                ItemDataGenerator.GenerateFromCSV(request.downloadHandler.text, itemType); // Uncomment this line
+                //ItemDataGenerator.GenerateFromCSV(request.downloadHandler.text, itemType); // Uncomment this line
             }
             else
             {

@@ -82,13 +82,13 @@ public class FacilityCardUI : MonoBehaviour
         isNPC = false;
         FacilityData = data;
 
-        if (data.animator != null)
+        if (data.animatorController != null)
         {
             thumbnail.gameObject.SetActive(false);            
             _anim.gameObject.SetActive(false);
             _animator.gameObject.SetActive(true);
 
-            _animator.runtimeAnimatorController = data.animator;
+            _animator.runtimeAnimatorController = data.animatorController;
         }
 
         nameText.text = data.facilityName;

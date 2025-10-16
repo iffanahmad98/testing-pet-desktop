@@ -173,6 +173,7 @@ Transform:
   - {fileID: 7996280615636164444}
   - {fileID: 8401192058057084349}
   - {fileID: 8623952443653331259}
+  - {fileID: 8414936558758397602}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2080779024412686163
@@ -197,6 +198,7 @@ MonoBehaviour:
   initialMonsterPoolSize: 20
   gameAreaRT: {fileID: 0}
   groundRT: {fileID: 0}
+  backgroundTransform: {fileID: 0}
   monsterDatabase: {fileID: 11400000, guid: d88e49c9a756df743b7d9ec643fe611f, type: 2}
   npcMonsterDatabase: {fileID: 11400000, guid: 58fa8007c66f5e84984ceb56cfb79d58, type: 2}
   foodPlacementIndicator: {fileID: 0}
@@ -227,6 +229,92 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCoinText: {fileID: 0}
   shopCoinText: {fileID: 0}
+--- !u!1 &1352211846966270471
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8414936558758397602}
+  - component: {fileID: 6733706673701763729}
+  m_Layer: 0
+  m_Name: Pomodoro
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8414936558758397602
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1352211846966270471}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 872.01715, y: 461.41904, z: 7.585874}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5686940728437541436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6733706673701763729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1352211846966270471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 195c1ee82733e3245a21eac044d01588, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  progressSlider: {fileID: 0}
+  phases:
+  - phaseName: Phase 1
+    phaseType: 0
+    sliderStart: 0.118
+    sliderEnd: 0.22
+    durationMinutes: 25
+  - phaseName: Break 1
+    phaseType: 1
+    sliderStart: 0.216
+    sliderEnd: 0.273
+    durationMinutes: 5
+  - phaseName: Phase 2
+    phaseType: 0
+    sliderStart: 0.259
+    sliderEnd: 0.341
+    durationMinutes: 25
+  - phaseName: Break 2
+    phaseType: 1
+    sliderStart: 0.328
+    sliderEnd: 0.44
+    durationMinutes: 5
+  - phaseName: Phase 3
+    phaseType: 0
+    sliderStart: 0.44
+    sliderEnd: 0.6
+    durationMinutes: 25
+  - phaseName: Break 3
+    phaseType: 1
+    sliderStart: 0.44
+    sliderEnd: 0.59
+    durationMinutes: 5
+  - phaseName: Phase 4
+    phaseType: 0
+    sliderStart: 0.59
+    sliderEnd: 0.59
+    durationMinutes: 25
+  - phaseName: Phase 4
+    phaseType: 1
+    sliderStart: 1
+    sliderEnd: 0.5
+    durationMinutes: 25
 --- !u!1 &1604788168612141578
 GameObject:
   m_ObjectHideFlags: 0
@@ -514,7 +602,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   availableBiomes: {fileID: 11400000, guid: 25cd78c2cdca6bd46ac7b9de77dac8d3, type: 2}
-  biomeDropdown: {fileID: 0}
   skyLayer:
     layerObject: {fileID: 0}
     layerName: Sky
@@ -524,22 +611,14 @@ MonoBehaviour:
     layerName: Ambient
     isActive: 1
   groundLayerFilter: {fileID: 0}
+  groundLayerOverlay: {fileID: 0}
+  groundLayerCanvasGroup: {fileID: 0}
+  baseGround: {fileID: 0}
   darkenFilter: {fileID: 0}
   rainSystem: {fileID: 0}
   skyBG: {fileID: 0}
   ambientBG: {fileID: 0}
-  toggleSkyKey: 49
-  toggleAmbientKey: 50
-  toggleCloudsKey: 51
-  nextBiomeKey: 52
-  prevBiomeKey: 53
-  OnLayerToggled:
-    m_PersistentCalls:
-      m_Calls: []
   OnCloudsToggled:
-    m_PersistentCalls:
-      m_Calls: []
-  OnBiomeChanged:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &4704557194109182815
@@ -608,6 +687,8 @@ MonoBehaviour:
   magicShovelButton: {fileID: 0}
   facilityDatabase: {fileID: 11400000, guid: f7b83edb8479dd240943066774f89590, type: 2}
   magicShovelPrefab: {fileID: 0}
+  timeKeeperNormalObject: {fileID: 0}
+  timeKeeperAdvanceObject: {fileID: 0}
 --- !u!1 &3680612517786595220
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,7 +1048,6 @@ MonoBehaviour:
   catalogueButton: {fileID: 0}
   closeCatalogueButton: {fileID: 0}
   mainInventoryButton: {fileID: 0}
-  closeMainInventoryButton: {fileID: 0}
   messageText: {fileID: 0}
   animationDuration: 0.4
   buttonSlideDistance: 100
@@ -1095,8 +1175,16 @@ MonoBehaviour:
   rarityWeights:
   - type: 0
     weight: 100
+    hasSoftPity: 0
+    softPityStartAt: 70
+    softPityIncreasePercent: 5
+    hasHardPity: 0
+    hardPityAt: 90
+    hardPityRateRange: {x: 80, y: 100}
   gachaCost: 0
   allowedRarities: 0000000001000000020000000300000004000000
+  currentTotalPulls: 0
+  pityCounterDisplay: []
   gachaResultPanel: {fileID: 0}
 --- !u!1 &7491133666366765257
 GameObject:

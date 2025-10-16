@@ -39,7 +39,7 @@ namespace MagicalGarden.Farm
                     updateTimer = 0f;
                     return;
                 }
-                seed.Update(deltaHours, fertilizer?.boost ?? 0);
+                seed.UpdateGrowth(deltaHours, fertilizer?.boost ?? 0);
                 seed.lastUpdateTime = now;
                 updateTimer = 0f;
 

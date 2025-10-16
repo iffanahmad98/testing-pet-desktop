@@ -45,7 +45,7 @@ namespace MagicalGarden.Farm
             foreach (var plant in PlantManager.Instance.GetAllSeeds())
             {
                 float boost = plant.Fertilize?.boost ?? 0;
-                plant.seed.Update(hours, boost);
+                plant.seed.UpdateGrowth(hours, boost);
                 // plant.seed.lastUpdateTime = PlantManager.Instance.simulatedNow;
             }
 

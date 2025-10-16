@@ -135,10 +135,7 @@ public class MonsterStateMachine : MonoBehaviour
         _previousState = _currentState;
         _currentState  = newState;
         _stateTimer    = 0f;
-
-        // Log state transition
-        Debug.Log($"[{_controller.gameObject.name}] State changed: {_previousState} → {_currentState} (duration will be set)");
-
+        
         _animationHandler?.PlayStateAnimation(newState); // aman kalau null
         OnStateChanged?.Invoke(_currentState);
 
