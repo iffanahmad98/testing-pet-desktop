@@ -27,7 +27,7 @@ public class PomodoroUI : MonoBehaviour
     [SerializeField] private Sprite playSprite;
     [SerializeField] private Sprite pauseSprite;
 
-    private bool isMinimized = false;
+    private bool isMinimized = true;
     private bool isPlaying = false;
 
     private void Start()
@@ -214,10 +214,25 @@ public class PomodoroUI : MonoBehaviour
     {
         isMinimized = !isMinimized;
 
-        Debug.Log($"MinMax button clicked - Minimized: {isMinimized}");
-
-        // TODO: Implement minimize/maximize panel logic
-        // Example: Toggle visibility of certain UI elements
+        if (pomodoroPanel != null)
+        {
+            RectTransform panelRect = pomodoroPanel.GetComponent<RectTransform>();
+            if (panelRect != null)
+            {
+                if (isMinimized)
+                {
+                    // Minimize: set scale to 0.7:0.7
+                    panelRect.localScale = new Vector3(0.7f, 0.7f, 1f);
+                    Debug.Log("MinMax button clicked - Panel minimized to scale 0.7:0.7");
+                }
+                else
+                {
+                    // Maximize: set scale to 1:1 (full screen)
+                    panelRect.localScale = new Vector3(1f, 1f, 1f);
+                    Debug.Log("MinMax button clicked - Panel maximized to scale 1:1");
+                }
+            }
+        }
     }
 
     private void OnCloseButtonClicked()

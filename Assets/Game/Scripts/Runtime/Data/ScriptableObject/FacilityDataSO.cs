@@ -13,6 +13,7 @@ public class FacilityDataSO : ScriptableObject
 
     [Header("Functionality")]
     public float cooldownSeconds = 30f;
-    
+    public bool isFreeToggleFacility = false; // If true, this facility is free and only toggles on/off (no cooldown, no purchase)
+
     // Add any other facility-specific properties here
 }

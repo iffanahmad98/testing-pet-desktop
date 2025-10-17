@@ -557,6 +557,34 @@ public static class SaveSystem
         Debug.Log($"Bought facility {facility.name} for {facility.price} coins. Remaining: {CoinManager.Coins}");
         return true;
     }
+
+    public static void MarkFacilityOwned(string facilityID)
+    {
+        var config = GetPlayerConfig();
+
+        // Check if already owned
+        if (config.ownedFacilities.Any(f => f.facilityID == facilityID))
+            return;
+
+        // Add to owned facilities with 0 cooldown (for free toggle facilities)
+        var ownedFacility = new OwnedFacilityData(facilityID, 0f);
+        config.ownedFacilities.Add(ownedFacility);
+
+        Debug.Log($"Marked facility {facilityID} as owned (active)");
+    }
+
+    public static void RemoveFacilityOwnership(string facilityID)
+    {
+        var config = GetPlayerConfig();
+
+        // Remove from owned facilities
+        var facilityToRemove = config.ownedFacilities.FirstOrDefault(f => f.facilityID == facilityID);
+        if (facilityToRemove != null)
+        {
+            config.ownedFacilities.Remove(facilityToRemove);
+            Debug.Log($"Removed facility {facilityID} ownership (inactive)");
+        }
+    }
     #endregion
     #region Decoration Operations
     public static bool IsDecorationOwned(string decorationID)

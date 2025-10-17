@@ -12,6 +12,11 @@ public class FacilityManager : MonoBehaviour
     [SerializeField] private GameObject timeKeeperNormalObject;
     [SerializeField] private GameObject timeKeeperAdvanceObject;
 
+    [Header("Pumpkin Facility")]
+    [SerializeField] private GameObject pumpkinCarObject;
+    [SerializeField] private GameObject pumpkinMiniObject;
+    [SerializeField] private PomodoroPhaseManager pomodoroPhaseManager;
+
     public FacilityDatabaseSO FacilityDatabase => facilityDatabase;
 
     // Event to notify when a Time Keeper facility state changes
@@ -26,6 +31,48 @@ public class FacilityManager : MonoBehaviour
 
         // SaveSystem.TryPurchaseFacility(facilityDatabase.GetFacility("F1"));
         magicShovelButton.onClick.AddListener(() => UseFacility("F1"));
+    }
+
+    private void Start()
+    {
+        // Initialize Pumpkin Facility state based on saved data
+        InitializePumpkinFacilityState();
+    }
+
+    /// <summary>
+    /// Initialize Pumpkin Facility state on game start based on saved data
+    /// </summary>
+    private void InitializePumpkinFacilityState()
+    {
+        // Find Pumpkin Facility in database
+        var pumpkinFacility = facilityDatabase?.allFacilities?.Find(f => f.isFreeToggleFacility);
+
+        if (pumpkinFacility != null)
+        {
+            // Check if Pumpkin Facility is owned (applied)
+            bool isPumpkinApplied = SaveSystem.IsFacilityOwned(pumpkinFacility.facilityID);
+
+            if (isPumpkinApplied)
+            {
+                // Enable Pumpkin Mini, disable Pumpkin Car
+                if (pumpkinMiniObject != null)
+                    pumpkinMiniObject.SetActive(true);
+                if (pumpkinCarObject != null)
+                    pumpkinCarObject.SetActive(false);
+
+                Debug.Log("Pumpkin Facility initialized as Applied (Pumpkin Mini enabled)");
+            }
+            else
+            {
+                // Disable both Pumpkin Mini and Pumpkin Car
+                if (pumpkinMiniObject != null)
+                    pumpkinMiniObject.SetActive(false);
+                if (pumpkinCarObject != null)
+                    pumpkinCarObject.SetActive(false);
+
+                Debug.Log("Pumpkin Facility initialized as Unapplied (both disabled)");
+            }
+        }
     }
 
     public FacilityDataSO GetFacilityByID(string facilityID)
@@ -259,5 +306,64 @@ public class FacilityManager : MonoBehaviour
     public bool IsOnOwnCooldown(string facilityID)
     {
         return IsOnCooldown(facilityID);
+    }
+
+    /// <summary>
+    /// Apply Pumpkin Facility - Enable Pumpkin Mini, Disable Pumpkin Car
+    /// </summary>
+    public void ApplyPumpkinFacility()
+    {
+        // Enable Pumpkin Mini
+        if (pumpkinMiniObject != null)
+        {
+            pumpkinMiniObject.SetActive(true);
+            Debug.Log("Pumpkin Mini enabled");
+        }
+        else
+        {
+            Debug.LogWarning("Pumpkin Mini object is not assigned in FacilityManager");
+        }
+
+        // Disable Pumpkin Car
+        if (pumpkinCarObject != null)
+        {
+            pumpkinCarObject.SetActive(false);
+            Debug.Log("Pumpkin Car disabled");
+        }
+        else
+        {
+            Debug.LogWarning("Pumpkin Car object is not assigned in FacilityManager");
+        }
+    }
+
+    /// <summary>
+    /// Unapply Pumpkin Facility - Disable both Pumpkin Mini and Pumpkin Car, Reset Pomodoro Phase
+    /// </summary>
+    public void UnapplyPumpkinFacility()
+    {
+        // Disable Pumpkin Mini
+        if (pumpkinMiniObject != null)
+        {
+            pumpkinMiniObject.SetActive(false);
+            Debug.Log("Pumpkin Mini disabled");
+        }
+
+        // Disable Pumpkin Car
+        if (pumpkinCarObject != null)
+        {
+            pumpkinCarObject.SetActive(false);
+            Debug.Log("Pumpkin Car disabled");
+        }
+
+        // Reset Pomodoro phase time execution
+        if (pomodoroPhaseManager != null)
+        {
+            pomodoroPhaseManager.StopTimer();
+            Debug.Log("Pomodoro phase time execution reset");
+        }
+        else
+        {
+            Debug.LogWarning("Pomodoro Phase Manager is not assigned in FacilityManager");
+        }
     }
 }

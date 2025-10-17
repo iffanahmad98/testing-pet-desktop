@@ -238,6 +238,10 @@ public class SettingsManager : MonoBehaviour
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
             RepositionMonstersAfterScaling();
+            RepositionFoodsAfterScaling();
+            RepositionMedicinesAfterScaling();
+            RepositionCoinsAfterScaling();
+            RepositionPoopsAfterScaling();
             _lastRepositionTime = Time.time;
         }
 
@@ -266,6 +270,10 @@ public class SettingsManager : MonoBehaviour
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
             RepositionMonstersAfterScaling();
+            RepositionFoodsAfterScaling();
+            RepositionMedicinesAfterScaling();
+            RepositionCoinsAfterScaling();
+            RepositionPoopsAfterScaling();
             _lastRepositionTime = Time.time;
         }
 
@@ -488,6 +496,226 @@ public class SettingsManager : MonoBehaviour
             // Debug log for movement target
             float distance = Vector2.Distance(targetPosition, newPos);
             Debug.Log($"Monster {monster.name} repositioned - Current: {newPos}, Target: {targetPosition}, Distance: {distance:F2}");
+        }
+    }
+
+    private void RepositionFoodsAfterScaling()
+    {
+        if (gameManager?.activeFoods == null) return;
+
+        foreach (var food in gameManager.activeFoods)
+        {
+            if (food == null) continue;
+
+            var rectTransform = food.GetComponent<RectTransform>();
+            Vector2 currentPos = rectTransform.anchoredPosition;
+
+            // Use proper bounds calculation like MonsterMovementBounds does
+            Vector2 gameAreaSize = gameArea.sizeDelta;
+            float foodHalfWidth = rectTransform.rect.width / 2;
+            float foodHalfHeight = rectTransform.rect.height / 2;
+
+            // Calculate ground area bounds (same as MonsterBoundsHandler)
+            const float PADDING = 10f;
+            const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
+
+            Vector2 boundsMin = new Vector2(
+                -gameAreaSize.x / 2 + foodHalfWidth + PADDING,
+                -gameAreaSize.y / 2 + foodHalfHeight + PADDING
+            );
+
+            Vector2 boundsMax = new Vector2(
+                gameAreaSize.x / 2 - foodHalfWidth - PADDING,
+                -gameAreaSize.y / 2 + (gameAreaSize.y * GROUND_AREA_HEIGHT_RATIO) - foodHalfHeight
+            );
+
+            // Determine Y position based on game area height
+            float newY;
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            {
+                // Random Y within ground area when height is above half
+                newY = Random.Range(boundsMin.y, boundsMax.y);
+            }
+            else
+            {
+                // Center Y when height is below or equal to half
+                newY = (boundsMin.y + boundsMax.y) / 2f;
+            }
+
+            Vector2 newPos = new Vector2(
+                Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
+                newY
+            );
+
+            rectTransform.anchoredPosition = newPos;
+
+            // Debug log for food repositioning
+            Debug.Log($"Food repositioned - Old: {currentPos}, New: {newPos}");
+        }
+    }
+
+    private void RepositionMedicinesAfterScaling()
+    {
+        if (gameManager?.activeMedicines == null) return;
+
+        foreach (var medicine in gameManager.activeMedicines)
+        {
+            if (medicine == null) continue;
+
+            var rectTransform = medicine.GetComponent<RectTransform>();
+            Vector2 currentPos = rectTransform.anchoredPosition;
+
+            // Use proper bounds calculation like MonsterMovementBounds does
+            Vector2 gameAreaSize = gameArea.sizeDelta;
+            float medicineHalfWidth = rectTransform.rect.width / 2;
+            float medicineHalfHeight = rectTransform.rect.height / 2;
+
+            // Calculate ground area bounds (same as MonsterBoundsHandler)
+            const float PADDING = 10f;
+            const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
+
+            Vector2 boundsMin = new Vector2(
+                -gameAreaSize.x / 2 + medicineHalfWidth + PADDING,
+                -gameAreaSize.y / 2 + medicineHalfHeight + PADDING
+            );
+
+            Vector2 boundsMax = new Vector2(
+                gameAreaSize.x / 2 - medicineHalfWidth - PADDING,
+                -gameAreaSize.y / 2 + (gameAreaSize.y * GROUND_AREA_HEIGHT_RATIO) - medicineHalfHeight
+            );
+
+            // Determine Y position based on game area height
+            float newY;
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            {
+                // Random Y within ground area when height is above half
+                newY = Random.Range(boundsMin.y, boundsMax.y);
+            }
+            else
+            {
+                // Center Y when height is below or equal to half
+                newY = (boundsMin.y + boundsMax.y) / 2f;
+            }
+
+            Vector2 newPos = new Vector2(
+                Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
+                newY
+            );
+
+            rectTransform.anchoredPosition = newPos;
+
+            // Debug log for medicine repositioning
+            Debug.Log($"Medicine repositioned - Old: {currentPos}, New: {newPos}");
+        }
+    }
+
+    private void RepositionCoinsAfterScaling()
+    {
+        if (gameManager?.activeCoins == null) return;
+
+        foreach (var coin in gameManager.activeCoins)
+        {
+            if (coin == null) continue;
+
+            var rectTransform = coin.GetComponent<RectTransform>();
+            Vector2 currentPos = rectTransform.anchoredPosition;
+
+            // Use proper bounds calculation like MonsterMovementBounds does
+            Vector2 gameAreaSize = gameArea.sizeDelta;
+            float coinHalfWidth = rectTransform.rect.width / 2;
+            float coinHalfHeight = rectTransform.rect.height / 2;
+
+            // Calculate ground area bounds (same as MonsterBoundsHandler)
+            const float PADDING = 10f;
+            const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
+
+            Vector2 boundsMin = new Vector2(
+                -gameAreaSize.x / 2 + coinHalfWidth + PADDING,
+                -gameAreaSize.y / 2 + coinHalfHeight + PADDING
+            );
+
+            Vector2 boundsMax = new Vector2(
+                gameAreaSize.x / 2 - coinHalfWidth - PADDING,
+                -gameAreaSize.y / 2 + (gameAreaSize.y * GROUND_AREA_HEIGHT_RATIO) - coinHalfHeight
+            );
+
+            // Determine Y position based on game area height
+            float newY;
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            {
+                // Random Y within ground area when height is above half
+                newY = Random.Range(boundsMin.y, boundsMax.y);
+            }
+            else
+            {
+                // Center Y when height is below or equal to half
+                newY = (boundsMin.y + boundsMax.y) / 2f;
+            }
+
+            Vector2 newPos = new Vector2(
+                Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
+                newY
+            );
+
+            rectTransform.anchoredPosition = newPos;
+
+            // Debug log for coin repositioning
+            Debug.Log($"Coin repositioned - Old: {currentPos}, New: {newPos}");
+        }
+    }
+
+    private void RepositionPoopsAfterScaling()
+    {
+        if (gameManager?.activePoops == null) return;
+
+        foreach (var poop in gameManager.activePoops)
+        {
+            if (poop == null) continue;
+
+            var rectTransform = poop.GetComponent<RectTransform>();
+            Vector2 currentPos = rectTransform.anchoredPosition;
+
+            // Use proper bounds calculation like MonsterMovementBounds does
+            Vector2 gameAreaSize = gameArea.sizeDelta;
+            float poopHalfWidth = rectTransform.rect.width / 2;
+            float poopHalfHeight = rectTransform.rect.height / 2;
+
+            // Calculate ground area bounds (same as MonsterBoundsHandler)
+            const float PADDING = 10f;
+            const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
+
+            Vector2 boundsMin = new Vector2(
+                -gameAreaSize.x / 2 + poopHalfWidth + PADDING,
+                -gameAreaSize.y / 2 + poopHalfHeight + PADDING
+            );
+
+            Vector2 boundsMax = new Vector2(
+                gameAreaSize.x / 2 - poopHalfWidth - PADDING,
+                -gameAreaSize.y / 2 + (gameAreaSize.y * GROUND_AREA_HEIGHT_RATIO) - poopHalfHeight
+            );
+
+            // Determine Y position based on game area height
+            float newY;
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            {
+                // Random Y within ground area when height is above half
+                newY = Random.Range(boundsMin.y, boundsMax.y);
+            }
+            else
+            {
+                // Center Y when height is below or equal to half
+                newY = (boundsMin.y + boundsMax.y) / 2f;
+            }
+
+            Vector2 newPos = new Vector2(
+                Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
+                newY
+            );
+
+            rectTransform.anchoredPosition = newPos;
+
+            // Debug log for poop repositioning
+            Debug.Log($"Poop repositioned - Old: {currentPos}, New: {newPos}");
         }
     }
     

@@ -133,9 +133,14 @@ public class FacilityShopManager : MonoBehaviour
     private void ShowFacilityInfo(FacilityDataSO facility)
     {
         facilityNameText.text = facility.name;
-        facilityPriceText.text = $"Price: {facility.price}";
+
+        // Show "FREE" for toggle facilities, otherwise show price
+        facilityPriceText.text = facility.isFreeToggleFacility ? "Price: FREE" : $"Price: {facility.price}";
+
         facilityDescText.text = facility.description;
-        facilityCooldownText.text = $"Cooldown: {facility.cooldownSeconds}s";
+
+        // Don't show cooldown for free toggle facilities
+        facilityCooldownText.text = facility.isFreeToggleFacility ? "" : $"Cooldown: {facility.cooldownSeconds}s";
     }
 
     private void OnFacilitySelected(FacilityCardUI card)
@@ -152,15 +157,34 @@ public class FacilityShopManager : MonoBehaviour
     {
         if (facilityManager != null)
         {
-            bool success = facilityManager.UseFacility(card.FacilityData.facilityID);
+            var facility = card.FacilityData;
+
+            // Handle free toggle facilities (Pumpkin Facility)
+            if (facility.isFreeToggleFacility)
+            {
+                // Mark as owned (active state)
+                SaveSystem.MarkFacilityOwned(facility.facilityID);
+
+                // Apply Pumpkin Facility effects (enable Pumpkin Mini, disable Pumpkin Car)
+                facilityManager.ApplyPumpkinFacility();
+
+                SaveSystem.SaveAll();
+
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"Applied '{facility.facilityName}'!");
+                RefreshFacilityCards();
+                return;
+            }
+
+            // Normal facility logic
+            bool success = facilityManager.UseFacility(facility.facilityID);
 
             if (success)
             {
-                ServiceLocator.Get<UIManager>()?.ShowMessage($"Used '{card.FacilityData.name}'!");
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"Used '{facility.name}'!");
             }
             else
             {
-                ServiceLocator.Get<UIManager>()?.ShowMessage($"'{card.FacilityData.name}' is on cooldown!");
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"'{facility.name}' is on cooldown!");
             }
 
             RefreshFacilityCards();
@@ -189,8 +213,27 @@ public class FacilityShopManager : MonoBehaviour
     {
         if (facilityManager != null)
         {
-            facilityManager.CancelFacilityCooldown(card.FacilityData.facilityID);
-            ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled cooldown for '{card.FacilityData.facilityName}'!");
+            var facility = card.FacilityData;
+
+            // Handle free toggle facilities (Pumpkin Facility)
+            if (facility.isFreeToggleFacility)
+            {
+                // Remove ownership (inactive state)
+                SaveSystem.RemoveFacilityOwnership(facility.facilityID);
+
+                // Unapply Pumpkin Facility effects (disable both, reset pomodoro)
+                facilityManager.UnapplyPumpkinFacility();
+
+                SaveSystem.SaveAll();
+
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"Unapplied '{facility.facilityName}'!");
+                RefreshFacilityCards();
+                return;
+            }
+
+            // Normal facility logic
+            facilityManager.CancelFacilityCooldown(facility.facilityID);
+            ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled cooldown for '{facility.facilityName}'!");
             RefreshFacilityCards();
         }
     }

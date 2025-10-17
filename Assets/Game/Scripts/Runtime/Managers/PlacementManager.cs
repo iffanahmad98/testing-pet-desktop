@@ -79,7 +79,11 @@ public class PlacementManager : MonoBehaviour
     {
         if (currentPreview == null) return;
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(gameArea, Input.mousePosition, null, out var pos);
+        // Get the canvas component to determine the correct camera
+        Canvas canvas = gameArea.GetComponentInParent<Canvas>();
+        Camera cam = (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay) ? canvas.worldCamera : null;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(gameArea, Input.mousePosition, cam, out var pos);
         previewRect.anchoredPosition = pos;
 
         bool isValid = isPlacingMedicine ? IsOverSickMonster() : IsInsideGameArea(pos);
@@ -128,8 +132,10 @@ public class PlacementManager : MonoBehaviour
     private bool IsInsideGameArea(Vector2 localPos)
     {
         if (gameArea == null) return false;
-        Rect rect = gameArea.rect;
-        return rect.Contains(localPos);
+
+        // Allow spawning anywhere without bounds restriction
+        // Food can be placed anywhere within the game area's coordinate space
+        return true;
     }
 
     private bool IsOverSickMonster()

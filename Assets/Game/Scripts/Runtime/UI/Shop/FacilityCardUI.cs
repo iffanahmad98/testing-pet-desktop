@@ -84,7 +84,7 @@ public class FacilityCardUI : MonoBehaviour
 
         if (data.animatorController != null)
         {
-            thumbnail.gameObject.SetActive(false);            
+            thumbnail.gameObject.SetActive(false);
             _anim.gameObject.SetActive(false);
             _animator.gameObject.SetActive(true);
 
@@ -93,7 +93,9 @@ public class FacilityCardUI : MonoBehaviour
 
         nameText.text = data.facilityName;
         thumbnail.sprite = data.thumbnail;
-        priceText.text = data.price.ToString();
+
+        // Set price to "FREE" for toggle facilities, otherwise show price
+        priceText.text = data.isFreeToggleFacility ? "FREE" : data.price.ToString();
 
         UpdateState();
         SetupButtonListeners(data.facilityID);
@@ -125,6 +127,33 @@ public class FacilityCardUI : MonoBehaviour
         if (FacilityData == null) return;
 
         string id = FacilityData.facilityID;
+
+        // Handle free toggle facilities (Pumpkin Facility)
+        if (FacilityData.isFreeToggleFacility)
+        {
+            bool isActive = SaveSystem.IsFacilityOwned(id); // Use ownership flag as active/inactive state
+
+            // Never show buy button for free toggle facilities
+            buyButton.gameObject.SetActive(false);
+
+            // Show Apply button when inactive, Cancel button when active
+            useButton.gameObject.SetActive(!isActive);
+            cancelButton?.gameObject.SetActive(isActive);
+
+            // Always interactable (no cooldown)
+            useButton.interactable = true;
+
+            // Hide cooldown overlay
+            cooldownOverlay?.gameObject.SetActive(false);
+            if (cooldownText != null)
+            {
+                cooldownText.text = "";
+            }
+
+            return;
+        }
+
+        // Normal facility logic
         bool isOwned = SaveSystem.IsFacilityOwned(id);
         bool canUse = facilityManager?.CanUseFacility(id) ?? false;
         bool isOnOwnCooldown = facilityManager?.IsOnOwnCooldown(id) ?? false;

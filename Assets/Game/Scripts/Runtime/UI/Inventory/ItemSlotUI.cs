@@ -99,7 +99,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         // Normal placement behavior
         var placementManager = ServiceLocator.Get<PlacementManager>();
         GameObject prefabToPlace = placementManager.GetPrefabForItemType(itemData.category);
-        RectTransform canvas = placementManager.GetCanvasParent();
+        RectTransform gameArea = ServiceLocator.Get<MonsterManager>().gameAreaRT;
 
         if (prefabToPlace == null)
         {
@@ -111,7 +111,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         placementManager.StartPlacement(
             prefabToPlace,
-            canvas,
+            gameArea,
             OnConfirmPlacement,
             OnCancelPlacement,
             allowMultiple: itemData.category == ItemType.Food,
