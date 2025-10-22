@@ -86,7 +86,7 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &5974206256748387927
@@ -158,9 +158,10 @@ MonoBehaviour:
     probability: 0.5
   - stateName: run
     probability: 0.2
+  terrainTilemap: {fileID: 0}
   currentTile: {x: 0, y: 0}
   destinationTile: {x: 0, y: 0}
-  hotelRoomRef: {fileID: 0}
+  hotelControlRef: {fileID: 0}
 --- !u!114 &7160268040168864215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,4 +174,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6933d486bbd9b214292fd038fc756fbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: 0
+  centerOffset: 0

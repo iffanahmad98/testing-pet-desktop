@@ -77,8 +77,20 @@ public class SettingsManager : MonoBehaviour
     private int savedLanguageIndex;
     private List<ISettingsSavable> savableSettingsModules = new List<ISettingsSavable>();
 
+    private static SettingsManager _instance;
+
     private void Awake()
     {
+        // Singleton pattern with DontDestroyOnLoad
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        _instance = this;
+        DontDestroyOnLoad(gameObject);
+
         ServiceLocator.Register(this);
     }
 
@@ -718,7 +730,7 @@ public class SettingsManager : MonoBehaviour
             Debug.Log($"Poop repositioned - Old: {currentPos}, New: {newPos}");
         }
     }
-    
+
     private void LoadSavedSettings()
     {
         // Cache saved values for Cancel

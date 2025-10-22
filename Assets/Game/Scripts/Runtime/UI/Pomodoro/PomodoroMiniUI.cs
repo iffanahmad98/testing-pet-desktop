@@ -23,12 +23,22 @@ public class PomodoroMiniUI : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private bool showOnStart = false;
 
+    [Header("Animation")]
+    [SerializeField] private Animator miniUIAnimator;
+
     private void Start()
     {
         // Get phase manager if not assigned
         if (phaseManager == null)
         {
             phaseManager = FindObjectOfType<PomodoroPhaseManager>();
+        }
+
+        // Subscribe to phase manager timer state
+        if (phaseManager != null)
+        {
+            // Check initial state
+            UpdateAnimatorState();
         }
 
         // Show or hide panel based on settings
@@ -45,6 +55,7 @@ public class PomodoroMiniUI : MonoBehaviour
         if (miniPanel != null && miniPanel.activeSelf && phaseManager != null)
         {
             UpdateDisplay();
+            UpdateAnimatorState();
         }
     }
 
@@ -123,6 +134,27 @@ public class PomodoroMiniUI : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    private void UpdateAnimatorState()
+    {
+        if (miniUIAnimator == null || phaseManager == null)
+            return;
+
+        // Set "Action" parameter to true ONLY if timer is running AND in Focus phase
+        // Set to false if timer is idle/paused OR in break phase
+        bool isActive = false;
+
+        if (phaseManager.IsRunning())
+        {
+            PomodoroPhase currentPhase = phaseManager.GetCurrentPhase();
+            if (currentPhase != null && currentPhase.phaseType == PhaseType.Focus)
+            {
+                isActive = true;
+            }
+        }
+
+        miniUIAnimator.SetBool("Action", isActive);
     }
 
     // Public methods to show/hide mini UI

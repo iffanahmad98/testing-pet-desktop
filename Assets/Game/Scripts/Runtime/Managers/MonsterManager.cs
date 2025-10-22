@@ -49,6 +49,7 @@ public class MonsterManager : MonoBehaviour
     public List<PoopController> activePoops = new List<PoopController>();
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
+    public List<Transform> pumpkinObjects = new List<Transform>(); // Pumpkin objects for sorting
     private List<string> savedMonIDs = new List<string>();
     [SerializeField] private Button spawnNPC1;
     [SerializeField] private Button spawnNPC2;
@@ -57,13 +58,28 @@ public class MonsterManager : MonoBehaviour
     #endregion
 
     #region Initialization and Setup
+    private static MonsterManager _instance;
+
     private void Awake()
     {
+        // Singleton pattern with DontDestroyOnLoad
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        _instance = this;
+        DontDestroyOnLoad(gameObject);
+
         ServiceLocator.Register(this);
         InitializePools();
         SaveSystem.Initialize();
-        spawnNPC1.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("100")));
-        spawnNPC2.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("200")));
+
+        if (spawnNPC1 != null)
+            spawnNPC1.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("100")));
+        if (spawnNPC2 != null)
+            spawnNPC2.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("200")));
     }
 
     private void InitializePools()
@@ -265,7 +281,7 @@ public class MonsterManager : MonoBehaviour
 
     public void SortMonstersByDepth()
     {
-        // Create a list of all objects that need depth sorting (monsters, poops, coins)
+        // Create a list of all objects that need depth sorting (monsters, poops, coins, pumpkins)
         var allObjectsForSorting = new List<Transform>();
 
         // Add monsters
@@ -287,6 +303,10 @@ public class MonsterManager : MonoBehaviour
         allObjectsForSorting.AddRange(activeCoins
             .Where(c => c != null && c.gameObject.activeInHierarchy)
             .Select(c => c.transform));
+
+        // Add pumpkins
+        allObjectsForSorting.AddRange(pumpkinObjects
+            .Where(p => p != null && p.gameObject.activeInHierarchy));
 
         if (allObjectsForSorting.Count <= 1) return;
 

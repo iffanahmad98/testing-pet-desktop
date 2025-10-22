@@ -194,6 +194,25 @@ public class MonsterEvolutionHandler
             }
         }
 
+        // hide NPC monsters
+        foreach (var npc in _controller.MonsterManager.npcMonsters)
+        {
+            var visual = npc.transform.GetChild(0)?.gameObject;
+            var root   = npc.gameObject;
+            FadeUtils.FadeOutVisualThenHideRoot(visual, root, 0.25f);
+            yield return new WaitForSeconds(0.1f); // stagger
+        }
+
+        // hide pumpkin objects (termasuk board sign)
+        foreach (var pumpkin in _controller.MonsterManager.pumpkinObjects)
+        {
+            if (pumpkin != null)
+            {
+                FadeUtils.FadeOutVisualThenHideRoot(pumpkin.gameObject, pumpkin.gameObject, 0.25f);
+                yield return new WaitForSeconds(0.1f); // stagger
+            }
+        }
+
         // hide coin, poop, food (anggap visual = object itu sendiri, root = object itu sendiri)
         // karena biasanya mereka 1 GO saja; jika pun punya child visual, sesuaikan seperti di monster
         foreach (var coin in _controller.MonsterManager.activeCoins)
@@ -248,6 +267,23 @@ public class MonsterEvolutionHandler
                 var visual = monster.transform.GetChild(0)?.gameObject;
                 var root   = monster.gameObject;
                 FadeUtils.ShowRootThenFadeInVisual(visual, root, 0.25f);
+            }
+        }
+
+        // show NPC monsters
+        foreach (var npc in _controller.MonsterManager.npcMonsters)
+        {
+            var visual = npc.transform.GetChild(0)?.gameObject;
+            var root   = npc.gameObject;
+            FadeUtils.ShowRootThenFadeInVisual(visual, root, 0.25f);
+        }
+
+        // show pumpkin objects (termasuk board sign)
+        foreach (var pumpkin in _controller.MonsterManager.pumpkinObjects)
+        {
+            if (pumpkin != null)
+            {
+                FadeUtils.ShowRootThenFadeInVisual(pumpkin.gameObject, pumpkin.gameObject, 0.25f);
             }
         }
 

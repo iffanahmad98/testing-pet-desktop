@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Spine.Unity;
 
 public class PomodoroUI : MonoBehaviour
 {
@@ -27,6 +28,18 @@ public class PomodoroUI : MonoBehaviour
     [SerializeField] private Sprite playSprite;
     [SerializeField] private Sprite pauseSprite;
 
+    [Header("Mushroom Animation")]
+    [SerializeField] private SkeletonGraphic mushroomSkeletonGraphic;
+    [SerializeField] private string runningAnimationName = "running";
+    [SerializeField] private string idleAnimationName = "idle";
+
+    [Header("Reward System")]
+    [SerializeField] private Animator rewardBoxAnimator;
+    [SerializeField] private GameObject rewardBoxPanel;
+    [SerializeField] private TextMeshProUGUI rewardAmountText;
+    [SerializeField] private int minGoldReward = 20;
+    [SerializeField] private int maxGoldReward = 100;
+
     private bool isMinimized = true;
     private bool isPlaying = false;
 
@@ -50,9 +63,22 @@ public class PomodoroUI : MonoBehaviour
             }
         }
 
+        // Subscribe to Pomodoro completion event
+        if (phaseManager != null)
+        {
+            phaseManager.OnPomodoroCompleted += OnPomodoroCompleted;
+        }
+
+        // Hide reward box panel initially
+        if (rewardBoxPanel != null)
+        {
+            rewardBoxPanel.SetActive(false);
+        }
+
         // Set initial play button sprite
         UpdatePlayButtonSprite();
         UpdateDisplay();
+        UpdateMushroomAnimation();
     }
 
     private void Update()
@@ -61,12 +87,19 @@ public class PomodoroUI : MonoBehaviour
         {
             // Always update display to show real-time countdown
             UpdateDisplay();
+            UpdateMushroomAnimation();
         }
     }
 
     private void OnDestroy()
     {
         RemoveButtonListeners();
+
+        // Unsubscribe from events
+        if (phaseManager != null)
+        {
+            phaseManager.OnPomodoroCompleted -= OnPomodoroCompleted;
+        }
     }
 
     private void SetupButtonListeners()
@@ -295,7 +328,109 @@ public class PomodoroUI : MonoBehaviour
                                $"Type: {currentPhase.phaseType}";
         }
     }
-    
+
+    private void UpdateMushroomAnimation()
+    {
+        if (mushroomSkeletonGraphic == null || phaseManager == null)
+            return;
+
+        // Play "running" animation ONLY if timer is running AND in Focus phase
+        // Play "idle" animation if timer is idle/paused OR in break phase
+        bool shouldRun = false;
+
+        if (phaseManager.IsRunning())
+        {
+            PomodoroPhase currentPhase = phaseManager.GetCurrentPhase();
+            if (currentPhase != null && currentPhase.phaseType == PhaseType.Focus)
+            {
+                shouldRun = true;
+            }
+        }
+
+        // Get current animation name
+        var currentTrack = mushroomSkeletonGraphic.AnimationState.GetCurrent(0);
+        string currentAnimName = currentTrack != null ? currentTrack.Animation.Name : "";
+
+        if (shouldRun)
+        {
+            // Play running animation if not already playing
+            if (currentAnimName != runningAnimationName)
+            {
+                mushroomSkeletonGraphic.AnimationState.SetAnimation(0, runningAnimationName, true);
+            }
+        }
+        else
+        {
+            // Play idle animation if not already playing
+            if (currentAnimName != idleAnimationName)
+            {
+                mushroomSkeletonGraphic.AnimationState.SetAnimation(0, idleAnimationName, true);
+            }
+        }
+    }
+
+    private void OnPomodoroCompleted()
+    {
+        Debug.Log("Pomodoro cycle completed! Showing reward...");
+
+        // Stop the timer and reset playing state
+        isPlaying = false;
+        UpdatePlayButtonSprite();
+
+        // Generate random gold reward
+        int goldReward = Random.Range(minGoldReward, maxGoldReward + 1);
+
+        // Add gold to player's inventory
+        CoinManager.AddCoins(goldReward);
+
+        Debug.Log($"Rewarded {goldReward} gold coins!");
+
+        // Show reward box with animation
+        ShowRewardBox(goldReward);
+    }
+
+    private void ShowRewardBox(int goldAmount)
+    {
+        if (rewardBoxPanel == null)
+        {
+            Debug.LogWarning("Reward box panel is not assigned!");
+            return;
+        }
+
+        // Show reward panel
+        rewardBoxPanel.SetActive(true);
+
+        // Update reward amount text
+        if (rewardAmountText != null)
+        {
+            rewardAmountText.text = goldAmount.ToString() + " Gold";
+        }
+
+        // Trigger reward box animation
+        if (rewardBoxAnimator != null)
+        {
+            rewardBoxAnimator.SetTrigger("Show");
+        }
+
+        OnRestartButtonClicked();
+        Debug.Log($"Showing reward box with {goldAmount} gold");
+    }
+
+    public void CloseRewardBox()
+    {
+        if (rewardBoxPanel != null)
+        {
+            // Trigger hide animation if available
+            if (rewardBoxAnimator != null)
+            {
+                rewardBoxAnimator.SetTrigger("Hide");
+            }
+
+            // Hide panel after animation (or immediately if no animator)
+            rewardBoxPanel.SetActive(false);
+        }
+    }
+
 
     public PomodoroPhaseManager GetPhaseManager()
     {
