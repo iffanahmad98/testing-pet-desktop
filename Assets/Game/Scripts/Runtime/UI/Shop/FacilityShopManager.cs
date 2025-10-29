@@ -343,7 +343,6 @@ public class FacilityShopManager : MonoBehaviour
         {
             SaveSystem.AddNPC(npcID);
             ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{npcData.monsterName}'!");
-            ServiceLocator.Get<MonsterManager>()?.SpawnNPCMonster(npcData);
 
             // Refresh NPCIdleFlower ownership check (untuk update idle station availability)
             RefreshNPCIdleFlower();

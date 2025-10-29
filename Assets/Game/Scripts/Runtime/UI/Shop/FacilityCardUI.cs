@@ -172,12 +172,13 @@ public class FacilityCardUI : MonoBehaviour
     public void UpdateStateNPC(string npcID)
     {
         bool isOwned = SaveSystem.IsNPCOwned(npcID);
+        bool isActive = SaveSystem.IsNPCActive(npcID);
         bool hasPrerequisite = npc != null ? CheckNPCPrerequisite(npc) : true;
 
-        useButton.gameObject.SetActive(isOwned);
         buyButton.gameObject.SetActive(!isOwned);
         buyButton.interactable = hasPrerequisite; // Disable buy button if prerequisite not met
-        cancelButton?.gameObject.SetActive(false);
+        useButton.gameObject.SetActive(isOwned && !isActive);   // Show Apply button only if owned but not active
+        cancelButton?.gameObject.SetActive(isOwned && isActive); // Show Cancel button only if already active
         useButton.interactable = true;
     }
 

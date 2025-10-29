@@ -68,9 +68,15 @@ MonoBehaviour:
   monsterSpine:
   - {fileID: 11400000, guid: a960dbe454c1a6048a1e17035512058c, type: 2}
   - {fileID: 11400000, guid: a0019c1a08b82364a8b27c396a81042b, type: 2}
-  CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
+  CardIcon:
+  - {fileID: -8466416576022706751, guid: c0487be04ff2d144abaed99c32482bef, type: 3}
+  - {fileID: -1016800415443825875, guid: a01950fb8a1f88542a2064c55bbe03d8, type: 3}
+  DetailsIcon:
+  - {fileID: -8466416576022706751, guid: 7fbba83e1dd7aad4cb406cfc91a360b5, type: 3}
+  - {fileID: -1016800415443825875, guid: d84c986ade3b79042a2ae413ba24fd2d, type: 3}
+  CatalogueIcon:
+  - {fileID: -8466416576022706751, guid: c64c21796e7cc7c4fb2285d769aa1731, type: 3}
+  - {fileID: -1016800415443825875, guid: e6187572e4fccb64fa82fb08c6e64a3a, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -89,6 +95,7 @@ MonoBehaviour:
   sellPriceStage1: 260
   sellPriceStage2: 520
   sellPriceStage3: 1040
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

@@ -31,7 +31,8 @@ public class CoinDisplayUI : MonoBehaviour
 
     private void UpdateCoinText(int coins)
     {
-        mainCoinText.text = coins.ToString("N0");
-        shopCoinText.text = coins.ToString("N0");
+        string displayText = coins >= 10000 ? "9999+" : coins.ToString("N0");
+        mainCoinText.text = displayText;
+        shopCoinText.text = displayText;
     }
 }

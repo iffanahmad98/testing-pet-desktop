@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -403,7 +404,7 @@ public class PomodoroUI : MonoBehaviour
         // Update reward amount text
         if (rewardAmountText != null)
         {
-            rewardAmountText.text = goldAmount.ToString() + " Gold";
+            rewardAmountText.text = goldAmount.ToString() + " GOLD";
         }
 
         // Trigger reward box animation
@@ -420,15 +421,40 @@ public class PomodoroUI : MonoBehaviour
     {
         if (rewardBoxPanel != null)
         {
-            // Trigger hide animation if available
-            if (rewardBoxAnimator != null)
-            {
-                rewardBoxAnimator.SetTrigger("Hide");
-            }
-
-            // Hide panel after animation (or immediately if no animator)
-            rewardBoxPanel.SetActive(false);
+            // Start coroutine to wait for Open animation to complete before hiding
+            StartCoroutine(CloseRewardBoxCoroutine());
         }
+    }
+
+    private IEnumerator CloseRewardBoxCoroutine()
+    {
+        // Trigger Open animation
+        if (rewardBoxAnimator != null)
+        {
+            rewardBoxAnimator.SetTrigger("Open");
+
+            // Get the current animation state info
+            AnimatorStateInfo stateInfo = rewardBoxAnimator.GetCurrentAnimatorStateInfo(0);
+
+            // Wait for the animator to transition to the new state
+            yield return null;
+
+            // Get the updated state info after transition
+            stateInfo = rewardBoxAnimator.GetCurrentAnimatorStateInfo(0);
+
+            // Wait for the duration of the Open animation + 1 extra seconds
+            float animationLength = stateInfo.length;
+            yield return new WaitForSeconds(animationLength + 1f);
+        }
+
+        // Trigger hide animation if available
+        if (rewardBoxAnimator != null)
+        {
+            rewardBoxAnimator.SetTrigger("Hide");
+        }
+
+        // Hide panel after animation (or immediately if no animator)
+        rewardBoxPanel.SetActive(false);
     }
 
 

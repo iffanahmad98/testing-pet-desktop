@@ -31,6 +31,11 @@ public class BiomeManager : MonoBehaviour
 
     [Header("Rain System")]
     public GameObject rainSystem;
+    public GameObject rainObj;
+
+    [Header("Night Sky Objects")]
+    public GameObject shootingStarObj;
+    public GameObject starsObj;
 
     [Header("Cloud System")]
     private CloudAmbientSystem cloudSystem;
@@ -176,6 +181,22 @@ public class BiomeManager : MonoBehaviour
     {
         SetSkyLayerActive(false);
         SetAmbientLayerActive(false);
+
+        // Disable Night Sky Objects when deactivating biome
+        if (shootingStarObj != null)
+        {
+            shootingStarObj.SetActive(false);
+        }
+        if (starsObj != null)
+        {
+            starsObj.SetActive(false);
+        }
+
+        // Disable Rain Object when deactivating biome
+        if (rainObj != null)
+        {
+            rainObj.SetActive(false);
+        }
     }
 
 
@@ -280,22 +301,36 @@ public class BiomeManager : MonoBehaviour
             Image groundImage = groundLayerFilter.GetComponent<Image>();
             CanvasGroup groundFilterCg = groundLayerFilter.GetComponent<CanvasGroup>();
 
+            // Check if biome has custom ground background (like Crystal biome)
             if (biome.groundBackground != null)
             {
                 if (groundImage != null)
                 {
-                    groundLayerOverlay.sprite = biome.groundBackground;
-                    groundLayerCanvasGroup.DOFade(1f, 0.5f).SetEase(Ease.InOutQuad).OnPlay(() =>
+                    // Fade out first, then change sprite and fade in
+                    groundLayerCanvasGroup.DOFade(0f, 0.25f).SetEase(Ease.InOutQuad).OnComplete(() =>
                     {
-                        baseGround.enabled = false;
+                        groundLayerOverlay.sprite = biome.groundBackground;
+                        groundLayerCanvasGroup.DOFade(1f, 0.25f).SetEase(Ease.InOutQuad).OnPlay(() =>
+                        {
+                            baseGround.enabled = false; // Hide base ground when using custom ground
+                        });
                     });
                 }
+            }
+            else
+            {
+                // No custom ground background, use base ground instead
+                groundLayerCanvasGroup.DOFade(0f, 0.25f).SetEase(Ease.InOutQuad).OnComplete(() =>
+                {
+                    baseGround.enabled = true; // Show base ground
+                    groundLayerOverlay.sprite = null; // Clear overlay sprite
+                });
             }
 
             if (groundFilterCg != null)
             {
-                groundLayerFilter.color = Color.clear; 
-                groundFilterCg.alpha = 0f; 
+                groundLayerFilter.color = Color.clear;
+                groundFilterCg.alpha = 0f;
                 groundLayerFilter.color = biome.groundFilterColor;
                 groundFilterCg.DOFade(biome.groundFilterAlpha, 0.5f).SetEase(Ease.InOutQuad);
             }
@@ -305,6 +340,24 @@ public class BiomeManager : MonoBehaviour
         if (cloudSystem != null)
         {
             cloudSystem.UpdateBiomeData(biome);
+        }
+
+        // Toggle Night Sky Objects based on biome
+        bool isNightBiome = biome.biomeID == "night" || biome.biomeName.ToLower().Contains("night");
+        if (shootingStarObj != null)
+        {
+            shootingStarObj.SetActive(isNightBiome);
+        }
+        if (starsObj != null)
+        {
+            starsObj.SetActive(isNightBiome);
+        }
+
+        // Toggle Rain Object based on biome
+        bool isRainBiome = biome.biomeID == "rain" || biome.biomeName.ToLower().Contains("rain");
+        if (rainObj != null)
+        {
+            rainObj.SetActive(isRainBiome);
         }
 
         // Clear existing sky objects

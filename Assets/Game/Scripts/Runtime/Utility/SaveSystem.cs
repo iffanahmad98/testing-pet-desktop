@@ -409,7 +409,12 @@ public static class SaveSystem
     public static void SetActiveBiome(string biomeID)
     {
         // If blank or null, clear the active biome
-        if (string.IsNullOrEmpty(biomeID)) return;
+        if (string.IsNullOrEmpty(biomeID))
+        {
+            _playerConfig.SetActiveBiome("");
+            SaveAll();
+            return;
+        }
 
         // Otherwise, validate ownership before setting
         if (_playerConfig.HasBiome(biomeID))

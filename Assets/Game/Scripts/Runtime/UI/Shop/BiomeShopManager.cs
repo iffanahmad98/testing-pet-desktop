@@ -205,10 +205,8 @@ public class BiomeShopManager : MonoBehaviour
 
         ServiceLocator.Get<UIManager>().ShowMessage($"Cancelled '{card.BiomeData.biomeName}' biome.");
 
-        // Refresh only the card state
-        card.UpdateState();
-        selectedCard = null;
-        ClearInfo();
+        // Refresh all cards to update button states
+        RefreshBiomeCards();
     }
 
 
@@ -218,10 +216,7 @@ public class BiomeShopManager : MonoBehaviour
 
         if (SaveSystem.TryBuyBiome(biome.biomeID, biome.price))
         {
-            SaveSystem.SetActiveBiome(biome.biomeID);
-            biomeManager?.ChangeBiomeByID(biome.biomeID);
-
-            ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought and applied '{biome.biomeName}'!");
+            ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{biome.biomeName}'!");
         }
         else
         {
