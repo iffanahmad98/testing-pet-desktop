@@ -1,38 +1,53 @@
-// UI code (e.g. CoinDisplayUI.cs)
 using UnityEngine;
 using TMPro;
+using MagicalGarden.Farm;
 
+/// <summary>
+/// Display coin UI untuk FarmGame scene
+/// Menggunakan Farm.CoinManager (Instance-based, bukan static)
+/// </summary>
 public class CoinDisplayUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI mainCoinText;
     [SerializeField] private TextMeshProUGUI shopCoinText;
 
-    // private void Awake()
-    // {
-    //     CoinManager.OnCoinChanged += UpdateCoinText;
-    //     UpdateCoinText(CoinManager.Coins);
-    // }
-
     void Start()
     {
-        UpdateCoinText(CoinManager.Coins);
+        if (MagicalGarden.Farm.CoinManager.Instance != null)
+        {
+            UpdateCoinText();
+        }
     }
-    
+
     private void OnEnable()
     {
-        CoinManager.OnCoinChanged += UpdateCoinText;
-        UpdateCoinText(CoinManager.Coins);
+        if (MagicalGarden.Farm.CoinManager.Instance != null)
+        {
+            MagicalGarden.Farm.CoinManager.Instance.OnCoinChanged += UpdateCoinText;
+            UpdateCoinText();
+        }
     }
 
     private void OnDisable()
     {
-        CoinManager.OnCoinChanged -= UpdateCoinText;
+        if (MagicalGarden.Farm.CoinManager.Instance != null)
+        {
+            MagicalGarden.Farm.CoinManager.Instance.OnCoinChanged -= UpdateCoinText;
+        }
     }
 
-    private void UpdateCoinText(int coins)
+    private void UpdateCoinText()
     {
+        if (MagicalGarden.Farm.CoinManager.Instance == null)
+            return;
+
+        int coins = MagicalGarden.Farm.CoinManager.Instance.coins;
         string displayText = coins >= 10000 ? "9999+" : coins.ToString("N0");
-        mainCoinText.text = displayText;
-        shopCoinText.text = displayText;
+
+        if (mainCoinText != null)
+            mainCoinText.text = displayText;
+
+        if (shopCoinText != null)
+            shopCoinText.text = displayText;
     }
 }

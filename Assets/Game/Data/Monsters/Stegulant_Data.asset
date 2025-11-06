@@ -69,8 +69,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bb932aa5eb04f474b8a5bf06ff556775, type: 2}
   - {fileID: 11400000, guid: 487ede77114ea5941b64ed8f92278bc2, type: 2}
   CardIcon: []
-  DetailsIcon: []
-  CatalogueIcon: []
+  DetailsIcon:
+  - {fileID: -6838670603892612321, guid: f0f1e21bb24df294abfcf6e15a3048ed, type: 3}
+  - {fileID: -5602263641060535954, guid: e586248c92dd3dd45b5ac032d9686e3c, type: 3}
+  CatalogueIcon:
+  - {fileID: 6626432579611445810, guid: 671951980bb32224d944973ed054266f, type: 3}
+  - {fileID: -2388440084889650521, guid: 145316cd78bb7344d840f17fedc5404b, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -89,6 +93,7 @@ MonoBehaviour:
   sellPriceStage1: 720
   sellPriceStage2: 1440
   sellPriceStage3: 2880
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

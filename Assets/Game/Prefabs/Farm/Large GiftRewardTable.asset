@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b58d7d4897a637a47a59089880ae25a6, type: 3}
+  m_Name: Large GiftRewardTable
+  m_EditorClassIdentifier: 
+  giftSize: 2
+  rewards:
+  - rewardType: 0
+    dropChance: 22
+    minAmount: 500
+    maxAmount: 2000
+    itemData: {fileID: 0}
+  - rewardType: 1
+    dropChance: 45
+    minAmount: 5
+    maxAmount: 5
+    itemData: {fileID: 11400000, guid: b8ec52972e954b9408cbade659a78018, type: 2}
+  - rewardType: 2
+    dropChance: 12
+    minAmount: 1
+    maxAmount: 1
+    itemData: {fileID: 11400000, guid: 0d51515c7f344594189ff6cf08a10516, type: 2}
+  - rewardType: 5
+    dropChance: 8
+    minAmount: 500
+    maxAmount: 2000
+    itemData: {fileID: 0}
+  - rewardType: 4
+    dropChance: 6
+    minAmount: 1
+    maxAmount: 1
+    itemData: {fileID: 0}
+  - rewardType: 6
+    dropChance: 5
+    minAmount: 250
+    maxAmount: 1000
+    itemData: {fileID: 0}
+  - rewardType: 3
+    dropChance: 2
+    minAmount: 1
+    maxAmount: 1
+    itemData: {fileID: 0}

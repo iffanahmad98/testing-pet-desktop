@@ -15,7 +15,9 @@ MonoBehaviour:
   itemId: monster_seed
   displayName: Monster Seed
   icon: {fileID: -655267455926693474, guid: abc9278c49eac2641afc2c84eada77e2, type: 3}
+  iconCrop: {fileID: 0}
   itemType: 4
+  rarity: 0
   isStackable: 1
   description: 
   stageTiles:
@@ -24,4 +26,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3ef39277f608e684ca0e3093163184b6, type: 2}
   - {fileID: 11400000, guid: 4b1a6fe288650f64e932f68cf87b76f6, type: 2}
   - {fileID: 11400000, guid: 679a8dffea0d11a45bd0013b8111e64f, type: 2}
-  itemDrop: {fileID: 11400000, guid: 371a2a764d8867b438626653e2011692, type: 2}
+  stageWilted: {fileID: 0}
+  markHarvest: {fileID: 0}
+  dropItems: []
+  boost: 1
+  timeUse: 0
+  recipeCountPopNormal: 0
+  recipeCountPopRare: 0
+  needHourWatering: 0
+  needHourGrow: 0
