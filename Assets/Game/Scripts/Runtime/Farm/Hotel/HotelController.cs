@@ -40,12 +40,31 @@ namespace MagicalGarden.Hotel
         public GuestRarity rarity = GuestRarity.Common;
         private float logTimer = 0f;
         public List<PetMonsterHotel> listPet = new List<PetMonsterHotel>();
+
+        [Header("Request UI Buttons")]
+        public GameObject giftBtn;
+        public GameObject roomServiceBtn;
+        public GameObject foodBtn;
+        public Image fillExpired;  // Progress bar untuk countdown
+
+        [Header("Request Timing")]
+        public float requestInterval = 60f;  // Request setiap 60 detik
+        private float requestTimer = 0f;
+        private bool hasRequest = false;
+        private Coroutine currentRequestCountdown;
+
         void Start()
         {
             CalculateWanderingArea();
             spriteRenderer = GetComponent<SpriteRenderer>();
             selectedIndex = UnityEngine.Random.Range(0, cleanSprites.Length);
             SetClean();
+
+            // Hide semua button di awal
+            if (giftBtn) giftBtn.SetActive(false);
+            if (roomServiceBtn) roomServiceBtn.SetActive(false);
+            if (foodBtn) foodBtn.SetActive(false);
+            if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
         }
         void Update()
         {
@@ -69,6 +88,14 @@ namespace MagicalGarden.Hotel
                         logTimer = 0f;
                         string formattedTime = FormatRemainingTime(remaining);
                         Debug.Log($"⏳ Sisa waktu menginap: {formattedTime}");
+                    }
+
+                    // Request Timer - Generate request setiap interval
+                    requestTimer += Time.deltaTime;
+                    if (requestTimer >= requestInterval && !hasRequest)
+                    {
+                        GenerateRoomServiceRequest();
+                        requestTimer = 0f;
                     }
                 }
             }
@@ -138,6 +165,7 @@ namespace MagicalGarden.Hotel
                 //     Debug.Log($"😡 {nameGuest} kecewa dan tidak membayar.");
                 // }
                 Farm.CoinManager.Instance.AddCoins(price);
+
             //reset All
             nameGuest = "";
             iconGuest = null;
@@ -146,6 +174,17 @@ namespace MagicalGarden.Hotel
             price = 0;
             happiness = 0;
             rarity = GuestRarity.Common;
+
+            // Reset request state
+            if (currentRequestCountdown != null)
+            {
+                StopCoroutine(currentRequestCountdown);
+                currentRequestCountdown = null;
+            }
+            hasRequest = false;
+            requestTimer = 0f;
+            ResetRequestButtons();
+
             foreach (var pet in listPet)
             {
                 pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
@@ -166,6 +205,76 @@ namespace MagicalGarden.Hotel
             Debug.Log("🧹 Semua pet dihapus dari hotel.");
         }
 
+        #region Request System
+        void GenerateRoomServiceRequest()
+        {
+            // Random pilih tipe request (untuk sekarang cuma RoomService yang aktif)
+            var randomType = GuestRequestType.RoomService;
+
+            SetDirty();  // Room jadi kotor
+            hasRequest = true;
+
+            // Aktifkan button
+            if (roomServiceBtn) roomServiceBtn.SetActive(true);
+            if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
+
+            string roomName = gameObject.name;
+            Debug.Log($"🛎️ [ROOM SERVICE REQUEST] Tamu: {nameGuest} | Kamar: {roomName} | Happiness: {happiness}/100 | Timer: 30 detik | Rarity: {rarity}");
+
+            // Start countdown timer (30 detik)
+            if (currentRequestCountdown != null)
+            {
+                StopCoroutine(currentRequestCountdown);
+            }
+            currentRequestCountdown = StartCoroutine(RequestCountdown(30f));
+        }
+
+        System.Collections.IEnumerator RequestCountdown(float duration)
+        {
+            float timeRemaining = duration;
+
+            while (timeRemaining > 0 && hasRequest)
+            {
+                timeRemaining -= Time.deltaTime;
+
+                // Update progress bar
+                if (fillExpired != null)
+                {
+                    float percent = Mathf.Clamp01(timeRemaining / duration);
+                    fillExpired.fillAmount = percent;
+                }
+
+                yield return null;
+            }
+
+            // Kalau timeout (request tidak dipenuhi)
+            if (hasRequest)
+            {
+                HandleRequestExpired();
+            }
+        }
+
+        void HandleRequestExpired()
+        {
+            happiness = Mathf.Max(happiness - 15, 0);
+            hasRequest = false;
+
+            string roomName = gameObject.name;
+            Debug.LogWarning($"❌ [ROOM SERVICE EXPIRED] Tamu: {nameGuest} | Kamar: {roomName} | Happiness: {happiness} (-15) | Request tidak dipenuhi dalam 30 detik!");
+
+            // Hide semua button
+            ResetRequestButtons();
+        }
+
+        void ResetRequestButtons()
+        {
+            if (roomServiceBtn) roomServiceBtn.SetActive(false);
+            if (foodBtn) foodBtn.SetActive(false);
+            if (giftBtn) giftBtn.SetActive(false);
+            if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
+        }
+        #endregion
+
         #region FullFill Service
         #if UNITY_EDITOR
         [ContextMenu("Request/✅ Fulfill Clean")]
@@ -177,30 +286,41 @@ namespace MagicalGarden.Hotel
         #endif
         private void FulfillRequest(GuestRequestType type)
         {
-            // var request = currentRoom.roomRequests.Find(r => r.requestType == type && !r.isFulfilled);
-            // if (request != null)
-            // {
-            //     request.isFulfilled = true;
-            //     happiness = Mathf.Min(happiness + 20, 100);
-            //     SetHappiness(happiness);
-            //     currentRoom.roomRequests.Remove(request);
-            //     hasRequest = false;
-            //     ResetBtn();
-            //     fillExpired.transform.parent.gameObject.SetActive(false);
+            Debug.Log($"VALID {hasRequest}");
+            if (!hasRequest) return;
 
-            //     Debug.Log($"✅ {guestName} puas dengan {type}! Happiness: {happiness}");
-            // }
+            // Stop countdown coroutine
+            if (currentRequestCountdown != null)
+            {
+                StopCoroutine(currentRequestCountdown);
+                currentRequestCountdown = null;
+            }
+
+            hasRequest = false;
+            happiness = Mathf.Min(happiness + 20, 100);
+
+            Debug.Log($"✅ {nameGuest} puas dengan {type}! Happiness: {happiness} (+20)");
+
+            // Hide buttons
+            ResetRequestButtons();
+
             if (type == GuestRequestType.RoomService)
             {
+                // Log NPC cleaning dimulai
+                string roomName = gameObject.name;
+                Debug.Log($"🧹 [NPC CLEANING] Mengirim NPC untuk membersihkan kamar {roomName} milik {nameGuest}");
+
                 HotelManager.Instance.npcHotel.hotelControlRef = this;
                 StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
-                // currentRoom.SetHotelTileDirty(false);
             }
         }
         public void FulfillRequestByString(string typeStr)
         {
+            Debug.Log("TEST Valid request type: " + typeStr);
+
             if (System.Enum.TryParse(typeStr, out GuestRequestType type))
             {
+                Debug.Log("Valid request type: " + type);
                 FulfillRequest(type);
             }
             else

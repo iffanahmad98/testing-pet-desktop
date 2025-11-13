@@ -22,6 +22,7 @@ namespace MagicalGarden.Hotel
 
         [Header("Request Timing")]
         public float requestInterval = 60f;
+        [SerializeField]
         private float requestTimer = 0f;
         [Header("Room Reference")]
         public HotelRoom currentRoom;
@@ -130,12 +131,16 @@ namespace MagicalGarden.Hotel
         {
             ResetBtn();
             fillExpired.transform.parent.gameObject.SetActive(true);
-            if (randomType == GuestRequestType.RoomService)
-            {
+            //if (randomType == GuestRequestType.RoomService)
+            //{
                 roomServiceBtn.SetActive(true);
                 hasRequest = true;
                 // currentRoom.SetHotelTileDirty(true);
-            }
+
+                // Log detail untuk room service request
+                string roomName = currentRoom?.roomId ?? "Unknown Room";
+                Debug.Log($"🛎️ [ROOM SERVICE REQUEST] Tamu: {guestName} | Kamar: {roomName} | Happiness: {happiness}/100 | Timer: 30 detik | Rarity: {rarity}");
+            //}
             // else if (randomType == GuestRequestType.Food)
             // {
             //     foodBtn.SetActive(true);
@@ -146,10 +151,10 @@ namespace MagicalGarden.Hotel
             //     giftBtn.SetActive(true);
             //     hasRequest = true;
             // }
-            else
-            {
+            //else
+            //{
 
-            }
+            //}
         }
 
         void UpdateRoomRequests(float deltaTime)
@@ -182,7 +187,17 @@ namespace MagicalGarden.Hotel
         {
             happiness = Mathf.Max(happiness - 15, 0);
             SetHappiness(happiness);
-            Debug.Log($"❌ {guestName} tidak mendapat {request.requestType}. Happiness turun jadi {happiness}");
+
+            // Log detail untuk request yang gagal/expired
+            if (request.requestType == GuestRequestType.RoomService)
+            {
+                string roomName = currentRoom?.roomId ?? "Unknown Room";
+                Debug.LogWarning($"❌ [ROOM SERVICE EXPIRED] Tamu: {guestName} | Kamar: {roomName} | Happiness: {happiness} (-15) | Request tidak dipenuhi dalam 30 detik!");
+            }
+            else
+            {
+                Debug.Log($"❌ {guestName} tidak mendapat {request.requestType}. Happiness turun jadi {happiness}");
+            }
 
             currentRoom.roomRequests.Remove(request);
             hasRequest = false;
@@ -198,15 +213,22 @@ namespace MagicalGarden.Hotel
                 request.isFulfilled = true;
                 happiness = Mathf.Min(happiness + 20, 100);
                 SetHappiness(happiness);
+
+                // Log detail untuk request yang dipenuhi
+                float timeLeft = (float)request.timeRemaining.TotalSeconds;
+                Debug.Log($"✅ {guestName} puas dengan {type}! Happiness: {happiness} (+20) | Sisa waktu: {timeLeft:F1}s");
+
                 currentRoom.roomRequests.Remove(request);
                 hasRequest = false;
                 ResetBtn();
                 fillExpired.transform.parent.gameObject.SetActive(false);
-
-                Debug.Log($"✅ {guestName} puas dengan {type}! Happiness: {happiness}");
             }
             if (type == GuestRequestType.RoomService)
             {
+                // Log NPC cleaning dimulai
+                string roomName = currentRoom?.roomId ?? "Unknown Room";
+                Debug.Log($"🧹 [NPC CLEANING] Mengirim NPC untuk membersihkan kamar {roomName} milik {guestName}");
+
                 // HotelManager.Instance.npcHotel.hotelControlRef = currentRoom;
                 StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
                 // currentRoom.SetHotelTileDirty(false);

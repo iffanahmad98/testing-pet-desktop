@@ -34,6 +34,9 @@ namespace MagicalGarden.AI
 
         public IEnumerator NPCHotelCleaning()
         {
+            string guestName = hotelControlRef?.nameGuest ?? "No Guest";
+            Debug.Log($"🚶 [NPC] Berjalan menuju kamar tamu '{guestName}' di posisi tile ({hotelControlRef.hotelPositionTile.x}, {hotelControlRef.hotelPositionTile.y})");
+
             yield return new WaitForSeconds(1f);
             if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
             stateLoopCoroutine = StartCoroutine(MoveToTarget(new Vector2Int(hotelControlRef.hotelPositionTile.x, hotelControlRef.hotelPositionTile.y)));
@@ -41,7 +44,9 @@ namespace MagicalGarden.AI
 
         public IEnumerator CleaningRoutine(float cleanDuration = 5f)
         {
-            Debug.Log("🧹 Memulai bersih-bersih...");
+            string guestName = hotelControlRef?.nameGuest ?? "No Guest";
+            string hotelName = hotelControlRef?.gameObject.name ?? "Unknown Hotel";
+            Debug.Log($"🧹 [NPC CLEANING START] Membersihkan kamar '{hotelName}' | Tamu: {guestName} | Durasi: {cleanDuration}s");
 
             // 2. Timer countdown (bisa sambil munculkan efek/animasi jika perlu)
             HotelManager.Instance.CallCleaningVFX(hotelControlRef.dustPos);
@@ -53,17 +58,18 @@ namespace MagicalGarden.AI
                 yield return null;
             }
 
-            Debug.Log("✅ Selesai bersih-bersih.");
-
             // 3. NPC muncul kembali
 
             // 4. Ubah tile kamar menjadi bersih
-            
+
             if (hotelControlRef != null)
             {
                 hotelControlRef.SetClean(); // ubah tile ke bersih
             }
             HotelManager.Instance.DestroyCleaningVFX(hotelControlRef.rayPos);
+
+            Debug.Log($"✅ [NPC CLEANING COMPLETE] Kamar '{hotelName}' sudah bersih | Tamu: {guestName}");
+
             yield return new WaitForSeconds(2);
             GetComponent<MeshRenderer>().enabled = true;
 

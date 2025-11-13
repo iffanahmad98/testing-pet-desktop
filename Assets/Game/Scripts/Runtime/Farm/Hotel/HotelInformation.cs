@@ -14,12 +14,28 @@ namespace MagicalGarden.Hotel
         public TextMeshProUGUI partyCount;
         public TextMeshProUGUI timeStay;
 
+        [Header("Hotel Reference")]
+        public HotelController currentHotelController;
+
         public void Setup(HotelController hotelController)
         {
+            currentHotelController = hotelController;
             titleGuest.text = hotelController.nameGuest;
             guestImage.sprite = hotelController.iconGuest;
             partyCount.text = hotelController.party.ToString();
             timeStay.text = hotelController.GetFormattedRemainingTime();
+        }
+
+        public void FulfillRequestByString(string typeStr)
+        {
+            if (currentHotelController != null)
+            {
+                currentHotelController.FulfillRequestByString(typeStr);
+            }
+            else
+            {
+                Debug.LogWarning("HotelInformation: currentHotelController is null, cannot fulfill request");
+            }
         }
     }
 }
