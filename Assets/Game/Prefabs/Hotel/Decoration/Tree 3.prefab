@@ -15,9 +15,10 @@ GameObject:
   - component: {fileID: 6104559868834260152}
   - component: {fileID: 1210343704294895434}
   - component: {fileID: 6699966866063401502}
-  m_Layer: 0
+  - component: {fileID: 6904518986152210223}
+  m_Layer: 8
   m_Name: Tree 3
-  m_TagString: Untagged
+  m_TagString: ClickableDecoration
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -105,7 +106,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: 5735
+  m_SortingOrder: -2043
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &6104559868834260152
 MonoBehaviour:
@@ -173,6 +174,58 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!60 &6904518986152210223
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2894418885303904222}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0, y: 1}
+      - {x: -0.95105654, y: 0.30901697}
+      - {x: -0.5877852, y: -0.80901706}
+      - {x: 0.58778536, y: -0.80901694}
+      - {x: 0.9510565, y: 0.30901712}
+  m_UseDelaunayMesh: 0
 --- !u!1001 &3590448401626722567
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -184,6 +237,10 @@ PrefabInstance:
     - target: {fileID: 100002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_Name
       value: CFX3_FallingLeaves (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 064135babc94c734c884325240d4a732, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_LocalScale.x
@@ -199,11 +256,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.88
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.11
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_LocalPosition.z
@@ -259,7 +316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 19900002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_SortingLayer
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 19900002, guid: 064135babc94c734c884325240d4a732, type: 3}
       propertyPath: m_SortingLayerID
@@ -274,8 +331,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 064135babc94c734c884325240d4a732, type: 3}
---- !u!4 &3590448401626590085 stripped
-Transform:
+--- !u!224 &3590448401626590085 stripped
+RectTransform:
   m_CorrespondingSourceObject: {fileID: 400002, guid: 064135babc94c734c884325240d4a732, type: 3}
   m_PrefabInstance: {fileID: 3590448401626722567}
   m_PrefabAsset: {fileID: 0}

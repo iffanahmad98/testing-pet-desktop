@@ -15,9 +15,9 @@ GameObject:
   - component: {fileID: 9004687105906465977}
   - component: {fileID: 7490246533637006190}
   - component: {fileID: 5269844102359834435}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Flower bush 1
-  m_TagString: Untagged
+  m_TagString: ClickableDecoration
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -104,7 +104,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: 5821
+  m_SortingOrder: -2031
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &9004687105906465977
 MonoBehaviour:
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d728c227578204546b9a2ab3b66e4e6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foliageBending: 1
+  foliageBending: 0
   offsetFactor:
   - 0
   - 0.04

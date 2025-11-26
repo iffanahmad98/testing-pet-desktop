@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 1043098717910591526}
   - component: {fileID: 846448332288954322}
   - component: {fileID: 5066844346201154594}
-  m_Layer: 0
+  - component: {fileID: 3455834913162528280}
+  m_Layer: 8
   m_Name: Flower Box
-  m_TagString: Untagged
+  m_TagString: ClickableDecoration
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -76,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: 2290
+  m_SortingOrder: -2091
   m_Sprite: {fileID: 7315047662836589650, guid: d077daf2e4ed9a04ca3c5ba05db07719, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -104,3 +105,106 @@ MonoBehaviour:
   useMeshRenderer: 0
   centerOffset: -1
   isStaticSorting: 1
+--- !u!60 &3455834913162528280
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8301061675439446577}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.46875, y: 1.1347656}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.7324219, y: -0.21191406}
+      - {x: 0.7128906, y: -0.19824219}
+      - {x: 0.7109375, y: -0.12207031}
+      - {x: 0.7324219, y: -0.09863281}
+      - {x: 0.7324219, y: 0.0146484375}
+      - {x: 0.6308594, y: 0.07519531}
+      - {x: 0.6015625, y: 0.13769531}
+      - {x: 0.5996094, y: 0.18847656}
+      - {x: 0.5957031, y: 0.20214844}
+      - {x: 0.55078125, y: 0.22558594}
+      - {x: 0.5, y: 0.23730469}
+      - {x: 0.4453125, y: 0.28222656}
+      - {x: 0.42578125, y: 0.3154297}
+      - {x: 0.38476562, y: 0.34472656}
+      - {x: 0.32617188, y: 0.3544922}
+      - {x: 0.26367188, y: 0.36621094}
+      - {x: 0.2421875, y: 0.38378906}
+      - {x: 0.1875, y: 0.42285156}
+      - {x: 0.1484375, y: 0.4501953}
+      - {x: 0.09765625, y: 0.44628906}
+      - {x: 0.041015625, y: 0.48535156}
+      - {x: 0.015625, y: 0.4970703}
+      - {x: -0.041015625, y: 0.5439453}
+      - {x: -0.095703125, y: 0.5654297}
+      - {x: -0.111328125, y: 0.5654297}
+      - {x: -0.1328125, y: 0.5595703}
+      - {x: -0.17578125, y: 0.54589844}
+      - {x: -0.22851562, y: 0.54785156}
+      - {x: -0.26367188, y: 0.5654297}
+      - {x: -0.33007812, y: 0.5654297}
+      - {x: -0.375, y: 0.4951172}
+      - {x: -0.39453125, y: 0.49121094}
+      - {x: -0.43945312, y: 0.4716797}
+      - {x: -0.45898438, y: 0.4501953}
+      - {x: -0.47265625, y: 0.42285156}
+      - {x: -0.52734375, y: 0.4189453}
+      - {x: -0.5527344, y: 0.40527344}
+      - {x: -0.5722656, y: 0.38378906}
+      - {x: -0.56640625, y: 0.33691406}
+      - {x: -0.7050781, y: 0.26464844}
+      - {x: -0.7246094, y: 0.24707031}
+      - {x: -0.7324219, y: 0.23339844}
+      - {x: -0.7324219, y: 0.13378906}
+      - {x: -0.71484375, y: 0.11425781}
+      - {x: -0.7128906, y: 0.038085938}
+      - {x: -0.7324219, y: 0.022460938}
+      - {x: -0.7324219, y: -0.07519531}
+      - {x: -0.7285156, y: -0.08691406}
+      - {x: -0.6464844, y: -0.13378906}
+      - {x: -0.640625, y: -0.12988281}
+      - {x: 0.22265625, y: -0.56152344}
+      - {x: 0.23632812, y: -0.5654297}
+      - {x: 0.26757812, y: -0.5654297}
+      - {x: 0.28125, y: -0.56152344}
+      - {x: 0.71484375, y: -0.3466797}
+      - {x: 0.7324219, y: -0.32714844}
+  m_UseDelaunayMesh: 0

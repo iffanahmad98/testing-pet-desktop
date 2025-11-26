@@ -14,6 +14,8 @@ public static class SaveSystem
     private static DateTime _sessionStartTime;
     public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig
     public static int LoadPoop() => _playerConfig.poops;
+    public static event Action <PlayerConfig> DataLoaded; // DecorationManager
+    
 
     public static void Initialize()
     {
@@ -223,7 +225,10 @@ public static class SaveSystem
                 string json = File.ReadAllText(path);
                 _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json);
                 _playerConfig.SyncFromSerializable();
+                _playerConfig.SyncLootUseable ();
+                DataLoaded?.Invoke(PlayerConfig);
                 Debug.Log("Game data loaded successfully");
+                Debug.Log ($"Your have Golden Tickets : " + _playerConfig.goldenTicket);
             }
             catch (Exception e)
             {
@@ -596,11 +601,14 @@ public static class SaveSystem
     {
         return _playerConfig.ownedDecorations.Any(d => d.decorationID == decorationID);
     }
+    /*
     public static string GetActiveDecoration()
     {
         var activeDecoration = _playerConfig.ownedDecorations.FirstOrDefault(d => d.isActive);
+        foreach (var s in  _playerConfig.ownedDecorations) {Debug.Log (s.decorationID);}
         return activeDecoration?.decorationID ?? string.Empty;
     }
+    */
     public static bool TryPurchaseDecoration(DecorationDataSO decoration)
     {
         if (_playerConfig == null)
@@ -650,6 +658,24 @@ public static class SaveSystem
         SaveAll();
         Debug.Log($"Set decoration '{decoration.decorationID}' active state to {isActive}.");
     }
+
+    public static void SetActiveDecoration(string decorationID)
+    {
+        foreach (var d in _playerConfig.ownedDecorations)
+            d.isActive = (d.decorationID == decorationID);
+
+        SaveAll();
+    }
+
+    public static bool GetDecorationActiveStatus(string decorationID)
+    {
+        var data = _playerConfig.ownedDecorations
+            .FirstOrDefault(d => d.decorationID == decorationID);
+
+        return data != null && data.isActive;
+    }
+
+   
     #endregion
 
     #region Game Area Operations
@@ -687,5 +713,6 @@ public static class SaveSystem
         }
         return _playerConfig;
     }
+
 
 }

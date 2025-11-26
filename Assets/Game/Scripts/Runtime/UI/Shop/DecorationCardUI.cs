@@ -28,14 +28,16 @@ public class DecorationCardUI : MonoBehaviour
         nameText.text = data.decorationName;
         thumbnail.sprite = data.thumbnail;
         priceText.text = data.price.ToString();
-
-        string currentDecorationID = SaveSystem.GetActiveDecoration();
+        
+        
+        string currentDecorationID = DecorationUIFixHandler.GetDecorationStats();
         bool isOwned = SaveSystem.IsDecorationOwned(data.decorationID);
-        bool isApplied = currentDecorationID == data.decorationID;
-
+        bool isApplied = SaveSystem.GetDecorationActiveStatus (DecorationData.decorationID);
+        // Debug.Log ($"id {currentDecorationID}, isOwned {isOwned}, isApplied {isApplied}");
         applyButton.gameObject.SetActive(isOwned && !isApplied);
-        cancelButton.gameObject.SetActive(isOwned && isApplied);
+        cancelButton.gameObject.SetActive(isOwned && isApplied && currentDecorationID !="");
         buyButton.gameObject.SetActive(!isOwned);
+        
 
         selectButton.onClick.RemoveAllListeners();
         selectButton.onClick.AddListener(() => OnClickCard());
@@ -45,18 +47,20 @@ public class DecorationCardUI : MonoBehaviour
         applyButton.onClick.AddListener(() => OnApplyClicked?.Invoke(this));
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(() => OnCancelApplied?.Invoke(this));
+        
     }
 
     public void UpdateState()
     {
-        string currentDecorationID = SaveSystem.GetActiveDecoration();
+        string currentDecorationID = DecorationUIFixHandler.GetDecorationStats();
         bool isOwned = SaveSystem.IsDecorationOwned(DecorationData.decorationID);
-        bool isApplied = currentDecorationID == DecorationData.decorationID;
-
+        bool isApplied = SaveSystem.GetDecorationActiveStatus (DecorationData.decorationID);
+      //  Debug.Log ($"id {currentDecorationID}, isOwned {isOwned}, isApplied {isApplied}");
         applyButton.gameObject.SetActive(isOwned && !isApplied);
-        cancelButton.gameObject.SetActive(isOwned && isApplied);
+        cancelButton.gameObject.SetActive(isOwned && isApplied && currentDecorationID !="");
         buyButton.gameObject.SetActive(!isOwned);
     }
+   
 
     public void SetSelected(bool selected)
     {

@@ -15,9 +15,10 @@ GameObject:
   - component: {fileID: 6104559868834260152}
   - component: {fileID: 1210343704294895434}
   - component: {fileID: 6699966866063401502}
-  m_Layer: 0
+  - component: {fileID: 1975092291892138628}
+  m_Layer: 8
   m_Name: Tree 4
-  m_TagString: Untagged
+  m_TagString: ClickableDecoration
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -105,7 +106,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: 5774
+  m_SortingOrder: -2851
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &6104559868834260152
 MonoBehaviour:
@@ -173,6 +174,58 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!60 &1975092291892138628
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2894418885303904222}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0, y: 7}
+      - {x: -5, y: 5}
+      - {x: -2.5, y: -5}
+      - {x: 4, y: -4}
+      - {x: 6, y: 4}
+  m_UseDelaunayMesh: 0
 --- !u!1001 &4115917738676936966
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -184,6 +237,10 @@ PrefabInstance:
     - target: {fileID: 100002, guid: c8b4db8a9c0f87c4982dce9519d289e8, type: 3}
       propertyPath: m_Name
       value: CFX3_FallingLeaves (Brown) (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: c8b4db8a9c0f87c4982dce9519d289e8, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c8b4db8a9c0f87c4982dce9519d289e8, type: 3}
       propertyPath: m_LocalScale.x
@@ -251,7 +308,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 19900002, guid: c8b4db8a9c0f87c4982dce9519d289e8, type: 3}
       propertyPath: m_SortingLayer
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 19900002, guid: c8b4db8a9c0f87c4982dce9519d289e8, type: 3}
       propertyPath: m_SortingLayerID

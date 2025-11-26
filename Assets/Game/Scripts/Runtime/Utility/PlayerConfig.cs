@@ -10,6 +10,9 @@ public class PlayerConfig
     public int poops = 0;
     public int lastGameAreaIndex = 0; // Default to first game area
     public int maxGameArea = 1; // Tracks the highest game area index created
+    public int goldenTicket = 0;
+    public int normalEgg = 0;
+    public int rareEgg = 0;
 
     public string lastLoginTimeString;
     public string totalPlayTimeString;
@@ -30,6 +33,13 @@ public class PlayerConfig
     public bool isAmbientEnabled = false;
     public bool isRainEnabled = false;
 
+    public List <int> listHotelGoldenTickets = new List <int> ();
+    public List <int> listHotelNormalEggs = new List <int> ();
+    public List <int> listHotelRareEggs = new List <int> ();
+    public DateTime lastRefreshTimeHotelGoldenTickets;
+    public DateTime lastRefreshTimeNormalEggs;
+    public DateTime lastRefreshTimeRareEggs;
+
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -41,6 +51,11 @@ public class PlayerConfig
     {
         DateTime.TryParse(lastLoginTimeString, null, System.Globalization.DateTimeStyles.RoundtripKind, out lastLoginTime);
         TimeSpan.TryParse(totalPlayTimeString, out totalPlayTime);
+    }
+
+    public void SyncLootUseable () 
+    {
+        GoldenTicket.instance.LoadLoot (goldenTicket);
     }
 
     // Inventory Logic

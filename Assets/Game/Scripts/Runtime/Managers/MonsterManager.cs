@@ -50,6 +50,8 @@ public class MonsterManager : MonoBehaviour
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     public List<Transform> pumpkinObjects = new List<Transform>(); // Pumpkin objects for sorting
+    public List <Transform> listDecorations = new List <Transform> ();
+
     private List<string> savedMonIDs = new List<string>();
     [SerializeField] private Button spawnNPC1;
     [SerializeField] private Button spawnNPC2;
@@ -73,7 +75,9 @@ public class MonsterManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         ServiceLocator.Register(this);
+        AddingDecorationsToList ();
         InitializePools();
+        
         SaveSystem.Initialize();
 
         if (spawnNPC1 != null)
@@ -103,6 +107,14 @@ public class MonsterManager : MonoBehaviour
         var obj = Instantiate(prefab, poolContainer);
         obj.SetActive(false);
         pool.Enqueue(obj);
+    }
+
+    private void AddingDecorationsToList () {
+        foreach (Transform child in gameAreaRT.transform) {
+            if (child.tag == "Decoration") {
+                listDecorations.Add (child);
+            }
+        }  
     }
     #endregion
 
@@ -308,6 +320,11 @@ public class MonsterManager : MonoBehaviour
         allObjectsForSorting.AddRange(pumpkinObjects
             .Where(p => p != null && p.gameObject.activeInHierarchy));
 
+        // Add Decorations
+        
+        allObjectsForSorting.AddRange(listDecorations
+            .Where(d => d != null && d.gameObject.activeInHierarchy));
+        
         if (allObjectsForSorting.Count <= 1) return;
 
         // Sort by Y position (higher Y = lower sibling index, appears behind)

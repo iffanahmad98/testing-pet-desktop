@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 1043098717910591526}
   - component: {fileID: 846448332288954322}
   - component: {fileID: 5066844346201154594}
-  m_Layer: 0
+  - component: {fileID: -6858915853415842669}
+  m_Layer: 8
   m_Name: Flower Box 1
-  m_TagString: Untagged
+  m_TagString: ClickableDecoration
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -104,3 +105,106 @@ MonoBehaviour:
   useMeshRenderer: 0
   centerOffset: -1
   isStaticSorting: 1
+--- !u!60 &-6858915853415842669
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8301061675439446577}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.46875, y: 1.1347656}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.7128906, y: -0.09667969}
+      - {x: 0.7246094, y: -0.08496094}
+      - {x: 0.7324219, y: -0.06933594}
+      - {x: 0.7324219, y: 0.0087890625}
+      - {x: 0.7285156, y: 0.018554688}
+      - {x: 0.7207031, y: 0.030273438}
+      - {x: 0.7109375, y: 0.11621094}
+      - {x: 0.7246094, y: 0.12597656}
+      - {x: 0.7324219, y: 0.14160156}
+      - {x: 0.7324219, y: 0.23535156}
+      - {x: 0.7128906, y: 0.2626953}
+      - {x: 0.5800781, y: 0.32910156}
+      - {x: 0.5761719, y: 0.3857422}
+      - {x: 0.5371094, y: 0.4169922}
+      - {x: 0.46875, y: 0.43652344}
+      - {x: 0.43359375, y: 0.47753906}
+      - {x: 0.36132812, y: 0.5126953}
+      - {x: 0.34960938, y: 0.53222656}
+      - {x: 0.328125, y: 0.56347656}
+      - {x: 0.31445312, y: 0.5654297}
+      - {x: 0.26171875, y: 0.5654297}
+      - {x: 0.2265625, y: 0.5517578}
+      - {x: 0.16601562, y: 0.54589844}
+      - {x: 0.125, y: 0.5654297}
+      - {x: 0.1171875, y: 0.5654297}
+      - {x: 0.05859375, y: 0.5595703}
+      - {x: 0.025390625, y: 0.53222656}
+      - {x: -0.046875, y: 0.4814453}
+      - {x: -0.0859375, y: 0.4501953}
+      - {x: -0.1484375, y: 0.4501953}
+      - {x: -0.1953125, y: 0.4189453}
+      - {x: -0.28515625, y: 0.36816406}
+      - {x: -0.33789062, y: 0.34277344}
+      - {x: -0.3828125, y: 0.34277344}
+      - {x: -0.40625, y: 0.33496094}
+      - {x: -0.44726562, y: 0.28222656}
+      - {x: -0.5, y: 0.23730469}
+      - {x: -0.56640625, y: 0.21972656}
+      - {x: -0.5957031, y: 0.20019531}
+      - {x: -0.6015625, y: 0.14941406}
+      - {x: -0.6015625, y: 0.09863281}
+      - {x: -0.62890625, y: 0.06738281}
+      - {x: -0.7128906, y: 0.028320312}
+      - {x: -0.7324219, y: 0.0048828125}
+      - {x: -0.7324219, y: -0.09667969}
+      - {x: -0.7128906, y: -0.12207031}
+      - {x: -0.7128906, y: -0.19824219}
+      - {x: -0.7324219, y: -0.21777344}
+      - {x: -0.7324219, y: -0.31933594}
+      - {x: -0.73046875, y: -0.3408203}
+      - {x: -0.28125, y: -0.56152344}
+      - {x: -0.26757812, y: -0.5654297}
+      - {x: -0.23632812, y: -0.5654297}
+      - {x: -0.22265625, y: -0.56152344}
+      - {x: 0.640625, y: -0.12988281}
+      - {x: 0.64453125, y: -0.12988281}
+  m_UseDelaunayMesh: 0

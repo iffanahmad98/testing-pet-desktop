@@ -21,7 +21,6 @@ public class DecorationShopManager : MonoBehaviour
 
     private Queue<DecorationCardUI> cardPool = new Queue<DecorationCardUI>();
     private List<DecorationCardUI> activeCards = new List<DecorationCardUI>();
-
     private void Awake()
     {
         InitializeCardPool();
@@ -69,6 +68,7 @@ public class DecorationShopManager : MonoBehaviour
 
     private void RefreshDecorationCards()
     {
+        /*
         foreach (var card in activeCards)
         {
             ReturnCardToPool(card);
@@ -86,6 +86,34 @@ public class DecorationShopManager : MonoBehaviour
 
             activeCards.Add(card);
         }
+        */
+        // Destroy all existing cards
+        
+        foreach (Transform child in cardParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        activeCards.Clear();
+        selectedCard = null;
+
+        int totalCount = 0;
+
+        foreach (var deco in decorations.allDecorations)
+            {
+                GameObject cardObj = Instantiate(decorationCardPrefab, cardParent);
+                DecorationCardUI card = cardObj.GetComponent<DecorationCardUI>();
+
+                card.Setup(deco);
+                card.OnSelected = OnDecorationSelected;
+                card.OnApplyClicked = OnDecorationApply;
+                card.OnCancelApplied = OnDecorationCancel;
+                card.OnBuyClicked = OnDecorationBuy;
+
+                activeCards.Add(card);
+                totalCount++;
+            }
+       
 
         ClearInfo();
     }
@@ -99,18 +127,18 @@ public class DecorationShopManager : MonoBehaviour
         selectedCard = card;
         selectedCard.SetSelected(true);
         ShowDecorationInfo(card.DecorationData);
+
+        
     }
 
     private void OnDecorationApply(DecorationCardUI card)
     {
         var decoID = card.DecorationData.decorationID;
-        SaveSystem.ToggleDecorationActiveState(decoID, true);
-        SaveSystem.SaveAll();
 
-        // Apply decoration visual (optional)
-        // ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(decoID);
-
+        SaveSystem.ToggleDecorationActiveState(card.DecorationData.decorationID, true);
+        ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(decoID);
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Applied '{card.DecorationData.decorationName}' decoration!");
+        DecorationUIFixHandler.SetDecorationStats (card.DecorationData.decorationID);
 
         RefreshDecorationCards();
         OnDecorationSelected(card);
@@ -121,9 +149,10 @@ public class DecorationShopManager : MonoBehaviour
         SaveSystem.ToggleDecorationActiveState(card.DecorationData.decorationID, false);
         SaveSystem.SaveAll();
 
-        // ServiceLocator.Get<DecorationManager>()?.RemoveActiveDecoration();
+        ServiceLocator.Get<DecorationManager>()?.RemoveActiveDecoration(card.DecorationData.decorationID);
 
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled '{card.DecorationData.decorationName}' decoration.");
+        DecorationUIFixHandler.SetDecorationStats (card.DecorationData.decorationID);
 
         card.UpdateState();
         selectedCard = null;
@@ -136,9 +165,10 @@ public class DecorationShopManager : MonoBehaviour
 
         if (SaveSystem.TryPurchaseDecoration(card.DecorationData))
         {
+            
             SaveSystem.ToggleDecorationActiveState(card.DecorationData.decorationID, true);
-            // ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(card.DecorationData.decorationID);
-
+            ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(card.DecorationData.decorationID);
+            DecorationUIFixHandler.SetDecorationStats (card.DecorationData.decorationID);
             ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought and applied '{deco.decorationName}'!");
         }
         else
@@ -150,7 +180,7 @@ public class DecorationShopManager : MonoBehaviour
         RefreshDecorationCards();
         OnDecorationSelected(card);
     }
-
+  
     private void ShowDecorationInfo(DecorationDataSO deco)
     {
         decorationNameText.text = deco.decorationName;
@@ -164,4 +194,6 @@ public class DecorationShopManager : MonoBehaviour
         decorationPriceText.text = "";
         decorationDescText.text = "";
     }
+
+    
 }
