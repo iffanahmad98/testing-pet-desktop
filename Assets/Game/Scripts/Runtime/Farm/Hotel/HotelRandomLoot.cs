@@ -4,13 +4,15 @@ using System.Collections;
 using System;
 using MagicalGarden.Manager;
 using TMPro;
+using UnityEngine.UI;
 [System.Serializable]
 public class HotelRandomLootConfig {
-    public LootType lootType; // 
+    public LootType lootType;
     public int lootRefreshTotals = 0; // Total setiap waktu di refresh.
     public int lootRefreshHours = 0; // tiap berapa jam loot di refresh.
     public int lootCurrent = 0; // loot yang tersisa.
     public LootUseable lootUseable;
+    public HotelRandomLootObject hotelRandomLootObject;
     public List <int> listDecorationId = new List <int> ();
     public DateTime lastRefreshTime;
     public bool CanRefresh () {
@@ -64,6 +66,15 @@ public class HotelRandomLootConfig {
     }
 }
 
+[System.Serializable]
+public class HotelRandomLootObject {
+    public LootType lootType;
+    public GameObject displayPrefab;
+    public DOTweenScaleBounce uiIconBounce;
+    public DOTweenScaleBounce uiIconTabBounce;
+    public TMP_Text currentText;
+}
+
 public class HotelRandomLoot : MonoBehaviour 
 {
     [Header ("Debug")]
@@ -73,27 +84,18 @@ public class HotelRandomLoot : MonoBehaviour
     Dictionary <int,GameObject> dictionaryLootBaloon = new Dictionary <int, GameObject> ();
     [Header ("Main")]
     [SerializeField] HotelRandomLootConfig [] hotelRandomLootConfigs;
+    
     Dictionary <int, GameObject> dictionaryDecorations = new Dictionary <int, GameObject> ();
     Dictionary <int, GameObject> dictionaryDecorationsOptions = new Dictionary <int, GameObject> ();
     [SerializeField] Transform hotelPropertyLayer;
     DateTime lastTimeHotelRandomLoot;
     [SerializeField] HotelClickableHandler hotelClickableHandler;
-    [SerializeField] GameObject hotelLootDisplayPrefab;
+    
 
     [Header ("UI")]
     [SerializeField] GameObject lootTargetUI;
-    [SerializeField] DOTweenScaleBounce goldenTicketBounce;
-    [SerializeField] DOTweenScaleBounce goldenTicketTabBounce;
-    [SerializeField] TMP_Text goldenTicketText;
-
-    [SerializeField] DOTweenScaleBounce normalEggBounce;
-    [SerializeField] DOTweenScaleBounce normalEggTabBounce;
-    [SerializeField] TMP_Text normalEggText;
-
-    [SerializeField] DOTweenScaleBounce rareEggBounce;
-    [SerializeField] DOTweenScaleBounce rareEggaTabBounce;
-    [SerializeField] TMP_Text rareEggText;
-
+    [SerializeField] HotelRandomLootObject [] hotelRandomLootObjects;
+    HotelRandomLootObject currentLootObject;
     void Start () {
         hotelClickableHandler.OnShakedObject += GetClickedGameObject;
         hotelRandomLootConfigs = new HotelRandomLootConfig [] {
@@ -103,6 +105,7 @@ public class HotelRandomLoot : MonoBehaviour
                 lootRefreshHours = 2,
                 lootCurrent = 0,
                 lootUseable = GetLootUsable (LootType.GoldenTicket),
+                hotelRandomLootObject = GetHotelRandomLootObject (LootType.GoldenTicket)
             },
             new HotelRandomLootConfig {
                 lootType = LootType.NormalEgg,
@@ -110,6 +113,7 @@ public class HotelRandomLoot : MonoBehaviour
                 lootRefreshHours = 24,
                 lootCurrent = 0,
                 lootUseable = GetLootUsable (LootType.NormalEgg),
+                hotelRandomLootObject = GetHotelRandomLootObject (LootType.NormalEgg)
             },
             new HotelRandomLootConfig {
                 lootType = LootType.RareEgg,
@@ -117,6 +121,7 @@ public class HotelRandomLoot : MonoBehaviour
                 lootRefreshHours = 24 * 7,
                 lootCurrent = 0,
                 lootUseable = GetLootUsable (LootType.RareEgg),
+                hotelRandomLootObject = GetHotelRandomLootObject (LootType.RareEgg)
             },
         };
 
@@ -146,7 +151,16 @@ public class HotelRandomLoot : MonoBehaviour
             ShowLootAreas ();
         }
 
-        goldenTicketText.text = SaveSystem.PlayerConfig.goldenTicket.ToString ();
+        hotelRandomLootObjects[0].currentText.text = SaveSystem.PlayerConfig.goldenTicket.ToString ();
+        hotelRandomLootObjects[1].currentText.text = SaveSystem.PlayerConfig.normalEgg.ToString ();
+        hotelRandomLootObjects[2].currentText.text = SaveSystem.PlayerConfig.rareEgg.ToString ();
+
+        debugGenerateDirectly.onClick.AddListener (GenerateDirectly);
+    }
+
+    void Update () {
+        DebugHandler ();
+        
     }
 
     void GetClickedGameObject (GameObject clickedObject) {
@@ -163,7 +177,8 @@ public class HotelRandomLoot : MonoBehaviour
                            Destroy (dictionaryLootBaloon[id]) ;
                            dictionaryLootBaloon.Remove (id);
                         }
-                        SpawnHotelLootDisplay ();
+                        currentLootObject = config.hotelRandomLootObject;
+                        SpawnHotelLootDisplay (config);
                         ShowTabLoot ();
                         return;
                     }
@@ -203,40 +218,84 @@ public class HotelRandomLoot : MonoBehaviour
 
         return null;
     }
+
+    HotelRandomLootObject GetHotelRandomLootObject (LootType lootType) {
+        foreach (HotelRandomLootObject hotelRandomLootObject in hotelRandomLootObjects) {
+            if (hotelRandomLootObject.lootType == lootType) {
+                return hotelRandomLootObject;
+            }
+        }
+        return null;
+    }
     
     #region HotelLootDisplay
-    public void SpawnHotelLootDisplay () {
-        GameObject clone = GameObject.Instantiate(hotelLootDisplayPrefab);
+    public void SpawnHotelLootDisplay (HotelRandomLootConfig config) {
+        GameObject clone = GameObject.Instantiate(currentLootObject.displayPrefab);
         clone.SetActive (true);
         clone.transform.SetParent (lootTargetUI.transform.parent);
-        clone.GetComponent<HotelLootDisplay> ().OnTransitionFinished += PlayGoldenTicketBounce;
-        clone.GetComponent <HotelLootDisplay> ().StartPlay (lootTargetUI.transform);
+        clone.GetComponent<HotelLootDisplay> ().OnTransitionFinished += PlayLootBounce;
+        clone.GetComponent <HotelLootDisplay> ().StartPlay (lootTargetUI.transform, config, GetHotelRandomLootObject (config.lootType)); 
     }
     #endregion
     #region Debug
-
+    List <GameObject> listLootArea = new List <GameObject> ();
     void ShowLootAreas () {
+
+        foreach (GameObject go in listLootArea) {
+            Destroy (go);
+        }
+        listLootArea.Clear ();
+
         foreach (HotelRandomLootConfig config in hotelRandomLootConfigs) {
             foreach (int id in config.listDecorationId) {
                 GameObject target = dictionaryDecorations[id];
                 GameObject clone = GameObject.Instantiate (debugLootSample);
                 clone.transform.position = target.transform.position + new Vector3 (0,0.5f,0);
-                
+                listLootArea.Add (clone);
                 dictionaryLootBaloon.Add (id, clone);
             }
         }
     }
+
+    [SerializeField] Image debugMenu;
+    [SerializeField] Button debugGenerateDirectly;
+    bool onDebugHandler = false;
+    
+    void DebugHandler () {
+        if (Input.GetKeyDown (KeyCode.H)) {
+            if (onDebugHandler) {
+                onDebugHandler = false;
+                debugMenu.gameObject.SetActive (false);
+            } else {
+                onDebugHandler = true;
+                debugMenu.gameObject.SetActive (true);
+            }
+        }
+    }
+
+    void GenerateDirectly () {
+        foreach (HotelRandomLootConfig config in hotelRandomLootConfigs) {
+            config.GenerateNewDecorationId (dictionaryDecorationsOptions);
+        }
+
+        
+        if (showLootAreas) {
+            ShowLootAreas ();
+        }
+    }
+
     #endregion
     #region UI
-    void PlayGoldenTicketBounce () {
-        goldenTicketText.text = SaveSystem.PlayerConfig.goldenTicket.ToString ();
-        goldenTicketBounce.Play ();
+    void PlayLootBounce (HotelRandomLootConfig config, HotelRandomLootObject configObject) {
+        configObject.currentText.text = config.lootUseable.GetCurrency().ToString ();
+        configObject.uiIconBounce.Play ();
     }
 
     void ShowTabLoot () {
         
-        goldenTicketTabBounce.gameObject.SetActive (true);
-        goldenTicketTabBounce.Play ();
+        currentLootObject.uiIconTabBounce.gameObject.SetActive (true);
+        currentLootObject.uiIconTabBounce.Play ();
     }
+    
     #endregion
 }

@@ -47,4 +47,8 @@ public class GoldenTicket : LootUseable
     public override DateTime LoadLastRefreshTime () {
         return SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
     }
+
+    public override int GetCurrency () {
+        return SaveSystem.PlayerConfig.goldenTicket;
+    }
 }

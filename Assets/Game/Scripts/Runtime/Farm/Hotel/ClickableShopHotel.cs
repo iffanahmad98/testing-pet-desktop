@@ -7,6 +7,7 @@ namespace MagicalGarden.Hotel
     [RequireComponent(typeof(Collider2D))]
     public class ClickableShopHotel : MonoBehaviour
     {
+        [SerializeField] HotelShop hotelShop;
         [SerializeField] private GameObject _shopUI;
         [SerializeField] private float _openDelay;
 
@@ -81,9 +82,10 @@ namespace MagicalGarden.Hotel
             // Tunggu animasi selesai
             yield return new WaitForSeconds(_openDelay);
 
+            hotelShop.OnShopUI ();
             if (_shopUI != null)
             {
-                _shopUI.SetActive(true);
+               // _shopUI.SetActive(true);
 
                 // Set HotelController reference to HotelInformation if both are assigned
                 if (hotelInformation != null && hotelController != null)
@@ -102,7 +104,7 @@ namespace MagicalGarden.Hotel
             {
                 // Try to trigger animation by trigger name
                 animator.SetTrigger(clickedAnimationName);
-
+    
                 // Alternative: directly play animation state
                 // animator.Play(clickedAnimationName);
             }

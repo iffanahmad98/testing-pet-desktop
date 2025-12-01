@@ -39,4 +39,8 @@ public static class CoinManager
         }
         return false; // Not enough coins
     }
+
+    public static bool CheckCoins (int amount) { // HotelFacilitiesMenu
+        return Coins >= amount;
+    }
 }

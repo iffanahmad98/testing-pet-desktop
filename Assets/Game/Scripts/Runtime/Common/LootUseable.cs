@@ -12,4 +12,5 @@ public abstract class LootUseable
     public abstract void SaveListDecorationIds (List <int> listIds, DateTime dateTimeNow);
     public abstract List <int> LoadListDecorationIds ();
     public abstract DateTime LoadLastRefreshTime ();
+    public abstract int GetCurrency ();
 }

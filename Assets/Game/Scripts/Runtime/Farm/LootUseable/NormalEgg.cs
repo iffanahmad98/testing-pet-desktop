@@ -45,4 +45,8 @@ public class NormalEgg : LootUseable
     public override DateTime LoadLastRefreshTime () {
         return SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs;
     }
+
+    public override int GetCurrency () {
+        return SaveSystem.PlayerConfig.normalEgg;
+    }
 }

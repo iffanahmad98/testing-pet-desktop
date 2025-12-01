@@ -60493,6 +60493,50 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 28}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!1 &1731315160
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1731315161}
+  - component: {fileID: 1731315162}
+  m_Layer: 0
+  m_Name: SceneLoad
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1731315161
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731315160}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2031827362}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1731315162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731315160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 795f83ec6d9207c45b1e1e19033ce633, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1735016890 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5258037003845275217, guid: 4477387947faf0441bcc879831a43cdb, type: 3}
@@ -84751,6 +84795,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 1330516261618121772, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1597510975678281322, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: bgmSlider
       value: 
@@ -85357,6 +85405,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5686940728437541436, guid: ad520e0ea22997040998be580886f569, type: 3}
       insertIndex: 11
       addedObject: {fileID: 1775123534}
+    - targetCorrespondingSourceObject: {fileID: 5686940728437541436, guid: ad520e0ea22997040998be580886f569, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1731315161}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2240938270952959010, guid: ad520e0ea22997040998be580886f569, type: 3}
       insertIndex: -1

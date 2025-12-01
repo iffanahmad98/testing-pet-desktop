@@ -6,6 +6,8 @@ namespace MagicalGarden.Farm
 {
     public class CameraDragMove : MonoBehaviour
     {
+        public CameraDragLocker cameraDragLocker;
+
         [Header("Drag Boundaries")]
         public Collider2D boundaryColliderFarm;
         public Collider2D boundaryColliderHotel;
@@ -29,6 +31,7 @@ namespace MagicalGarden.Farm
         public float panSpeed = 10f;
         public bool allowLeftClickDrag = true;
 
+        
         private Camera cam;
         private Coroutine zoomCoroutine;
 
@@ -40,8 +43,9 @@ namespace MagicalGarden.Farm
 
         void Update()
         {
+           
             HandleKeyboardPan();
-
+             if (!cameraDragLocker.IsCan ()) return;
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
 

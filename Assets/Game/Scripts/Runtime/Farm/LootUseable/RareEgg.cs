@@ -45,4 +45,8 @@ public class RareEgg : LootUseable
     public override DateTime LoadLastRefreshTime () {
         return SaveSystem.PlayerConfig.lastRefreshTimeRareEggs;
     }
+
+    public override int GetCurrency () {
+        return SaveSystem.PlayerConfig.rareEgg;
+    }
 }

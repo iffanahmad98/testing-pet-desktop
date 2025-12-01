@@ -9,13 +9,16 @@ public class HotelLootDisplay : MonoBehaviour
     bool isPlay = false;
     Vector3 uiWorldPos;
 
-    public event Action  OnTransitionFinished;
-    public void StartPlay(Transform target)
+    public event Action <HotelRandomLootConfig, HotelRandomLootObject> OnTransitionFinished;
+    HotelRandomLootConfig config; HotelRandomLootObject configObject;
+    public void StartPlay(Transform target, HotelRandomLootConfig configValue, HotelRandomLootObject configObjectValue)
     {
         cam = Camera.main;
         uiTarget = target;
         moveObject = this.gameObject;
         moveObject.transform.localScale = new Vector3 (0,0,0);
+        config = configValue; 
+        configObject = configObjectValue;
         Spawn();
     }
 
@@ -80,8 +83,8 @@ public class HotelLootDisplay : MonoBehaviour
         // event fired EXACTLY when movement ends
         curvedMove.OnComplete(() =>
         {
-            Debug.Log ("Finished");
-            OnTransitionFinished?.Invoke();
+           // Debug.Log ("Finished");
+            OnTransitionFinished?.Invoke(config, configObject);
         });
 
         // then final destroy after all animation

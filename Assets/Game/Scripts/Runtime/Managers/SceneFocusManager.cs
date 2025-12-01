@@ -1,5 +1,6 @@
 using UnityEngine;
-
+using System.Collections;
+using System.Collections.Generic;
 /// <summary>
 /// Manager to handle camera focus target when transitioning between scenes
 /// </summary>

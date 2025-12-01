@@ -8,7 +8,8 @@ public class ObjectClickableData {
 }
 
 public class HotelClickableHandler : MonoBehaviour
-{
+{   
+    public CameraDragLocker iLockedBy;
     [Header ("Main")]
     Camera cam;
     GameObject currentHover;
@@ -35,6 +36,7 @@ public class HotelClickableHandler : MonoBehaviour
 
     void Update()
     {
+        if (!iLockedBy.IsCan ()) return;
         enterList.Clear();
         exitList.Clear();
 

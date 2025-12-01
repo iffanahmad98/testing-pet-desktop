@@ -265,6 +265,30 @@ namespace MagicalGarden.Farm
         }
         #endregion
 #endregion
+
+        #region UI
+    
+        public void SetUIEqualsFocus (string sceneFocus) { // BoardSign
+          //  Debug.Log ("Focus Scene 3 " + sceneFocus);
+
+            if (sceneFocus == "Farm") {
+                SetUIFarm ();
+            } else if (sceneFocus == "Hotel") {
+                SetUIHotel ();
+            }
+        }
+
+        void SetUIFarm () { // SceneFocusManager
+            menuBar.gameObject.SetActive (true);
+        }
+
+        void SetUIHotel () { // SceneFocusManager
+            menuBar.gameObject.SetActive (false);
+        }
+
+        #endregion
+    
+    
     }
 
 }

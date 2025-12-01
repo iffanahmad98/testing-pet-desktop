@@ -27,6 +27,8 @@ public class PlayerConfig
     public List<string> ownedBiomes = new();
     public List<OwnedFacilityData> ownedFacilities = new();
     public List<OwnedDecorationData> ownedDecorations = new();
+    public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
+
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
     public bool isCloudEnabled = false;
@@ -56,6 +58,8 @@ public class PlayerConfig
     public void SyncLootUseable () 
     {
         GoldenTicket.instance.LoadLoot (goldenTicket);
+        NormalEgg.instance.LoadLoot (normalEgg);
+        RareEgg.instance.LoadLoot (rareEgg);
     }
 
     // Inventory Logic
@@ -274,6 +278,19 @@ public class PlayerConfig
             ownedDecorations.Add(new OwnedDecorationData { decorationID = decorationID, isActive = isActive });
     }
     #endregion
+    #region Hotel Facility Logic
+    public bool HasHotelFacility(string id)
+    {
+        return ownedHotelFacilitiesData.Any(d => d.id == id);
+    }
+
+    // HotelFacilitesMenu
+    public void AddHotelFacilityData (string dataId)
+    {
+        if (!HasHotelFacility(dataId))
+            ownedHotelFacilitiesData.Add(new OwnedHotelFacilityData { id = dataId});
+    }
+    #endregion
 }
 
 [Serializable]
@@ -326,6 +343,12 @@ public class OwnedDecorationData
 {
     public string decorationID;
     public bool isActive;
+}
+[Serializable]
+public class OwnedHotelFacilityData
+{
+    public string id;
+
 }
 
 

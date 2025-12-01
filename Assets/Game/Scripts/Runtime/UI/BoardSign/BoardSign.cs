@@ -145,6 +145,8 @@ public class BoardSign : MonoBehaviour
 
         Debug.Log($"[BoardSign] Switching to FarmGame scene with Farm focus target");
         sceneLoader.SwitchToFarmScene();
+
+       SceneLoadManager.Instance.SetUIEqualsFocus ("Farm");
     }
 
     /// <summary>
@@ -164,6 +166,8 @@ public class BoardSign : MonoBehaviour
 
         Debug.Log($"[BoardSign] Switching to FarmGame scene with Hotel focus target");
         sceneLoader.SwitchToFarmScene();
+
+        SceneLoadManager.Instance.SetUIEqualsFocus ("Hotel");
     }
 
     /// <summary>
@@ -173,4 +177,7 @@ public class BoardSign : MonoBehaviour
     {
         farmGameSceneName = sceneName;
     }
+
+   
+    
 }
