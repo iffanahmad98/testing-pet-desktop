@@ -9,21 +9,32 @@ public class HotelLootDisplay : MonoBehaviour
     bool isPlay = false;
     Vector3 uiWorldPos;
 
+    // HotelRandomLoot Reference
     public event Action <HotelRandomLootConfig, HotelRandomLootObject> OnTransitionFinished;
-    HotelRandomLootConfig config; HotelRandomLootObject configObject;
+    public event Action OnClearTransitionFinished;
+    HotelRandomLootConfig config; 
+    HotelRandomLootObject configObject;
     public void StartPlay(Transform target, HotelRandomLootConfig configValue, HotelRandomLootObject configObjectValue)
     {
-        cam = Camera.main;
+        
         uiTarget = target;
-        moveObject = this.gameObject;
-        moveObject.transform.localScale = new Vector3 (0,0,0);
         config = configValue; 
         configObject = configObjectValue;
         Spawn();
     }
 
+    public void StartPlay (Transform target)
+    {
+        uiTarget = target;
+        Spawn ();
+    }
+
     void Spawn()
     {
+        cam = Camera.main;
+        moveObject = this.gameObject;
+        moveObject.transform.localScale = new Vector3 (0,0,0);
+
         var canvas = uiTarget.GetComponentInParent<Canvas>();
         var canvasRect = canvas.transform as RectTransform;
 
@@ -85,6 +96,7 @@ public class HotelLootDisplay : MonoBehaviour
         {
            // Debug.Log ("Finished");
             OnTransitionFinished?.Invoke(config, configObject);
+             OnClearTransitionFinished?.Invoke();
         });
 
         // then final destroy after all animation

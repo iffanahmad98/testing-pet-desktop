@@ -1,7 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 
-public class DOTweenScaleBounce : MonoBehaviour
+public class DOTweenScaleBounce : MonoBehaviour, IDOTweenPlayable
 {
     [Header("Scale Settings")]
     public float startScale = 1f;
@@ -21,6 +21,7 @@ public class DOTweenScaleBounce : MonoBehaviour
     public float durationDownMove = 0.25f;
 
     [Header("Options")]
+    public bool playOnStart = false;
     public bool useStartPosition = false;
     public bool treatAsUIAnchored = true; // kalau true => gunakan RectTransform.DOAnchorPos / DOAnchorPos3D
 
@@ -48,6 +49,10 @@ public class DOTweenScaleBounce : MonoBehaviour
         }
 
         tf.localScale = Vector3.one * startScale;
+    }
+
+    void Start () {
+        if (playOnStart) Play ();
     }
 
     public void Play()

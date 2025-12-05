@@ -19,7 +19,7 @@ namespace MagicalGarden.AI
         public Tilemap terrainTilemap;
         public Vector2Int currentTile;
         protected Coroutine stateLoopCoroutine;
-        protected bool isOverridingState = false;
+        public bool isOverridingState = false;
         protected string lastChosenState = "";
         protected Dictionary<string, string> animationFallbacks = new Dictionary<string, string>
         {
@@ -61,7 +61,7 @@ namespace MagicalGarden.AI
                     yield return null;
                     continue;
                 }
-
+                
                 string chosen = GetRandomState();
                 yield return HandleState(chosen);
 

@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using Spine.Unity;
+using MagicalGarden.AI;
 [System.Serializable]
 public class HotelFacilitiesPodiumCard {
     public Button buyButton;
@@ -22,7 +24,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
     [SerializeField] GameObject podiumCardPrefab;
     [SerializeField] Transform podiumCardPanel;
     List <HotelFacilitiesPodiumCard> listPodiumCard = new List <HotelFacilitiesPodiumCard> ();
-    
+    [SerializeField] UILayoutResetter podiumLayout;
     public override void ShowMenu () {
         base.ShowMenu ();
         InstantiateHotelFacilities ();
@@ -49,7 +51,9 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 facilityData = data
             };
 
+            podiumClone.SetActive (true);
             podiumClone.transform.SetParent (podiumCardPanel);
+            podiumClone.transform.localScale = new Vector3  (1,1,1);
             listPodiumCard.Add (newPodiumCard);
         }
 
@@ -70,15 +74,35 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
             listPodiumCard[i].nameText.text = listPodiumCard[i].facilityData.facilityName;
             listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.price.ToString ();
             listPodiumCard[i].detailText.text = listPodiumCard[i].facilityData.detailText;
+            
             GameObject facilityClone = GameObject.Instantiate (listPodiumCard[i].facilityData.facilityPrefab);
             facilityClone.transform.SetParent (listPodiumCard[i].podium.transform);
             facilityClone.transform.localPosition = listPodiumCard[i].facilityData.facilityLocalPosition;
             facilityClone.transform.localScale = listPodiumCard[i].facilityData.facilityLocalScale;
             facilityClone.SetActive (true);
+            if (facilityClone.GetComponent <IsometricSpineSorting> ()) {
+                // facilityClone.GetComponent <SkeletonAnimation> ().sortingLayerName  = "MotionUI";
+               SkeletonRenderer skeletonRenderer = facilityClone.GetComponent<SkeletonRenderer>();
+                Renderer renderer = skeletonRenderer.GetComponent<Renderer>();
+                renderer.sortingLayerName = "Motion UI";
+                renderer.sortingOrder = 10;
+            }
+            if (facilityClone.GetComponent <NPCHotel> ()) {
+                facilityClone.GetComponent <NPCHotel> ().enabled = false;
+            }
+            if (facilityClone.GetComponent <NPCLootHunter> ()) {
+                facilityClone.GetComponent <NPCLootHunter> ().enabled = false;
+            }
+
+            foreach (Transform children in facilityClone.transform) {
+                children.gameObject.SetActive (false);
+            }
+            
             
         }
         
     }
+    podiumLayout.OnRebuild ();
    }
 
    public void BuyFacilities (HotelFacilitiesDataSO data) {

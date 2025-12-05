@@ -19,6 +19,7 @@ namespace MagicalGarden.Hotel
 
         public void Setup(HotelController hotelController)
         {
+            Debug.Log ("Testing");
             currentHotelController = hotelController;
             titleGuest.text = hotelController.nameGuest;
             guestImage.sprite = hotelController.iconGuest;

@@ -53,6 +53,8 @@ namespace MagicalGarden.Hotel
         private bool hasRequest = false;
         private Coroutine currentRequestCountdown;
 
+        // [Header ("Hotel Gift")]
+        HotelGiftSpawner hotelGiftSpawner;
         void Start()
         {
             CalculateWanderingArea();
@@ -65,6 +67,8 @@ namespace MagicalGarden.Hotel
             if (roomServiceBtn) roomServiceBtn.SetActive(false);
             if (foodBtn) foodBtn.SetActive(false);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
+
+            hotelGiftSpawner = GetComponent <HotelGiftSpawner> ();
         }
         void Update()
         {
@@ -188,6 +192,10 @@ namespace MagicalGarden.Hotel
             foreach (var pet in listPet)
             {
                 pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
+            }
+
+            if (hotelGiftSpawner) {
+                hotelGiftSpawner.OnSpawnGift ();
             }
         }
         public void AddPet(PetMonsterHotel pet)
@@ -394,5 +402,8 @@ namespace MagicalGarden.Hotel
             Down
         }
         #endregion
+
+    
     }
+
 }

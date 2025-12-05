@@ -20,10 +20,14 @@ namespace MagicalGarden.Hotel
         private bool justOpenedThisFrame = false;
         private static ClickableObjectHotel currentOpenMenuHotel;
 
+         // [Header ("Hotel Gift")]
+        HotelGiftSpawner hotelGiftSpawner;
         private void Start()
         {
             originalScale = transform.localScale;
             hotelController = GetComponent<HotelController>();
+
+            hotelGiftSpawner = GetComponent <HotelGiftSpawner> ();
         }
 
         private void Update()
@@ -38,6 +42,10 @@ namespace MagicalGarden.Hotel
                 if (col != null && col.gameObject == gameObject && hotelController.IsOccupied)
                 {
                     Farm.UIManager.Instance.ShowHotelInfo(hotelController, mouseWorldPos);
+                }
+            } else if (Input.GetMouseButtonDown (0) && isHovered) {
+                if (hotelGiftSpawner && hotelGiftSpawner.IsAnyGiftable ()) {
+                    hotelGiftSpawner.ClaimGift ();
                 }
             }
         }

@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 7227975900175196694}
   - component: {fileID: 2916851620793561279}
   - component: {fileID: 9023663901470848090}
+  - component: {fileID: 5481091216548707458}
   m_Layer: 8
   m_Name: HotelRoom
   m_TagString: Untagged
@@ -227,6 +228,11 @@ MonoBehaviour:
   happiness: 100
   rarity: 0
   listPet: []
+  giftBtn: {fileID: 0}
+  roomServiceBtn: {fileID: 0}
+  foodBtn: {fileID: 0}
+  fillExpired: {fileID: 0}
+  requestInterval: 60
 --- !u!114 &2916851620793561279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -650,6 +656,20 @@ PolygonCollider2D:
       - {x: 1.2089844, y: 1.8769531}
       - {x: 1.2109375, y: 1.8769531}
   m_UseDelaunayMesh: 0
+--- !u!114 &5481091216548707458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6487376757102592039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4efa085e8c3c054c8f8f60360088bf1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hotelGiftBubblePrefab: {fileID: 1752126568915664129, guid: a02f9848474f48f4481525b02926101e, type: 3}
+  hotelGiftReceivedPrefab: {fileID: 1966976465763382563, guid: db4ccc735577541458ff97ac67c79cb6, type: 3}
 --- !u!1 &8213247975351125951
 GameObject:
   m_ObjectHideFlags: 0

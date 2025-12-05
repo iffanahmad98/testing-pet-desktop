@@ -13,6 +13,7 @@ public class PlayerConfig
     public int goldenTicket = 0;
     public int normalEgg = 0;
     public int rareEgg = 0;
+    public int hotelGift = 0;
 
     public string lastLoginTimeString;
     public string totalPlayTimeString;
@@ -60,6 +61,7 @@ public class PlayerConfig
         GoldenTicket.instance.LoadLoot (goldenTicket);
         NormalEgg.instance.LoadLoot (normalEgg);
         RareEgg.instance.LoadLoot (rareEgg);
+        HotelGift.instance.LoadLoot (hotelGift);
     }
 
     // Inventory Logic
