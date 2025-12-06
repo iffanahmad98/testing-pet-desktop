@@ -21,13 +21,11 @@ namespace MagicalGarden.Hotel
         private static ClickableObjectHotel currentOpenMenuHotel;
 
          // [Header ("Hotel Gift")]
-        HotelGiftSpawner hotelGiftSpawner;
         private void Start()
         {
             originalScale = transform.localScale;
             hotelController = GetComponent<HotelController>();
 
-            hotelGiftSpawner = GetComponent <HotelGiftSpawner> ();
         }
 
         private void Update()
@@ -44,9 +42,7 @@ namespace MagicalGarden.Hotel
                     Farm.UIManager.Instance.ShowHotelInfo(hotelController, mouseWorldPos);
                 }
             } else if (Input.GetMouseButtonDown (0) && isHovered) {
-                if (hotelGiftSpawner && hotelGiftSpawner.IsAnyGiftable ()) {
-                    hotelGiftSpawner.ClaimGift ();
-                }
+                
             }
         }
 

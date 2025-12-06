@@ -1,15 +1,9 @@
-using UnityEngine.UI;
 using UnityEngine;
 
-public class WorldSpaceUIScaler : MonoBehaviour
+[RequireComponent(typeof(RectTransform))]
+public class WorldCanvasFitCamera : MonoBehaviour
 {
     public Camera cam;
-    public float baseOrthographicSize = 11.12f;
-    public float baseScale = 1f;
-
-    public float offsetX = 0.5f;
-    public float offsetY = 0f;
-
     private RectTransform rect;
 
     void Start()
@@ -20,20 +14,15 @@ public class WorldSpaceUIScaler : MonoBehaviour
 
     void LateUpdate()
     {
-        // === 1. SCALE ===
-        float ratio = cam.orthographicSize / baseOrthographicSize;
-        rect.localScale = Vector3.one * (baseScale * ratio);
+        float ortho = cam.orthographicSize;
+        float worldHeight = ortho * 2f;                  // tinggi world yg terlihat kamera
+        float worldWidth = worldHeight * cam.aspect;     // lebar world yg terlihat kamera
 
-        // === 2. POSITION ===
-        float orthographicWidth = cam.orthographicSize * cam.aspect;
-        float leftX = cam.transform.position.x - orthographicWidth;
+        // Set ukuran canvas ke ukuran kamera secara presisi
+        rect.sizeDelta = new Vector2(worldWidth, worldHeight);
 
-        Vector3 pos = rect.position;
-        pos.x = leftX + offsetX * ratio;
-        pos.y = cam.transform.position.y + offsetY * ratio;
-        rect.position = pos;
-
-        // === 3. FORCE LAYOUT UPDATE ===
-        LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+        // Posisi tepat di tengah kamera
+        rect.position = cam.transform.position 
+                      + new Vector3(0, 0, 1f); // Z harus tetap di depan kamera
     }
 }

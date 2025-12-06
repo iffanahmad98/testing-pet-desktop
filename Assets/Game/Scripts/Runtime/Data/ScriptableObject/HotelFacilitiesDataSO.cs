@@ -11,5 +11,8 @@ public class HotelFacilitiesDataSO : ScriptableObject {
     public GameObject facilityPrefab;
     public Vector3 facilityLocalPosition;
     public Vector3 facilityLocalScale;
+
+    [Header ("Facilities World")]
+    public Vector3 facilitySpawnPosition;
     
 }

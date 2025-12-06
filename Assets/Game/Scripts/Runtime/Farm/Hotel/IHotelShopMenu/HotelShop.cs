@@ -18,6 +18,7 @@ public class HotelShop : MonoBehaviour
    public Dictionary <string, IHotelShopMenu> dictionaryIHotelShopMenu = new Dictionary <string, IHotelShopMenu> ();
    [SerializeField] Image hotelShopUI;
    [SerializeField] Button closeShopButton;
+   [SerializeField] Canvas worldCanvas;
    void Start () {
     AddListeners ();
     LoadDictionaries ();
@@ -48,7 +49,19 @@ public class HotelShop : MonoBehaviour
       iCameraDragLocker.AddLockedBy (this.gameObject);
       UIWorldManager.Instance.OnBackgroundOutside ();
       hotelShopUI.gameObject.SetActive (true);
+      hotelShopUI.transform.localScale = new Vector3 (1,1,1);
       OnShopMenu ("GiftExchangeMenu");
+
+      RectTransform worldRect = worldCanvas.GetComponent<RectTransform>();
+   RectTransform shopRect = hotelShopUI.GetComponent<RectTransform>();
+   /*
+   Debug.LogError(
+      "UI SHOP Scale: " + hotelShopUI.transform.localScale +
+      " | Canvas Scale: " + worldCanvas.transform.localScale +
+      " | Canvas Size: " + worldRect.rect.width + "x" + worldRect.rect.height +
+      " | UI Size: " + shopRect.rect.width + "x" + shopRect.rect.height
+   );
+   */
    }
 
    public void OffShopUI () {

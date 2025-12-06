@@ -17,12 +17,14 @@ public class HotelShopMenuBase : MonoBehaviour, IHotelShopMenu
    }
 
    public virtual void ShowMenu () {
+      CameraZoomSettings.instance.SetDefaultCameraZoom ();
       OnTitleButtonSprite ();
       mainBackground.gameObject.SetActive (true);
       Debug.Log ("Show hotel shop");
    }
 
    public virtual void HideMenu () {
+      CameraZoomSettings.instance.SetLastCameraZoom ();
       OffTitleButtonSprite ();
       mainBackground.gameObject.SetActive (false);
       Debug.Log ("Hide hotel shop");

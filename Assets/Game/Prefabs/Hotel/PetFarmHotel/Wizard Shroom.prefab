@@ -174,8 +174,15 @@ MonoBehaviour:
     probability: 0.2
   terrainTilemap: {fileID: 0}
   currentTile: {x: 0, y: 0}
+  isOverridingState: 0
   destinationTile: {x: 0, y: 0}
-  hotelControlRef: {fileID: 0}
+  hotelFacilitiesLootDetector: {fileID: 0}
+  npcAreaPointsDatabase: {fileID: 11400000, guid: 10d707ca6de2c1940bd36ff7b26a96c0, type: 2}
+  codeNpcAreaPoints: 
+  checkAreaPositionMinSeconds: 10
+  checkAreaPositionMaxSeconds: 15
+  changeAreaPointsMinSeconds: 40
+  changeAreaPointsMaxSeconds: 60
 --- !u!1 &5320069614265700475
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,4 +358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetTag: ClickableDecoration
+  lootTypes: 0100000002000000
   detectedPolygons: []
+  detectedLootPolygons: []
+  tilemap: {fileID: 0}

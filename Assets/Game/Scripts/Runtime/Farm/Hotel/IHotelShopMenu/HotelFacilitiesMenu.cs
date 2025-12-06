@@ -14,6 +14,7 @@ public class HotelFacilitiesPodiumCard {
     public GameObject podium;
     public Image coinTypeImage;
     public Button appliedButton;
+    public Button applyButton;
     public HotelFacilitiesDataSO facilityData;
 }
 
@@ -24,10 +25,29 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
     [SerializeField] GameObject podiumCardPrefab;
     [SerializeField] Transform podiumCardPanel;
     List <HotelFacilitiesPodiumCard> listPodiumCard = new List <HotelFacilitiesPodiumCard> ();
-    [SerializeField] UILayoutResetter podiumLayout;
+
+    [Header ("Handler")]
+    public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
+    public Dictionary <string, GameObject> dictionaryHotelFacilities = new Dictionary <string, GameObject> ();
+    
+    void Start () {
+        LoadAllDatas ();
+        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
+            if (data.isActive) {
+                SpawnHotelFacilities (data.id, false);
+            }
+        }
+    }
+
+   // [SerializeField] UILayoutResetter podiumLayout;
     public override void ShowMenu () {
         base.ShowMenu ();
         InstantiateHotelFacilities ();
+        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
+            if (!data.isActive) {
+                RefreshBuyButton (GetHotelFacilitiesPodiumCard (data.id), "Apply");
+            }
+        }
    }
 
    public override void HideMenu () {
@@ -48,12 +68,14 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 podium = podiumClone.transform.Find ("Podium").gameObject,
                 coinTypeImage = podiumClone.transform.Find ("CoinTypeImage").GetComponent <Image> (),
                 appliedButton = podiumClone.transform.Find ("AppliedButton").GetComponent <Button> (),
+                applyButton = podiumClone.transform.Find ("ApplyButton").GetComponent <Button> (),
                 facilityData = data
             };
 
             podiumClone.SetActive (true);
             podiumClone.transform.SetParent (podiumCardPanel);
-            podiumClone.transform.localScale = new Vector3  (1,1,1);
+           // podiumClone.transform.localScale = new Vector3  (1,1,1);
+          //  Debug.LogError ("Podium " + podiumClone.transform.localScale);
             listPodiumCard.Add (newPodiumCard);
         }
 
@@ -66,10 +88,16 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 listPodiumCard[index].appliedButton.gameObject.SetActive (true);
             } else {
                 listPodiumCard[index].buyButton.onClick.AddListener(() => 
-                    BuyFacilities(listPodiumCard[index].facilityData)
+                    BuyFacilities(listPodiumCard[index], listPodiumCard[index].facilityData)
                 );
                 listPodiumCard[index].appliedButton.gameObject.SetActive (false);
             }
+            listPodiumCard[index].applyButton.onClick.AddListener(() => 
+                    ApplyFacilities(listPodiumCard[index], listPodiumCard[index].facilityData)
+            );
+            listPodiumCard[index].appliedButton.onClick.AddListener(() => 
+                    CancelFacilities(listPodiumCard[index], listPodiumCard[index].facilityData)
+            );
 
             listPodiumCard[i].nameText.text = listPodiumCard[i].facilityData.facilityName;
             listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.price.ToString ();
@@ -102,17 +130,83 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
         }
         
     }
-    podiumLayout.OnRebuild ();
+   // podiumLayout.OnRebuild ();
    }
 
-   public void BuyFacilities (HotelFacilitiesDataSO data) {
+   public void BuyFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
     Debug.Log ("Facilities Price : " + data.price);
     if (CoinManager.CheckCoins (data.price)) {
         CoinManager.SpendCoins (data.price);
 
         SaveSystem.PlayerConfig.AddHotelFacilityData (data.id);
         SaveSystem.SaveAll ();
+        
+
+        SpawnHotelFacilities (data.id, true);
+        
     }
    }
 
+   public void CancelFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
+        SaveSystem.PlayerConfig.ChangeHotelFacilityData (data.id, false);
+        SaveSystem.SaveAll ();
+        
+        DestroyHotelFacilities (data.id);
+   }
+
+   public void ApplyFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
+        SaveSystem.PlayerConfig.ChangeHotelFacilityData (data.id, true);
+        SaveSystem.SaveAll ();
+        
+        SpawnHotelFacilities (data.id, true);
+   }
+
+   void RefreshBuyButton (HotelFacilitiesPodiumCard podiumCard, string buttonCode) {
+        if (buttonCode == "Applied") {
+            podiumCard.buyButton.gameObject.SetActive (false);
+            podiumCard.appliedButton.gameObject.SetActive (true);
+            podiumCard.applyButton.gameObject.SetActive (false);
+        } else if (buttonCode == "Apply") {
+            podiumCard.buyButton.gameObject.SetActive (false);
+            podiumCard.appliedButton.gameObject.SetActive (false);
+            podiumCard.applyButton.gameObject.SetActive (true);
+        } else if (buttonCode == "Buy") {
+            podiumCard.buyButton.gameObject.SetActive (true);
+            podiumCard.appliedButton.gameObject.SetActive (false);
+            podiumCard.applyButton.gameObject.SetActive (false);
+        }
+   }
+
+    #region Handler
+    void LoadAllDatas () {
+        ownedHotelFacilitiesData = SaveSystem.PlayerConfig.ownedHotelFacilitiesData;
+    }
+
+    void SpawnHotelFacilities (string facilityId, bool refreshButton) {
+        HotelFacilitiesDataSO data = database.GetHotelFacilitiesDataSO (facilityId);
+        GameObject facilityClone = GameObject.Instantiate (data.facilityPrefab);
+        facilityClone.transform.position = data.facilitySpawnPosition;
+        facilityClone.SetActive (true);
+        dictionaryHotelFacilities.Add (facilityId, facilityClone);
+        if (refreshButton) {
+            RefreshBuyButton (GetHotelFacilitiesPodiumCard (data.id), "Applied");
+        }
+    }
+
+    void DestroyHotelFacilities (string facilityId) {
+        GameObject target = dictionaryHotelFacilities [facilityId];
+        Destroy (target);
+        dictionaryHotelFacilities.Remove (facilityId);
+
+        RefreshBuyButton (GetHotelFacilitiesPodiumCard (facilityId), "Apply");
+    }
+    #endregion
+    HotelFacilitiesPodiumCard GetHotelFacilitiesPodiumCard (string facilityId) {
+        foreach (HotelFacilitiesPodiumCard card in listPodiumCard) {
+            if (card.facilityData.id == facilityId) {
+                return card;
+            }
+        }
+        return null;
+    }
 }

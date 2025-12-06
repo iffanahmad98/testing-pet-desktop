@@ -130,6 +130,10 @@ namespace MagicalGarden.Hotel
         {
             isDirty = false;
             spriteRenderer.sprite = cleanSprites[selectedIndex];
+            Debug.Log ("Hotel Clean");
+            if (hotelGiftSpawner) {
+                hotelGiftSpawner.OnSpawnGift (listPet);
+            }
         }
         public void SetDirty()
         {
@@ -194,9 +198,7 @@ namespace MagicalGarden.Hotel
                 pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
             }
 
-            if (hotelGiftSpawner) {
-                hotelGiftSpawner.OnSpawnGift ();
-            }
+            
         }
         public void AddPet(PetMonsterHotel pet)
         {
@@ -321,7 +323,10 @@ namespace MagicalGarden.Hotel
                 HotelManager.Instance.npcHotel.hotelControlRef = this;
                 StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
             }
+
+            
         }
+        
         public void FulfillRequestByString(string typeStr)
         {
             Debug.Log("TEST Valid request type: " + typeStr);

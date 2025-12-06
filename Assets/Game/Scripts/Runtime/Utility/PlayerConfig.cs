@@ -290,7 +290,16 @@ public class PlayerConfig
     public void AddHotelFacilityData (string dataId)
     {
         if (!HasHotelFacility(dataId))
-            ownedHotelFacilitiesData.Add(new OwnedHotelFacilityData { id = dataId});
+            ownedHotelFacilitiesData.Add(new OwnedHotelFacilityData { id = dataId, isActive = true});
+    }
+
+    public void ChangeHotelFacilityData (string dataId, bool isActive) {
+        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
+            if (data.id == dataId) {
+                data.isActive = isActive;
+                return;
+            }
+        }
     }
     #endregion
 }
@@ -350,7 +359,7 @@ public class OwnedDecorationData
 public class OwnedHotelFacilityData
 {
     public string id;
-
+    public bool isActive;
 }
 
 

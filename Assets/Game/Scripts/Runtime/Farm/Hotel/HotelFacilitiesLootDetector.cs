@@ -1,12 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Tilemaps;
+using MagicalGarden.Manager;
 
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
 public class HotelFacilitiesLootDetector : MonoBehaviour
 {
-    HotelRandomLoot hotelRandomLoot;
+    public HotelRandomLoot hotelRandomLoot;
     [Header("Filter")]
     public string targetTag = "ClickableDecoration";
     public LootType [] lootTypes;
@@ -15,9 +16,15 @@ public class HotelFacilitiesLootDetector : MonoBehaviour
     public List<PolygonCollider2D> detectedPolygons = new List<PolygonCollider2D>();
     public List<PolygonCollider2D> detectedLootPolygons = new List <PolygonCollider2D> ();
     public Tilemap tilemap;   // assign tilemap di inspector
-
-    void Start () {
+    void Awake () {
         hotelRandomLoot = GameObject.Find ("HotelEvents").transform.Find ("HotelRandomLoot").GetComponent <HotelRandomLoot> ();
+    }
+    
+    void Start () {
+        
+        if (tilemap == null) {
+            tilemap = TileManager.Instance.tilemapHotelFacilities;
+        }
     }
 
     private void Reset()
@@ -35,6 +42,7 @@ public class HotelFacilitiesLootDetector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        
         if (!other.CompareTag(targetTag)) return;
 
         PolygonCollider2D poly = other.GetComponent<PolygonCollider2D>();

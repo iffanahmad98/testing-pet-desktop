@@ -63,6 +63,7 @@ namespace MagicalGarden.Gift
         /// <summary>
         /// Buka gift dan berikan reward
         /// </summary>
+
         public void OpenGift()
         {
             if (isOpened) return;
@@ -91,8 +92,11 @@ namespace MagicalGarden.Gift
             // Auto destroy jika enabled
             if (autoDestroyAfterOpen)
             {
-                Destroy(gameObject, destroyDelay);
+               // Destroy(gameObject, destroyDelay);
             }
+
+            HotelGiftHandler.instance.ClaimGift (this);
+            Destroy (this.gameObject);
         }
 
         /// <summary>
@@ -295,6 +299,11 @@ namespace MagicalGarden.Gift
             Destroy(textObj);
         }
 
+        #region NPCRoboShroom
+        public void OpenGiftByNPC () {
+            OpenGift ();
+        }
+        #endregion
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {

@@ -190,7 +190,7 @@ namespace MagicalGarden.Manager
                 // int days = UnityEngine.Random.Range(2, 6);
                 // int minutes = UnityEngine.Random.Range(0, 60);
                 // TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
-                TimeSpan stayDuration = new TimeSpan(0, 0, 1, 0); // 3 menit // 0,0,3,0
+                TimeSpan stayDuration = new TimeSpan(0, 0, 3, 0); // 3 menit // 0,0,3,0
                 var guestTemp = GetRandomGuestStagePrefab();
                 GuestRequest newRequest = new GuestRequest(guestTemp.name,guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
                 newRequest.GuestGroup = guestTemp;

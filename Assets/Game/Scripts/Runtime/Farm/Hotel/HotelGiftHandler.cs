@@ -1,20 +1,36 @@
 using UnityEngine;
 using TMPro;
+using MagicalGarden.Gift;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Tilemaps;
+using MagicalGarden.Manager;
 
 public class HotelGiftHandler : MonoBehaviour
 {
     public static HotelGiftHandler instance;
      
     [SerializeField] GameObject hotelGiftDisplayPrefab;
-    
+    [SerializeField] GameObject hotelGiftReceivedPrefab;
     [Header ("UI")]
     [SerializeField] GameObject lootTargetUI;
     [SerializeField] TMP_Text currentText;
     public DOTweenScaleBounce uiIconBounce;
     public DOTweenScaleBounce uiIconTabBounce;
+
+    [Tooltip("Collider yang terdeteksi")]
+   // public List<PolygonCollider2D> detectedGiftPolygons = new List <PolygonCollider2D> ();
+    public Tilemap tilemap;   // assign tilemap di inspector
+
     bool onceRefresh = false;
     void Awake () {
         instance = this;
+    }
+
+    void Start () {
+        if (tilemap == null) {
+            tilemap = TileManager.Instance.tilemapHotelFacilities;
+        }
     }
 
     public void SpawnHotelGiftDisplay () { // HotelGiftSpawner
@@ -42,5 +58,107 @@ public class HotelGiftHandler : MonoBehaviour
         uiIconBounce.Play ();
     }
 
+    #region Claim Gift
     
+    public void ClaimGift (GiftItem giftItem) { // GiftItem.cs
+    // Debug.Log ("ClaimGift");
+     GameObject cloneReceived = GameObject.Instantiate (hotelGiftReceivedPrefab);
+     // cloneReceived.transform.SetParent (giftItem.gameObject.transform);
+     cloneReceived.SetActive (true); 
+     cloneReceived.transform.localPosition = new Vector3 (0, 2.0f, 0);
+
+     HotelGift.instance.GetLoot (1);
+     HotelGiftHandler.instance.SpawnHotelGiftDisplay ();
+
+     RemoveHotelGift (giftItem.gameObject);   
+   }
+    #endregion
+    
+    #region NPCRoboShroom
+    public bool IsAnyGifts () {
+        return listHotelGift.Count >0;
+    }
+
+    /*
+    public Vector2Int GetRandomLootPosition () {
+        return DetectTiles (detectedLootPolygons[Random.Range (0, detectedLootPolygons.Count)].gameObject);
+    }
+    */
+
+    public (Vector2Int pos, GameObject obj) GetRandomGiftPosition()
+    {
+        int idTarget = Random.Range(0, listHotelGift.Count);
+        GameObject chosen = listHotelGift[idTarget].gameObject;
+        Vector2Int tilePos = DetectTiles(chosen);
+        listHotelGift.Remove (listHotelGift[idTarget]);
+        return (tilePos, chosen);
+    }
+    #endregion
+    #region Tileset
+
+    // Panggil: DetectTiles(gameObject);
+    Vector2Int DetectTiles(GameObject target)
+    {
+        BoxCollider2D box = target.GetComponent<BoxCollider2D>();
+        if (box == null)
+        {
+            Debug.LogError("GameObject tidak punya BoxCollider2D!");
+            return Vector2Int.zero;
+        }
+
+        if (tilemap == null)
+        {
+            Debug.LogError("Tilemap belum di-assign!");
+            return Vector2Int.zero;
+        }
+
+        HashSet<Vector3Int> tiles = new HashSet<Vector3Int>();
+
+        // Ambil 4 sudut BoxCollider2D (local space)
+        Vector2 size = box.size * 0.5f;
+
+        Vector2[] corners =
+        {
+            new Vector2(-size.x, -size.y), // kiri bawah
+            new Vector2(-size.x,  size.y), // kiri atas
+            new Vector2( size.x,  size.y), // kanan atas
+            new Vector2( size.x, -size.y)  // kanan bawah
+        };
+
+        // Konversi dari local → world → tile
+        foreach (var localCorner in corners)
+        {
+            Vector2 worldPoint = box.transform.TransformPoint(localCorner);
+            Vector3Int tilePos = tilemap.WorldToCell(worldPoint);
+            tiles.Add(tilePos);
+        }
+
+        // Debug
+        foreach (Vector3Int pos in tiles)
+            Debug.Log("Posisi tileset: " + pos);
+
+        if (tiles.Count == 0)
+            return Vector2Int.zero;
+
+        // Ambil tile random
+        Vector3Int[] arr = new Vector3Int[tiles.Count];
+        tiles.CopyTo(arr);
+
+        Vector3Int randomTile = arr[Random.Range(0, arr.Length)];
+        return new Vector2Int(randomTile.x, randomTile.y);
+    }
+
+
+    #endregion
+
+    #region Data
+    public List <GameObject> listHotelGift = new List <GameObject> ();
+    public void AddHotelGift (GameObject giftObject) { // HotelGiftSpawner
+        listHotelGift.Add (giftObject);
+    }
+
+    void RemoveHotelGift (GameObject giftObject) {
+        listHotelGift.Remove (giftObject);
+    }
+    #endregion
 }
