@@ -17,6 +17,7 @@ namespace MagicalGarden.Hotel
         }
     }
 
+    /*
     public enum GuestRequestType
     {
         RoomService
@@ -24,4 +25,5 @@ namespace MagicalGarden.Hotel
         // Food,
         // Gift
     }
+    */
 }

@@ -40,8 +40,8 @@ namespace MagicalGarden.Hotel
         public GuestRarity rarity = GuestRarity.Common;
         private float logTimer = 0f;
         public List<PetMonsterHotel> listPet = new List<PetMonsterHotel>();
-
-        [Header("Request UI Buttons")]
+      
+        [Header("Request UI Buttons (Ini kemungkinan akan dihapus, karena sistem sedikit berbeda)")]
         public GameObject giftBtn;
         public GameObject roomServiceBtn;
         public GameObject foodBtn;
@@ -53,7 +53,14 @@ namespace MagicalGarden.Hotel
         private bool hasRequest = false;
         private Coroutine currentRequestCountdown;
 
-        // [Header ("Hotel Gift")]
+        [Header ("Request Bubbles")]
+        [HideInInspector] public Canvas worldCanvas;
+        public GameObject giftBubblePrefab;
+        public GameObject roomServiceBubblePrefab;
+        public GameObject foodBubblePrefab;
+        GameObject currentRequestBubble;
+
+        [Header ("Hotel Gift")]
         HotelGiftSpawner hotelGiftSpawner;
         void Start()
         {
@@ -69,6 +76,7 @@ namespace MagicalGarden.Hotel
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
 
             hotelGiftSpawner = GetComponent <HotelGiftSpawner> ();
+            worldCanvas = MagicalGarden.Farm.UIManager.Instance.uIWorldNonScaleable; 
         }
         void Update()
         {
@@ -98,7 +106,8 @@ namespace MagicalGarden.Hotel
                     requestTimer += Time.deltaTime;
                     if (requestTimer >= requestInterval && !hasRequest)
                     {
-                        GenerateRoomServiceRequest();
+                      //  GenerateRoomServiceRequest();
+                        RandomGuestRequestType ();
                         requestTimer = 0f;
                     }
                 }
@@ -226,6 +235,49 @@ namespace MagicalGarden.Hotel
 
             // Aktifkan button
             if (roomServiceBtn) roomServiceBtn.SetActive(true);
+            GenerateRequestBubble (GuestRequestType.RoomService);
+            if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
+
+            string roomName = gameObject.name;
+            Debug.Log($"🛎️ [ROOM SERVICE REQUEST] Tamu: {nameGuest} | Kamar: {roomName} | Happiness: {happiness}/100 | Timer: 30 detik | Rarity: {rarity}");
+
+            // Start countdown timer (30 detik)
+            if (currentRequestCountdown != null)
+            {
+                StopCoroutine(currentRequestCountdown);
+            }
+            currentRequestCountdown = StartCoroutine(RequestCountdown(30f));
+        }
+
+        void GenerateFoodRequest()
+        {
+            // Random pilih tipe request (untuk sekarang cuma RoomService yang aktif)
+            hasRequest = true;
+
+            // Aktifkan button
+           // if (roomServiceBtn) roomServiceBtn.SetActive(true);
+            GenerateRequestBubble (GuestRequestType.Food);
+            if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
+
+            string roomName = gameObject.name;
+            Debug.Log($"🛎️ [ROOM SERVICE REQUEST] Tamu: {nameGuest} | Kamar: {roomName} | Happiness: {happiness}/100 | Timer: 30 detik | Rarity: {rarity}");
+
+            // Start countdown timer (30 detik)
+            if (currentRequestCountdown != null)
+            {
+                StopCoroutine(currentRequestCountdown);
+            }
+            currentRequestCountdown = StartCoroutine(RequestCountdown(30f));
+        }
+
+        void GenerateGiftRequest()
+        {
+
+            hasRequest = true;
+
+            // Aktifkan button
+            if (roomServiceBtn) roomServiceBtn.SetActive(true);
+            GenerateRequestBubble (GuestRequestType.Gift);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
 
             string roomName = gameObject.name;
@@ -282,6 +334,32 @@ namespace MagicalGarden.Hotel
             if (foodBtn) foodBtn.SetActive(false);
             if (giftBtn) giftBtn.SetActive(false);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
+        }
+
+        void GenerateRequestBubble (GuestRequestType guestRequestType) {
+            if (currentRequestBubble) {
+                Destroy (currentRequestBubble);
+            }
+
+            GameObject prefabTarget = null;
+            switch (guestRequestType) {
+                case GuestRequestType.RoomService :
+                prefabTarget = roomServiceBubblePrefab;
+                break;
+                case GuestRequestType.Food :
+                prefabTarget = foodBubblePrefab;
+                break;
+                case GuestRequestType.Gift :
+                prefabTarget = giftBubblePrefab;
+                break;
+            }
+
+            GameObject clone = GameObject.Instantiate (prefabTarget);
+            clone.SetActive (true);
+            clone.transform.position = this.transform.position;
+            clone.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
+            clone.transform.localPosition += new Vector3 (0,10,0);
+            currentRequestBubble = clone;
         }
         #endregion
 
@@ -408,6 +486,19 @@ namespace MagicalGarden.Hotel
         }
         #endregion
 
+        #region Random Guest Request Type
+        public void RandomGuestRequestType () {
+            int result = UnityEngine.Random.Range (0,100);
+            if (result >= 0 && result <= 20) {
+                GenerateGiftRequest ();
+            } else if (result >= 21 && result <= 60) {
+                GenerateFoodRequest ();
+            } else {
+                GenerateRoomServiceRequest ();
+            }
+        }
+
+        #endregion
     
     }
 

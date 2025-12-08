@@ -29,6 +29,7 @@ public class PlayerConfig
     public List<OwnedFacilityData> ownedFacilities = new();
     public List<OwnedDecorationData> ownedDecorations = new();
     public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
+    public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
 
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
@@ -285,6 +286,11 @@ public class PlayerConfig
     {
         return ownedHotelFacilitiesData.Any(d => d.id == id);
     }
+    
+    public bool HasHotelFacilityAndIsActive(string id)
+    {
+        return ownedHotelFacilitiesData.Any(d => d.id == id && d.isActive == true);
+    }
 
     // HotelFacilitesMenu
     public void AddHotelFacilityData (string dataId)
@@ -300,6 +306,30 @@ public class PlayerConfig
                 return;
             }
         }
+    }
+    #endregion
+    #region Hotel Gift World
+    public void AddHotelGiftWorld (Vector3 position) {// HotelGiftHandler
+        ownedHotelGiftWorldData.Add(new HotelGiftWorldData { dataPosition = position});
+        Debug.Log ("Melakukan Save Hotel Gift");
+        SaveSystem.SaveAll ();
+    }
+
+    public void RemoveHotelGiftWorld (Vector3 position) { // HotelGiftHandler
+        ownedHotelGiftWorldData.Remove(GetHotelGiftWorldData (position));
+        Debug.Log ("Melakukan Save Hotel Gift");
+        SaveSystem.SaveAll ();
+    }
+
+    HotelGiftWorldData GetHotelGiftWorldData (Vector3 targetPosition) {
+        foreach (HotelGiftWorldData data in ownedHotelGiftWorldData) {
+            if (Vector3.Distance (targetPosition, data.dataPosition) <0.5f) {
+                return data;
+            }
+        }
+
+        Debug.LogError ("There is no HotelGiftWorldData similar with this position !");
+        return null;
     }
     #endregion
 }
@@ -360,6 +390,11 @@ public class OwnedHotelFacilityData
 {
     public string id;
     public bool isActive;
+}
+[Serializable]
+public class HotelGiftWorldData
+{
+    public Vector3 dataPosition;
 }
 
 

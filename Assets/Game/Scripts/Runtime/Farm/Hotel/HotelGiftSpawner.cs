@@ -28,6 +28,8 @@ public class HotelGiftSpawner : MonoBehaviour
      }
    }
 
+   
+
   /*
    public void ClaimGift () { // CickableObjectHotel (when click hotel object)
     // Debug.Log ("ClaimGift");

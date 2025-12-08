@@ -18,11 +18,19 @@ public class HotelGiftHandler : MonoBehaviour
     public DOTweenScaleBounce uiIconBounce;
     public DOTweenScaleBounce uiIconTabBounce;
 
+    [Header ("Hotel Gift Spawner")]
+    [SerializeField] GameObject hotelGift2dPrefab;
+
     [Tooltip("Collider yang terdeteksi")]
    // public List<PolygonCollider2D> detectedGiftPolygons = new List <PolygonCollider2D> ();
     public Tilemap tilemap;   // assign tilemap di inspector
-
     bool onceRefresh = false;
+
+    [Tooltip ("Data")]
+    public bool dataLoaded = false;
+    public List <GameObject> listHotelGift = new List <GameObject> ();
+    public int maxHotelGiftLoad = 4;
+    
     void Awake () {
         instance = this;
     }
@@ -31,7 +39,10 @@ public class HotelGiftHandler : MonoBehaviour
         if (tilemap == null) {
             tilemap = TileManager.Instance.tilemapHotelFacilities;
         }
+
+        LoadHotelGift ();
     }
+
 
     public void SpawnHotelGiftDisplay () { // HotelGiftSpawner
         if (!onceRefresh) {
@@ -70,7 +81,8 @@ public class HotelGiftHandler : MonoBehaviour
      HotelGift.instance.GetLoot (1);
      HotelGiftHandler.instance.SpawnHotelGiftDisplay ();
 
-     RemoveHotelGift (giftItem.gameObject);   
+     RemoveHotelGift (giftItem.gameObject);
+       
    }
     #endregion
     
@@ -152,13 +164,68 @@ public class HotelGiftHandler : MonoBehaviour
     #endregion
 
     #region Data
-    public List <GameObject> listHotelGift = new List <GameObject> ();
+
     public void AddHotelGift (GameObject giftObject) { // HotelGiftSpawner
         listHotelGift.Add (giftObject);
+        if (dataLoaded) {
+            SaveAddHotelGift (giftObject);
+        }
     }
 
     void RemoveHotelGift (GameObject giftObject) {
         listHotelGift.Remove (giftObject);
+        if (dataLoaded) {
+            SaveRemoveHotelGift (giftObject);
+        }
     }
+
+    void SaveAddHotelGift (GameObject giftObject) {
+        SaveSystem.PlayerConfig.AddHotelGiftWorld (giftObject.transform.position);
+    }
+
+    void SaveRemoveHotelGift (GameObject giftObject) {
+        SaveSystem.PlayerConfig.RemoveHotelGiftWorld (giftObject.transform.position);
+        Debug.Log ("Save Remove Hotel Gift");
+    }
+
+    void LoadHotelGift () {
+        if (SaveSystem.PlayerConfig.HasHotelFacilityAndIsActive ("robo_shroom")) {
+            // jika memiliki Robo shroom
+            Debug.Log ("Memiliki Robo Shroom, hadiah terakhir tersisa : " + SaveSystem.PlayerConfig.ownedHotelGiftWorldData.Count);
+            // langsung save hadiah terakhir & Hapus semua data Hotel Gift di World :
+            HotelGift.instance.GetLoot (SaveSystem.PlayerConfig.ownedHotelGiftWorldData.Count);
+            SaveSystem.PlayerConfig.ownedHotelGiftWorldData.Clear ();
+        } else {
+            // jika tidak memiliki robo shroom
+            int curLoadGift = 0;
+
+            for (int i = 0; i < maxHotelGiftLoad && i < SaveSystem.PlayerConfig.ownedHotelGiftWorldData.Count; i++)
+            {
+                int lastElement = SaveSystem.PlayerConfig.ownedHotelGiftWorldData.Count - i -1;
+                OnSpawnGiftByLoadData (SaveSystem.PlayerConfig.ownedHotelGiftWorldData[lastElement].dataPosition);
+            }
+
+            for (int i = 0; i < SaveSystem.PlayerConfig.ownedHotelGiftWorldData.Count - maxHotelGiftLoad; i++)
+            {
+                // remove old gifts :
+                    SaveSystem.PlayerConfig.RemoveHotelGiftWorld (SaveSystem.PlayerConfig.ownedHotelGiftWorldData[i].dataPosition);
+            }
+
+             Debug.Log ("Tidak Memiliki Robo Shroom");
+        }
+
+        dataLoaded = true;
+    }
+
+    #endregion
+
+    #region HotelGiftSpawner (World)
+    void OnSpawnGiftByLoadData (Vector3 position) {
+      GameObject cloneHotelGift = GameObject.Instantiate (hotelGift2dPrefab);
+      cloneHotelGift.SetActive (true); 
+      cloneHotelGift.transform.position = position;
+      HotelGiftHandler.instance.AddHotelGift (cloneHotelGift);
+
+   }
     #endregion
 }

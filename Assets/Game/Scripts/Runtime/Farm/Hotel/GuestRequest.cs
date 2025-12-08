@@ -49,6 +49,7 @@ namespace MagicalGarden.Hotel
             return result.Trim();
         }
     }
+    
     public enum GuestRarity
     {
         Common,

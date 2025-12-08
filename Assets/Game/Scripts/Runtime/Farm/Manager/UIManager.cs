@@ -39,6 +39,9 @@ namespace MagicalGarden.Farm
         private float showY;
         private float hideY;
         private bool isInitialized = false;
+        [Header ("UI (World)")]
+        public Canvas uIWorldNonScaleable;
+        
         //coroutine for click popupHotel
         [HideInInspector] public Coroutine autoCloseCoroutine;
         private void Awake()

@@ -223,12 +223,16 @@ public static class SaveSystem
             try
             {
                 string json = File.ReadAllText(path);
-                _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json);
+
+                _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json, _jsonSettings);
+
                 _playerConfig.SyncFromSerializable();
-                _playerConfig.SyncLootUseable ();
-                DataLoaded?.Invoke(PlayerConfig);
+                _playerConfig.SyncLootUseable();
+
+                DataLoaded?.Invoke(_playerConfig);
+
                 Debug.Log("Game data loaded successfully");
-                Debug.Log ($"Your have Golden Tickets : " + _playerConfig.goldenTicket);
+                Debug.Log("You have Golden Tickets: " + _playerConfig.goldenTicket);
             }
             catch (Exception e)
             {
@@ -242,22 +246,34 @@ public static class SaveSystem
         }
     }
 
-    private static void SavePlayerConfig()
-    {
-        string path = Path.Combine(Application.persistentDataPath, SaveFileName);
 
-        try
+    private static readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
+    {
+        Formatting = Formatting.Indented, // datetime
+        Converters = { new Vector3Converter() } // vector3
+    };
+
+    private static void SavePlayerConfig()
         {
-            _playerConfig.SyncToSerializable(); // Convert DateTime to strings, etc.
-            string json = JsonConvert.SerializeObject(_playerConfig, Formatting.Indented);
-            File.WriteAllText(path, json);
-            Debug.Log("Game data saved successfully");
+            string path = Path.Combine(Application.persistentDataPath, SaveFileName);
+
+            try
+            {
+                _playerConfig.SyncToSerializable(); // Convert DateTime to strings, etc.
+
+                string json = JsonConvert.SerializeObject(_playerConfig, _jsonSettings);
+
+                File.WriteAllText(path, json);
+
+                Debug.Log("Game data saved successfully");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Failed to save game data: " + e.Message);
+            }
         }
-        catch (Exception e)
-        {
-            Debug.LogError("Failed to save game data: " + e.Message);
-        }
-    }
+
+
 
     private static void CreateNewPlayerConfig()
     {
