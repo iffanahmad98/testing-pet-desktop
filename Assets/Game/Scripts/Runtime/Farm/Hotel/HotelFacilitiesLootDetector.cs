@@ -18,14 +18,11 @@ public class HotelFacilitiesLootDetector : MonoBehaviour
     public Tilemap tilemap;   // assign tilemap di inspector
     void Awake () {
         hotelRandomLoot = GameObject.Find ("HotelEvents").transform.Find ("HotelRandomLoot").GetComponent <HotelRandomLoot> ();
-    }
-    
-    void Start () {
-        
         if (tilemap == null) {
             tilemap = TileManager.Instance.tilemapHotelFacilities;
         }
     }
+    
 
     private void Reset()
     {

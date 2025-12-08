@@ -59,6 +59,8 @@ namespace MagicalGarden.Hotel
         public GameObject roomServiceBubblePrefab;
         public GameObject foodBubblePrefab;
         GameObject currentRequestBubble;
+        GuestRequestType currentGuestRequestType;
+
 
         [Header ("Hotel Gift")]
         HotelGiftSpawner hotelGiftSpawner;
@@ -228,14 +230,14 @@ namespace MagicalGarden.Hotel
         void GenerateRoomServiceRequest()
         {
             // Random pilih tipe request (untuk sekarang cuma RoomService yang aktif)
-            var randomType = GuestRequestType.RoomService;
-
+           // var randomType = GuestRequestType.RoomService;
+            currentGuestRequestType = GuestRequestType.RoomService;
             SetDirty();  // Room jadi kotor
             hasRequest = true;
 
             // Aktifkan button
             if (roomServiceBtn) roomServiceBtn.SetActive(true);
-            GenerateRequestBubble (GuestRequestType.RoomService);
+            GenerateRequestBubble (currentGuestRequestType);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
 
             string roomName = gameObject.name;
@@ -256,7 +258,9 @@ namespace MagicalGarden.Hotel
 
             // Aktifkan button
            // if (roomServiceBtn) roomServiceBtn.SetActive(true);
-            GenerateRequestBubble (GuestRequestType.Food);
+           currentGuestRequestType = GuestRequestType.Food;
+
+            GenerateRequestBubble (currentGuestRequestType);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
 
             string roomName = gameObject.name;
@@ -276,8 +280,9 @@ namespace MagicalGarden.Hotel
             hasRequest = true;
 
             // Aktifkan button
-            if (roomServiceBtn) roomServiceBtn.SetActive(true);
-            GenerateRequestBubble (GuestRequestType.Gift);
+            currentGuestRequestType = GuestRequestType.Gift;
+           // if (roomServiceBtn) roomServiceBtn.SetActive(true);
+            GenerateRequestBubble (currentGuestRequestType);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
 
             string roomName = gameObject.name;
@@ -360,6 +365,8 @@ namespace MagicalGarden.Hotel
             clone.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
             clone.transform.localPosition += new Vector3 (0,10,0);
             currentRequestBubble = clone;
+
+            currentRequestBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => FulfillRequest (currentGuestRequestType));
         }
         #endregion
 
