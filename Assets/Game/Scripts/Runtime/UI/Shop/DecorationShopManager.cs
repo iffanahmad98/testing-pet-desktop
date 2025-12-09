@@ -5,9 +5,14 @@ using System.Collections.Generic;
 
 public class DecorationShopManager : MonoBehaviour
 {
+    public static DecorationShopManager instance;
+
     [Header("UI References")]
     public Transform cardParent;
     public GameObject decorationCardPrefab;
+    List <string> listTreeDecoration1 = new List <string> ();
+    DecorationCardUI treeDecoration1;
+    string lastLoadTreeDecoration1;
 
     [Header("Info Panel")]
     public TMP_Text decorationNameText;
@@ -21,14 +26,18 @@ public class DecorationShopManager : MonoBehaviour
 
     private Queue<DecorationCardUI> cardPool = new Queue<DecorationCardUI>();
     private List<DecorationCardUI> activeCards = new List<DecorationCardUI>();
+    
     private void Awake()
     {
+        instance = this;
+        LoadListTreeDecoration1 ();
         InitializeCardPool();
     }
 
     private void Start()
     {
         RefreshDecorationCards();
+        
     }
 
     private void InitializeCardPool()
@@ -113,8 +122,9 @@ public class DecorationShopManager : MonoBehaviour
                 activeCards.Add(card);
                 totalCount++;
             }
-       
 
+        // memberikan tombol terakhir treeDecoration1 (Pas awal load data + nampilkan menu)
+        if (!treeDecoration1 && lastLoadTreeDecoration1 != "") { Debug.Log ("Decoration Tree : " + lastLoadTreeDecoration1); treeDecoration1 = GetDecorationCardById (lastLoadTreeDecoration1);lastLoadTreeDecoration1 = "";}
         ClearInfo();
     }
 
@@ -140,8 +150,14 @@ public class DecorationShopManager : MonoBehaviour
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Applied '{card.DecorationData.decorationName}' decoration!");
         DecorationUIFixHandler.SetDecorationStats (card.DecorationData.decorationID);
 
+        
+
         RefreshDecorationCards();
         OnDecorationSelected(card);
+
+       
+        ReplaceDecoration (card.DecorationData.decorationID);
+        
     }
 
     private void OnDecorationCancel(DecorationCardUI card)
@@ -154,9 +170,13 @@ public class DecorationShopManager : MonoBehaviour
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled '{card.DecorationData.decorationName}' decoration.");
         DecorationUIFixHandler.SetDecorationStats (card.DecorationData.decorationID);
 
+       // Debug.Log ("Decoration Replace Canceling " + card.DecorationData.decorationID);
+
         card.UpdateState();
         selectedCard = null;
         ClearInfo();
+
+        RefreshDecorationCards(); // harus paling belakang, untuk melakukan refresh kartu replace.
     }
 
     private void OnDecorationBuy(DecorationCardUI card)
@@ -179,6 +199,11 @@ public class DecorationShopManager : MonoBehaviour
         SaveSystem.SaveAll();
         RefreshDecorationCards();
         OnDecorationSelected(card);
+
+        ReplaceDecoration (card.DecorationData.decorationID);
+        
+
+        
     }
   
     private void ShowDecorationInfo(DecorationDataSO deco)
@@ -195,5 +220,43 @@ public class DecorationShopManager : MonoBehaviour
         decorationDescText.text = "";
     }
 
+    #region ReplaceDecoration
+    
+    void LoadListTreeDecoration1 () {
+        listTreeDecoration1.Add ("banyanTree");
+        listTreeDecoration1.Add ("blossomTree");
+    }
+
+    // this:
+    public void ReplaceDecoration (string id) {
+         if (listTreeDecoration1.Contains (id)) {
+                if (treeDecoration1) { 
+                    OnDecorationCancel (treeDecoration1);
+                } 
+
+                treeDecoration1 = GetDecorationCardById (id);
+         }
+    }
+
+    // DecorationCardUI (Start)
+    public void SetLastLoadTreeDecoration1 (string id) {
+        Debug.Log ("Decoration Replace 0,1x");
+        if (listTreeDecoration1.Contains (id)) {
+            lastLoadTreeDecoration1 = id;
+            Debug.Log ("Decoration Replace 0,5x :" + lastLoadTreeDecoration1);
+        }
+    }
+
+    #endregion
+    #region Utility
+    DecorationCardUI GetDecorationCardById (string id) {
+        foreach (DecorationCardUI deco in activeCards) {
+            if (deco.DecorationData.decorationID == id) {
+                return deco; 
+            }
+        }
+        return null;
+    }
+    #endregion
     
 }

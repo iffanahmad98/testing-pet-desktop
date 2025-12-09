@@ -3,13 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using MagicalGarden.Hotel;
 using MagicalGarden.Manager;
-
+using System;
 namespace MagicalGarden.AI
 {
     public class NPCHotel : BaseEntityAI
     {
         public Vector2Int destinationTile;
         public HotelController hotelControlRef;
+        public Action<int> finishEvent;
+        int finishEventValue;
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -29,11 +31,22 @@ namespace MagicalGarden.AI
         {
             base.Start();
             stateLoopCoroutine = StartCoroutine(StateLoop());
+            HotelManager.Instance.AddNPCHotelAvailable (this);
         }
 
 
+        
+
+        public void AddFinishEventHappiness(Action<int> callback, int value)
+        {
+            finishEvent = null;      // clear semua listener sebelumnya
+            finishEvent += callback; // tambah listener baru
+            finishEventValue = value;
+        }
+
         public IEnumerator NPCHotelCleaning()
         {
+            HotelManager.Instance.RemoveNPCHotelAvailable (this);
             string guestName = hotelControlRef?.nameGuest ?? "No Guest";
             Debug.Log($"🚶 [NPC] Berjalan menuju kamar tamu '{guestName}' di posisi tile ({hotelControlRef.hotelPositionTile.x}, {hotelControlRef.hotelPositionTile.y})");
 
@@ -44,6 +57,7 @@ namespace MagicalGarden.AI
 
         public IEnumerator CleaningRoutine(float cleanDuration = 5f)
         {
+            
             string guestName = hotelControlRef?.nameGuest ?? "No Guest";
             string hotelName = hotelControlRef?.gameObject.name ?? "Unknown Hotel";
             Debug.Log($"🧹 [NPC CLEANING START] Membersihkan kamar '{hotelName}' | Tamu: {guestName} | Durasi: {cleanDuration}s");
@@ -72,8 +86,9 @@ namespace MagicalGarden.AI
 
             yield return new WaitForSeconds(2);
             GetComponent<MeshRenderer>().enabled = true;
-
-            // 5. Lanjut wander
+            HotelManager.Instance.AddNPCHotelAvailable (this);
+            finishEvent?.Invoke(finishEventValue);
+            // 5. Lanjut wander 
             stateLoopCoroutine = StartCoroutine(StateLoop());
         }
 
@@ -134,11 +149,12 @@ namespace MagicalGarden.AI
                         // Debug: Garis dari posisi sebelumnya ke sekarang (arah gerakan)
                         Debug.DrawLine(prevPos, transform.position, Color.red); // hanya tampil 1 frame (0.1s)
 
+                        /*
                         Debug.Log(
                             $"Moving to Step {i}: current={transform.position}, target={targetPos}, " +
                             $"dist={Vector3.Distance(transform.position, targetPos):F4}, speed={speed:F2}"
                         );
-
+                        */
                         yield return null;
                     }
                 }

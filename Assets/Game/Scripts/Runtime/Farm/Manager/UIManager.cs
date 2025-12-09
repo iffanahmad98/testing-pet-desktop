@@ -175,7 +175,7 @@ namespace MagicalGarden.Farm
             if (hotelInfoPanel == null) return;
             GameObject panel = hotelInfoPanel.transform.gameObject;
             panel.transform.localScale = Vector3.one;
-            panel.transform.position = hotelController.gameObject.transform.position + new Vector3(0f, 5f, 0f);
+            panel.transform.position = hotelController.gameObject.transform.position + new Vector3(0f, 7f, 0f);
             panel.SetActive(true);
             hotelInfoPanel.Setup(hotelController);
             if (hideInfoHotelCoroutine != null)

@@ -47,6 +47,8 @@ public class DecorationCardUI : MonoBehaviour
         applyButton.onClick.AddListener(() => OnApplyClicked?.Invoke(this));
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(() => OnCancelApplied?.Invoke(this));
+
+       
         
     }
 

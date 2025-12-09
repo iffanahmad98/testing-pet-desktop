@@ -13,18 +13,21 @@ namespace MagicalGarden.Hotel
         public Image guestImage;
         public TextMeshProUGUI partyCount;
         public TextMeshProUGUI timeStay;
+        public Slider happinessBarFill;
 
         [Header("Hotel Reference")]
         public HotelController currentHotelController;
 
         public void Setup(HotelController hotelController)
         {
-            Debug.Log ("Testing");
+            // Debug.Log ("Testing");
             currentHotelController = hotelController;
             titleGuest.text = hotelController.nameGuest;
             guestImage.sprite = hotelController.iconGuest;
             partyCount.text = hotelController.party.ToString();
             timeStay.text = hotelController.GetFormattedRemainingTime();
+            happinessBarFill.maxValue = 100;
+            happinessBarFill.value = hotelController.happiness;
         }
 
         public void FulfillRequestByString(string typeStr)

@@ -25,6 +25,9 @@ namespace MagicalGarden.Manager
         public List<HotelController> hotelControllers = new List<HotelController>();
         public List<GuestStageGroup> guestStageGroup;
         public NPCHotel npcHotel;
+        public List <NPCHotel> listNpcHotelAvailables = new List <NPCHotel> ();
+        public bool npcHotelAvailable = false;
+
         [Header("Guest Queue")]
         public Transform guestSpawnPoint;
         public List<GuestRequest> todayGuestRequests = new List<GuestRequest>();
@@ -35,6 +38,7 @@ namespace MagicalGarden.Manager
         [SerializeField] public Transform objectGuestPool;
         private string[] types = { "Fire", "Water", "Earth", "Air", "Plant" };
         public DateTime lastGeneratedDate;
+        public List <Button> listBubbleRequest = new List <Button> ();
 
         [Header("Debug")]
         public int minRequestCount = 5;
@@ -184,13 +188,13 @@ namespace MagicalGarden.Manager
             {
                 string type = types[UnityEngine.Random.Range(0, types.Length)];
                 int party = UnityEngine.Random.Range(1, 5);
-                int price = UnityEngine.Random.Range(100, 301);
-
+                //int price = UnityEngine.Random.Range(100, 301);
+                int price = party * 150 + UnityEngine.Random.Range (1,100);
                 //random
                 // int days = UnityEngine.Random.Range(2, 6);
                 // int minutes = UnityEngine.Random.Range(0, 60);
                 // TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
-                TimeSpan stayDuration = new TimeSpan(0, 0, 3, 0); // 3 menit // 0,0,3,0
+                TimeSpan stayDuration = new TimeSpan(0, 0, 5, 0); // 3 menit // 0,0,3,0
                 var guestTemp = GetRandomGuestStagePrefab();
                 GuestRequest newRequest = new GuestRequest(guestTemp.name,guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
                 newRequest.GuestGroup = guestTemp;
@@ -362,6 +366,55 @@ namespace MagicalGarden.Manager
                 //     room.transform.position = worldPos;
                 // }
             }
+        }
+        #endregion
+        #region NPCHotel
+        // NPCHotel
+        public void AddNPCHotelAvailable (NPCHotel npc) {
+            listNpcHotelAvailables.Add (npc);
+            if (listNpcHotelAvailables.Count>0) {
+                npcHotelAvailable = true;
+            }
+            RefreshBubbleRoomService ();
+        }
+        // NPCHotel
+        public void RemoveNPCHotelAvailable (NPCHotel npc) {
+            listNpcHotelAvailables.Remove (npc);
+            if (listNpcHotelAvailables.Count==0) {
+                npcHotelAvailable = false;
+            }
+            RefreshBubbleRoomService ();
+        }
+
+        // HotelController
+        public bool CheckNPCHotelAvailable () {
+            return npcHotelAvailable;
+        }
+        
+        void RefreshBubbleRoomService () {
+            if (npcHotelAvailable) {
+                foreach (Button bubble in listBubbleRequest) {
+                    bubble.interactable = true;
+                }
+            }
+            else {
+                foreach (Button bubble in listBubbleRequest) {
+                    bubble.interactable = false;
+                }
+            }
+        }
+        #endregion
+
+        #region HotelController
+        // HotelController
+        public void AddBubbleRequest (Button bubbleButton) {
+            listBubbleRequest.Add (bubbleButton);
+
+        }
+
+        // HotelController
+        public void RemoveBubbleRequest (Button bubbleButton) {
+            listBubbleRequest.Remove (bubbleButton);
         }
         #endregion
     }

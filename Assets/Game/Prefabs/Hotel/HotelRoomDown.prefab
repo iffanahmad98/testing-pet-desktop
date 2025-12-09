@@ -397,7 +397,7 @@ MonoBehaviour:
   typeGuest: 
   party: 0
   price: 0
-  happiness: 100
+  happiness: 0
   rarity: 0
   listPet: []
   giftBtn: {fileID: 0}
@@ -409,6 +409,19 @@ MonoBehaviour:
   giftBubblePrefab: {fileID: 2335017987169968055, guid: 789f0426a153c5a408ca52e7b90ceae7, type: 3}
   roomServiceBubblePrefab: {fileID: 5824403613803653334, guid: 501c6962ee557494db92f394aa66cca8, type: 3}
   foodBubblePrefab: {fileID: 6615755624030560791, guid: 269747805c37d754a96701bb7119656e, type: 3}
+  guestRequestConfigs:
+  - guestRequestType: 2
+    chanceActive: 20
+    increaseHappiness: 40
+    decreaseHappiness: -40
+  - guestRequestType: 1
+    chanceActive: 40
+    increaseHappiness: 40
+    decreaseHappiness: -40
+  - guestRequestType: 0
+    chanceActive: 40
+    increaseHappiness: 40
+    decreaseHappiness: -40
 --- !u!114 &8579248136603560872
 MonoBehaviour:
   m_ObjectHideFlags: 0

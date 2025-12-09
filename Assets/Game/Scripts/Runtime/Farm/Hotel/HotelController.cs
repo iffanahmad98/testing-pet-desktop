@@ -60,7 +60,9 @@ namespace MagicalGarden.Hotel
         public GameObject foodBubblePrefab;
         GameObject currentRequestBubble;
         GuestRequestType currentGuestRequestType;
-
+        
+        [Header ("Request Config")]
+        public GuestRequestConfig [] guestRequestConfigs;
 
         [Header ("Hotel Gift")]
         HotelGiftSpawner hotelGiftSpawner;
@@ -167,6 +169,7 @@ namespace MagicalGarden.Hotel
             party = guest.party;
             stayDurationDays = guest.stayDurationDays;
             rarity = guest.rarity;
+            happiness = 50;
             // SetHappiness(0);
             checkInDate = TimeManager.Instance.currentTime;
         }
@@ -323,7 +326,8 @@ namespace MagicalGarden.Hotel
 
         void HandleRequestExpired()
         {
-            happiness = Mathf.Max(happiness - 15, 0);
+           // happiness = Mathf.Max(happiness - 15, 0);
+           happiness = Mathf.Max ( happiness + GetGuestRequest (currentGuestRequestType).decreaseHappiness,0);
             hasRequest = false;
 
             string roomName = gameObject.name;
@@ -339,10 +343,15 @@ namespace MagicalGarden.Hotel
             if (foodBtn) foodBtn.SetActive(false);
             if (giftBtn) giftBtn.SetActive(false);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
+            if (currentRequestBubble) {
+                HotelManager.Instance.RemoveBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
+                Destroy (currentRequestBubble);
+            }
         }
 
         void GenerateRequestBubble (GuestRequestType guestRequestType) {
             if (currentRequestBubble) {
+                HotelManager.Instance.RemoveBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
                 Destroy (currentRequestBubble);
             }
 
@@ -367,6 +376,7 @@ namespace MagicalGarden.Hotel
             currentRequestBubble = clone;
 
             currentRequestBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => FulfillRequest (currentGuestRequestType));
+            HotelManager.Instance.AddBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
         }
         #endregion
 
@@ -379,12 +389,19 @@ namespace MagicalGarden.Hotel
             FulfillRequestByString("RoomService");
         }
         #endif
+
+        // CickableObjectHotel
+        public void ClickableFulFillRequest () {
+            FulfillRequest (currentGuestRequestType);
+        }
+
         private void FulfillRequest(GuestRequestType type)
         {
             Debug.Log($"VALID {hasRequest}");
             if (!hasRequest) return;
-
+            if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;
             // Stop countdown coroutine
+
             if (currentRequestCountdown != null)
             {
                 StopCoroutine(currentRequestCountdown);
@@ -392,12 +409,12 @@ namespace MagicalGarden.Hotel
             }
 
             hasRequest = false;
-            happiness = Mathf.Min(happiness + 20, 100);
+            // happiness = Mathf.Min(happiness + 20, 100);
+           // happiness = Mathf.Min (happiness + GetGuestRequest (currentGuestRequestType).increaseHappiness,100);
 
-            Debug.Log($"✅ {nameGuest} puas dengan {type}! Happiness: {happiness} (+20)");
+           // Debug.Log($"✅ {nameGuest} puas dengan {type}! Happiness: {happiness} (+20)");
 
-            // Hide buttons
-            ResetRequestButtons();
+            
 
             if (type == GuestRequestType.RoomService)
             {
@@ -406,9 +423,31 @@ namespace MagicalGarden.Hotel
                 Debug.Log($"🧹 [NPC CLEANING] Mengirim NPC untuk membersihkan kamar {roomName} milik {nameGuest}");
 
                 HotelManager.Instance.npcHotel.hotelControlRef = this;
+                HotelManager.Instance.npcHotel.AddFinishEventHappiness(IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
+                StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
+            } else if (type == GuestRequestType.Food)
+            {
+                // Log NPC cleaning dimulai
+                string roomName = gameObject.name;
+                Debug.Log($" [NPC Food] Mengirim NPC untuk mengantar makanan kamar {roomName} milik {nameGuest}");
+
+                HotelManager.Instance.npcHotel.hotelControlRef = this;
+                HotelManager.Instance.npcHotel.AddFinishEventHappiness(IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
+                StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
+            }
+            else if (type == GuestRequestType.Gift)
+            {
+                // Log NPC cleaning dimulai
+                string roomName = gameObject.name;
+                Debug.Log($"[NPC Gift] Mengirim NPC untuk memberikan hadiah ke kamar {roomName} milik {nameGuest}");
+
+                HotelManager.Instance.npcHotel.hotelControlRef = this;
+                HotelManager.Instance.npcHotel.AddFinishEventHappiness(IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
                 StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
             }
 
+            // Hide buttons
+            ResetRequestButtons();
             
         }
         
@@ -425,6 +464,10 @@ namespace MagicalGarden.Hotel
             {
                 Debug.LogWarning("Invalid request type: " + typeStr);
             }
+        }
+
+        void IncreaseHappiness (int happinessValue) {
+            happiness = Mathf.Min (happiness +  happinessValue,100);
         }
         #endregion
 
@@ -494,15 +537,60 @@ namespace MagicalGarden.Hotel
         #endregion
 
         #region Random Guest Request Type
-        public void RandomGuestRequestType () {
-            int result = UnityEngine.Random.Range (0,100);
-            if (result >= 0 && result <= 20) {
-                GenerateGiftRequest ();
-            } else if (result >= 21 && result <= 60) {
-                GenerateFoodRequest ();
-            } else {
-                GenerateRoomServiceRequest ();
+
+        public void RandomGuestRequestType()
+        {
+            int total = 0;
+
+            for (int i = 0; i < guestRequestConfigs.Length; i++)
+                total += guestRequestConfigs[i].chanceActive;
+
+            if (total <= 0)
+            {
+                Debug.LogError("Total chanceActive = 0");
+                return;
             }
+
+            int roll = UnityEngine.Random.Range(0, total);
+            int cumulative = 0;
+
+            for (int i = 0; i < guestRequestConfigs.Length; i++)
+            {
+                cumulative += guestRequestConfigs[i].chanceActive;
+                if (roll < cumulative)
+                {
+                    ExecuteRequest(guestRequestConfigs[i].guestRequestType);
+                    return;
+                }
+            }
+        }
+
+
+        void ExecuteRequest(GuestRequestType type)
+        {
+            switch (type)
+            {
+                case GuestRequestType.Gift:
+                    GenerateGiftRequest();
+                    break;
+
+                case GuestRequestType.Food:
+                    GenerateFoodRequest();
+                    break;
+
+                case GuestRequestType.RoomService:
+                    GenerateRoomServiceRequest();
+                    break;
+            }
+        }
+
+        GuestRequestConfig GetGuestRequest (GuestRequestType guestRequestType) {
+            foreach (GuestRequestConfig config in guestRequestConfigs) {
+                if (config.guestRequestType == guestRequestType) {
+                    return config;
+                }
+            }
+            return null;
         }
 
         #endregion

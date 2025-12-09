@@ -42,7 +42,7 @@ namespace MagicalGarden.Hotel
                     Farm.UIManager.Instance.ShowHotelInfo(hotelController, mouseWorldPos);
                 }
             } else if (Input.GetMouseButtonDown (0) && isHovered) {
-                
+                hotelController.ClickableFulFillRequest ();
             }
         }
 
