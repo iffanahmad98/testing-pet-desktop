@@ -46,6 +46,7 @@ public class NormalEgg : LootUseable
     }
 
     public override DateTime LoadLastRefreshTime () {
+        GetLootOffline();
         /*
         if (TimeManager.Instance.IsTimeInFuture(SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs)) {
            // SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs = TimeManager.Instance.currentTime;
@@ -57,10 +58,10 @@ public class NormalEgg : LootUseable
         if (TimeManager.Instance.IsTimeInFuture(SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs)) {
            if (!firstTime) {
                 firstTime = true;
-                SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets = TimeManager.Instance.currentTime;
+                SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs = TimeManager.Instance.currentTime;
                 return TimeManager.Instance.realCurrentTime;
             } else {
-                return SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
+                return SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs;
             }
         } else {
             return SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs;
@@ -71,5 +72,26 @@ public class NormalEgg : LootUseable
 
     public override int GetCurrency () {
         return SaveSystem.PlayerConfig.normalEgg;
+    }
+
+    public override void GetLootOffline()
+    {
+        if (SaveSystem.PlayerConfig.HasHotelFacilityAndIsActive ("wizard_shroom")) {
+            TimeSpan diff = TimeManager.Instance.currentTime 
+                            - SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs;
+
+            double hours = diff.TotalHours;
+
+            Debug.Log("Total Hours NormalEgg : " + hours);
+
+            if (hours > 0)
+            {
+                int cycles = (int)(hours / 24.0); // 1 cycle setiap 24 jam
+                int totalLoot = 1 * cycles;
+
+                if (totalLoot > 0)
+                    GetLoot(totalLoot);
+            }
+        }
     }
 }

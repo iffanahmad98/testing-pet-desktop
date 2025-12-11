@@ -5,11 +5,15 @@ using System.Collections.Generic;
 public class CameraDragLocker : MonoBehaviour, ILockedBy {
     List <GameObject> listLockedBy = new List <GameObject> ();
     public void AddLockedBy (GameObject value) { // HotelShop
-        listLockedBy.Add (value);
+        if (!listLockedBy.Contains (value)) {
+            listLockedBy.Add (value);
+        }
     }
 
     public void RemoveLockedBy (GameObject value) { // HotelShop
-        listLockedBy.Remove (value);
+        if (listLockedBy.Contains (value)) {
+            listLockedBy.Remove (value);
+        }
     }
 
     public bool IsCan () {

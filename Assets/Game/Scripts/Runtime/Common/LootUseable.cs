@@ -13,4 +13,5 @@ public abstract class LootUseable
     public abstract List <int> LoadListDecorationIds ();
     public abstract DateTime LoadLastRefreshTime ();
     public abstract int GetCurrency ();
+    public abstract void GetLootOffline ();
 }

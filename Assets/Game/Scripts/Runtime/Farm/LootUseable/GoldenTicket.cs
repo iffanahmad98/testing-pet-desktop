@@ -46,6 +46,7 @@ public class GoldenTicket : LootUseable
     }
 
     public override DateTime LoadLastRefreshTime () {
+        GetLootOffline ();
         if (TimeManager.Instance.IsTimeInFuture(SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets)) {
           //  SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets = TimeManager.Instance.currentTime;
             if (!firstTime) {
@@ -59,9 +60,32 @@ public class GoldenTicket : LootUseable
             firstTime = true;
             return SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
         }
+
     }
 
     public override int GetCurrency () {
         return SaveSystem.PlayerConfig.goldenTicket;
     }
+
+    public override void GetLootOffline()
+    {
+        if (SaveSystem.PlayerConfig.HasHotelFacilityAndIsActive ("nerd_shroom")) {
+            TimeSpan diff = TimeManager.Instance.currentTime 
+                            - SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
+
+            double hours = diff.TotalHours;
+
+            Debug.Log("Total Hours GoldenTickets : " + hours);
+
+            if (hours > 0)
+            {
+                int cycles = (int)(hours / 2.0); // 1 cycle setiap 2 jam
+                int totalLoot = 15 * cycles;
+
+                if (totalLoot > 0)
+                    GetLoot(totalLoot);
+            }
+        }
+    }
+
 }
