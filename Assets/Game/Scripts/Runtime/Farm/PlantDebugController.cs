@@ -34,6 +34,7 @@ namespace MagicalGarden.Farm
         public void SimulateNextDay()
         {
             SimulateTime(simulateDay);
+            
         }
 
         private void SimulateTime(float hours)

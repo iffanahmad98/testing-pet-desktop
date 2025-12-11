@@ -2,13 +2,14 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System;
+using MagicalGarden.Manager;
 public class GoldenTicket : LootUseable
 {
     public static GoldenTicket instance = new GoldenTicket();
 
     static int totalValue = 0;
     public override int TotalValue => totalValue;
-
+    bool firstTime = false;
     public override void GetLoot(int value)
     {
         totalValue += value;
@@ -45,7 +46,19 @@ public class GoldenTicket : LootUseable
     }
 
     public override DateTime LoadLastRefreshTime () {
-        return SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
+        if (TimeManager.Instance.IsTimeInFuture(SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets)) {
+          //  SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets = TimeManager.Instance.currentTime;
+            if (!firstTime) {
+                firstTime = true;
+                 SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets = TimeManager.Instance.currentTime;
+                return TimeManager.Instance.realCurrentTime;
+            } else {
+                return SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
+            }
+        } else {
+            firstTime = true;
+            return SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
+        }
     }
 
     public override int GetCurrency () {

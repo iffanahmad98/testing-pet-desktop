@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine.UI;
 [System.Serializable]
 public class HotelRandomLootConfig {
+    public HotelRandomLoot hotelRandomLoot;
     public LootType lootType;
     public int lootRefreshTotals = 0; // Total setiap waktu di refresh.
     public int lootRefreshHours = 0; // tiap berapa jam loot di refresh.
@@ -17,15 +18,16 @@ public class HotelRandomLootConfig {
     public List <GameObject> listDecorationObject = new List <GameObject> ();
     public DateTime lastRefreshTime;
     public Transform hotelPropertyLayer;
-
+    
     
 
     public bool CanRefresh () {
 
         // kalau belum pernah refresh sebelumnya
+        lastRefreshTime = lootUseable.LoadLastRefreshTime (); 
         if (lastRefreshTime == default)
             return true;
-
+        Debug.Log ("Auto" + lastRefreshTime + TimeManager.Instance.currentTime);
         TimeSpan diff = TimeManager.Instance.currentTime - lastRefreshTime;
         if (diff.TotalHours >= lootRefreshHours) {
           //  Debug.Log ("Sudah waktunya refresh");
@@ -74,10 +76,15 @@ public class HotelRandomLootConfig {
         lastRefreshTime = lootUseable.LoadLastRefreshTime (); 
 
         listDecorationObject.Clear ();
+        RemoveIdsFromDictionaryDecorationOptions ();
+      //  Debug.Log ($"time Useable : " + lastRefreshTime.ToString ());
+    }
+
+    public void RemoveIdsFromDictionaryDecorationOptions () {
         foreach (int value in listDecorationId) {
             listDecorationObject.Add (GetChildGameObjectFromId (value));
+            hotelRandomLoot.RemoveDictionaryDecorationsOptions (value);
         }
-      //  Debug.Log ($"time Useable : " + lastRefreshTime.ToString ());
     }
 
     #region Utility
@@ -145,10 +152,15 @@ public class HotelRandomLoot : MonoBehaviour
     public int vibrato = 1;
     
     Dictionary <LootType, HotelRandomLootConfig> dictionaryHotelRandomLootConfig = new Dictionary <LootType, HotelRandomLootConfig> ();
+    [Header ("Auto Pals")]
+    public List <GameObject> listNPCLootHunter = new List <GameObject> ();
+
+
     void Start () {
-        hotelClickableHandler.OnShakedObject += GetClickedGameObject;
+         hotelClickableHandler.OnShakedObject += GetClickedGameObject;
         hotelRandomLootConfigs = new HotelRandomLootConfig [] {
             new HotelRandomLootConfig {
+                hotelRandomLoot = this,
                 lootType = LootType.GoldenTicket,
                 lootRefreshTotals = 15,
                 lootRefreshHours = 2,
@@ -158,6 +170,7 @@ public class HotelRandomLoot : MonoBehaviour
                 hotelPropertyLayer = hotelPropertyLayer
             },
             new HotelRandomLootConfig {
+                hotelRandomLoot = this,
                 lootType = LootType.NormalEgg,
                 lootRefreshTotals = 1,
                 lootRefreshHours = 24,
@@ -167,6 +180,7 @@ public class HotelRandomLoot : MonoBehaviour
                 hotelPropertyLayer = hotelPropertyLayer
             },
             new HotelRandomLootConfig {
+                hotelRandomLoot = this,
                 lootType = LootType.RareEgg,
                 lootRefreshTotals = 1,
                 lootRefreshHours = 24 * 7,
@@ -177,6 +191,8 @@ public class HotelRandomLoot : MonoBehaviour
             },
         };
 
+        AddDictionaryDecorations ();
+        /*
         int idDecoration = 0;
         foreach (Transform child in hotelPropertyLayer) {
             if (child.gameObject.tag == "ClickableDecoration") {
@@ -185,11 +201,13 @@ public class HotelRandomLoot : MonoBehaviour
                 idDecoration ++;
             }
         }
+        */
         
         if (debugSpawnAll) {
             foreach (HotelRandomLootConfig config in hotelRandomLootConfigs) {
                 config.GenerateNewDecorationId (dictionaryDecorationsOptions);
             }
+            RefreshAllHotelFacilitiesLootDetector ();
         } else {
             
         }
@@ -213,6 +231,7 @@ public class HotelRandomLoot : MonoBehaviour
         dictionaryHotelRandomLootConfig.Add (LootType.RareEgg, hotelRandomLootConfigs [2]);
 
         debugGenerateDirectly.onClick.AddListener (GenerateDirectly);
+        DebugTimeController.instance.AddDebuggingEvent (DebugTimeControllerAutoGenerateLoot);
     }
 
     void Update () {
@@ -252,15 +271,17 @@ public class HotelRandomLoot : MonoBehaviour
     }
 
     IEnumerator nCheckRefreshRealTime () {
-       
+        bool isRefresh = false;
+        
         foreach (HotelRandomLootConfig config in hotelRandomLootConfigs) {
             if (config.CanRefresh ()) {
                 config.GenerateNewDecorationId (dictionaryDecorationsOptions);
+                isRefresh = true;
             } else {
                 config.LoadGenerateData ();
             }
         }
-
+        if (isRefresh) {RefreshAllHotelFacilitiesLootDetector (); AddDictionaryDecorations ();}
         yield return new WaitForSeconds (120); // refresh tiap 2 menit supaya tidak berat.
         StartCoroutine (nCheckRefreshRealTime ());
     }
@@ -291,6 +312,11 @@ public class HotelRandomLoot : MonoBehaviour
         return null;
     }
     
+
+    public void RemoveDictionaryDecorationsOptions (int id) { // panggil ini pas load generate data, supaya tidak ada id yang double.
+        dictionaryDecorationsOptions.Remove (id);
+    }
+
     #region HotelLootDisplay
     public void SpawnHotelLootDisplay (HotelRandomLootConfig config) {
         GameObject clone = GameObject.Instantiate(currentLootObject.displayPrefab);
@@ -303,7 +329,8 @@ public class HotelRandomLoot : MonoBehaviour
     #region Debug
     List <GameObject> listLootArea = new List <GameObject> ();
     void ShowLootAreas () {
-        dictionaryLootBaloon = new Dictionary <int, GameObject> ();
+        Debug.Log ("Call Show Loot Areas");
+        dictionaryLootBaloon.Clear ();
         foreach (GameObject go in listLootArea) {
             Destroy (go);
         }
@@ -340,11 +367,37 @@ public class HotelRandomLoot : MonoBehaviour
         foreach (HotelRandomLootConfig config in hotelRandomLootConfigs) {
             config.GenerateNewDecorationId (dictionaryDecorationsOptions);
         }
-        
+        RefreshAllHotelFacilitiesLootDetector ();
         
         if (showLootAreas) {
             ShowLootAreas ();
         }
+    }
+
+    // DebugTimeController:
+    public void DebugTimeControllerAutoGenerateLoot () {
+        StartCoroutine (nDebugTimeControllerAutoGenerateLoot ());
+    }
+
+    IEnumerator nDebugTimeControllerAutoGenerateLoot () {
+        yield return new WaitForSeconds (0.2f);
+        bool isRefresh = false;
+        foreach (HotelRandomLootConfig config in hotelRandomLootConfigs) {
+            if (config.CanRefresh ()) {
+               // Debug.Log ("Auto Generate Loot");
+                config.GenerateNewDecorationId (dictionaryDecorationsOptions);
+            isRefresh = true;
+            }
+        }
+
+        if (isRefresh) {
+            RefreshAllHotelFacilitiesLootDetector (); AddDictionaryDecorations ();
+        }
+
+        if (showLootAreas) {
+            ShowLootAreas ();
+        }
+       // Debug.Log ("Debug TIme Controller Auto Generate Loot");
     }
 
     #endregion
@@ -402,7 +455,42 @@ public class HotelRandomLoot : MonoBehaviour
         clone.GetComponent <HotelLootDisplay> ().StartPlay (lootTargetUI.transform, config, GetHotelRandomLootObject (config.lootType)); 
         */
     }
+
+    void AddDictionaryDecorations () {
+        int idDecoration = 0;
+        dictionaryDecorations.Clear ();
+        dictionaryDecorationsOptions.Clear ();
+        foreach (Transform child in hotelPropertyLayer) {
+            if (child.gameObject.tag == "ClickableDecoration") {
+                dictionaryDecorations.Add (idDecoration, child.gameObject);
+                dictionaryDecorationsOptions.Add (idDecoration, child.gameObject);
+                idDecoration ++;
+            }
+        }
+
+        foreach (HotelRandomLootConfig config in hotelRandomLootConfigs) {
+            config.RemoveIdsFromDictionaryDecorationOptions (); 
+        }
+    }
     #endregion
+    // NPCLootHunter
+    public void AddNPCLootHunter (GameObject npc) {
+        listNPCLootHunter.Add (npc);
+    }
+
+    // NPCLootHunter
+    public void RemoveNPCLootHunter (GameObject npc) {
+        listNPCLootHunter.Remove (npc);
+    }
+
+    void RefreshAllHotelFacilitiesLootDetector () {
+        foreach (GameObject npc in listNPCLootHunter) {
+            npc.GetComponent <MagicalGarden.AI.NPCLootHunter>().ResetMovement ();
+            npc.GetComponentInChildren <HotelFacilitiesLootDetector>().ResetDetectedPolygons ();
+            
+        }
+    }
+    
     // HotelFacilitiesLootDetector :
     public bool IsHasLoot (LootType lootType, GameObject checkObject) {
         return dictionaryHotelRandomLootConfig[lootType].IsContainsSameGameObject (checkObject);

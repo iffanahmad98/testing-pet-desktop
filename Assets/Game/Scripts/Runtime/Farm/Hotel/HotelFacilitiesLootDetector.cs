@@ -11,6 +11,7 @@ public class HotelFacilitiesLootDetector : MonoBehaviour
     [Header("Filter")]
     public string targetTag = "ClickableDecoration";
     public LootType [] lootTypes;
+    [SerializeField] BoxCollider2D boxCollider2d;
 
     [Tooltip("Collider yang terdeteksi")]
     public List<PolygonCollider2D> detectedPolygons = new List<PolygonCollider2D>();
@@ -22,7 +23,8 @@ public class HotelFacilitiesLootDetector : MonoBehaviour
             tilemap = TileManager.Instance.tilemapHotelFacilities;
         }
     }
-    
+
+   
 
     private void Reset()
     {
@@ -84,7 +86,21 @@ public class HotelFacilitiesLootDetector : MonoBehaviour
         }
         
     }
+    #region Reset Detected Polygons
+    public void ResetDetectedPolygons () {
+        Debug.Log ("Reset Polygons");
+        detectedPolygons.Clear ();
+        detectedLootPolygons.Clear ();
+        boxCollider2d.enabled = false;
+        Invoke ("EnableBoxCollider2d", 0.1f);
+    }
 
+    void EnableBoxCollider2d () {
+        boxCollider2d.enabled = true;
+    }
+
+
+    #endregion
     #region NPCLootHunter
     public bool IsAnyLoots () {
         return detectedLootPolygons.Count >0;

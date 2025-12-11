@@ -21,6 +21,7 @@ public class HotelGift
     public void UsingLoot(int value)
     {
         totalValue -= value;
+        SaveSystem.PlayerConfig.hotelGift = totalValue;
         SaveLoot();
     }
 

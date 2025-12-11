@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System;
+using MagicalGarden.Manager;
 public class NormalEgg : LootUseable
 {
     public static NormalEgg instance = new NormalEgg();
@@ -9,6 +10,8 @@ public class NormalEgg : LootUseable
     static int totalValue = 0;
     public override int TotalValue => totalValue;
 
+    bool firstTime = false;
+    
     public override void GetLoot(int value)
     {
         totalValue += value;
@@ -43,7 +46,27 @@ public class NormalEgg : LootUseable
     }
 
     public override DateTime LoadLastRefreshTime () {
-        return SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs;
+        /*
+        if (TimeManager.Instance.IsTimeInFuture(SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs)) {
+           // SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs = TimeManager.Instance.currentTime;
+            return TimeManager.Instance.realCurrentTime;
+        } else {
+            return SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs;
+        }
+        */
+        if (TimeManager.Instance.IsTimeInFuture(SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs)) {
+           if (!firstTime) {
+                firstTime = true;
+                SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets = TimeManager.Instance.currentTime;
+                return TimeManager.Instance.realCurrentTime;
+            } else {
+                return SaveSystem.PlayerConfig.lastRefreshTimeHotelGoldenTickets;
+            }
+        } else {
+            return SaveSystem.PlayerConfig.lastRefreshTimeNormalEggs;
+        }
+
+        
     }
 
     public override int GetCurrency () {

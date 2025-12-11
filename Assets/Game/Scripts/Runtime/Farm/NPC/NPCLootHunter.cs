@@ -22,7 +22,7 @@ namespace MagicalGarden.AI
         NPCAreaPointsSO currentNPCAreaPointsSO;
         bool isCollectingLoot;
         GameObject lootDecorObject;
-
+        Coroutine cnCollectState;
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -39,16 +39,25 @@ namespace MagicalGarden.AI
         /// Start is called on the frame when a script is enabled just before
         /// any of the Update methods is called the first time.
         /// </summary>
+        void Awake () {
+            hotelRandomLoot = GameObject.Find ("HotelEvents").transform.Find ("HotelRandomLoot").GetComponent <HotelRandomLoot> ();
+        }
+
+        
         void Start()
         {
             base.Start();
-            hotelRandomLoot = GameObject.Find ("HotelEvents").transform.Find ("HotelRandomLoot").GetComponent <HotelRandomLoot> ();
+            
             hotelFacilitiesLootDetector = GetComponentInChildren <HotelFacilitiesLootDetector> ();
             stateLoopCoroutine = StartCoroutine(StateLoop());
             PatrolingLoot ();
+            hotelRandomLoot.AddNPCLootHunter (this.gameObject);
            // StartCoroutine (nTestWalk ());
         }
 
+        void OnDestroy () {
+            hotelRandomLoot.RemoveNPCLootHunter (this.gameObject);
+        }
         /*
         IEnumerator nTestWalk () {
             yield return new WaitForSeconds (3f);
@@ -135,7 +144,7 @@ namespace MagicalGarden.AI
             if (!isCollectingLoot) {
                 stateLoopCoroutine = StartCoroutine(StateLoop());
             } else {
-                StartCoroutine (CollectState ());
+                cnCollectState = StartCoroutine (CollectState ());
             }
            // GetComponent<MeshRenderer>().enabled = false;
         }
@@ -294,6 +303,22 @@ namespace MagicalGarden.AI
             isCollectingLoot = false;
             stateLoopCoroutine = StartCoroutine(StateLoop());
             hotelRandomLoot.GetTicketFromNPC (this.gameObject, lootDecorObject);
+        }
+        #endregion
+
+        #region Reset
+        
+        public void ResetMovement () { // HotelRandomLoot
+            if (isCollectingLoot ) {
+                if (cnCollectState != null) {
+                    StopCoroutine (cnCollectState);
+                    cnCollectState =null;
+                }
+
+                isCollectingLoot = false;
+                stateLoopCoroutine = StartCoroutine(StateLoop());
+
+            }
         }
         #endregion
     }

@@ -14,11 +14,11 @@ namespace MagicalGarden.Manager
         public DateTime currentTime;
         public DateTime lastLoginTime;
         public DateTime lastDailyReset;
-
+        public DateTime realCurrentTime;
         [Header("⏱ Real-Time Settings")]
         public bool useSystemTime = true; // true = pakai DateTime.UtcNow
         public TimeSpan utcOffset = TimeSpan.FromHours(7); // Default ke WIB
-
+        public TimeSpan utcDebug;
         [Header("📅 Time Status (Debug Only)")]
         [ReadOnly] public string currentTimeStr;
         [ReadOnly] public string lastLoginTimeStr;
@@ -70,7 +70,8 @@ namespace MagicalGarden.Manager
 #endregion
         public void UpdateCurrentTime()
         {
-            currentTime = DateTime.UtcNow + utcOffset;
+            currentTime = DateTime.UtcNow + utcOffset + utcDebug;
+            realCurrentTime =DateTime.UtcNow + utcOffset ;
         }
         public TimeSpan GetTimeSinceLastLogin()
         {
@@ -122,6 +123,19 @@ namespace MagicalGarden.Manager
             lastLoginTimeStr = lastLoginTime.ToString("yyyy-MM-dd HH:mm:ss");
             lastDailyResetStr = lastDailyReset.ToString("yyyy-MM-dd HH:mm:ss");
         }
+
+        #region UtcDebug
+        // DebugShowUIView :
+        public void AddTimeDebug (int hour) {
+            utcDebug += TimeSpan.FromHours(hour);
+        }
+
+        public bool IsTimeInFuture(DateTime savedTime)
+        { // HotelRandomLoot :
+            return savedTime > DateTime.UtcNow;
+        }
+
+        #endregion
     }
     public class TimedEvent
     {

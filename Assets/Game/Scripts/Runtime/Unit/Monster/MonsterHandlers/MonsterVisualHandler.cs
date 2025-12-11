@@ -259,6 +259,13 @@ public class MonsterVisualHandler
         {
             poopRect.anchoredPosition = targetPosition;
         }
+
+       //  Debug.Log ("Poop rectTransform.position Y : " + poopRect.anchoredPosition);
+      // memberi batas maximum Poop ke -70
+        if (poopRect.anchoredPosition.y > -70) {
+            poopRect.anchoredPosition = new Vector2 (poopRect.anchoredPosition.x, -70f);
+          //  this.RectTransform.anchoredPosition = new Vector2 (this.rectTransform.anchoredPosition.x, -120f);
+        }
     }
 
     private Vector2 CalculateSafeSlideDirection(Vector2 startPosition)
