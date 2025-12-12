@@ -62,6 +62,9 @@ public class NPCIdleFlower : MonoBehaviour, ITargetable
     /// </summary>
     private void CheckNPCOwnership()
     {
+         _hasAnyNPC = false;
+        _hasSecondNPC = false;
+        /*
         if (SaveSystem.PlayerConfig == null)
         {
             Debug.LogWarning("NPCIdleFlower: PlayerConfig is null!");
@@ -69,13 +72,25 @@ public class NPCIdleFlower : MonoBehaviour, ITargetable
             _hasSecondNPC = false;
             return;
         }
-
+        */
+       
         // Cek di ownedNPCMonsters
         var npcDatas = SaveSystem.PlayerConfig.ownedNPCMonsters;
 
         // Cek apakah player punya NPC sama sekali
-        _hasAnyNPC = npcDatas != null && npcDatas.Count > 0;
+        // _hasAnyNPC = npcDatas != null && npcDatas.Count > 0;
+        int totalNPC = CheckNPCFlowerActived ();
+        if ( totalNPC >= 1 ) {
+            _hasAnyNPC = true;
+        } else {
+            
+        }
 
+        if (totalNPC >=2) {
+            _hasSecondNPC = true;
+        } 
+        Debug.Log ("NPC Flower: " + totalNPC);
+        /*
         if (!_hasAnyNPC)
         {
             Debug.Log("NPCIdleFlower: Player doesn't have any NPC yet");
@@ -96,6 +111,7 @@ public class NPCIdleFlower : MonoBehaviour, ITargetable
             _hasSecondNPC = false;
             Debug.Log($"NPCIdleFlower: Player has {npcDatas.Count} NPC(s) but not second NPC yet");
         }
+        */
     }
 
     /// <summary>
@@ -227,5 +243,16 @@ public class NPCIdleFlower : MonoBehaviour, ITargetable
         _rectTransform.localScale = Vector3.one * targetScale;
 
         Debug.Log($"NPCIdleFlower: Height={currentHeight:F0}, Normalized={normalizedHeight:F2}, Scale={targetScale:F2}");
+    }
+
+    int CheckNPCFlowerActived () {
+        var npcDatas = SaveSystem.PlayerConfig.ownedNPCMonsters;
+        int result = 0;
+        foreach (var data in npcDatas) {
+            if (data.isActive == 1) {
+                result ++;
+            }
+        }
+        return result;        
     }
 }

@@ -290,6 +290,7 @@ public class FacilityShopManager : MonoBehaviour
         ServiceLocator.Get<MonsterManager>()?.SpawnNPCMonster(npcData);
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Activated NPC '{npcData.monsterName}'!");
         card.UpdateStateNPC(npcID);
+        RefreshNPCIdleFlower();
         RefreshFacilityCards();
         SaveSystem.SaveAll();
     }
@@ -372,6 +373,7 @@ public class FacilityShopManager : MonoBehaviour
         ServiceLocator.Get<MonsterManager>()?.DespawnNPC(npcID);
         SaveSystem.ToggleNPCActiveState(npcID, false);
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled NPC '{npcID}'!");
+        RefreshNPCIdleFlower();
         RefreshFacilityCards();
         SaveSystem.SaveAll();
     }
