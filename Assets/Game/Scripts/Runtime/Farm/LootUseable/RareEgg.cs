@@ -21,6 +21,7 @@ public class RareEgg : LootUseable
     public override void UsingLoot(int value)
     {
         totalValue -= value;
+        SaveSystem.PlayerConfig.rareEgg = totalValue;
         SaveLoot();
     }
 

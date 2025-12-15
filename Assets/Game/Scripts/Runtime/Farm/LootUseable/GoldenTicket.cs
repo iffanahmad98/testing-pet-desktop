@@ -80,9 +80,12 @@ public class GoldenTicket : LootUseable
             if (hours > 0)
             {
                 int cycles = (int)(hours / 2.0); // 1 cycle setiap 2 jam
+                if (cycles > 84) { // 24 jam * 7 Hari 
+                    cycles = 84;
+                } 
                 int totalLoot = 0;
                 for (int x=0; x< cycles; x++ ) {
-                    totalLoot += UnityEngine.Random.Range (8,15);
+                    totalLoot += UnityEngine.Random.Range (5,10 +1); // +1 karena max tidak terhitung.
                 }
 
                 if (totalLoot > 0)

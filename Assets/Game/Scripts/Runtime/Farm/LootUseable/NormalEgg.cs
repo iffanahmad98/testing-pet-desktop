@@ -22,6 +22,8 @@ public class NormalEgg : LootUseable
     public override void UsingLoot(int value)
     {
         totalValue -= value;
+        SaveSystem.PlayerConfig.normalEgg = totalValue;
+        Debug.Log ("Current Eggs " + totalValue);
         SaveLoot();
     }
 
