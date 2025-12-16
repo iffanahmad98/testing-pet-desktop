@@ -868,4 +868,14 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     }
 
     #endregion
+    #region GetMonsterOutsidePlains
+    // EggCrackAnimator - MonsterManager
+    public void CreateHandlersForSavingData() {
+        /*
+        CreateHandlers();
+        
+        */
+        CreateHandlers();
+    }
+    #endregion
 }

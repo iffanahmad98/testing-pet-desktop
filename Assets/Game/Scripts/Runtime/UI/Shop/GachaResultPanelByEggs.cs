@@ -48,19 +48,18 @@ public class GachaResultPanelByEggs : MonoBehaviour
             return;
         }
 
-        canvasGroup = root.GetComponent<CanvasGroup>() ?? root.AddComponent<CanvasGroup>();
-        monsterCanvas = monsterDisplay.GetComponent<CanvasGroup>() ?? monsterDisplay.AddComponent<CanvasGroup>();
+        
         //eggAnimatorUI = egg.GetComponent<TweenUIAnimator>() ?? egg.AddComponent<TweenUIAnimator>();
 
 
         // Reset all states
-        ResetAllStates();
+      //  ResetAllStates();
 
     }
 
     public void Show(MonsterDataSO monster, System.Action onSell, System.Action onSpawn)
     {
-        ResetAllStates();
+         ResetAllStates();
         monsterData = monster;
         
         Sequence seq = DOTween.Sequence();
@@ -89,6 +88,9 @@ public class GachaResultPanelByEggs : MonoBehaviour
             sellPriceText.text = monster.sellPriceStage1.ToString();
         });
         // 5. Monster display: fade in + scale punch
+
+        
+
         seq.Append(monsterCanvas.DOFade(1, 0.2f).SetEase(fadeInMonsterEase));
         seq.Join(monsterDisplay.transform.DOPunchScale(Vector3.one * 1.25f, 0.4f, 8, 0.8f).SetEase(punchMonsterEase));
         seq.JoinCallback(() => confettiVFX?.Play());
@@ -115,23 +117,35 @@ public class GachaResultPanelByEggs : MonoBehaviour
             });
             
         });
+
+       
+
         seq.Play();
     }
 
     private void ResetAllStates()
     {
+        canvasGroup = root.GetComponent<CanvasGroup>() ?? root.AddComponent<CanvasGroup>();
+        monsterCanvas = monsterDisplay.GetComponent<CanvasGroup>() ?? monsterDisplay.AddComponent<CanvasGroup>();
         // Ensure root is active and reset scale
         root.SetActive(true);
-        if (canvasGroup != null) canvasGroup.alpha = 0f;
+        
+        
+        if (canvasGroup) 
+        {
+        canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
-
+        }
 
         // Hide and reset monster display
-        if (monsterCanvas != null) monsterCanvas.alpha = 0f;
+        if (monsterCanvas)
+        {
+        monsterCanvas.alpha = 0f;
         monsterCanvas.interactable = false;
         monsterCanvas.blocksRaycasts = false;
-
+        }
+        
         // Stop effects
         shineVFX.Stop();
         confettiVFX.Stop();

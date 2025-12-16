@@ -61,9 +61,12 @@ public class MonsterManager : MonoBehaviour
 
     #region Initialization and Setup
     private static MonsterManager _instance;
+    
+    public static MonsterManager instance; // MonsterController.cs
 
     private void Awake()
     {
+        instance = this;
         // Singleton pattern with DontDestroyOnLoad
         if (_instance != null && _instance != this)
         {
@@ -155,7 +158,6 @@ public class MonsterManager : MonoBehaviour
             Debug.LogError("SpawnMonster: Failed to create monster or MonsterController is missing.");
             return;
         }
-
         // Initialize ID 
         if (!string.IsNullOrEmpty(id))
         {
@@ -228,6 +230,8 @@ public class MonsterManager : MonoBehaviour
         }
 
         monster.SetActive(true);
+
+        monster.GetComponent <MonsterController> ().CreateHandlersForSavingData ();
         return monster;
     }
 
