@@ -1,5 +1,49 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2605868909358450670
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1327627923858185648}
+  - component: {fileID: 6920226637771496046}
+  m_Layer: 0
+  m_Name: HotelRequestDetector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1327627923858185648
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2605868909358450670}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8447722310289656645}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6920226637771496046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2605868909358450670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5b2d195ea78d2c40a2561f719c20490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8081953010715517390
 GameObject:
   m_ObjectHideFlags: 0
@@ -20,7 +64,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8447722310289656645
 Transform:
   m_ObjectHideFlags: 0
@@ -33,7 +77,8 @@ Transform:
   m_LocalPosition: {x: -16.3, y: -40.5, z: 0}
   m_LocalScale: {x: 0.22, y: 0.22, z: 0.02}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1327627923858185648}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6845612580986559712
@@ -175,6 +220,7 @@ MonoBehaviour:
   currentTile: {x: 0, y: 0}
   isOverridingState: 0
   destinationTile: {x: 0, y: 0}
+  hotelRequestDetector: {fileID: 6920226637771496046}
   npcAreaPointsDatabase: {fileID: 11400000, guid: 10d707ca6de2c1940bd36ff7b26a96c0, type: 2}
   codeNpcAreaPoints: 
   checkAreaPositionMinSeconds: 10

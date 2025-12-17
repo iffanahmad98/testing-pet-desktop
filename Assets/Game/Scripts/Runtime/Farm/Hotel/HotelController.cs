@@ -48,9 +48,12 @@ namespace MagicalGarden.Hotel
         public Image fillExpired;  // Progress bar untuk countdown
 
         [Header("Request Timing")]
-        public float requestInterval = 60f;  // Request setiap 60 detik
+        // public float requestInterval = 60f;  // Request setiap 60 detik
+        public float minRequestInterval = 30f;
+        public float maxRequestInterval = 60f; 
         private float requestTimer = 0f;
         private bool hasRequest = false;
+        public  bool isPetReachedTarget = false;
         private Coroutine currentRequestCountdown;
 
         [Header ("Request Bubbles")]
@@ -66,6 +69,7 @@ namespace MagicalGarden.Hotel
 
         [Header ("Hotel Gift")]
         HotelGiftSpawner hotelGiftSpawner;
+        
         void Start()
         {
             CalculateWanderingArea();
@@ -107,8 +111,11 @@ namespace MagicalGarden.Hotel
                     }
 
                     // Request Timer - Generate request setiap interval
-                    requestTimer += Time.deltaTime;
-                    if (requestTimer >= requestInterval && !hasRequest)
+                    if (!hasRequest && isPetReachedTarget) {
+                        requestTimer += Time.deltaTime;
+                    }
+
+                    if (requestTimer >= GetRandomTimeRequest () && !hasRequest)
                     {
                       //  GenerateRoomServiceRequest();
                         RandomGuestRequestType ();
@@ -204,6 +211,8 @@ namespace MagicalGarden.Hotel
                 currentRequestCountdown = null;
             }
             hasRequest = false;
+            HotelManager.Instance.RemoveHotelControllerHasRequest (this);
+            SetIsPetReachedTarget (false);
             requestTimer = 0f;
             ResetRequestButtons();
 
@@ -241,6 +250,7 @@ namespace MagicalGarden.Hotel
             // Aktifkan button
             if (roomServiceBtn) roomServiceBtn.SetActive(true);
             GenerateRequestBubble (currentGuestRequestType);
+            HotelManager.Instance.AddHotelControllerHasRequest (this);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
 
             string roomName = gameObject.name;
@@ -251,7 +261,7 @@ namespace MagicalGarden.Hotel
             {
                 StopCoroutine(currentRequestCountdown);
             }
-            currentRequestCountdown = StartCoroutine(RequestCountdown(30f));
+            currentRequestCountdown = StartCoroutine(RequestCountdown(120));
         }
 
         void GenerateFoodRequest()
@@ -264,6 +274,7 @@ namespace MagicalGarden.Hotel
            currentGuestRequestType = GuestRequestType.Food;
 
             GenerateRequestBubble (currentGuestRequestType);
+            HotelManager.Instance.AddHotelControllerHasRequest (this);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
 
             string roomName = gameObject.name;
@@ -274,7 +285,7 @@ namespace MagicalGarden.Hotel
             {
                 StopCoroutine(currentRequestCountdown);
             }
-            currentRequestCountdown = StartCoroutine(RequestCountdown(30f));
+            currentRequestCountdown = StartCoroutine(RequestCountdown(120));
         }
 
         void GenerateGiftRequest()
@@ -286,6 +297,7 @@ namespace MagicalGarden.Hotel
             currentGuestRequestType = GuestRequestType.Gift;
            // if (roomServiceBtn) roomServiceBtn.SetActive(true);
             GenerateRequestBubble (currentGuestRequestType);
+            HotelManager.Instance.AddHotelControllerHasRequest (this);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(true);
 
             string roomName = gameObject.name;
@@ -296,7 +308,7 @@ namespace MagicalGarden.Hotel
             {
                 StopCoroutine(currentRequestCountdown);
             }
-            currentRequestCountdown = StartCoroutine(RequestCountdown(30f));
+            currentRequestCountdown = StartCoroutine(RequestCountdown(120));
         }
 
         System.Collections.IEnumerator RequestCountdown(float duration)
@@ -329,6 +341,7 @@ namespace MagicalGarden.Hotel
            // happiness = Mathf.Max(happiness - 15, 0);
            happiness = Mathf.Max ( happiness + GetGuestRequest (currentGuestRequestType).decreaseHappiness,0);
             hasRequest = false;
+            HotelManager.Instance.RemoveHotelControllerHasRequest (this);
 
             string roomName = gameObject.name;
             Debug.LogWarning($"❌ [ROOM SERVICE EXPIRED] Tamu: {nameGuest} | Kamar: {roomName} | Happiness: {happiness} (-15) | Request tidak dipenuhi dalam 30 detik!");
@@ -409,6 +422,7 @@ namespace MagicalGarden.Hotel
             }
 
             hasRequest = false;
+            HotelManager.Instance.RemoveHotelControllerHasRequest (this);
             // happiness = Mathf.Min(happiness + 20, 100);
            // happiness = Mathf.Min (happiness + GetGuestRequest (currentGuestRequestType).increaseHappiness,100);
 
@@ -594,6 +608,17 @@ namespace MagicalGarden.Hotel
         }
 
         #endregion
+        #region PetMonsterHotel
+
+        public void SetIsPetReachedTarget (bool value) { // this, PetMonsterHotel
+            isPetReachedTarget = value;
+        }
+        #endregion
+        #region GetRandomTimeRequest
+        float GetRandomTimeRequest () {
+            return UnityEngine.Random.Range (minRequestInterval, maxRequestInterval);
+        }
+        #endregion 
     
     }
 

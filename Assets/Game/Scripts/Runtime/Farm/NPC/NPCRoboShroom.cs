@@ -10,6 +10,7 @@ namespace MagicalGarden.AI
     {
         public Vector2Int destinationTile;
         [Header ("NPC Robo Shroom")]
+        public HotelRequestDetector hotelRequestDetector;
         public NPCAreaPointsDatabaseSO npcAreaPointsDatabase;
         public int [] codeNpcAreaPoints;
         public float checkAreaPositionMinSeconds;
@@ -20,6 +21,7 @@ namespace MagicalGarden.AI
         NPCAreaPointsSO currentNPCAreaPointsSO;
         bool isCollectingGift;
         GameObject giftObject;
+
 
         protected override IEnumerator HandleState(string stateName)
         {
@@ -167,7 +169,11 @@ namespace MagicalGarden.AI
 
         IEnumerator nCheckAreaPosition () {
             StopCoroutine (stateLoopCoroutine);
-            if (HotelGiftHandler.instance.IsAnyGifts ()) {
+            if (hotelRequestDetector.IsHasHotelRequest ()) {
+                var hotelController = hotelRequestDetector.GetRandomHotelRequest ();
+                Debug.Log ("Hotel Robo Target Position : " + hotelController.gameObject.name);
+            } 
+            else if (HotelGiftHandler.instance.IsAnyGifts ()) {
                // Vector2Int lootPosition = hotelFacilitiesLootDetector.GetRandomLootPosition ();
                 var result = HotelGiftHandler.instance.GetRandomGiftPosition();
                 Vector2Int lootPosition = result.pos;
@@ -175,7 +181,7 @@ namespace MagicalGarden.AI
 
                 isCollectingGift = true;
                 StartNewCoroutine (MoveToTarget (lootPosition));
-                Debug.Log ("Gift Position " + lootPosition);
+               // Debug.Log ("Gift Position " + lootPosition);
                 
             } else {
                 StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));

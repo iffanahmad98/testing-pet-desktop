@@ -5,6 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Coffee.UIExtensions;
+using DG.Tweening;
+
 [Serializable]
 public class EggCrackGachaConfig {
     public MonsterType monsterType;
@@ -15,14 +18,16 @@ public class EggCrackAnimator : MonoBehaviour
 {
     [Header ("Egg Crack Reference")]
     Animator eggAnimator;
+    [SerializeField] CanvasGroup eggMonsterCanvasGroup;
     [Header("Gacha Configuration")]
     public MonsterDatabaseSO monsterDatabase;
     public List<RarityWeight> rarityWeights;
     [SerializeField] EggCrackGachaConfig [] eggCrackGachaConfigs;
     [Header("Allowed Rarities")]
-    [SerializeField]
     private List<MonsterType> allowedRarities = new List<MonsterType>
     {
+        MonsterType.Common,
+        MonsterType.Uncommon,
         MonsterType.Rare,
         MonsterType.Mythic,
         MonsterType.Legend
@@ -38,7 +43,8 @@ public class EggCrackAnimator : MonoBehaviour
     {
         eggAnimator = GetComponentInChildren <Animator> (true);
         eggAnimator.gameObject.SetActive (true);
-        StartCoroutine (nHideEggs ());
+        
+        PlayHideEggSequence ();
        
         MonsterType monsterRarity = GetRandomRarity (eggCrackGachaConfigs);
         MonsterDataSO selectedMonster = SelectRandomMonster (monsterRarity);
@@ -104,9 +110,29 @@ public class EggCrackAnimator : MonoBehaviour
         }
     }
 
-    IEnumerator nHideEggs () {
-        yield return new WaitForSeconds (1.5f); // animator HideEggs
-        eggAnimator.gameObject.SetActive (false);
+    private Sequence hideEggSequence;
+
+    private void PlayHideEggSequence()
+    {
+        // Pastikan tidak ada sequence lama yang masih jalan
+        hideEggSequence?.Kill();
+
+        eggMonsterCanvasGroup.alpha = 0f;
+        eggAnimator.gameObject.SetActive(true);
+
+        hideEggSequence = DOTween.Sequence();
+
+        hideEggSequence
+            .Append(eggMonsterCanvasGroup.DOFade(1f, 0.5f))
+            .AppendInterval(0.4f)
+            .Append(eggMonsterCanvasGroup.DOFade(0f, 0.5f))
+            .AppendInterval(0.15f)
+            .OnComplete(OnHideEggSequenceComplete);
+    }
+
+    private void OnHideEggSequenceComplete()
+    {
+        eggAnimator.gameObject.SetActive(false);
     }
 
     #region HotelEggsCollectionMenu

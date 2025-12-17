@@ -15,6 +15,8 @@ public class GachaResultPanelByEggs : MonoBehaviour
     private MonsterDataSO monsterData;
 
     [Header("Display Objects")]
+    public SkeletonGraphic eggMonsterGraphic;
+    public CanvasGroup eggMonsterCanvasGroup;
     public GameObject monsterDisplay;
     public SkeletonGraphic monsterSkeletonGraphic;
     public Material monsterMaterial; 
@@ -63,7 +65,7 @@ public class GachaResultPanelByEggs : MonoBehaviour
         monsterData = monster;
         
         Sequence seq = DOTween.Sequence();
-        seq.AppendInterval(1.5f);
+        seq.AppendInterval(1.0f);
         // 1. Fade in root + scale punch
         seq.AppendCallback(() =>
         {
@@ -72,13 +74,25 @@ public class GachaResultPanelByEggs : MonoBehaviour
 
             monsterCanvas.interactable = true;
             monsterCanvas.blocksRaycasts = true;
+
+            shineVFX.gameObject.SetActive(true);
+            shineVFX.Play();
+
+            eggMonsterGraphic.skeletonDataAsset = monster.monsterSpine[0];
+            eggMonsterGraphic.material = monsterMaterial;
+            eggMonsterGraphic.startingAnimation = eggMonsterGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";
+            eggMonsterGraphic.Initialize(true);
+            eggMonsterCanvasGroup.DOFade(1, 1.0f);
         });
         seq.Append(canvasGroup.DOFade(1, 0.2f).SetEase(fadeInRootEase));
         
+        seq.AppendInterval(1.0f);
         // 4. Show monster info 
         seq.AppendCallback(() =>
         {
-            monsterNameText.text = monster.name;
+            
+            // monsterNameText.text = monster.name;
+            monsterNameText.text = monster.monsterName;
             monsterSkeletonGraphic.skeletonDataAsset = monster.monsterSpine[0];
             monsterSkeletonGraphic.material = monsterMaterial;
             monsterSkeletonGraphic.startingAnimation = monsterSkeletonGraphic.skeletonDataAsset.GetSkeletonData(true).FindAnimation("idle")?.Name ?? "idle";

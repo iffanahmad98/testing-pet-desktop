@@ -44,6 +44,8 @@ namespace MagicalGarden.Manager
         public int minRequestCount = 5;
         public int maxRequestCount = 7;
 
+        [Header ("Management")]
+        public List <HotelController> listHotelControllerHasRequest = new List <HotelController> ();
         private void Awake()
         {
             if (Instance == null)
@@ -416,8 +418,33 @@ namespace MagicalGarden.Manager
         public void RemoveBubbleRequest (Button bubbleButton) {
             listBubbleRequest.Remove (bubbleButton);
         }
+
+        public void AddHotelControllerHasRequest (HotelController hotelController) {
+            if (!listHotelControllerHasRequest.Contains (hotelController))
+            listHotelControllerHasRequest.Add (hotelController);
+        }
+
+        public void RemoveHotelControllerHasRequest (HotelController hotelController) {
+            if (listHotelControllerHasRequest.Contains (hotelController))
+            listHotelControllerHasRequest.Remove (hotelController);
+        }
+        #endregion
+
+        #region HotelRequestDetector
+        public HotelController GetRandomHotelRequestDetector () {
+            int target = UnityEngine.Random.Range (0,listHotelControllerHasRequest.Count);
+            HotelController targetHotel = listHotelControllerHasRequest[target];
+            listHotelControllerHasRequest.Remove (targetHotel);
+            return targetHotel;
+        }
+
+        public bool IsHasHotelRequest () {
+            return listHotelControllerHasRequest.Count > 0;
+        }
+
         #endregion
     }
+
     [Serializable]
     public class GuestRequestSaveWrapper
     {

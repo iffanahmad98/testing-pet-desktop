@@ -128,9 +128,13 @@ namespace MagicalGarden.AI
             yield return MoveToTarget(target, walkOnly, true, success =>
             {
                 isMoving = false;
+                if (hotelContrRef) {
+                    hotelContrRef.SetIsPetReachedTarget (true);
+                }
                 Debug.Log("🛑 Hasil moveToTarget: " + success);
             });
             Debug.Log("🛑 Selesai gerak");
+            
         }
 
         //wander routine get tile from hotel

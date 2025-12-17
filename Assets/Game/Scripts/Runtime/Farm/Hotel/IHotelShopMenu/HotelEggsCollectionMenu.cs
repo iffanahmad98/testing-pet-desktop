@@ -70,6 +70,7 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
 
    [SerializeField] Button openEggButton;
    [SerializeField] Sprite openEggAvailable, openEggNotAvailable;
+   [SerializeField] Image hotelShopBlocker;
    bool listenerLoaded = false;
 
    public override void ShowMenu () {
@@ -116,11 +117,13 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
          selectedHotelMenuEgg.hotelEggDisplay.gameObject.SetActive (false);
          selectedHotelMenuEgg.UsingEgg ();
          RefreshDisplay ();
+         hotelShopBlocker.gameObject.SetActive (true);
       }
    }
 
    public void CloseEgg () { // is called by EggCrackAnimator
       selectedHotelMenuEgg.CloseEgg ();
+      hotelShopBlocker.gameObject.SetActive (false);
       
    }
    bool IsCanOpenEgg () {
@@ -132,5 +135,7 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
          return false;
       }
    }
+
+
 
 }
