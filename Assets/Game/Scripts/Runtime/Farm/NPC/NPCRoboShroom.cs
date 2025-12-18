@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using MagicalGarden.Hotel;
 using MagicalGarden.Manager;
+using System;
 
 namespace MagicalGarden.AI
 {
-    public class NPCRoboShroom : BaseEntityAI
+    public class NPCRoboShroom : BaseEntityAI, INPCHotelService
     {
         public Vector2Int destinationTile;
         [Header ("NPC Robo Shroom")]
@@ -18,6 +19,13 @@ namespace MagicalGarden.AI
         public float changeAreaPointsMinSeconds;
         public float changeAreaPointsMaxSeconds;
 
+        [Header ("Service Features")]
+        // public HotelController hotelControlRef;
+        public HotelController hotelControlRef { get; set; }
+        public Action<int> finishEvent;
+        int finishEventValue;
+        bool isServingRoom = false;
+        
         NPCAreaPointsSO currentNPCAreaPointsSO;
         bool isCollectingGift;
         GameObject giftObject;
@@ -128,14 +136,25 @@ namespace MagicalGarden.AI
             }
 
             SetAnimation("idle");
-            isOverridingState = false;
+            
 
-            if (!isCollectingGift) {
+            if (!isCollectingGift && !isServingRoom) {
+                isOverridingState = false;
                 stateLoopCoroutine = StartCoroutine(StateLoop());
-            } else {
+                
+            } else if (isCollectingGift) {
+                isOverridingState = false;
                 StartCoroutine (CollectState ());
+                
+            } else if (isServingRoom) {
+                GetComponent<MeshRenderer>().enabled = false;
+                stateLoopCoroutine = StartCoroutine(CleaningRoutine());
+            } else {
+                isOverridingState = false;
+                stateLoopCoroutine = StartCoroutine(StateLoop());
+                
             }
-           // GetComponent<MeshRenderer>().enabled = false;
+           // 
         }
         private List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
         {
@@ -171,7 +190,10 @@ namespace MagicalGarden.AI
             StopCoroutine (stateLoopCoroutine);
             if (hotelRequestDetector.IsHasHotelRequest ()) {
                 var hotelController = hotelRequestDetector.GetRandomHotelRequest ();
+                isServingRoom = true;
                 Debug.Log ("Hotel Robo Target Position : " + hotelController.gameObject.name);
+                isOverridingState = true; // di overridingState duluan, karena default dari NPCCleaning ada jeda waktu untuk move target.
+                hotelController.NPCAutoService (this);
             } 
             else if (HotelGiftHandler.instance.IsAnyGifts ()) {
                // Vector2Int lootPosition = hotelFacilitiesLootDetector.GetRandomLootPosition ();
@@ -184,11 +206,11 @@ namespace MagicalGarden.AI
                // Debug.Log ("Gift Position " + lootPosition);
                 
             } else {
-                StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
+                StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[UnityEngine.Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
             }
           //  isOverridingState = true;
              yield return new WaitUntil (() => !isOverridingState);
-            yield return new WaitForSeconds (Random.Range (checkAreaPositionMinSeconds, checkAreaPositionMaxSeconds));
+            yield return new WaitForSeconds (UnityEngine.Random.Range (checkAreaPositionMinSeconds, checkAreaPositionMaxSeconds));
             StartCoroutine (nCheckAreaPosition ());
         }
 
@@ -196,7 +218,7 @@ namespace MagicalGarden.AI
             currentNPCAreaPointsSO = npcAreaPointsDatabase.GetRandomNPCAreaPointsSO ();
            // Debug.Log ("Current NPC Area Point : " + currentNPCAreaPointsSO);
             yield return new WaitUntil (() => !isOverridingState);
-            yield return new WaitForSeconds (Random.Range (changeAreaPointsMinSeconds, changeAreaPointsMaxSeconds));
+            yield return new WaitForSeconds (UnityEngine.Random.Range (changeAreaPointsMinSeconds, changeAreaPointsMaxSeconds));
             
             StartCoroutine (nChangeAreaPoints ());
         }
@@ -299,6 +321,65 @@ namespace MagicalGarden.AI
             giftObject = null;
         }
         #endregion
+
+        #region Service Features
+        public void AddFinishEventHappiness(Action<int> callback, int value)
+        {
+            finishEvent = null;      // clear semua listener sebelumnya
+            finishEvent += callback; // tambah listener baru
+            finishEventValue = value;
+        }
+
+        public IEnumerator NPCHotelCleaning()
+        {
+            string guestName = hotelControlRef?.nameGuest ?? "No Guest";
+            Debug.Log($"🚶 [NPC] Berjalan menuju kamar tamu '{guestName}' di posisi tile ({hotelControlRef.hotelPositionTile.x}, {hotelControlRef.hotelPositionTile.y})");
+
+            yield return new WaitForSeconds(1f);
+            if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
+            stateLoopCoroutine = StartCoroutine(MoveToTarget(new Vector2Int(hotelControlRef.hotelPositionTile.x, hotelControlRef.hotelPositionTile.y)));
+        }
+
+        public IEnumerator CleaningRoutine(float cleanDuration = 5f)
+        {
+            
+            string guestName = hotelControlRef?.nameGuest ?? "No Guest";
+            string hotelName = hotelControlRef?.gameObject.name ?? "Unknown Hotel";
+            Debug.Log($"🧹 [NPC CLEANING START] Membersihkan kamar '{hotelName}' | Tamu: {guestName} | Durasi: {cleanDuration}s");
+
+            // 2. Timer countdown (bisa sambil munculkan efek/animasi jika perlu)
+            HotelManager.Instance.CallCleaningVFX(hotelControlRef.dustPos);
+            float timer = 0f;
+            while (timer < cleanDuration)
+            {
+                timer += Time.deltaTime;
+                // (opsional: tambahkan efek partikel atau animasi di sini)
+                yield return null;
+            }
+
+            // 3. NPC muncul kembali
+            
+            // 4. Ubah tile kamar menjadi bersih
+
+            if (hotelControlRef != null)
+            {
+                hotelControlRef.SetClean(); // ubah tile ke bersih
+            }
+            HotelManager.Instance.DestroyCleaningVFX(hotelControlRef.rayPos);
+
+            Debug.Log($"✅ [NPC CLEANING COMPLETE] Kamar '{hotelName}' sudah bersih | Tamu: {guestName}");
+
+            yield return new WaitForSeconds(2);
+            GetComponent<MeshRenderer>().enabled = true;
+            finishEvent?.Invoke(finishEventValue);
+            // 5. Lanjut wander 
+            isServingRoom = false;
+            isOverridingState = false;
+            stateLoopCoroutine = StartCoroutine(StateLoop());
+        }
+
+        #endregion
+        
     }
 
     

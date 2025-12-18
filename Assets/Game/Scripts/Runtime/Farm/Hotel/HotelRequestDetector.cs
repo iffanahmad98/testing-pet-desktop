@@ -12,5 +12,5 @@ public class HotelRequestDetector : MonoBehaviour {
     public bool IsHasHotelRequest () {
         return HotelManager.Instance.IsHasHotelRequest ();
     }
-    
+
 }

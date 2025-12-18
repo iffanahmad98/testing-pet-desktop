@@ -6,10 +6,11 @@ using MagicalGarden.Manager;
 using System;
 namespace MagicalGarden.AI
 {
-    public class NPCHotel : BaseEntityAI
+    public class NPCHotel : BaseEntityAI, INPCHotelService
     {
         public Vector2Int destinationTile;
-        public HotelController hotelControlRef;
+        // public HotelController hotelControlRef;
+        public HotelController hotelControlRef { get; set; }
         public Action<int> finishEvent;
         int finishEventValue;
         protected override IEnumerator HandleState(string stateName)

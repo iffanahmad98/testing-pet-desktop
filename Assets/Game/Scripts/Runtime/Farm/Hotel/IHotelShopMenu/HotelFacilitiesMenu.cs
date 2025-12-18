@@ -16,6 +16,7 @@ public class HotelFacilitiesPodiumCard {
     public Button appliedButton;
     public Button applyButton;
     public HotelFacilitiesDataSO facilityData;
+    public BaseEntityAI baseEntityAI;
 }
 
 public class HotelFacilitiesMenu : HotelShopMenuBase {
@@ -108,6 +109,8 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
             facilityClone.transform.localPosition = listPodiumCard[i].facilityData.facilityLocalPosition;
             facilityClone.transform.localScale = listPodiumCard[i].facilityData.facilityLocalScale;
             facilityClone.SetActive (true);
+            
+            listPodiumCard[index].baseEntityAI = facilityClone.GetComponent <BaseEntityAI> ();
             if (facilityClone.GetComponent <IsometricSpineSorting> ()) {
                 // facilityClone.GetComponent <SkeletonAnimation> ().sortingLayerName  = "MotionUI";
                SkeletonRenderer skeletonRenderer = facilityClone.GetComponent<SkeletonRenderer>();
@@ -141,6 +144,11 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
         SaveSystem.PlayerConfig.AddHotelFacilityData (data.id);
         SaveSystem.SaveAll ();
         
+        var state = podiumCard.baseEntityAI.skeleton.AnimationState;
+        // play jump sekali
+        state.SetAnimation(0, "jumping", false);
+        // setelah selesai, lanjut idle
+        state.AddAnimation(0, "idle", true, 0f);
 
         SpawnHotelFacilities (data.id, true);
         
@@ -157,7 +165,12 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
    public void ApplyFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
         SaveSystem.PlayerConfig.ChangeHotelFacilityData (data.id, true);
         SaveSystem.SaveAll ();
-        
+        var state = podiumCard.baseEntityAI.skeleton.AnimationState;
+        // play jump sekali
+        state.SetAnimation(0, "jumping", false);
+        // setelah selesai, lanjut idle
+        state.AddAnimation(0, "idle", true, 0f);
+
         SpawnHotelFacilities (data.id, true);
    }
 

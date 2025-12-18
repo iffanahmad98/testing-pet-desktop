@@ -388,7 +388,7 @@ namespace MagicalGarden.Hotel
             clone.transform.localPosition += new Vector3 (0,10,0);
             currentRequestBubble = clone;
 
-            currentRequestBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => FulfillRequest (currentGuestRequestType));
+            currentRequestBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => FulfillRequest (currentGuestRequestType, NPCService.NPCHotel));
             HotelManager.Instance.AddBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
         }
         #endregion
@@ -405,15 +405,21 @@ namespace MagicalGarden.Hotel
 
         // CickableObjectHotel
         public void ClickableFulFillRequest () {
-            FulfillRequest (currentGuestRequestType);
+            FulfillRequest (currentGuestRequestType, NPCService.NPCHotel);
         }
 
-        private void FulfillRequest(GuestRequestType type)
+        private void FulfillRequest(GuestRequestType type, NPCService npcService, INPCHotelService autoNpcHotel = null)
         {
             Debug.Log($"VALID {hasRequest}");
             if (!hasRequest) return;
             if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;
             // Stop countdown coroutine
+            INPCHotelService npcHotelService = null;
+            if (npcService == NPCService.NPCHotel) {
+                npcHotelService = HotelManager.Instance.npcHotel;
+            } else if (npcService == NPCService.NPCAutoService) {
+                npcHotelService = autoNpcHotel;
+            }
 
             if (currentRequestCountdown != null)
             {
@@ -421,7 +427,7 @@ namespace MagicalGarden.Hotel
                 currentRequestCountdown = null;
             }
 
-            hasRequest = false;
+            // hasRequest = false; (Pindah ke IncreaseHappiness)
             HotelManager.Instance.RemoveHotelControllerHasRequest (this);
             // happiness = Mathf.Min(happiness + 20, 100);
            // happiness = Mathf.Min (happiness + GetGuestRequest (currentGuestRequestType).increaseHappiness,100);
@@ -436,18 +442,23 @@ namespace MagicalGarden.Hotel
                 string roomName = gameObject.name;
                 Debug.Log($"🧹 [NPC CLEANING] Mengirim NPC untuk membersihkan kamar {roomName} milik {nameGuest}");
 
+                /*
                 HotelManager.Instance.npcHotel.hotelControlRef = this;
                 HotelManager.Instance.npcHotel.AddFinishEventHappiness(IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
                 StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
+                */
+                npcHotelService.hotelControlRef = this;
+                npcHotelService.AddFinishEventHappiness (IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
+                StartCoroutine (npcHotelService.NPCHotelCleaning());
             } else if (type == GuestRequestType.Food)
             {
                 // Log NPC cleaning dimulai
                 string roomName = gameObject.name;
                 Debug.Log($" [NPC Food] Mengirim NPC untuk mengantar makanan kamar {roomName} milik {nameGuest}");
 
-                HotelManager.Instance.npcHotel.hotelControlRef = this;
-                HotelManager.Instance.npcHotel.AddFinishEventHappiness(IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
-                StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
+                npcHotelService.hotelControlRef = this;
+                npcHotelService.AddFinishEventHappiness (IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
+                StartCoroutine (npcHotelService.NPCHotelCleaning());
             }
             else if (type == GuestRequestType.Gift)
             {
@@ -455,9 +466,9 @@ namespace MagicalGarden.Hotel
                 string roomName = gameObject.name;
                 Debug.Log($"[NPC Gift] Mengirim NPC untuk memberikan hadiah ke kamar {roomName} milik {nameGuest}");
 
-                HotelManager.Instance.npcHotel.hotelControlRef = this;
-                HotelManager.Instance.npcHotel.AddFinishEventHappiness(IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
-                StartCoroutine(HotelManager.Instance.npcHotel.NPCHotelCleaning());
+                npcHotelService.hotelControlRef = this;
+                npcHotelService.AddFinishEventHappiness (IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
+                StartCoroutine (npcHotelService.NPCHotelCleaning());
             }
 
             // Hide buttons
@@ -472,7 +483,7 @@ namespace MagicalGarden.Hotel
             if (System.Enum.TryParse(typeStr, out GuestRequestType type))
             {
                 Debug.Log("Valid request type: " + type);
-                FulfillRequest(type);
+                FulfillRequest(type, NPCService.NPCHotel);
             }
             else
             {
@@ -482,6 +493,7 @@ namespace MagicalGarden.Hotel
 
         void IncreaseHappiness (int happinessValue) {
             happiness = Mathf.Min (happiness +  happinessValue,100);
+            hasRequest = false;
         }
         #endregion
 
@@ -549,7 +561,16 @@ namespace MagicalGarden.Hotel
             Down
         }
         #endregion
+        #region NPCAutoService
+        public enum NPCService {
+            NPCHotel,
+            NPCAutoService
+        }
 
+        public void NPCAutoService (INPCHotelService npc) { // NPCRoboShroom.cs
+            FulfillRequest (currentGuestRequestType, NPCService.NPCAutoService, npc);
+        }
+        #endregion
         #region Random Guest Request Type
 
         public void RandomGuestRequestType()

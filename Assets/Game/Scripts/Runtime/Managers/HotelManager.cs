@@ -411,21 +411,24 @@ namespace MagicalGarden.Manager
         // HotelController
         public void AddBubbleRequest (Button bubbleButton) {
             listBubbleRequest.Add (bubbleButton);
-
+            RefreshBubbleRoomService ();
         }
 
         // HotelController
         public void RemoveBubbleRequest (Button bubbleButton) {
             listBubbleRequest.Remove (bubbleButton);
+            RefreshBubbleRoomService ();
         }
 
         public void AddHotelControllerHasRequest (HotelController hotelController) {
             if (!listHotelControllerHasRequest.Contains (hotelController))
+            Debug.Log ("Add Hotel Request");
             listHotelControllerHasRequest.Add (hotelController);
         }
 
         public void RemoveHotelControllerHasRequest (HotelController hotelController) {
             if (listHotelControllerHasRequest.Contains (hotelController))
+             Debug.Log ("Remove Hotel Request");
             listHotelControllerHasRequest.Remove (hotelController);
         }
         #endregion
@@ -434,7 +437,7 @@ namespace MagicalGarden.Manager
         public HotelController GetRandomHotelRequestDetector () {
             int target = UnityEngine.Random.Range (0,listHotelControllerHasRequest.Count);
             HotelController targetHotel = listHotelControllerHasRequest[target];
-            listHotelControllerHasRequest.Remove (targetHotel);
+            RemoveHotelControllerHasRequest (targetHotel);
             return targetHotel;
         }
 
