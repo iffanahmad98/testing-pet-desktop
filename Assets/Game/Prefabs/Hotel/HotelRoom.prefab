@@ -228,11 +228,15 @@ MonoBehaviour:
   happiness: 0
   rarity: 0
   listPet: []
+  checkOutTiles:
+  - {x: 34, y: -55}
   giftBtn: {fileID: 0}
   roomServiceBtn: {fileID: 0}
   foodBtn: {fileID: 0}
   fillExpired: {fileID: 0}
-  requestInterval: 60
+  minRequestInterval: 30
+  maxRequestInterval: 60
+  isPetReachedTarget: 0
   worldCanvas: {fileID: 0}
   giftBubblePrefab: {fileID: 2335017987169968055, guid: 789f0426a153c5a408ca52e7b90ceae7, type: 3}
   roomServiceBubblePrefab: {fileID: 5824403613803653334, guid: 501c6962ee557494db92f394aa66cca8, type: 3}
@@ -240,10 +244,17 @@ MonoBehaviour:
   guestRequestConfigs:
   - guestRequestType: 2
     chanceActive: 20
+    increaseHappiness: 40
+    decreaseHappiness: -40
   - guestRequestType: 1
     chanceActive: 40
+    increaseHappiness: 40
+    decreaseHappiness: -40
   - guestRequestType: 0
     chanceActive: 40
+    increaseHappiness: 40
+    decreaseHappiness: -40
+  coinBubblePrefab: {fileID: 4200918566623263091, guid: c19b03b84bdf89a4bb3523246b0c25e1, type: 3}
 --- !u!114 &2916851620793561279
 MonoBehaviour:
   m_ObjectHideFlags: 0

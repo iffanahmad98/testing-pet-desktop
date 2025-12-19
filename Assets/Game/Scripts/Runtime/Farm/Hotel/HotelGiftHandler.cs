@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Manager;
+using MagicalGarden.AI;
 
 public class HotelGiftHandler : MonoBehaviour
 {
@@ -21,6 +22,8 @@ public class HotelGiftHandler : MonoBehaviour
     [Header ("Hotel Gift Spawner")]
     [SerializeField] GameObject hotelGift2dPrefab;
 
+    [Tooltip ("NPC Robo Shroom")]
+    public List <NPCRoboShroom> listNPCRoboShroom = new List <NPCRoboShroom> ();
     [Tooltip("Collider yang terdeteksi")]
    // public List<PolygonCollider2D> detectedGiftPolygons = new List <PolygonCollider2D> ();
     public Tilemap tilemap;   // assign tilemap di inspector
@@ -71,7 +74,7 @@ public class HotelGiftHandler : MonoBehaviour
 
     #region Claim Gift
     
-    public void ClaimGift (GiftItem giftItem) { // GiftItem.cs
+    public void ClaimGift (GiftItem giftItem, bool isManualClick) { // GiftItem.cs
     // Debug.Log ("ClaimGift");
      GameObject cloneReceived = GameObject.Instantiate (hotelGiftReceivedPrefab);
      // cloneReceived.transform.SetParent (giftItem.gameObject.transform);
@@ -82,7 +85,10 @@ public class HotelGiftHandler : MonoBehaviour
      HotelGiftHandler.instance.SpawnHotelGiftDisplay ();
 
      RemoveHotelGift (giftItem.gameObject);
-       
+     
+     if (isManualClick) {
+        RefreshAllMovementRoboShroom ();
+     } 
    }
     #endregion
     
@@ -104,6 +110,17 @@ public class HotelGiftHandler : MonoBehaviour
         Vector2Int tilePos = DetectTiles(chosen);
         listHotelGift.Remove (listHotelGift[idTarget]);
         return (tilePos, chosen);
+    }
+
+    public (Vector2Int pos, GameObject obj) GetSpecificGiftPosition (GameObject target) {
+        GameObject chosen = target;
+        Vector2Int tilePos = DetectTiles(chosen);
+        listHotelGift.Remove (chosen);
+        return (tilePos, chosen);
+    }
+
+    public List <GameObject> GetListHotelGift () {
+        return listHotelGift;
     }
     #endregion
     #region Tileset
@@ -228,4 +245,23 @@ public class HotelGiftHandler : MonoBehaviour
 
    }
     #endregion
+
+    #region NPCRoboShroom
+    // NPCRoboShroom.cs
+    public void AddNPCRoboShroom (NPCRoboShroom npc) {
+        listNPCRoboShroom.Add (npc);
+    }
+
+    // NPCRoboShroom.cs
+    public void RemoveNPCRoboShroom (NPCRoboShroom npc) {
+        listNPCRoboShroom.Remove (npc);
+    }
+
+    void RefreshAllMovementRoboShroom () {
+        foreach (NPCRoboShroom npc in listNPCRoboShroom) {
+            npc.ResetMovement ();    
+        }
+    }
+    #endregion
+    
 }

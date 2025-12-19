@@ -95,7 +95,7 @@ namespace MagicalGarden.Gift
                // Destroy(gameObject, destroyDelay);
             }
 
-            HotelGiftHandler.instance.ClaimGift (this);
+            HotelGiftHandler.instance.ClaimGift (this, true);
             Destroy (this.gameObject);
         }
 
@@ -301,7 +301,8 @@ namespace MagicalGarden.Gift
 
         #region NPCRoboShroom
         public void OpenGiftByNPC () {
-            OpenGift ();
+            HotelGiftHandler.instance.ClaimGift (this, false);
+            Destroy (this.gameObject);
         }
         #endregion
 #if UNITY_EDITOR

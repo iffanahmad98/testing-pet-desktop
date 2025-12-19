@@ -30,7 +30,9 @@ namespace MagicalGarden.AI
         bool isCollectingGift;
         GameObject giftObject;
 
-
+        [Header ("Reset")]
+        HotelGiftHandler hotelGiftHandler;
+        Coroutine cnCollectGiftState;
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -52,7 +54,13 @@ namespace MagicalGarden.AI
             base.Start();
             stateLoopCoroutine = StartCoroutine(StateLoop());
             PatrolingRobo ();
+            hotelGiftHandler = HotelGiftHandler.instance;
+            hotelGiftHandler.AddNPCRoboShroom (this);
            // StartCoroutine (nTestWalk ());
+        }
+
+        void OnDestroy () {
+            hotelGiftHandler.RemoveNPCRoboShroom (this);
         }
 
         /*
@@ -65,8 +73,6 @@ namespace MagicalGarden.AI
         public IEnumerator MoveToTarget(Vector2Int destination, bool walkOnly = false)
         {
             
-            Debug.Log ("Loot Hunter Destination " + destination);
-
             if (!IsWalkableTile(destination))
             {
               //  Debug.LogError("Destination is not walkable!");
@@ -181,6 +187,7 @@ namespace MagicalGarden.AI
         }
         
         #region NPCRoboShroom
+
         void PatrolingRobo () {
             StartCoroutine (nChangeAreaPoints ());
             StartCoroutine (nCheckAreaPosition ());
@@ -188,6 +195,66 @@ namespace MagicalGarden.AI
 
         IEnumerator nCheckAreaPosition () {
             StopCoroutine (stateLoopCoroutine);
+            if (hotelRequestDetector.IsHasHotelRequest () || HotelGiftHandler.instance.IsAnyGifts ()) {
+                List<HotelController> listHotelController = hotelRequestDetector.GetListHotelController();
+                List<GameObject> listHotelGift = HotelGiftHandler.instance.GetListHotelGift();
+
+                Transform origin = transform; // posisi NPC / player
+
+                float nearestDistance = float.MaxValue;
+                Transform nearestTarget = null;
+                NearestTargetType nearestTargetType = NearestTargetType.None;
+
+                // Cek Gift
+                foreach (GameObject gift in listHotelGift)
+                {
+                    if (gift == null) continue;
+
+                    float dist = Vector3.Distance(origin.position, gift.transform.position);
+                    if (dist < nearestDistance)
+                    {
+                        nearestDistance = dist;
+                        nearestTarget = gift.transform;
+                        nearestTargetType = NearestTargetType.Gift;
+                    }
+                }
+
+                // Cek Hotel
+                foreach (HotelController hotel in listHotelController)
+                {
+                    if (hotel == null) continue;
+
+                    float dist = Vector3.Distance(origin.position, hotel.transform.position);
+                    if (dist < nearestDistance)
+                    {
+                        nearestDistance = dist;
+                        nearestTarget = hotel.transform;
+                        nearestTargetType = NearestTargetType.Hotel;
+                    }
+                }
+
+                if (nearestTargetType == NearestTargetType.Gift) {
+                    (Vector2Int pos, GameObject obj) result = HotelGiftHandler.instance.GetSpecificGiftPosition (nearestTarget.gameObject);
+                    Vector2Int lootPosition = result.pos;
+                    giftObject = result.obj;
+
+                    isCollectingGift = true;
+                    cnCollectGiftState = StartCoroutine (MoveToTarget (lootPosition));
+                // Debug.Log ("Gift Position " + lootPosition);
+
+                } else if (nearestTargetType == NearestTargetType.Hotel) {
+                    HotelController hotelController = nearestTarget.GetComponent <HotelController> ();
+                    isServingRoom = true;
+                    Debug.Log ("Hotel Robo Target Position : " + hotelController.gameObject.name);
+                    isOverridingState = true; // di overridingState duluan, karena default dari NPCCleaning ada jeda waktu untuk move target.
+                    hotelRequestDetector.RemoveSpecificHotelControllerHasRequest (hotelController);
+                    hotelController.NPCAutoService (this);
+                    
+                }
+            } else {
+                StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[UnityEngine.Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
+            }
+            /*
             if (hotelRequestDetector.IsHasHotelRequest ()) {
                 var hotelController = hotelRequestDetector.GetRandomHotelRequest ();
                 isServingRoom = true;
@@ -208,6 +275,7 @@ namespace MagicalGarden.AI
             } else {
                 StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[UnityEngine.Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
             }
+            */
           //  isOverridingState = true;
              yield return new WaitUntil (() => !isOverridingState);
             yield return new WaitForSeconds (UnityEngine.Random.Range (checkAreaPositionMinSeconds, checkAreaPositionMaxSeconds));
@@ -215,8 +283,12 @@ namespace MagicalGarden.AI
         }
 
         IEnumerator nChangeAreaPoints () {
-            currentNPCAreaPointsSO = npcAreaPointsDatabase.GetRandomNPCAreaPointsSO ();
-           // Debug.Log ("Current NPC Area Point : " + currentNPCAreaPointsSO);
+            if (!hotelRequestDetector.IsHasHotelRequest () && !HotelGiftHandler.instance.IsAnyGifts ()) {
+                currentNPCAreaPointsSO = npcAreaPointsDatabase.GetRandomNPCAreaPointsSO ();
+            
+            // Debug.Log ("Current NPC Area Point : " + currentNPCAreaPointsSO);
+                
+            }
             yield return new WaitUntil (() => !isOverridingState);
             yield return new WaitForSeconds (UnityEngine.Random.Range (changeAreaPointsMinSeconds, changeAreaPointsMaxSeconds));
             
@@ -322,6 +394,23 @@ namespace MagicalGarden.AI
         }
         #endregion
 
+        #region Reset
+        
+        public void ResetMovement () { // HotelGiftHandler
+            if (cnCollectGiftState != null) {
+                StopCoroutine (cnCollectGiftState);
+                cnCollectGiftState =null;
+            }
+
+            isCollectingGift = false;
+            isOverridingState = false;
+
+            SetAnimation ("idle");
+           // stateLoopCoroutine = StartCoroutine(StateLoop());
+        }
+
+        #endregion
+        
         #region Service Features
         public void AddFinishEventHappiness(Action<int> callback, int value)
         {
@@ -380,6 +469,12 @@ namespace MagicalGarden.AI
 
         #endregion
         
+        public enum NearestTargetType
+        {
+            None,
+            Gift,
+            Hotel
+        }
     }
 
     

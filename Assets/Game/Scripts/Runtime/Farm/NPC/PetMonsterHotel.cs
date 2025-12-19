@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using MagicalGarden.Hotel;
 using Unity.VisualScripting;
-
 namespace MagicalGarden.AI
 {
     public class PetMonsterHotel : BaseEntityAI
@@ -13,6 +12,7 @@ namespace MagicalGarden.AI
         public HotelController hotelContrRef;
         private bool hasJumped = false;
         private bool isMoving = false;
+        public System.Action finishMoveEvent;
         protected override IEnumerator CustomState(string stateName)
         {
             switch (stateName)
@@ -133,6 +133,8 @@ namespace MagicalGarden.AI
                 }
                 Debug.Log("🛑 Hasil moveToTarget: " + success);
             });
+
+            finishMoveEvent?.Invoke ();
             Debug.Log("🛑 Selesai gerak");
             
         }
@@ -259,5 +261,16 @@ namespace MagicalGarden.AI
             Destroy(gameObject);
         }
         #endregion
+
+        
+        public void MoveToTargetWithEvent (Vector2Int targetPosition, System.Action action) { // HotelController.cs
+            StartCoroutine (MoveToTargetWithFlag (targetPosition));
+            finishMoveEvent = action;
+        }
+
+        public void DestroyPet () { // HotelController.cs
+            Destroy (this.gameObject);
+        }
+
     }
 }

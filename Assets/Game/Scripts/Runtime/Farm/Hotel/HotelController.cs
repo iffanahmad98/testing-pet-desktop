@@ -40,7 +40,8 @@ namespace MagicalGarden.Hotel
         public GuestRarity rarity = GuestRarity.Common;
         private float logTimer = 0f;
         public List<PetMonsterHotel> listPet = new List<PetMonsterHotel>();
-      
+        [SerializeField] Vector2Int [] checkOutTiles;
+
         [Header("Request UI Buttons (Ini kemungkinan akan dihapus, karena sistem sedikit berbeda)")]
         public GameObject giftBtn;
         public GameObject roomServiceBtn;
@@ -53,6 +54,7 @@ namespace MagicalGarden.Hotel
         public float maxRequestInterval = 60f; 
         private float requestTimer = 0f;
         private bool hasRequest = false;
+        private bool onProgressingRequest = false;
         public  bool isPetReachedTarget = false;
         private Coroutine currentRequestCountdown;
 
@@ -70,6 +72,10 @@ namespace MagicalGarden.Hotel
         [Header ("Hotel Gift")]
         HotelGiftSpawner hotelGiftSpawner;
         
+        [Header ("Coin Reward")]
+        [SerializeField] GameObject coinBubblePrefab;
+        int holdCoin = 0;
+        bool holdReward = false;
         void Start()
         {
             CalculateWanderingArea();
@@ -193,8 +199,8 @@ namespace MagicalGarden.Hotel
                 // {
                 //     Debug.Log($"😡 {nameGuest} kecewa dan tidak membayar.");
                 // }
-                Farm.CoinManager.Instance.AddCoins(price);
-
+             //   Farm.CoinManager.Instance.AddCoins(price);
+            SetHoldReward (price);
             //reset All
             nameGuest = "";
             iconGuest = null;
@@ -203,7 +209,7 @@ namespace MagicalGarden.Hotel
             price = 0;
             happiness = 0;
             rarity = GuestRarity.Common;
-
+            
             // Reset request state
             if (currentRequestCountdown != null)
             {
@@ -211,17 +217,19 @@ namespace MagicalGarden.Hotel
                 currentRequestCountdown = null;
             }
             hasRequest = false;
+            onProgressingRequest = false;
             HotelManager.Instance.RemoveHotelControllerHasRequest (this);
             SetIsPetReachedTarget (false);
             requestTimer = 0f;
             ResetRequestButtons();
 
-            foreach (var pet in listPet)
+            foreach (PetMonsterHotel pet in listPet)
             {
-                pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
+               // pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
+               pet.MoveToTargetWithEvent (checkOutTiles [0], pet.DestroyPet);
             }
 
-            
+            listPet.Clear ();
         }
         public void AddPet(PetMonsterHotel pet)
         {
@@ -341,6 +349,7 @@ namespace MagicalGarden.Hotel
            // happiness = Mathf.Max(happiness - 15, 0);
            happiness = Mathf.Max ( happiness + GetGuestRequest (currentGuestRequestType).decreaseHappiness,0);
             hasRequest = false;
+            onProgressingRequest = false;
             HotelManager.Instance.RemoveHotelControllerHasRequest (this);
 
             string roomName = gameObject.name;
@@ -412,7 +421,9 @@ namespace MagicalGarden.Hotel
         {
             Debug.Log($"VALID {hasRequest}");
             if (!hasRequest) return;
+            if (onProgressingRequest) return;
             if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;
+            onProgressingRequest = true;
             // Stop countdown coroutine
             INPCHotelService npcHotelService = null;
             if (npcService == NPCService.NPCHotel) {
@@ -494,6 +505,7 @@ namespace MagicalGarden.Hotel
         void IncreaseHappiness (int happinessValue) {
             happiness = Mathf.Min (happiness +  happinessValue,100);
             hasRequest = false;
+            onProgressingRequest = false;
         }
         #endregion
 
@@ -640,7 +652,18 @@ namespace MagicalGarden.Hotel
             return UnityEngine.Random.Range (minRequestInterval, maxRequestInterval);
         }
         #endregion 
-    
+        #region CoinReward
+        void SetHoldReward (int coinValue) {
+            holdReward = true;
+            holdCoin = coinValue;
+
+            GameObject clone = GameObject.Instantiate (coinBubblePrefab);
+            clone.SetActive (true);
+            clone.transform.position = this.transform.position;
+            clone.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
+            clone.transform.localPosition += new Vector3 (0,10,0);
+        }
+        #endregion
     }
 
 }
