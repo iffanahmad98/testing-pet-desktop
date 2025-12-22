@@ -46,6 +46,10 @@ namespace MagicalGarden.Manager
 
         [Header ("Management")]
         public List <HotelController> listHotelControllerHasRequest = new List <HotelController> ();
+
+        [Tooltip ("NPC Robo Shroom")]
+        public List <NPCRoboShroom> listNPCRoboShroom = new List <NPCRoboShroom> ();
+        
         private void Awake()
         {
             if (Instance == null)
@@ -426,10 +430,13 @@ namespace MagicalGarden.Manager
             listHotelControllerHasRequest.Add (hotelController);
         }
 
-        public void RemoveHotelControllerHasRequest (HotelController hotelController) {
+        public void RemoveHotelControllerHasRequest (HotelController hotelController, bool refreshRobo = false) {
             if (listHotelControllerHasRequest.Contains (hotelController))
              Debug.Log ("Remove Hotel Request");
             listHotelControllerHasRequest.Remove (hotelController);
+            if (refreshRobo) {
+                RefreshAllMovementRoboShroom (hotelController); // mencegahBug (stuck isServing)
+            }
         }
         #endregion
 
@@ -437,7 +444,7 @@ namespace MagicalGarden.Manager
         public HotelController GetRandomHotelRequestDetector () {
             int target = UnityEngine.Random.Range (0,listHotelControllerHasRequest.Count);
             HotelController targetHotel = listHotelControllerHasRequest[target];
-            RemoveHotelControllerHasRequest (targetHotel);
+            RemoveHotelControllerHasRequest (targetHotel, false);
             return targetHotel;
         }
 
@@ -450,7 +457,26 @@ namespace MagicalGarden.Manager
         }
 
         public void RemoveSpecificHotelControllerHasRequest (HotelController hotelController) {
-            RemoveHotelControllerHasRequest (hotelController);
+            RemoveHotelControllerHasRequest (hotelController, true);
+            
+        }
+        #endregion
+
+        #region NPCRoboShroom
+        // NPCRoboShroom.cs
+        public void AddNPCRoboShroom (NPCRoboShroom npc) {
+            listNPCRoboShroom.Add (npc);
+        }
+
+        // NPCRoboShroom.cs
+        public void RemoveNPCRoboShroom (NPCRoboShroom npc) {
+            listNPCRoboShroom.Remove (npc);
+        }
+
+        void RefreshAllMovementRoboShroom (HotelController hotelController) {
+            foreach (NPCRoboShroom npc in listNPCRoboShroom) {
+                npc.ResetMovementHotel (hotelController);    
+            }
         }
         #endregion
     }

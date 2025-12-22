@@ -773,7 +773,7 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetFloat("GameAreaY", gameArea.anchoredPosition.y);
         PlayerPrefs.SetFloat("UIScale", uiScale);
         PlayerPrefs.SetFloat("PetScale", petScale);
-        PlayerPrefs.SetInt("Language", languageDropdown.value);
+       // PlayerPrefs.SetInt("Language", languageDropdown.value); ada error sementara saya tutup (elvan)
         
         foreach (var module in savableSettingsModules)
             module.SaveSettings(); // Save each module's settings
@@ -824,5 +824,10 @@ public class SettingsManager : MonoBehaviour
     public float GetMaxGameAreaHeight()
     {
         return DEFAULT_GAME_AREA_HEIGHT;
+    }
+
+    public float GetSavedMaxGameAreaHeight()
+    {
+        return heightControl.slider.value;
     }
 }

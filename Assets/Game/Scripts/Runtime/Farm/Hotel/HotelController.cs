@@ -5,6 +5,7 @@ using MagicalGarden.Manager;
 using System.Collections.Generic;
 using MagicalGarden.AI;
 using MagicalGarden.Farm;
+using TMPro;
 
 namespace MagicalGarden.Hotel
 {
@@ -52,11 +53,13 @@ namespace MagicalGarden.Hotel
         // public float requestInterval = 60f;  // Request setiap 60 detik
         public float minRequestInterval = 30f;
         public float maxRequestInterval = 60f; 
+        public float durationRequestExpired = 120f;
         private float requestTimer = 0f;
         private bool hasRequest = false;
         private bool onProgressingRequest = false;
         public  bool isPetReachedTarget = false;
         private Coroutine currentRequestCountdown;
+        
 
         [Header ("Request Bubbles")]
         [HideInInspector] public Canvas worldCanvas;
@@ -68,14 +71,17 @@ namespace MagicalGarden.Hotel
         
         [Header ("Request Config")]
         public GuestRequestConfig [] guestRequestConfigs;
-
         [Header ("Hotel Gift")]
         HotelGiftSpawner hotelGiftSpawner;
         
         [Header ("Coin Reward")]
         [SerializeField] GameObject coinBubblePrefab;
+        [SerializeField] GameObject coinClaimDisplay;
+        GameObject coinBubbleClone;
         int holdCoin = 0;
         bool holdReward = false;
+        
+        
         void Start()
         {
             CalculateWanderingArea();
@@ -182,6 +188,7 @@ namespace MagicalGarden.Hotel
             party = guest.party;
             stayDurationDays = guest.stayDurationDays;
             rarity = guest.rarity;
+            price = guest.price;
             happiness = 50;
             // SetHappiness(0);
             checkInDate = TimeManager.Instance.currentTime;
@@ -190,7 +197,7 @@ namespace MagicalGarden.Hotel
         public void CheckOutRoom()
         {
             IsOccupied = false;
-            Debug.LogError("guest keluar room");
+            Debug.Log("guest keluar room");
             // if (happiness >= 50)
                 // {
                 //     Debug.Log($"💰 {nameGuest} membayar karena puas!");
@@ -200,7 +207,10 @@ namespace MagicalGarden.Hotel
                 //     Debug.Log($"😡 {nameGuest} kecewa dan tidak membayar.");
                 // }
              //   Farm.CoinManager.Instance.AddCoins(price);
-            SetHoldReward (price);
+            if (price > 0) { 
+                
+                SetHoldReward (price);
+            }
             //reset All
             nameGuest = "";
             iconGuest = null;
@@ -218,7 +228,7 @@ namespace MagicalGarden.Hotel
             }
             hasRequest = false;
             onProgressingRequest = false;
-            HotelManager.Instance.RemoveHotelControllerHasRequest (this);
+            HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
             SetIsPetReachedTarget (false);
             requestTimer = 0f;
             ResetRequestButtons();
@@ -269,7 +279,7 @@ namespace MagicalGarden.Hotel
             {
                 StopCoroutine(currentRequestCountdown);
             }
-            currentRequestCountdown = StartCoroutine(RequestCountdown(120));
+            currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
         }
 
         void GenerateFoodRequest()
@@ -293,7 +303,7 @@ namespace MagicalGarden.Hotel
             {
                 StopCoroutine(currentRequestCountdown);
             }
-            currentRequestCountdown = StartCoroutine(RequestCountdown(120));
+            currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
         }
 
         void GenerateGiftRequest()
@@ -316,7 +326,7 @@ namespace MagicalGarden.Hotel
             {
                 StopCoroutine(currentRequestCountdown);
             }
-            currentRequestCountdown = StartCoroutine(RequestCountdown(120));
+            currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
         }
 
         System.Collections.IEnumerator RequestCountdown(float duration)
@@ -350,13 +360,19 @@ namespace MagicalGarden.Hotel
            happiness = Mathf.Max ( happiness + GetGuestRequest (currentGuestRequestType).decreaseHappiness,0);
             hasRequest = false;
             onProgressingRequest = false;
-            HotelManager.Instance.RemoveHotelControllerHasRequest (this);
+            HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
 
             string roomName = gameObject.name;
             Debug.LogWarning($"❌ [ROOM SERVICE EXPIRED] Tamu: {nameGuest} | Kamar: {roomName} | Happiness: {happiness} (-15) | Request tidak dipenuhi dalam 30 detik!");
 
             // Hide semua button
             ResetRequestButtons();
+
+            if (happiness == 0) {
+                // Debug.Log ("Customer langsung keluar !");
+                price = 0;
+                CheckOutRoom();
+            }
         }
 
         void ResetRequestButtons()
@@ -366,6 +382,7 @@ namespace MagicalGarden.Hotel
             if (giftBtn) giftBtn.SetActive(false);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
             if (currentRequestBubble) {
+                
                 HotelManager.Instance.RemoveBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
                 Destroy (currentRequestBubble);
             }
@@ -414,7 +431,11 @@ namespace MagicalGarden.Hotel
 
         // CickableObjectHotel
         public void ClickableFulFillRequest () {
-            FulfillRequest (currentGuestRequestType, NPCService.NPCHotel);
+            if (holdReward) {
+                ClaimCoin ();
+            } else {
+                FulfillRequest (currentGuestRequestType, NPCService.NPCHotel);
+            }
         }
 
         private void FulfillRequest(GuestRequestType type, NPCService npcService, INPCHotelService autoNpcHotel = null)
@@ -422,7 +443,7 @@ namespace MagicalGarden.Hotel
             Debug.Log($"VALID {hasRequest}");
             if (!hasRequest) return;
             if (onProgressingRequest) return;
-            if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;
+            if (npcService == NPCService.NPCHotel) {if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;}
             onProgressingRequest = true;
             // Stop countdown coroutine
             INPCHotelService npcHotelService = null;
@@ -439,7 +460,7 @@ namespace MagicalGarden.Hotel
             }
 
             // hasRequest = false; (Pindah ke IncreaseHappiness)
-            HotelManager.Instance.RemoveHotelControllerHasRequest (this);
+            HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
             // happiness = Mathf.Min(happiness + 20, 100);
            // happiness = Mathf.Min (happiness + GetGuestRequest (currentGuestRequestType).increaseHappiness,100);
 
@@ -507,6 +528,7 @@ namespace MagicalGarden.Hotel
             hasRequest = false;
             onProgressingRequest = false;
         }
+
         #endregion
 
         #region Tile Wandering
@@ -657,11 +679,30 @@ namespace MagicalGarden.Hotel
             holdReward = true;
             holdCoin = coinValue;
 
-            GameObject clone = GameObject.Instantiate (coinBubblePrefab);
-            clone.SetActive (true);
-            clone.transform.position = this.transform.position;
-            clone.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
-            clone.transform.localPosition += new Vector3 (0,10,0);
+            GameObject coinBubble = GameObject.Instantiate (coinBubblePrefab);
+            coinBubble.SetActive (true);
+            coinBubble.transform.position = this.transform.position;
+            coinBubble.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
+            coinBubble.transform.localPosition += new Vector3 (0,10,0);
+            coinBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => ClaimCoin ());
+            coinBubbleClone = coinBubble;
+        }
+
+        void ClaimCoin () { 
+            holdReward = false;
+            
+            GameObject coinClaimDisplayClone = GameObject.Instantiate (coinClaimDisplay);
+            coinClaimDisplayClone.SetActive (true);
+            coinClaimDisplayClone.transform.position = this.transform.position;
+            coinClaimDisplayClone.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
+            coinClaimDisplayClone.transform.localPosition += new Vector3 (0,10,0);
+            TMP_Text coinDisplayText = coinClaimDisplayClone.transform.Find ("Canvas").GetComponentInChildren <TMP_Text> ();
+            coinDisplayText.text = "+ " + holdCoin.ToString () ;
+            CoinManager.AddCoins (holdCoin);
+
+            holdCoin = 0;
+            Destroy (coinBubbleClone);
+            coinBubbleClone = null;
         }
         #endregion
     }

@@ -131,10 +131,10 @@ namespace MagicalGarden.AI
                 if (hotelContrRef) {
                     hotelContrRef.SetIsPetReachedTarget (true);
                 }
+                finishMoveEvent?.Invoke ();
                 Debug.Log("🛑 Hasil moveToTarget: " + success);
             });
 
-            finishMoveEvent?.Invoke ();
             Debug.Log("🛑 Selesai gerak");
             
         }
@@ -264,11 +264,12 @@ namespace MagicalGarden.AI
 
         
         public void MoveToTargetWithEvent (Vector2Int targetPosition, System.Action action) { // HotelController.cs
-            StartCoroutine (MoveToTargetWithFlag (targetPosition));
+            StartNewCoroutine (MoveToTargetWithFlag (targetPosition));
             finishMoveEvent = action;
         }
 
         public void DestroyPet () { // HotelController.cs
+            Debug.Log ("Destroy Pet !");
             Destroy (this.gameObject);
         }
 

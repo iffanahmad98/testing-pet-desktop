@@ -24,10 +24,10 @@ namespace MagicalGarden.AI
         public HotelController hotelControlRef { get; set; }
         public Action<int> finishEvent;
         int finishEventValue;
-        bool isServingRoom = false;
+        [SerializeField]  bool isServingRoom = false;
         
         NPCAreaPointsSO currentNPCAreaPointsSO;
-        bool isCollectingGift;
+        [SerializeField] bool isCollectingGift;
         GameObject giftObject;
 
         [Header ("Reset")]
@@ -56,11 +56,13 @@ namespace MagicalGarden.AI
             PatrolingRobo ();
             hotelGiftHandler = HotelGiftHandler.instance;
             hotelGiftHandler.AddNPCRoboShroom (this);
+            HotelManager.Instance.AddNPCRoboShroom (this);
            // StartCoroutine (nTestWalk ());
         }
 
         void OnDestroy () {
             hotelGiftHandler.RemoveNPCRoboShroom (this);
+            HotelManager.Instance.RemoveNPCRoboShroom (this);
         }
 
         /*
@@ -155,10 +157,6 @@ namespace MagicalGarden.AI
             } else if (isServingRoom) {
                 GetComponent<MeshRenderer>().enabled = false;
                 stateLoopCoroutine = StartCoroutine(CleaningRoutine());
-            } else {
-                isOverridingState = false;
-                stateLoopCoroutine = StartCoroutine(StateLoop());
-                
             }
            // 
         }
@@ -194,7 +192,12 @@ namespace MagicalGarden.AI
         }
 
         IEnumerator nCheckAreaPosition () {
-            StopCoroutine (stateLoopCoroutine);
+            if (stateLoopCoroutine != null) {
+                StopCoroutine (stateLoopCoroutine);
+                stateLoopCoroutine = null;
+                isOverridingState = false;
+            }
+
             if (hotelRequestDetector.IsHasHotelRequest () || HotelGiftHandler.instance.IsAnyGifts ()) {
                 List<HotelController> listHotelController = hotelRequestDetector.GetListHotelController();
                 List<GameObject> listHotelGift = HotelGiftHandler.instance.GetListHotelGift();
@@ -244,6 +247,7 @@ namespace MagicalGarden.AI
 
                 } else if (nearestTargetType == NearestTargetType.Hotel) {
                     HotelController hotelController = nearestTarget.GetComponent <HotelController> ();
+                    hotelControlRef = hotelController;
                     isServingRoom = true;
                     Debug.Log ("Hotel Robo Target Position : " + hotelController.gameObject.name);
                     isOverridingState = true; // di overridingState duluan, karena default dari NPCCleaning ada jeda waktu untuk move target.
@@ -407,6 +411,19 @@ namespace MagicalGarden.AI
 
             SetAnimation ("idle");
            // stateLoopCoroutine = StartCoroutine(StateLoop());
+        }
+
+        public void ResetMovementHotel (HotelController hotelController) { // HotelManager.cs (Mencegah bug stuck di isServingRoom)
+            
+            if (isServingRoom) {
+                if (hotelController == hotelControlRef) {
+                if (stateLoopCoroutine != null) {StopCoroutine(stateLoopCoroutine);}
+                isServingRoom = false;
+                isOverridingState = false;
+                stateLoopCoroutine = StartCoroutine(StateLoop());
+                hotelControlRef = null;
+                }
+            }
         }
 
         #endregion

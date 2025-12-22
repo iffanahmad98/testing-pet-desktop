@@ -95,6 +95,17 @@ namespace MagicalGarden.AI
 
         public IEnumerator MoveToTarget(Vector2Int destination, bool walkOnly = false)
         {
+            /*
+            Vector3 rawTargetPosTest = GridToWorld(destination);
+                Vector3 targetPosTest = new Vector3(rawTargetPosTest.x, rawTargetPosTest.y, transform.position.z);
+
+            Debug.Log ("NPC Hotel Destination Distance : " + Vector3.Distance(transform.position, targetPosTest) + " Current tile :" + currentTile + "destination : " + destination);
+            */
+            if (destination == currentTile) {
+                StartCleaningRoutine ();
+                yield break;
+            }
+
             if (!IsWalkableTile(destination))
             {
                 Debug.LogError("Destination is not walkable!");
@@ -164,11 +175,22 @@ namespace MagicalGarden.AI
                 currentTile = next;
             }
 
+            /* Coba dipindahkan
+            SetAnimation("idle");
+            isOverridingState = false;
+            GetComponent<MeshRenderer>().enabled = false;
+            stateLoopCoroutine = StartCoroutine(CleaningRoutine());
+            */
+            StartCleaningRoutine ();
+        }
+
+        void StartCleaningRoutine () {
             SetAnimation("idle");
             isOverridingState = false;
             GetComponent<MeshRenderer>().enabled = false;
             stateLoopCoroutine = StartCoroutine(CleaningRoutine());
         }
+
         private List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
         {
             AStarPathfinder pathfinder = new AStarPathfinder(IsWalkableTile);
