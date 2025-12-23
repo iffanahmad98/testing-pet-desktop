@@ -50,6 +50,8 @@ namespace MagicalGarden.Manager
         [Tooltip ("NPC Robo Shroom")]
         public List <NPCRoboShroom> listNPCRoboShroom = new List <NPCRoboShroom> ();
         
+        [Tooltip ("Data")]
+        PlayerConfig playerConfig;
         private void Awake()
         {
             if (Instance == null)
@@ -58,6 +60,7 @@ namespace MagicalGarden.Manager
 
         private void Start()
         {
+            playerConfig =  SaveSystem.PlayerConfig;
             StartCoroutine(InitializeAfterDelay());
         }
 
@@ -200,13 +203,16 @@ namespace MagicalGarden.Manager
                 // int days = UnityEngine.Random.Range(2, 6);
                 // int minutes = UnityEngine.Random.Range(0, 60);
                 // TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
-                TimeSpan stayDuration = new TimeSpan(0, 0, 3, 0); // 3 menit // 0,0,3,0
+                TimeSpan stayDuration = new TimeSpan(1, 0, 0, 0); // 3 menit // 0,0,3,0
                 var guestTemp = GetRandomGuestStagePrefab();
                 GuestRequest newRequest = new GuestRequest(guestTemp.name,guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
                 newRequest.GuestGroup = guestTemp;
                 todayGuestRequests.Add(newRequest);
+                // playerConfig.AddGuestRequestData (newRequest);
             }
             DisplayGuestRequests();
+
+            
             Debug.Log("Generated " + requestCount + " guest requests for today.");
         }
         private void DisplayGuestRequests()

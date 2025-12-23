@@ -65,7 +65,7 @@ public class GachaResultPanelByEggs : MonoBehaviour
         monsterData = monster;
         
         Sequence seq = DOTween.Sequence();
-        seq.AppendInterval(1.0f);
+        seq.AppendInterval(1.8f);
         // 1. Fade in root + scale punch
         seq.AppendCallback(() =>
         {
@@ -86,7 +86,7 @@ public class GachaResultPanelByEggs : MonoBehaviour
         });
         seq.Append(canvasGroup.DOFade(1, 0.2f).SetEase(fadeInRootEase));
         
-        seq.AppendInterval(1.0f);
+        seq.AppendInterval(1.5f);
         // 4. Show monster info 
         seq.AppendCallback(() =>
         {
@@ -103,7 +103,6 @@ public class GachaResultPanelByEggs : MonoBehaviour
         });
         // 5. Monster display: fade in + scale punch
 
-        
 
         seq.Append(monsterCanvas.DOFade(1, 0.2f).SetEase(fadeInMonsterEase));
         seq.Join(monsterDisplay.transform.DOPunchScale(Vector3.one * 1.25f, 0.4f, 8, 0.8f).SetEase(punchMonsterEase));

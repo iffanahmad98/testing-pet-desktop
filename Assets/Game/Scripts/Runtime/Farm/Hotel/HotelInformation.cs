@@ -28,6 +28,8 @@ namespace MagicalGarden.Hotel
             timeStay.text = hotelController.GetFormattedRemainingTime();
             happinessBarFill.maxValue = 100;
             happinessBarFill.value = hotelController.happiness;
+
+            this.transform.localPosition = new Vector3 (this.transform.localPosition.x, this.transform.localPosition.y, 0);
         }
 
         public void FulfillRequestByString(string typeStr)

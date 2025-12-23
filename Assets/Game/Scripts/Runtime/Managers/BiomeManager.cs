@@ -45,8 +45,10 @@ public class BiomeManager : MonoBehaviour
     [Header("Background Positioning")]
     private Vector2 originalSkyBGPosition;
     private Vector2 originalAmbientBGPosition;
+    private Vector2 originalStarPosition;
     private const float skyBGMinY = -1200f;
     private const float ambientBGMinY = -900f;
+    private const float starMinY = -650f; // -690f titik aman.
     private SettingsManager settingsManager;
 
     [Header("Events")]
@@ -63,6 +65,7 @@ public class BiomeManager : MonoBehaviour
         // Store original positions
         if (skyBG != null) originalSkyBGPosition = skyBG.anchoredPosition;
         if (ambientBG != null) originalAmbientBGPosition = ambientBG.anchoredPosition;
+        if (starsObj != null) originalStarPosition = starsObj.GetComponent <RectTransform> ().anchoredPosition;
 
         // Find cloud system
         cloudSystem = GetComponent<CloudAmbientSystem>();
@@ -145,6 +148,14 @@ public class BiomeManager : MonoBehaviour
             Vector2 newPos = ambientBG.anchoredPosition;
             newPos.y = Mathf.Lerp(ambientBGMinY, originalAmbientBGPosition.y, heightPercentage);
             ambientBG.anchoredPosition = newPos;
+        }
+        
+        if (starsObj !=null)
+        {
+            RectTransform starRT = starsObj.GetComponent <RectTransform> ();
+            Vector2 newPos = starRT.anchoredPosition;
+            newPos.y = Mathf.Lerp(starMinY, originalStarPosition.y, heightPercentage);
+            starRT.anchoredPosition = newPos;
         }
     }
 

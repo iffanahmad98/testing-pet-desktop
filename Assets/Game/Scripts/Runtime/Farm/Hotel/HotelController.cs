@@ -369,7 +369,7 @@ namespace MagicalGarden.Hotel
             ResetRequestButtons();
 
             if (happiness == 0) {
-                // Debug.Log ("Customer langsung keluar !");
+                Debug.LogError ("Customer langsung keluar !");
                 price = 0;
                 CheckOutRoom();
             }
@@ -412,6 +412,12 @@ namespace MagicalGarden.Hotel
             clone.transform.position = this.transform.position;
             clone.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
             clone.transform.localPosition += new Vector3 (0,10,0);
+
+            RectTransform rect = clone.GetComponent<RectTransform>();
+            Vector3 pos = rect.localPosition;
+            pos.z = 0f;
+            rect.localPosition = pos;
+
             currentRequestBubble = clone;
 
             currentRequestBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => FulfillRequest (currentGuestRequestType, NPCService.NPCHotel));

@@ -43,7 +43,9 @@ public class PlayerConfig
     public DateTime lastRefreshTimeHotelGoldenTickets;
     public DateTime lastRefreshTimeNormalEggs;
     public DateTime lastRefreshTimeRareEggs;
-
+    
+    public List <GuestRequestData> listGuestRequestData = new List <GuestRequestData> ();
+    
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -332,6 +334,17 @@ public class PlayerConfig
         return null;
     }
     #endregion
+    #region Guest Request Data
+    public void AddGuestRequestData (MagicalGarden.Hotel.GuestRequest guestRequest) { // HotelManager.cs
+        GuestRequestData guestRequestData = new GuestRequestData ();
+        guestRequestData.type = guestRequest.type;
+        guestRequestData.party = guestRequest.party;
+        guestRequestData.price = guestRequest.price;
+        guestRequestData.stayDuration = guestRequest.stayDurationDays;
+        guestRequestData.guestName = guestRequest.guestName;
+
+    }
+    #endregion
 }
 
 [Serializable]
@@ -397,5 +410,14 @@ public class HotelGiftWorldData
     public Vector3 dataPosition;
 }
 
+[Serializable]
+public class GuestRequestData
+{
+    public string type = "";
+    public int party = 0;
+    public int price = 0;
+    public TimeSpan stayDuration;
+    public string guestName; 
+}
 
 

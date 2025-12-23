@@ -124,7 +124,7 @@ public class EggCrackAnimator : MonoBehaviour
 
         hideEggSequence
             .Append(eggMonsterCanvasGroup.DOFade(1f, 0.5f))
-            .AppendInterval(0.4f)
+            .AppendInterval(1.5f)
             .Append(eggMonsterCanvasGroup.DOFade(0f, 0.5f))
             .AppendInterval(0.15f)
             .OnComplete(OnHideEggSequenceComplete);
