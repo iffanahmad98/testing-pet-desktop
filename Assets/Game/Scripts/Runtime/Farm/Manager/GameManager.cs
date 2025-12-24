@@ -55,7 +55,7 @@ namespace MagicalGarden.Farm
         {
             PlantManager.Instance.SaveToJson();
             FieldManager.Instance.SaveToJson();
-            HotelManager.Instance.SaveGuestRequests();
+          //  HotelManager.Instance.SaveGuestRequests();
             //add other seting
         }
 

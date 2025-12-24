@@ -47,7 +47,8 @@ namespace MagicalGarden.Hotel
 
             declineBtn.GetComponent<Button>().onClick.AddListener(() =>
             {
-                Destroy(gameObject);
+                HandleGuestDecline ();
+               // Destroy(gameObject);
             });
             if (guest.IsVIPGuest())
             {
@@ -69,6 +70,11 @@ namespace MagicalGarden.Hotel
         {
             HotelManager.Instance.AssignGuestToAvailableRoom(guest);
             Destroy(gameObject);
+        }
+
+        private void HandleGuestDecline () {
+             HotelManager.Instance.DeclineGuest(guest);
+            Destroy (gameObject);
         }
     }
 }

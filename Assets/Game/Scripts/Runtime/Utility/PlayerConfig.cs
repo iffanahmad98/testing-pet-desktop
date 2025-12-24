@@ -44,6 +44,7 @@ public class PlayerConfig
     public DateTime lastRefreshTimeNormalEggs;
     public DateTime lastRefreshTimeRareEggs;
     
+    public DateTime lastRefreshGenerateGuest;
     public List <GuestRequestData> listGuestRequestData = new List <GuestRequestData> ();
     
     // Serialization Sync
@@ -65,6 +66,10 @@ public class PlayerConfig
         NormalEgg.instance.LoadLoot (normalEgg);
         RareEgg.instance.LoadLoot (rareEgg);
         HotelGift.instance.LoadLoot (hotelGift);
+    }
+
+    public void SyncGuestRequestData () {
+        Debug.Log ("Sync Guest Request Data, total ada : " + listGuestRequestData.Count);
     }
 
     // Inventory Logic
@@ -335,15 +340,27 @@ public class PlayerConfig
     }
     #endregion
     #region Guest Request Data
-    public void AddGuestRequestData (MagicalGarden.Hotel.GuestRequest guestRequest) { // HotelManager.cs
-        GuestRequestData guestRequestData = new GuestRequestData ();
-        guestRequestData.type = guestRequest.type;
-        guestRequestData.party = guestRequest.party;
-        guestRequestData.price = guestRequest.price;
-        guestRequestData.stayDuration = guestRequest.stayDurationDays;
-        guestRequestData.guestName = guestRequest.guestName;
-
+    public void AddGuestRequestData (GuestRequestData guestRequestData) { // HotelManager.cs
+        
+        listGuestRequestData.Add (guestRequestData);
     }
+
+    public void RemoveGuestRequestData (GuestRequestData guestRequestData) { // HotelManager.cs
+        listGuestRequestData.Remove (guestRequestData);
+    }
+
+    public void ClearAllGuestRequestData () {
+        listGuestRequestData.Clear ();   
+    }
+
+    public void SetLastRefreshGenerateGuest (DateTime dateTime) { // HotelManager.cs
+        lastRefreshGenerateGuest = dateTime;
+    }
+
+    public List <GuestRequestData> GetListGuestRequestData () { // HotelManager.cs
+        return listGuestRequestData;
+    }
+    
     #endregion
 }
 

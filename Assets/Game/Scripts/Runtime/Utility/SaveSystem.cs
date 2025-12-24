@@ -228,7 +228,8 @@ public static class SaveSystem
 
                 _playerConfig.SyncFromSerializable();
                 _playerConfig.SyncLootUseable();
-
+                _playerConfig.SyncGuestRequestData ();
+                
                 DataLoaded?.Invoke(_playerConfig);
 
                 Debug.Log("Game data loaded successfully");
@@ -250,7 +251,7 @@ public static class SaveSystem
     private static readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
     {
         Formatting = Formatting.Indented, // datetime
-        Converters = { new Vector3Converter() } // vector3
+        Converters = { new Vector3Converter(), new TimeSpanConverter() } // vector3, TimeSpan
     };
 
     private static void SavePlayerConfig()

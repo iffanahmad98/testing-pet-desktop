@@ -15,8 +15,12 @@ namespace MagicalGarden.Hotel
         public TimeSpan stayDurationDays;
         public GuestRarity rarity = GuestRarity.Common;
         public GuestStageGroup GuestGroup { get; set; }
-        public GuestRequest(string name, Sprite icon, string type, int party, int price, TimeSpan stayDuration, GuestRarity rarity = GuestRarity.Common)
+        [Tooltip ("Data")]
+        public GuestRequestData guestRequestData;
+
+        public GuestRequest(GuestRequestData guestRequestDataVal, string name, Sprite icon, string type, int party, int price, TimeSpan stayDuration, GuestRarity rarity = GuestRarity.Common)
         {
+            guestRequestData = guestRequestDataVal;
             guestName = name;
             this.icon = icon;
             this.party = party;

@@ -15,6 +15,7 @@ namespace MagicalGarden.Hotel
         public int party;
         public int price;
         public int durationStay;
+        
         public GuestRarity rarity = GuestRarity.Common;
         [Range(0, 100)]
         public int happiness = 100;
@@ -39,6 +40,8 @@ namespace MagicalGarden.Hotel
         [Header("Debug Data Guest")]
         public TextMeshProUGUI descGuest;
         private bool hasRequest = false;
+        public GuestRequestData guestRequestData;
+        
         void Start()
         {
             giftBtn.SetActive(false);
@@ -118,7 +121,7 @@ namespace MagicalGarden.Hotel
         public GuestRequest ToRequest()
         {
             Sprite icon = null;
-            return new GuestRequest(guestName,icon, type, party, price, stayDurationDays, rarity);
+            return new GuestRequest(guestRequestData, guestName,icon, type, party, price, stayDurationDays, rarity);
         }
         void ResetBtn()
         {

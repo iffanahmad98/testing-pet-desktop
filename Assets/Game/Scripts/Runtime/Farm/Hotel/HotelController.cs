@@ -229,6 +229,7 @@ namespace MagicalGarden.Hotel
             hasRequest = false;
             onProgressingRequest = false;
             HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
+            HotelManager.Instance.AddGuestRequestAfterCheckOut ();
             SetIsPetReachedTarget (false);
             requestTimer = 0f;
             ResetRequestButtons();
