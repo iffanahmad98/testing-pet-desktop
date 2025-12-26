@@ -30,6 +30,7 @@ public class PlayerConfig
     public List<OwnedDecorationData> ownedDecorations = new();
     public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
     public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
+   
 
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
@@ -46,6 +47,8 @@ public class PlayerConfig
     
     public DateTime lastRefreshGenerateGuest;
     public List <GuestRequestData> listGuestRequestData = new List <GuestRequestData> ();
+    public List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
+    public List <PetMonsterHotelData> listPetMonsterHotelData = new List <PetMonsterHotelData> ();
     
     // Serialization Sync
     public void SyncToSerializable()
@@ -362,6 +365,71 @@ public class PlayerConfig
     }
     
     #endregion
+    #region HotelControllerData
+    public void AddHotelControllerData (HotelControllerData hotelControllerData) {
+        listHotelControllerData.Add (hotelControllerData);
+    }
+
+    public void RemoveHotelControllerData (HotelControllerData hotelControllerData) {
+        listHotelControllerData.Remove (hotelControllerData);
+    }
+
+    public List <HotelControllerData> GetListHotelControllerData () { // HotelManager.cs
+        return listHotelControllerData; 
+    }
+
+    public void HotelControllerDataChangeCodeRequest (int idHotel, string codeRequest) { // HotelController.cs
+        foreach (HotelControllerData data in listHotelControllerData) {
+            if (data.idHotel == idHotel) {
+                data.codeRequest = codeRequest;
+                return;
+            }
+        }
+    }
+    #endregion
+    #region PetMonsterHotelData
+   public void SavePetMonsterHotelElement(PetMonsterHotelData data)
+{ // untuk sistem yang bertabrakan dengan SaveAll ()
+    // 1. Pastikan config sudah load
+    var config = SaveSystem.PlayerConfig;
+
+    if (config.listPetMonsterHotelData == null)
+        config.listPetMonsterHotelData = new List<PetMonsterHotelData>();
+
+    /*
+    // 2. Cari element existing (KEY = idHotel)
+    int index = config.listPetMonsterHotelData.FindIndex(x =>
+        x.idHotel == data.idHotel &&
+        x.guestStageGroupName == data.guestStageGroupName
+    );
+    */
+    /*
+    if (index >= 0)
+    {
+        // UPDATE ELEMENT
+        config.listPetMonsterHotelData[index].guestStage = data.guestStage;
+    }
+    else
+    {
+        // ADD ELEMENT
+        config.listPetMonsterHotelData.Add(data);
+    }
+    */
+    config.listPetMonsterHotelData.Add(data);
+
+    //Debug.Log("Pet element saved, total: " +
+        //      config.listPetMonsterHotelData.Count);
+
+    // 3. SAVE FILE (tetap full json, tapi aman)
+    SaveSystem.SaveAll();
+}
+
+
+    public void RemovePetMonsterHotelData (PetMonsterHotelData data) {
+       // listPetMonsterHotelData.Remove (data);
+       // SaveSystem.SaveAll ();
+    }
+    #endregion
 }
 
 [Serializable]
@@ -435,6 +503,32 @@ public class GuestRequestData
     public int price = 0;
     public TimeSpan stayDuration;
     public string guestName; 
+}
+
+[Serializable]
+public class HotelControllerData
+{
+    public int idHotel = 0;
+    public bool isDirty = false;
+    public bool isOccupied = false;
+    public string nameGuest = "";
+    public string typeGuest = "";
+    public int party = 0;
+    public int price = 0;
+    public TimeSpan stayDurationDays;
+    public int happiness = 0;
+    public DateTime checkInDate;
+    public string rarity = "";
+    public bool hasRequest = false;
+    public string codeRequest = ""; // "RoomService", "Food", "Gift"
+}
+
+[Serializable]
+public class PetMonsterHotelData
+{
+    public int idHotel = 0;
+    public string guestStageGroupName = "";
+    public int guestStage = 0;
 }
 
 

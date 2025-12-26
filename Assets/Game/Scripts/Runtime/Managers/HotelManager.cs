@@ -75,6 +75,8 @@ namespace MagicalGarden.Manager
             LoadLastDate();
             LoadGuestRequests();
             CheckGenerateGuestList();
+            LoadAllHotelControllerDatas ();
+            LoadAllPetMonsterHotelDatas ();
         }
         [ContextMenu("Debug: save room hotel")]
         private void testroom()
@@ -99,6 +101,7 @@ namespace MagicalGarden.Manager
             return guestStageGroup[UnityEngine.Random.Range(0, guestStageGroup.Count)];
         }
 
+        // HotelController
         public GuestStageGroup GetSpecificGuestStagePrefab (string targetName)
         {
             foreach (GuestStageGroup guest in guestStageGroup) {
@@ -133,7 +136,7 @@ namespace MagicalGarden.Manager
 
             foreach (var room in hotelControllers)
             {
-                if (!room.IsOccupied)
+                if (!room.IsOccupied && !room.holdReward)
                     availableRooms.Add(room);
             }
 
@@ -165,6 +168,17 @@ namespace MagicalGarden.Manager
                 pet.destinationTile.y = hotelController.hotelPositionTile.y;
                 pet.hotelContrRef = hotelController;
                 pet.SetupPetHotel();
+
+                PetMonsterHotelData petMonsterHotelData = new PetMonsterHotelData {
+                    idHotel = hotelController.idHotel,
+                    guestStageGroupName = guest.GuestGroup.name,
+                    guestStage = stage
+                };
+                 pet.SetPetMonsterHotelData (petMonsterHotelData);
+                 /*
+                    playerConfig.AddPetMonsterHotelData (petMonsterHotelData);
+                    SaveSystem.SaveAll ();
+                */
             }
 
             bool removed = todayGuestRequests.Remove(guest);
@@ -239,6 +253,7 @@ namespace MagicalGarden.Manager
                 // int minutes = UnityEngine.Random.Range(0, 60);
                 // TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
                 int day = UnityEngine.Random.Range (1,4);
+                // day =0;
                 TimeSpan stayDuration = new TimeSpan(day, 0, 0, 0); // 3 menit // 0,0,3,0
                 int price = (party * 150) + (day * 400) + UnityEngine.Random.Range (1,100);
                 var guestTemp = GetRandomGuestStagePrefab();
@@ -308,12 +323,15 @@ namespace MagicalGarden.Manager
         private void FindAllHotelRoom()
         {
             hotelControllers.Clear();
+            int curId= 0;
             foreach (Transform child in poolHotelRoom)
             {
                 HotelController controller = child.GetComponent<HotelController>();
                 if (controller != null)
                 {
+                    controller.idHotel = curId;
                     hotelControllers.Add(controller);
+                    curId ++;
                 }
             }
         }
@@ -587,6 +605,21 @@ namespace MagicalGarden.Manager
         }
         #endregion
 
+        #region Data
+        void LoadAllHotelControllerDatas () {
+            List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
+            listHotelControllerData = playerConfig.GetListHotelControllerData ();
+            foreach (HotelControllerData data in listHotelControllerData) {
+                hotelControllers [data.idHotel].LoadData (data);
+            }
+
+        }
+
+        void LoadAllPetMonsterHotelDatas () {
+
+        }
+
+        #endregion
         #region Utility
         int GetTotalHotelControllerAvailable () {
             int total = 0;

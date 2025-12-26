@@ -13,6 +13,11 @@ namespace MagicalGarden.AI
         private bool hasJumped = false;
         private bool isMoving = false;
         public System.Action finishMoveEvent;
+
+        [Header ("Data (PlayerConfig.cs)")]
+        public PlayerConfig playerConfig;
+        PetMonsterHotelData petMonsterHotelData;
+
         protected override IEnumerator CustomState(string stateName)
         {
             switch (stateName)
@@ -99,7 +104,9 @@ namespace MagicalGarden.AI
 
         void Start()
         {
+            playerConfig = SaveSystem.PlayerConfig;
             base.Start();
+            
         }
 
 
@@ -273,5 +280,14 @@ namespace MagicalGarden.AI
             Destroy (this.gameObject);
         }
 
+        #region Data
+        public void SetPetMonsterHotelData (PetMonsterHotelData value) { // HotelManager.cs
+        
+            petMonsterHotelData = value;
+            playerConfig.SavePetMonsterHotelElement (petMonsterHotelData);
+            SaveSystem.SaveAll ();
+            
+        }
+        #endregion
     }
 }

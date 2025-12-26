@@ -54,7 +54,7 @@ namespace MagicalGarden.Hotel
         public float minRequestInterval = 30f;
         public float maxRequestInterval = 60f; 
         public float durationRequestExpired = 120f;
-        private float requestTimer = 0f;
+        public float requestTimer = 0f;
         private bool hasRequest = false;
         private bool onProgressingRequest = false;
         public  bool isPetReachedTarget = false;
@@ -79,9 +79,14 @@ namespace MagicalGarden.Hotel
         [SerializeField] GameObject coinClaimDisplay;
         GameObject coinBubbleClone;
         int holdCoin = 0;
-        bool holdReward = false;
+        public bool holdReward = false; // this, HotelManager.cs
         
-        
+        [Header ("Data")]
+        [HideInInspector] public int idHotel = 0; // HotelManager.cs
+        public HotelControllerData hotelControllerData;
+        PlayerConfig playerConfig;
+        Dictionary <string, Action> dictionaryGenerateRequest = new Dictionary <string, Action> ();
+
         void Start()
         {
             CalculateWanderingArea();
@@ -97,6 +102,8 @@ namespace MagicalGarden.Hotel
 
             hotelGiftSpawner = GetComponent <HotelGiftSpawner> ();
             worldCanvas = MagicalGarden.Farm.UIManager.Instance.uIWorldNonScaleable; 
+
+            playerConfig = SaveSystem.PlayerConfig;
         }
         void Update()
         {
@@ -155,7 +162,7 @@ namespace MagicalGarden.Hotel
 
             int hours = Mathf.FloorToInt((float)remaining.TotalHours);
             int minutes = remaining.Minutes;
-
+            Debug.Log ($"hours : {hours} elapsed {elapsed} remaining {remaining}");
             return $"{hours:D2}h {minutes:D2}m";
         }
         public void SetClean()
@@ -166,6 +173,12 @@ namespace MagicalGarden.Hotel
             if (hotelGiftSpawner) {
                 hotelGiftSpawner.OnSpawnGift (listPet);
             }
+        }
+        void SetCleanOnly()
+        {
+            isDirty = false;
+            spriteRenderer.sprite = cleanSprites[selectedIndex];
+            Debug.Log ("Hotel Clean");
         }
         public void SetDirty()
         {
@@ -192,6 +205,26 @@ namespace MagicalGarden.Hotel
             happiness = 50;
             // SetHappiness(0);
             checkInDate = TimeManager.Instance.currentTime;
+
+            // PlayerConfig
+            HotelControllerData data = new HotelControllerData {
+                idHotel =idHotel,
+                isDirty = isDirty,
+                isOccupied = IsOccupied,
+                nameGuest = nameGuest,
+                typeGuest = typeGuest,
+                party = party,
+                price = price,
+                stayDurationDays = stayDurationDays,
+                happiness = happiness,
+                checkInDate = checkInDate,
+                rarity = rarity.ToString (),
+                hasRequest = hasRequest,
+                codeRequest = ""
+            };
+
+            playerConfig.AddHotelControllerData (data);
+            SaveSystem.SaveAll ();
         }
 
         public void CheckOutRoom()
@@ -231,11 +264,13 @@ namespace MagicalGarden.Hotel
             HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
             HotelManager.Instance.AddGuestRequestAfterCheckOut ();
             SetIsPetReachedTarget (false);
+           
             requestTimer = 0f;
             ResetRequestButtons();
 
             foreach (PetMonsterHotel pet in listPet)
             {
+               pet.hotelContrRef = null; 
                // pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
                pet.MoveToTargetWithEvent (checkOutTiles [0], pet.DestroyPet);
             }
@@ -281,6 +316,7 @@ namespace MagicalGarden.Hotel
                 StopCoroutine(currentRequestCountdown);
             }
             currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
+            playerConfig.HotelControllerDataChangeCodeRequest (idHotel, "RoomService");
         }
 
         void GenerateFoodRequest()
@@ -305,6 +341,7 @@ namespace MagicalGarden.Hotel
                 StopCoroutine(currentRequestCountdown);
             }
             currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
+            playerConfig.HotelControllerDataChangeCodeRequest (idHotel, "Food");
         }
 
         void GenerateGiftRequest()
@@ -328,6 +365,7 @@ namespace MagicalGarden.Hotel
                 StopCoroutine(currentRequestCountdown);
             }
             currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
+            playerConfig.HotelControllerDataChangeCodeRequest (idHotel, "Gift");
         }
 
         System.Collections.IEnumerator RequestCountdown(float duration)
@@ -387,6 +425,7 @@ namespace MagicalGarden.Hotel
                 HotelManager.Instance.RemoveBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
                 Destroy (currentRequestBubble);
             }
+            playerConfig.HotelControllerDataChangeCodeRequest (idHotel, "");
         }
 
         void GenerateRequestBubble (GuestRequestType guestRequestType) {
@@ -675,6 +714,7 @@ namespace MagicalGarden.Hotel
         public void SetIsPetReachedTarget (bool value) { // this, PetMonsterHotel
             isPetReachedTarget = value;
         }
+        
         #endregion
         #region GetRandomTimeRequest
         float GetRandomTimeRequest () {
@@ -710,6 +750,45 @@ namespace MagicalGarden.Hotel
             holdCoin = 0;
             Destroy (coinBubbleClone);
             coinBubbleClone = null;
+
+            if (isDirty) {
+                SetCleanOnly ();
+            }
+        }
+        #endregion
+        #region Data
+        public void LoadData (HotelControllerData data) { // HotelManager.cs
+            hotelControllerData = data;
+
+            isDirty = data.isDirty;
+            IsOccupied = data.isOccupied;
+            nameGuest = data.nameGuest;
+            typeGuest = data.typeGuest;
+            iconGuest = HotelManager.Instance.GetSpecificGuestStagePrefab (data.nameGuest).icon;
+            party = data.party;
+            price = data.price;
+            stayDurationDays = data.stayDurationDays;
+            happiness = data.happiness;
+            checkInDate = data.checkInDate;
+            //rarity = rarity.ToString (),
+            hasRequest = data.hasRequest;
+           // codeRequest = ""
+           LoadListenerGuestRequest ();
+
+           LoadEventCodeRequest (data.codeRequest);
+           
+        }
+
+        void LoadListenerGuestRequest () {
+            dictionaryGenerateRequest = new Dictionary <string, Action> ();
+            dictionaryGenerateRequest.Add ("Food", GenerateFoodRequest);
+            dictionaryGenerateRequest.Add ("Gift", GenerateGiftRequest);
+            dictionaryGenerateRequest.Add ("RoomService", GenerateRoomServiceRequest);
+        }
+
+        void LoadEventCodeRequest (string value) {
+            if (value != "")
+            dictionaryGenerateRequest[value] ();
         }
         #endregion
     }

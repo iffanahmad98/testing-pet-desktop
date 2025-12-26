@@ -257,7 +257,7 @@ public static class SaveSystem
     private static void SavePlayerConfig()
         {
             string path = Path.Combine(Application.persistentDataPath, SaveFileName);
-
+           // Debug.Log("Before sync: " + PlayerConfig.listPetMonsterHotelData.Count);
             try
             {
                 _playerConfig.SyncToSerializable(); // Convert DateTime to strings, etc.
@@ -267,6 +267,7 @@ public static class SaveSystem
                 File.WriteAllText(path, json);
 
                 Debug.Log("Game data saved successfully");
+               // Debug.Log("After sync: " + PlayerConfig.listPetMonsterHotelData.Count);
             }
             catch (Exception e)
             {
