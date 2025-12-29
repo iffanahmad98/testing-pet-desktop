@@ -82,11 +82,13 @@ namespace MagicalGarden.Hotel
         public bool holdReward = false; // this, HotelManager.cs
         
         [Header ("Data")]
-        [HideInInspector] public int idHotel = 0; // HotelManager.cs
+        public int idHotel = 0; // HotelManager.cs
         public HotelControllerData hotelControllerData;
         PlayerConfig playerConfig;
         Dictionary <string, Action> dictionaryGenerateRequest = new Dictionary <string, Action> ();
 
+        [Header ("Debug")]
+        bool timePaused = false;
         void Start()
         {
             CalculateWanderingArea();
@@ -107,7 +109,7 @@ namespace MagicalGarden.Hotel
         }
         void Update()
         {
-            if (IsOccupied && checkInDate != DateTime.MinValue)
+            if (IsOccupied && checkInDate != DateTime.MinValue && !timePaused)
             {
                 TimeSpan elapsed = TimeManager.Instance.currentTime - checkInDate;
                 TimeSpan remaining = stayDurationDays - elapsed;
@@ -243,6 +245,9 @@ namespace MagicalGarden.Hotel
             if (price > 0) { 
                 
                 SetHoldReward (price);
+            } else {
+                // langsung hapus data jika tidak ada reward : (Customer marah)
+                 ClearData ();
             }
             //reset All
             nameGuest = "";
@@ -272,9 +277,11 @@ namespace MagicalGarden.Hotel
             {
                pet.hotelContrRef = null; 
                // pet.RunToTargetAndDisappear(HotelManager.Instance.targetCheckOut);
-               pet.MoveToTargetWithEvent (checkOutTiles [0], pet.DestroyPet);
+               pet.MoveToTargetWithEvent (checkOutTiles [0], true, pet.DestroyPet);
+               pet.ClearData ();
             }
 
+           
             listPet.Clear ();
         }
         public void AddPet(PetMonsterHotel pet)
@@ -397,6 +404,7 @@ namespace MagicalGarden.Hotel
         {
            // happiness = Mathf.Max(happiness - 15, 0);
            happiness = Mathf.Max ( happiness + GetGuestRequest (currentGuestRequestType).decreaseHappiness,0);
+           SetHappinessData ();
             hasRequest = false;
             onProgressingRequest = false;
             HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
@@ -408,7 +416,7 @@ namespace MagicalGarden.Hotel
             ResetRequestButtons();
 
             if (happiness == 0) {
-                Debug.LogError ("Customer langsung keluar !");
+                // Debug.LogError ("Customer langsung keluar !");
                 price = 0;
                 CheckOutRoom();
             }
@@ -571,6 +579,7 @@ namespace MagicalGarden.Hotel
 
         void IncreaseHappiness (int happinessValue) {
             happiness = Mathf.Min (happiness +  happinessValue,100);
+            SetHappinessData ();
             hasRequest = false;
             onProgressingRequest = false;
         }
@@ -724,6 +733,9 @@ namespace MagicalGarden.Hotel
         #region CoinReward
         void SetHoldReward (int coinValue) {
             holdReward = true;
+            playerConfig.SetHotelReward (idHotel, holdReward) ;
+            SaveSystem.SaveAll ();
+
             holdCoin = coinValue;
 
             GameObject coinBubble = GameObject.Instantiate (coinBubblePrefab);
@@ -733,6 +745,8 @@ namespace MagicalGarden.Hotel
             coinBubble.transform.localPosition += new Vector3 (0,10,0);
             coinBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => ClaimCoin ());
             coinBubbleClone = coinBubble;
+
+            
         }
 
         void ClaimCoin () { 
@@ -754,6 +768,9 @@ namespace MagicalGarden.Hotel
             if (isDirty) {
                 SetCleanOnly ();
             }
+
+            playerConfig.RemoveHotelControllerData (hotelControllerData);
+            SaveSystem.SaveAll ();
         }
         #endregion
         #region Data
@@ -775,10 +792,10 @@ namespace MagicalGarden.Hotel
            // codeRequest = ""
            LoadListenerGuestRequest ();
 
-           LoadEventCodeRequest (data.codeRequest);
-           
+           LoadEventHappinessOffline (data.codeRequest);
+           LoadEventHoldReward ();
         }
-
+        
         void LoadListenerGuestRequest () {
             dictionaryGenerateRequest = new Dictionary <string, Action> ();
             dictionaryGenerateRequest.Add ("Food", GenerateFoodRequest);
@@ -786,9 +803,93 @@ namespace MagicalGarden.Hotel
             dictionaryGenerateRequest.Add ("RoomService", GenerateRoomServiceRequest);
         }
 
+        
+        // HotelManager.cs (Debugging)
+        public void LoadEventHappinessOffline (string codeRequest) {
+            TimeSpan diff = TimeManager.Instance.currentTime 
+                            - SaveSystem.PlayerConfig.lastRefreshTimeHotel;
+
+            double hours = diff.TotalHours;
+
+            Debug.Log("Total Hours Happiness : " + hours.ToString () + TimeManager.Instance.currentTime.ToString ());
+            if (!playerConfig.HasHotelFacilityAndIsActive("robo_shroom")) {
+                if (hours >= 1)
+                {
+                    int cycles = (int)(hours / 1.0); // 1 cycle setiap 1 jam
+                    int decreaseHappiness = 0;
+                    for (int x=0; x< cycles; x++ ) {
+                        decreaseHappiness += UnityEngine.Random.Range (2,5 +1); // +1 karena max tidak terhitung.
+                    }
+
+                    if (happiness > 0) {
+                        happiness = Mathf.Max ( happiness - decreaseHappiness,0);
+                        SetHappinessData ();
+                        hotelControllerData.codeRequest = "";
+                        if (happiness >0) {
+                            SaveSystem.SaveAll ();
+                        } else {
+                            price = 0;
+                            CheckOutRoom ();
+                        }
+                    }
+                        
+                } else {
+                    // jika masih dibawah 1 jam :
+                    LoadEventCodeRequest (codeRequest);
+                    
+                }
+            } else {
+                if (hours >= 1)
+                {
+                    int cycles = (int)(hours / 1.0); // 1 cycle setiap 1 jam
+                    int increaseHappiness = 0;
+                    for (int x=0; x< cycles; x++ ) {
+                        increaseHappiness += 5 * UnityEngine.Random.Range (2, 8 +1); // +1 karena max tidak terhitung.
+                    }
+
+                        happiness = Mathf.Min (happiness +  increaseHappiness,100);
+                        SetHappinessData ();
+                        hotelControllerData.codeRequest = "";
+
+                        if (happiness >0) {
+                            SaveSystem.SaveAll ();
+                        } else {
+                            price = 0;
+                            CheckOutRoom ();
+                        }
+                        
+                } else {
+                    // jika masih dibawah 1 jam :
+                    LoadEventCodeRequest (codeRequest);
+                    
+                }
+            }
+            SetTimePaused (false);
+        }
+
         void LoadEventCodeRequest (string value) {
             if (value != "")
             dictionaryGenerateRequest[value] ();
+        }
+
+        void LoadEventHoldReward () {
+            if (hotelControllerData.holdReward) {
+                SetHoldReward (hotelControllerData.price);
+            }
+        }
+
+        void ClearData () {
+            playerConfig.RemoveHotelControllerData (hotelControllerData);
+            SaveSystem.SaveAll ();
+        }
+
+        void SetHappinessData () {
+            playerConfig.HotelControllerDataChangeHappiness (idHotel, happiness);
+        }
+        #endregion
+        #region Debug
+        public void SetTimePaused (bool value) { // HotelManager.cs = true, this = false.
+            timePaused = value;
         }
         #endregion
     }

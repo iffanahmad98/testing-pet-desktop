@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using MagicalGarden.Hotel;
 using Unity.VisualScripting;
+using UnityEngine.Tilemaps;
+using MagicalGarden.Manager;
 namespace MagicalGarden.AI
 {
     public class PetMonsterHotel : BaseEntityAI
@@ -17,6 +19,9 @@ namespace MagicalGarden.AI
         [Header ("Data (PlayerConfig.cs)")]
         public PlayerConfig playerConfig;
         PetMonsterHotelData petMonsterHotelData;
+        Tilemap hotelTilemap;
+
+        
 
         protected override IEnumerator CustomState(string stateName)
         {
@@ -102,12 +107,12 @@ namespace MagicalGarden.AI
                 gameObject.AddComponent<BoxCollider2D>();
         }
 
-        void Start()
-        {
-            playerConfig = SaveSystem.PlayerConfig;
-            base.Start();
+        void Start () {
+            base.Start ();
             
+            playerConfig = SaveSystem.PlayerConfig;
         }
+
 
 
         private IEnumerator SetupPetHotelRoutine()
@@ -270,8 +275,9 @@ namespace MagicalGarden.AI
         #endregion
 
         
-        public void MoveToTargetWithEvent (Vector2Int targetPosition, System.Action action) { // HotelController.cs
+        public void MoveToTargetWithEvent (Vector2Int targetPosition, bool meshEnabled = true, System.Action action = null) { // HotelController.cs
             StartNewCoroutine (MoveToTargetWithFlag (targetPosition));
+            GetComponent<MeshRenderer>().enabled = meshEnabled;
             finishMoveEvent = action;
         }
 
@@ -287,6 +293,38 @@ namespace MagicalGarden.AI
             playerConfig.SavePetMonsterHotelElement (petMonsterHotelData);
             SaveSystem.SaveAll ();
             
+        }
+
+        public void LoadData (PetMonsterHotelData data) { // HotelManager.cs
+            petMonsterHotelData = data;
+            LoadEventSpawn ();
+        }
+
+        void LoadEventSpawn()
+        {
+            if (hotelTilemap == null) {
+                hotelTilemap = TileManager.Instance.tilemapHotelFacilities;
+            }
+            
+            if (hotelContrRef.wanderingTiles == null || hotelContrRef.wanderingTiles.Count == 0)
+                return;
+
+            Vector3Int randomTile = hotelContrRef.wanderingTiles[
+                Random.Range(0, hotelContrRef.wanderingTiles.Count)
+            ];
+
+            // Ambil posisi dunia dari tile
+            Vector3 worldPos = hotelTilemap.GetCellCenterWorld(randomTile);
+
+            transform.position = worldPos;
+
+            StartCoroutine (SetupPetHotelRoutine ());
+            Debug.Log ("Spawn Pet Hotel : " + worldPos);
+        }
+
+        public void ClearData () { // HotelController.cs (when check out)
+            playerConfig.RemovePetMonsterHotelData (petMonsterHotelData);
+            SaveSystem.SaveAll ();
         }
         #endregion
     }

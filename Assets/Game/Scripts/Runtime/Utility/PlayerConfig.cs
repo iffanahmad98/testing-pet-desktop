@@ -47,6 +47,7 @@ public class PlayerConfig
     
     public DateTime lastRefreshGenerateGuest;
     public List <GuestRequestData> listGuestRequestData = new List <GuestRequestData> ();
+    public DateTime lastRefreshTimeHotel;
     public List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
     public List <PetMonsterHotelData> listPetMonsterHotelData = new List <PetMonsterHotelData> ();
     
@@ -365,13 +366,20 @@ public class PlayerConfig
     }
     
     #endregion
+    #region Hotel
+    public void SetLastRefreshTimeHotel (DateTime dateTime) { // HotelManager.cs
+        lastRefreshTimeHotel = dateTime;
+    }
+    #endregion
     #region HotelControllerData
     public void AddHotelControllerData (HotelControllerData hotelControllerData) {
         listHotelControllerData.Add (hotelControllerData);
+        SaveSystem.SaveAll();
     }
 
     public void RemoveHotelControllerData (HotelControllerData hotelControllerData) {
         listHotelControllerData.Remove (hotelControllerData);
+        SaveSystem.SaveAll();
     }
 
     public List <HotelControllerData> GetListHotelControllerData () { // HotelManager.cs
@@ -386,47 +394,70 @@ public class PlayerConfig
             }
         }
     }
+
+    public void HotelControllerDataChangeHappiness (int idHotel, int happiness) {
+        HotelControllerData hotel = GetHotelControllerDataByIdHotel (idHotel);
+        hotel.happiness = happiness;
+    }
+
+    HotelControllerData GetHotelControllerDataByIdHotel (int idHotel) {
+        foreach (HotelControllerData data in listHotelControllerData) {
+            if (data.idHotel == idHotel) {
+                return data;
+            }
+        }
+        Debug.LogError ($"Id Hotel {idHotel} tidak ditemukan");
+        return null;
+    }
+
+    public void SetHotelReward (int idHotel, bool holdReward) {
+        HotelControllerData hotel = GetHotelControllerDataByIdHotel (idHotel);
+        hotel.holdReward = holdReward;
+    }
     #endregion
     #region PetMonsterHotelData
    public void SavePetMonsterHotelElement(PetMonsterHotelData data)
-{ // untuk sistem yang bertabrakan dengan SaveAll ()
-    // 1. Pastikan config sudah load
-    var config = SaveSystem.PlayerConfig;
+    { // untuk sistem yang bertabrakan dengan SaveAll ()
+        // 1. Pastikan config sudah load
+        var config = SaveSystem.PlayerConfig;
 
-    if (config.listPetMonsterHotelData == null)
-        config.listPetMonsterHotelData = new List<PetMonsterHotelData>();
+        if (config.listPetMonsterHotelData == null)
+            config.listPetMonsterHotelData = new List<PetMonsterHotelData>();
 
-    /*
-    // 2. Cari element existing (KEY = idHotel)
-    int index = config.listPetMonsterHotelData.FindIndex(x =>
-        x.idHotel == data.idHotel &&
-        x.guestStageGroupName == data.guestStageGroupName
-    );
-    */
-    /*
-    if (index >= 0)
-    {
-        // UPDATE ELEMENT
-        config.listPetMonsterHotelData[index].guestStage = data.guestStage;
-    }
-    else
-    {
-        // ADD ELEMENT
+        /*
+        // 2. Cari element existing (KEY = idHotel)
+        int index = config.listPetMonsterHotelData.FindIndex(x =>
+            x.idHotel == data.idHotel &&
+            x.guestStageGroupName == data.guestStageGroupName
+        );
+        */
+        /*
+        if (index >= 0)
+        {
+            // UPDATE ELEMENT
+            config.listPetMonsterHotelData[index].guestStage = data.guestStage;
+        }
+        else
+        {
+            // ADD ELEMENT
+            config.listPetMonsterHotelData.Add(data);
+        }
+        */
         config.listPetMonsterHotelData.Add(data);
+
+        //Debug.Log("Pet element saved, total: " +
+            //      config.listPetMonsterHotelData.Count);
+
+        // 3. SAVE FILE (tetap full json, tapi aman)
+        SaveSystem.SaveAll();
     }
-    */
-    config.listPetMonsterHotelData.Add(data);
 
-    //Debug.Log("Pet element saved, total: " +
-        //      config.listPetMonsterHotelData.Count);
-
-    // 3. SAVE FILE (tetap full json, tapi aman)
-    SaveSystem.SaveAll();
-}
-
+    public List <PetMonsterHotelData> GetListPetMonsterHotelData () {
+        return listPetMonsterHotelData;
+    }
 
     public void RemovePetMonsterHotelData (PetMonsterHotelData data) {
-       // listPetMonsterHotelData.Remove (data);
+        listPetMonsterHotelData.Remove (data);
        // SaveSystem.SaveAll ();
     }
     #endregion
@@ -521,6 +552,7 @@ public class HotelControllerData
     public string rarity = "";
     public bool hasRequest = false;
     public string codeRequest = ""; // "RoomService", "Food", "Gift"
+    public bool holdReward = false;
 }
 
 [Serializable]

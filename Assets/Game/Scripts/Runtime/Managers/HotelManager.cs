@@ -52,7 +52,8 @@ namespace MagicalGarden.Manager
         
         [Tooltip ("Data")]
         PlayerConfig playerConfig;
-
+        bool firstTimeCheckGenerateQuest = false;
+        bool firstTimeRefresh = false; 
         private void Awake()
         {
             if (Instance == null)
@@ -77,6 +78,9 @@ namespace MagicalGarden.Manager
             CheckGenerateGuestList();
             LoadAllHotelControllerDatas ();
             LoadAllPetMonsterHotelDatas ();
+            
+            DebugTimeController.instance.AddPreDebuggingEvent (PauseAllHotelControllersTime);
+            DebugTimeController.instance.AddDebuggingEvent (LoadAllHotelControllerDatas);
         }
         [ContextMenu("Debug: save room hotel")]
         private void testroom()
@@ -188,12 +192,26 @@ namespace MagicalGarden.Manager
             SaveSystem.SaveAll ();
         }
 
+        public bool IsCanAssign () { // GuestItem.cs
+           List<HotelController> availableRooms = new List<HotelController>();
+
+            foreach (var room in hotelControllers)
+            {
+                if (!room.IsOccupied && !room.holdReward)
+                    availableRooms.Add(room);
+            }
+
+            return availableRooms.Count >0;
+        }
+
         public void DeclineGuest (GuestRequest guest) { // GuestItem.cs
 
             bool removed = todayGuestRequests.Remove(guest);
 
             playerConfig.RemoveGuestRequestData (guest.guestRequestData);
             SaveSystem.SaveAll ();
+
+            emptyGuest.SetActive(todayGuestRequests.Count == 0);
         }
         
         private List<int> GetStageDistribution(int partySize)
@@ -279,6 +297,7 @@ namespace MagicalGarden.Manager
             }
             SaveSystem.SaveAll ();
             
+            emptyGuest.SetActive(todayGuestRequests.Count == 0);
             Debug.Log("Generated " + requestCount + " guest requests for this time.");
         }
 
@@ -318,6 +337,7 @@ namespace MagicalGarden.Manager
                 // string desc = $"Nama: {request.guestName}\nTipe: {request.type}\nDurasi: {request.stayDurationDays} hari\nRarity: {rarityText}";
                 guestItem.GetComponent<GuestItem>().Setup(request);
             }
+            emptyGuest.SetActive(todayGuestRequests.Count == 0);
         }
 
         private void FindAllHotelRoom()
@@ -561,7 +581,9 @@ namespace MagicalGarden.Manager
         }
 
         public void AddGuestRequestAfterCheckOut () { // called at HotelController.cs when their check out.
-            GenerateGuestRequestsForToday (new DateTime (), false,1);
+            if (todayGuestRequests.Count < 20) {
+                GenerateGuestRequestsForToday (new DateTime (), false,1);
+            }
         }
         #endregion
 
@@ -607,16 +629,32 @@ namespace MagicalGarden.Manager
 
         #region Data
         void LoadAllHotelControllerDatas () {
-            List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
-            listHotelControllerData = playerConfig.GetListHotelControllerData ();
-            foreach (HotelControllerData data in listHotelControllerData) {
-                hotelControllers [data.idHotel].LoadData (data);
+            if (!firstTimeRefresh) {
+                firstTimeRefresh = true;
+                playerConfig.SetLastRefreshTimeHotel (TimeManager.Instance.currentTime);
+            } else {
+                playerConfig.SetLastRefreshTimeHotel (TimeManager.Instance.currentTime);
+                SaveSystem.SaveAll ();
+                
             }
-
+            StartCoroutine (nLoadHotelControllerDatasDebug ());
         }
 
-        void LoadAllPetMonsterHotelDatas () {
+        
 
+        void LoadAllPetMonsterHotelDatas () {
+             List <PetMonsterHotelData> listPetMonsterHotel = new List <PetMonsterHotelData> ();
+            listPetMonsterHotel = playerConfig.GetListPetMonsterHotelData ();
+            foreach (PetMonsterHotelData data in listPetMonsterHotel) {
+                
+                var prefab = GetSpecificGuestStagePrefab (data.guestStageGroupName).GetPrefabByStage(data.guestStage);
+                var guestObject = Instantiate(prefab, new Vector3 (0,0,0), Quaternion.identity);
+                var pet = guestObject.GetComponent<PetMonsterHotel>();
+                pet.hotelContrRef = hotelControllers [data.idHotel];
+                pet.hotelContrRef.AddPet(pet);
+                pet.LoadData (data);
+            }
+            
         }
 
         #endregion
@@ -633,7 +671,7 @@ namespace MagicalGarden.Manager
         #endregion
 
         #region Debug Only (IsTimeInFuture)
-        bool firstTimeCheckGenerateQuest = false;
+        
         bool FirstTimeCheckGenerateQuest (DateTime dateTime) {
             if (!firstTimeCheckGenerateQuest) {
                 firstTimeCheckGenerateQuest = true;
@@ -643,6 +681,35 @@ namespace MagicalGarden.Manager
             }
         }
 
+        /*
+        IEnumerator nLoadHotelControllerDatasDebug () {
+            yield return null;
+            
+            List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
+            listHotelControllerData = playerConfig.GetListHotelControllerData ();
+            foreach (HotelControllerData data in listHotelControllerData) {
+                hotelControllers [data.idHotel].LoadData (data);
+            }
+        }   
+        */
+        IEnumerator nLoadHotelControllerDatasDebug ()
+        {
+            yield return null;
+
+            List<HotelControllerData> listHotelControllerData =
+                playerConfig.GetListHotelControllerData();
+
+            for (int i = listHotelControllerData.Count - 1; i >= 0; i--)
+            {
+                hotelControllers [listHotelControllerData[i].idHotel].LoadData (listHotelControllerData[i]);
+            }
+        }
+
+        public void PauseAllHotelControllersTime () {
+            foreach (HotelController hotel in hotelControllers) {
+                hotel.SetTimePaused (true);
+            }
+        }
         #endregion
 
         

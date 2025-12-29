@@ -68,8 +68,10 @@ namespace MagicalGarden.Hotel
 
         private void HandleGuestCheckIn()
         {
-            HotelManager.Instance.AssignGuestToAvailableRoom(guest);
-            Destroy(gameObject);
+            if (HotelManager.Instance.IsCanAssign ()) {
+                HotelManager.Instance.AssignGuestToAvailableRoom(guest);
+                Destroy(gameObject);
+            }
         }
 
         private void HandleGuestDecline () {
