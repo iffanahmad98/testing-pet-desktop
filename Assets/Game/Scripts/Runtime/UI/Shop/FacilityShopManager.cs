@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-
+using System.Collections;
 public class FacilityShopManager : MonoBehaviour
 {
     [Header("UI References")]
@@ -88,7 +88,6 @@ public class FacilityShopManager : MonoBehaviour
             {
                 GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
                 FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
-
                 card.SetupNPC(npc);
                 card.OnSelected = OnNPCSelected;
                 card.OnUseClicked = OnNPCUse;
@@ -96,6 +95,7 @@ public class FacilityShopManager : MonoBehaviour
                 card.OnCancelClicked = OnNPCCancel;
 
                 activeCards.Add(card);
+                StartCoroutine (card.nSetActiveAnim ());
                 totalCount++;
             }
         }

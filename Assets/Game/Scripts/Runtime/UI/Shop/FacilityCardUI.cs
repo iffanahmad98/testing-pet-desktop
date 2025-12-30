@@ -4,7 +4,8 @@ using TMPro;
 using System;
 using Spine.Unity;
 using UnityEngine.Localization.SmartFormat.Core.Parsing;
-
+using System.Collections;
+using System.Collections.Generic;
 public class FacilityCardUI : MonoBehaviour
 {
     [Header("UI References")]
@@ -56,7 +57,9 @@ public class FacilityCardUI : MonoBehaviour
             _anim.gameObject.SetActive(true);
             _anim.skeletonDataAsset = data.monsterSpine[0];
             _anim.Initialize(true);
-            AnimUtils.SetIdle(_anim);
+            _anim.timeScale=0f;
+            
+            // StartCoroutine (nSetActiveAnim ());
         }
 
         nameText.text = data.monsterName;
@@ -75,6 +78,13 @@ public class FacilityCardUI : MonoBehaviour
         cooldownOverlay?.gameObject.SetActive(false);
 
         SetupButtonListeners(data.id);
+
+    }
+
+    public IEnumerator nSetActiveAnim () { // menghilangkan bug jamur ketarik.
+        yield return null;
+         _anim.timeScale=1f;
+         AnimUtils.SetIdle(_anim);
     }
 
     public void SetupFacility(FacilityDataSO data)

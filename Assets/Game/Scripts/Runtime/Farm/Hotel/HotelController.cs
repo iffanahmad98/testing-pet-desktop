@@ -81,6 +81,8 @@ namespace MagicalGarden.Hotel
         int holdCoin = 0;
         public bool holdReward = false; // this, HotelManager.cs
         
+        [Header ("Vfx")]
+        GameObject vfxRay;
         [Header ("Data")]
         public int idHotel = 0; // HotelManager.cs
         public HotelControllerData hotelControllerData;
@@ -109,7 +111,7 @@ namespace MagicalGarden.Hotel
         }
         void Update()
         {
-            if (IsOccupied && checkInDate != DateTime.MinValue && !timePaused)
+            if (IsOccupied && checkInDate != DateTime.MinValue && !timePaused && !holdReward)
             {
                 TimeSpan elapsed = TimeManager.Instance.currentTime - checkInDate;
                 TimeSpan remaining = stayDurationDays - elapsed;
@@ -246,8 +248,10 @@ namespace MagicalGarden.Hotel
                 
                 SetHoldReward (price);
             } else {
+                IsOccupied = false;
                 // langsung hapus data jika tidak ada reward : (Customer marah)
-                 ClearData ();
+                ClearData ();
+
             }
             //reset All
             nameGuest = "";
@@ -305,7 +309,8 @@ namespace MagicalGarden.Hotel
             // Random pilih tipe request (untuk sekarang cuma RoomService yang aktif)
            // var randomType = GuestRequestType.RoomService;
             currentGuestRequestType = GuestRequestType.RoomService;
-            SetDirty();  // Room jadi kotor
+            InstantiateVfxDirty ();
+            Invoke ("SetDirty", 3.0f);  // Room jadi kotor
             hasRequest = true;
 
             // Aktifkan button
@@ -325,6 +330,7 @@ namespace MagicalGarden.Hotel
             currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
             playerConfig.HotelControllerDataChangeCodeRequest (idHotel, "RoomService");
         }
+
 
         void GenerateFoodRequest()
         {
@@ -350,6 +356,7 @@ namespace MagicalGarden.Hotel
             currentRequestCountdown = StartCoroutine(RequestCountdown(durationRequestExpired));
             playerConfig.HotelControllerDataChangeCodeRequest (idHotel, "Food");
         }
+
 
         void GenerateGiftRequest()
         {
@@ -582,6 +589,7 @@ namespace MagicalGarden.Hotel
             SetHappinessData ();
             hasRequest = false;
             onProgressingRequest = false;
+            InstantiateVfxClean ();
         }
 
         #endregion
@@ -648,6 +656,30 @@ namespace MagicalGarden.Hotel
             Left,
             Up,
             Down
+        }
+        #endregion
+        #region Vfx
+        void InstantiateVfxDirty () {
+            
+            Debug.Log ("Vfx Dirty");
+            GameObject vfx  = GameObject.Instantiate (HotelManager.Instance.GetCleaningVfx ());
+            vfx.transform.SetParent (this.transform);
+            vfx.transform.localPosition = new Vector3 (0,2,0);
+            
+        }
+
+        void InstantiateVfxClean () {
+            
+            Debug.Log ("Vfx Clean");
+            vfxRay = GameObject.Instantiate (HotelManager.Instance.GetRayCleaningVfx ());
+            vfxRay.transform.SetParent (this.transform);
+            vfxRay.transform.localPosition = new Vector3 (0,0.7f,0);
+            Invoke ("DestroyVfxClean", 3.0f);
+            
+        }
+
+        void DestroyVfxClean () {
+            Destroy (vfxRay);
         }
         #endregion
         #region NPCAutoService
@@ -732,26 +764,27 @@ namespace MagicalGarden.Hotel
         #endregion 
         #region CoinReward
         void SetHoldReward (int coinValue) {
-            holdReward = true;
-            playerConfig.SetHotelReward (idHotel, holdReward) ;
-            SaveSystem.SaveAll ();
+            if (!holdReward) {
+                holdReward = true;
+                playerConfig.SetHotelReward (idHotel, holdReward) ;
+                SaveSystem.SaveAll ();
 
-            holdCoin = coinValue;
+                holdCoin = coinValue;
 
-            GameObject coinBubble = GameObject.Instantiate (coinBubblePrefab);
-            coinBubble.SetActive (true);
-            coinBubble.transform.position = this.transform.position;
-            coinBubble.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
-            coinBubble.transform.localPosition += new Vector3 (0,10,0);
-            coinBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => ClaimCoin ());
-            coinBubbleClone = coinBubble;
-
+                GameObject coinBubble = GameObject.Instantiate (coinBubblePrefab);
+                coinBubble.SetActive (true);
+                coinBubble.transform.position = this.transform.position;
+                coinBubble.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
+                coinBubble.transform.localPosition += new Vector3 (0,10,0);
+                coinBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => ClaimCoin ());
+                coinBubbleClone = coinBubble;
+            }
             
         }
 
         void ClaimCoin () { 
             holdReward = false;
-            
+            IsOccupied = false;
             GameObject coinClaimDisplayClone = GameObject.Instantiate (coinClaimDisplay);
             coinClaimDisplayClone.SetActive (true);
             coinClaimDisplayClone.transform.position = this.transform.position;
@@ -790,9 +823,12 @@ namespace MagicalGarden.Hotel
             //rarity = rarity.ToString (),
             hasRequest = data.hasRequest;
            // codeRequest = ""
-           LoadListenerGuestRequest ();
+           if (!hotelControllerData.holdReward) {
+                LoadListenerGuestRequest ();
 
-           LoadEventHappinessOffline (data.codeRequest);
+                LoadEventHappinessOffline (data.codeRequest);
+           }
+
            LoadEventHoldReward ();
         }
         

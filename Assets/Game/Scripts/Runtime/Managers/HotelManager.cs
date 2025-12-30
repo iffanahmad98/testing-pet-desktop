@@ -585,6 +585,14 @@ namespace MagicalGarden.Manager
                 GenerateGuestRequestsForToday (new DateTime (), false,1);
             }
         }
+
+        public GameObject GetCleaningVfx () {
+            return cleaningVfx;
+        }
+
+        public GameObject GetRayCleaningVfx () {
+            return rayCleaningVfx;
+        }
         #endregion
 
         #region HotelRequestDetector

@@ -66,6 +66,7 @@ public class BridgeTeleport : MonoBehaviour
                 { 
                     camMove.FocusOnTarget(hotelSpawnPoint.position, targetZoom, transitionDuration, isHotel: true);
                     menuBarFarm.SetActive(false);
+                    if (CursorIconManager.Instance) {CursorIconManager.Instance.HideSeedIcon ();}
                 }
                 break;
 
