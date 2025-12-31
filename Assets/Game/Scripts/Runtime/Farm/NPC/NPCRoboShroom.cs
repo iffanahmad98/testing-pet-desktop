@@ -454,7 +454,8 @@ namespace MagicalGarden.AI
             Debug.Log($"🧹 [NPC CLEANING START] Membersihkan kamar '{hotelName}' | Tamu: {guestName} | Durasi: {cleanDuration}s");
 
             // 2. Timer countdown (bisa sambil munculkan efek/animasi jika perlu)
-            HotelManager.Instance.CallCleaningVFX(hotelControlRef.dustPos);
+           // HotelManager.Instance.CallCleaningVFX(hotelControlRef.dustPos);
+           hotelControlRef.InstantiateVfxDust ();
             float timer = 0f;
             while (timer < cleanDuration)
             {
@@ -471,7 +472,7 @@ namespace MagicalGarden.AI
             {
                 hotelControlRef.SetClean(); // ubah tile ke bersih
             }
-            HotelManager.Instance.DestroyCleaningVFX(hotelControlRef.rayPos);
+            // HotelManager.Instance.DestroyCleaningVFX(hotelControlRef.rayPos);
 
             Debug.Log($"✅ [NPC CLEANING COMPLETE] Kamar '{hotelName}' sudah bersih | Tamu: {guestName}");
 

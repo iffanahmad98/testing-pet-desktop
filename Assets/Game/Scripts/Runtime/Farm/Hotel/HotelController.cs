@@ -96,7 +96,7 @@ namespace MagicalGarden.Hotel
             CalculateWanderingArea();
             spriteRenderer = GetComponent<SpriteRenderer>();
             selectedIndex = UnityEngine.Random.Range(0, cleanSprites.Length);
-            SetClean();
+           // SetClean(); tidak membutuhkan ini lagi, karena sudah ada sistem load.
 
             // Hide semua button di awal
             if (giftBtn) giftBtn.SetActive(false);
@@ -171,13 +171,16 @@ namespace MagicalGarden.Hotel
         }
         public void SetClean()
         {
-            isDirty = false;
-            spriteRenderer.sprite = cleanSprites[selectedIndex];
+           // isDirty = false;
+           // spriteRenderer.sprite = cleanSprites[selectedIndex];
+           InstantiateVfxClean ();
+           SetCleanOnly ();
             Debug.Log ("Hotel Clean");
             if (hotelGiftSpawner) {
                 hotelGiftSpawner.OnSpawnGift (listPet);
             }
         }
+
         void SetCleanOnly()
         {
             isDirty = false;
@@ -309,7 +312,6 @@ namespace MagicalGarden.Hotel
             // Random pilih tipe request (untuk sekarang cuma RoomService yang aktif)
            // var randomType = GuestRequestType.RoomService;
             currentGuestRequestType = GuestRequestType.RoomService;
-            InstantiateVfxDirty ();
             Invoke ("SetDirty", 3.0f);  // Room jadi kotor
             hasRequest = true;
 
@@ -589,7 +591,7 @@ namespace MagicalGarden.Hotel
             SetHappinessData ();
             hasRequest = false;
             onProgressingRequest = false;
-            InstantiateVfxClean ();
+            
         }
 
         #endregion
@@ -659,12 +661,12 @@ namespace MagicalGarden.Hotel
         }
         #endregion
         #region Vfx
-        void InstantiateVfxDirty () {
-            
-            Debug.Log ("Vfx Dirty");
-            GameObject vfx  = GameObject.Instantiate (HotelManager.Instance.GetCleaningVfx ());
-            vfx.transform.SetParent (this.transform);
-            vfx.transform.localPosition = new Vector3 (0,2,0);
+        public void InstantiateVfxDust () { // NPCHotel.cs
+            if (currentGuestRequestType == GuestRequestType.RoomService) {
+                GameObject vfx  = GameObject.Instantiate (HotelManager.Instance.GetCleaningVfx ());
+                vfx.transform.SetParent (this.transform);
+                vfx.transform.localPosition = new Vector3 (0,2,0);
+            }
             
         }
 
@@ -674,6 +676,7 @@ namespace MagicalGarden.Hotel
             vfxRay = GameObject.Instantiate (HotelManager.Instance.GetRayCleaningVfx ());
             vfxRay.transform.SetParent (this.transform);
             vfxRay.transform.localPosition = new Vector3 (0,0.7f,0);
+            vfxRay.transform.localEulerAngles = new Vector3 (240,0,180);
             Invoke ("DestroyVfxClean", 3.0f);
             
         }
