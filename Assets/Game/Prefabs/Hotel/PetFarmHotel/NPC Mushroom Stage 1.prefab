@@ -160,6 +160,7 @@ MonoBehaviour:
   - stateName: run
     probability: 0.2
   popupUI: {fileID: 0}
+  terrainTilemap: {fileID: 0}
   currentTile: {x: 0, y: 0}
 --- !u!61 &2094157141372268476
 BoxCollider2D:
@@ -219,4 +220,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6933d486bbd9b214292fd038fc756fbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: 0
+  centerOffset: 0
