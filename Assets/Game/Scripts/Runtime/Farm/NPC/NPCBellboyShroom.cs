@@ -7,12 +7,12 @@ using System;
 
 namespace MagicalGarden.AI
 {
-    public class NPCRoboShroom : NPCService, INPCCheckAreaPoisition
+    public class NPCBellboyShroom : NPCService, INPCCheckAreaPoisition
     {
         public override void Awake()
         {
             service = this; // 🔥 INI KUNCI UTAMANYA
-           
+             Debug.Log ("THIS");
         }
 
        public override IEnumerator nCheckAreaPosition () {
@@ -22,29 +22,14 @@ namespace MagicalGarden.AI
                 isOverridingState = false;
             }
 
-            if (hotelRequestDetector.IsHasHotelRequest () || HotelGiftHandler.instance.IsAnyGifts ()) {
+            if (hotelRequestDetector.IsHasHotelRequest ()) {
                 List<HotelController> listHotelController = hotelRequestDetector.GetListHotelController();
-                List<GameObject> listHotelGift = HotelGiftHandler.instance.GetListHotelGift();
 
                 Transform origin = transform; // posisi NPC / player
 
                 float nearestDistance = float.MaxValue;
                 Transform nearestTarget = null;
                 NearestTargetType nearestTargetType = NearestTargetType.None;
-
-                // Cek Gift
-                foreach (GameObject gift in listHotelGift)
-                {
-                    if (gift == null) continue;
-
-                    float dist = Vector3.Distance(origin.position, gift.transform.position);
-                    if (dist < nearestDistance)
-                    {
-                        nearestDistance = dist;
-                        nearestTarget = gift.transform;
-                        nearestTargetType = NearestTargetType.Gift;
-                    }
-                }
 
                 // Cek Hotel
                 foreach (HotelController hotel in listHotelController)
@@ -60,16 +45,7 @@ namespace MagicalGarden.AI
                     }
                 }
 
-                if (nearestTargetType == NearestTargetType.Gift) {
-                    (Vector2Int pos, GameObject obj) result = HotelGiftHandler.instance.GetSpecificGiftPosition (nearestTarget.gameObject);
-                    Vector2Int lootPosition = result.pos;
-                    giftObject = result.obj;
-
-                    isCollectingGift = true;
-                    cnCollectGiftState = StartCoroutine (MoveToTarget (lootPosition));
-                // Debug.Log ("Gift Position " + lootPosition);
-
-                } else if (nearestTargetType == NearestTargetType.Hotel) {
+              if (nearestTargetType == NearestTargetType.Hotel) {
                     HotelController hotelController = nearestTarget.GetComponent <HotelController> ();
                     hotelControlRef = hotelController;
                     isServingRoom = true;
@@ -90,11 +66,9 @@ namespace MagicalGarden.AI
         }
 
         public override IEnumerator nChangeAreaPoints () {
-            if (!hotelRequestDetector.IsHasHotelRequest () && !HotelGiftHandler.instance.IsAnyGifts ()) {
+            if (!hotelRequestDetector.IsHasHotelRequest ()) {
                 currentNPCAreaPointsSO = npcAreaPointsDatabase.GetRandomNPCAreaPointsSO ();
-            
             // Debug.Log ("Current NPC Area Point : " + currentNPCAreaPointsSO);
-                
             }
             yield return new WaitUntil (() => !isOverridingState);
             yield return new WaitForSeconds (UnityEngine.Random.Range (changeAreaPointsMinSeconds, changeAreaPointsMaxSeconds));
@@ -102,7 +76,4 @@ namespace MagicalGarden.AI
             StartCoroutine (nChangeAreaPoints ());
         }
     }
-
-    
-    
 }

@@ -29,6 +29,7 @@ public class PlayerConfig
     public List<OwnedFacilityData> ownedFacilities = new();
     public List<OwnedDecorationData> ownedDecorations = new();
     public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
+    public List<HiredHotelFacilityData> hiredHotelFacilityData = new ();
     public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
    
 
@@ -310,6 +311,11 @@ public class PlayerConfig
             ownedHotelFacilitiesData.Add(new OwnedHotelFacilityData { id = dataId, isActive = true});
     }
 
+    public void RemoveHotelFacilityData (string dataId) {
+        OwnedHotelFacilityData target = GetHotelFacilityData (dataId);
+        ownedHotelFacilitiesData.Remove(target);
+    }
+
     public void ChangeHotelFacilityData (string dataId, bool isActive) {
         foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
             if (data.id == dataId) {
@@ -317,6 +323,30 @@ public class PlayerConfig
                 return;
             }
         }
+    }
+
+    OwnedHotelFacilityData GetHotelFacilityData (string dataId) {
+        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
+            if (data.id == dataId) {
+                return data;
+            }
+        }
+        return null;
+    }
+
+    public void AddHiredHotelFacilityData (string dataId, int hiredValue)
+    {
+        if (GetHiredHotelFacilityData(dataId) == null) 
+            hiredHotelFacilityData.Add(new HiredHotelFacilityData { id = dataId, isActive = true, hired = hiredValue});
+        else
+            GetHiredHotelFacilityData (dataId).hired += hiredValue;
+    }
+
+    public HiredHotelFacilityData GetHiredHotelFacilityData (string dataId) {
+        foreach (HiredHotelFacilityData data in hiredHotelFacilityData) {
+            if (data.id == dataId) return data;
+        }
+        return null;
     }
     #endregion
     #region Hotel Gift World
@@ -400,7 +430,7 @@ public class PlayerConfig
         hotel.happiness = happiness;
     }
 
-    HotelControllerData GetHotelControllerDataByIdHotel (int idHotel) {
+    public HotelControllerData GetHotelControllerDataByIdHotel (int idHotel) {
         foreach (HotelControllerData data in listHotelControllerData) {
             if (data.idHotel == idHotel) {
                 return data;
@@ -521,6 +551,13 @@ public class OwnedHotelFacilityData
     public bool isActive;
 }
 [Serializable]
+public class HiredHotelFacilityData
+{
+    public string id;
+    public bool isActive;
+    public int hired;
+}
+[Serializable]
 public class HotelGiftWorldData
 {
     public Vector3 dataPosition;
@@ -562,5 +599,6 @@ public class PetMonsterHotelData
     public string guestStageGroupName = "";
     public int guestStage = 0;
 }
+
 
 

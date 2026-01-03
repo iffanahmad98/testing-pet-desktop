@@ -48,7 +48,7 @@ namespace MagicalGarden.Manager
         public List <HotelController> listHotelControllerHasRequest = new List <HotelController> ();
 
         [Tooltip ("NPC Robo Shroom")]
-        public List <NPCRoboShroom> listNPCRoboShroom = new List <NPCRoboShroom> ();
+        public List <NPCService> listNPCService = new List <NPCService> ();
         
         [Tooltip ("Data")]
         PlayerConfig playerConfig;
@@ -617,19 +617,19 @@ namespace MagicalGarden.Manager
         }
         #endregion
 
-        #region NPCRoboShroom
-        // NPCRoboShroom.cs
-        public void AddNPCRoboShroom (NPCRoboShroom npc) {
-            listNPCRoboShroom.Add (npc);
+        #region NPCService
+        // NPCService.cs
+        public void AddNPCService (NPCService npc) {
+            listNPCService.Add (npc);
         }
 
-        // NPCRoboShroom.cs
-        public void RemoveNPCRoboShroom (NPCRoboShroom npc) {
-            listNPCRoboShroom.Remove (npc);
+        // NPCService.cs
+        public void RemoveNPCService (NPCService npc) {
+            listNPCService.Remove (npc);
         }
 
         void RefreshAllMovementRoboShroom (HotelController hotelController) {
-            foreach (NPCRoboShroom npc in listNPCRoboShroom) {
+            foreach (NPCService npc in listNPCService) {
                 npc.ResetMovementHotel (hotelController);    
             }
         }

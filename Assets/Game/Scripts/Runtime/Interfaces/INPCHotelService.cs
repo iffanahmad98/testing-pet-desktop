@@ -6,4 +6,10 @@ public interface INPCHotelService {
     MagicalGarden.Hotel.HotelController hotelControlRef {get;set;}
     void AddFinishEventHappiness(Action<int> callback, int value);
     IEnumerator NPCHotelCleaning ();
+    
+}
+
+public interface INPCCheckAreaPoisition {
+    IEnumerator nCheckAreaPosition ();
+    IEnumerator nChangeAreaPoints ();
 }
