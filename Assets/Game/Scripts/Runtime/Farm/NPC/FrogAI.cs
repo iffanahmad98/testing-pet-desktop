@@ -14,8 +14,9 @@ public class FrogAI : MonoBehaviour
 
     [Header("Animation")]
     public Animator animator;
+    public Animator shadowAnimator;
     public SpriteRenderer spriteRenderer;
-
+    public Transform shadowTransform;
     [Header("Movement Settings")]
     public float hopSpeed = 3f; // kecepatan lompat (lebih cepat dari walk)
     public float hopHeight = 0.5f; // tinggi lompatan
@@ -335,20 +336,25 @@ public class FrogAI : MonoBehaviour
         animator.SetBool("hop", false);
         animator.SetBool("eat", false);
 
+        shadowAnimator.SetBool ("idle", false);
+        shadowAnimator.SetBool ("hop", false);
         // Set the requested animation
         switch (animName)
         {
             case "idle":
                 animator.SetBool("idle", true);
+                shadowAnimator.SetBool ("idle", true);
                 break;
             case "hop":
                 animator.SetBool("hop", true);
+                shadowAnimator.SetBool ("hop", true);
                 break;
             case "eat":
                 animator.SetBool("eat", true);
                 break;
             default:
                 animator.SetBool("idle", true);
+                shadowAnimator.SetBool ("idle", true);
                 break;
         }
     }
@@ -363,11 +369,13 @@ public class FrogAI : MonoBehaviour
         if (deltaX > 0.01f)
         {
             spriteRenderer.flipX = true; // facing right
+            shadowTransform.localScale = new Vector3 (-1,1,1);
             lastDirection = 1;
         }
         else if (deltaX < -0.01f)
         {
             spriteRenderer.flipX = false; // facing left
+            shadowTransform.localScale = new Vector3 (1,1,1);
             lastDirection = -1;
         }
     }

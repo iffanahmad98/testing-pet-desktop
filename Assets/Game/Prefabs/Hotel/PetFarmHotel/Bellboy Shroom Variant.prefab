@@ -1,5 +1,49 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2604899629467340056
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8197985840961646756}
+  - component: {fileID: 1419156657029385814}
+  m_Layer: 0
+  m_Name: HotelRequestDetector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8197985840961646756
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2604899629467340056}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8810285851502921984}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1419156657029385814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2604899629467340056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5b2d195ea78d2c40a2561f719c20490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8439490364034642731
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9,16 +53,28 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -41.34
+      value: 177.54456
       objectReference: {fileID: 0}
     - target: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.77
+      value: 34.02
       objectReference: {fileID: 0}
     - target: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.1627869
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -66,14 +122,87 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4997071741502023463, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
       propertyPath: m_SortingLayer
-      value: 9
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4997071741502023463, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
       propertyPath: m_SortingLayerID
-      value: 1209288035
+      value: 1182172779
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 7015137571717204644, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+      propertyPath: _animationName
+      value: idle
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 2933047825880185499, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8197985840961646756}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3751111877653313131, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4312266740770362151}
   m_SourcePrefab: {fileID: 100100000, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+--- !u!114 &1460804215330748815 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7015137571717204644, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+  m_PrefabInstance: {fileID: 8439490364034642731}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688730608344220992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &4688730608344220992 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3751111877653313131, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+  m_PrefabInstance: {fileID: 8439490364034642731}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4312266740770362151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688730608344220992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29e4840320fec72408602abf5a134b5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skeleton: {fileID: 1460804215330748815}
+  walkSpeed: 1
+  runSpeed: 2
+  stateChances:
+  - stateName: idle
+    probability: 0.2
+  - stateName: jump
+    probability: 0.2
+  - stateName: eat
+    probability: 0.2
+  - stateName: walk
+    probability: 0.2
+  - stateName: run
+    probability: 0.2
+  terrainTilemap: {fileID: 0}
+  currentTile: {x: 0, y: 0}
+  isOverridingState: 0
+  destinationTile: {x: 0, y: 0}
+  hotelRequestDetector: {fileID: 1419156657029385814}
+  npcAreaPointsDatabase: {fileID: 11400000, guid: 10d707ca6de2c1940bd36ff7b26a96c0, type: 2}
+  codeNpcAreaPoints: 
+  checkAreaPositionMinSeconds: 10
+  checkAreaPositionMaxSeconds: 15
+  changeAreaPointsMinSeconds: 180
+  changeAreaPointsMaxSeconds: 240
+  isServingRoom: 0
+  currentNPCAreaPointsSO: {fileID: 0}
+  isCollectingGift: 0
+  giftObject: {fileID: 0}
+--- !u!4 &8810285851502921984 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+  m_PrefabInstance: {fileID: 8439490364034642731}
+  m_PrefabAsset: {fileID: 0}

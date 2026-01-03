@@ -22,8 +22,8 @@ public class HotelGiftHandler : MonoBehaviour
     [Header ("Hotel Gift Spawner")]
     [SerializeField] GameObject hotelGift2dPrefab;
 
-    [Tooltip ("NPC Robo Shroom")]
-    public List <NPCRoboShroom> listNPCRoboShroom = new List <NPCRoboShroom> ();
+    [Tooltip ("NPC Service")]
+    public List <NPCService> listNPCService = new List <NPCService> ();
     [Tooltip("Collider yang terdeteksi")]
    // public List<PolygonCollider2D> detectedGiftPolygons = new List <PolygonCollider2D> ();
     public Tilemap tilemap;   // assign tilemap di inspector
@@ -246,19 +246,19 @@ public class HotelGiftHandler : MonoBehaviour
    }
     #endregion
 
-    #region NPCRoboShroom
+    #region NPCService
     // NPCRoboShroom.cs
-    public void AddNPCRoboShroom (NPCRoboShroom npc) {
-        listNPCRoboShroom.Add (npc);
+    public void AddNPCService(NPCService npc) {
+        listNPCService.Add (npc);
     }
 
     // NPCRoboShroom.cs
-    public void RemoveNPCRoboShroom (NPCRoboShroom npc) {
-        listNPCRoboShroom.Remove (npc);
+    public void RemoveNPCService (NPCService npc) {
+        listNPCService.Remove (npc);
     }
 
     void RefreshAllMovementRoboShroom () {
-        foreach (NPCRoboShroom npc in listNPCRoboShroom) {
+        foreach (NPCService npc in listNPCService) {
             npc.ResetMovement ();    
         }
     }
