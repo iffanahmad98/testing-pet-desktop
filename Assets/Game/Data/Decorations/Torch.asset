@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decorationID: torch
   decorationName: Torch
-  description: this is the torch
+  description: "A warm ceremonial torch that makes your habitat feel cozy and safe.
+    Adds a gentle glow and a \u201Chome base\u201D vibe perfect for evening and night
+    themes.Visual ambience only (no gameplay bonuses)."
   thumbnail: {fileID: 4299671914235703775, guid: 0bb50cda66ac4a64bad7e5e048f345ef, type: 3}
-  price: 15
+  price: 1200
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 2

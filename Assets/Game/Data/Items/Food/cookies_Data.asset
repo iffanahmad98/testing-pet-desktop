@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_cookies
   itemName: Cookies
-  itemImgs:
-  - {fileID: 1959230578676595936, guid: 544e66b1434f5bf4884011a5bdb2195c, type: 3}
   description: Fruit-crowned discs with crunchy rims and gooey hearts.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 3
+    minimumRequirements: 2
   price: 120
   nutritionValue: 600
+  itemImgs:
+  - {fileID: 1959230578676595936, guid: 544e66b1434f5bf4884011a5bdb2195c, type: 3}
+  skeletonDataAsset: {fileID: 0}

@@ -15,6 +15,10 @@ MonoBehaviour:
   monsterName: Llasalix
   id: llasalix
   description: 
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 2
   monType: 0
   poopType: 1
   moveSpd: 120
@@ -95,6 +99,7 @@ MonoBehaviour:
   sellPriceStage1: 200
   sellPriceStage2: 400
   sellPriceStage3: 800
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

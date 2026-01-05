@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: med_barkshield_vaccine
   itemName: BarkShield Vaccine
-  itemImgs:
-  - {fileID: 8205992420499291525, guid: a46faff053fc0e04a8c473a9b03479cb, type: 3}
   description: 'Effect: Prevents fungal and parasitic infections on the skin. Handmade
     by the fairy godmother before the rainy season.'
   category: 1
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 3
+    minimumRequirements: 1
   price: 20
   nutritionValue: 75
+  itemImgs:
+  - {fileID: 8205992420499291525, guid: a46faff053fc0e04a8c473a9b03479cb, type: 3}
+  skeletonDataAsset: {fileID: 0}

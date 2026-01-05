@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_banana
   itemName: Banana
-  itemImgs:
-  - {fileID: -1053547439167284603, guid: dac91dabd1ed30445944efa859672757, type: 3}
   description: Perfect for uncommon bloom type. Crescent smiles of creamy delight;
     peels become grass-sleds in a pinch.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 2
+    minimumRequirements: 1
   price: 30
   nutritionValue: 120
+  itemImgs:
+  - {fileID: -1053547439167284603, guid: dac91dabd1ed30445944efa859672757, type: 3}
+  skeletonDataAsset: {fileID: 0}

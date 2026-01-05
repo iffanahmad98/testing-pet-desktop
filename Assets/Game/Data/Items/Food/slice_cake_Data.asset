@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_slice_cake
   itemName: Slice Cake
-  itemImgs:
-  - {fileID: -5994048326040737534, guid: fde705a8547165c4a93ccbb249fcd1e9, type: 3}
   description: Wobbly moons that dance on a spoon before vanishing in a smile.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 3
+    minimumRequirements: 1
   price: 110
   nutritionValue: 550
+  itemImgs:
+  - {fileID: -5994048326040737534, guid: fde705a8547165c4a93ccbb249fcd1e9, type: 3}
+  skeletonDataAsset: {fileID: 0}

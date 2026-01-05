@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_whole_cake
   itemName: Whole Cake
-  itemImgs:
-  - {fileID: -5994048326040737534, guid: fde705a8547165c4a93ccbb249fcd1e9, type: 3}
   description: Salt-speckled knots; break a loop to make an edible bracelet.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 4
+    minimumRequirements: 1
   price: 200
   nutritionValue: 1000
+  itemImgs:
+  - {fileID: -5994048326040737534, guid: fde705a8547165c4a93ccbb249fcd1e9, type: 3}
+  skeletonDataAsset: {fileID: 0}

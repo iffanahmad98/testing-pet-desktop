@@ -14,9 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   biomeID: default_biome
   biomeName: Default
-  description: Description here.
-  price: 7
+  description: A clean, bright daytime look fresh air, happy skies, and classic vibes.
+    Visual only (no gameplay changes). Perfect if you want your pets to look extra
+    cozy and colorful.
+  price: 0
   thumbnail: {fileID: -5623815881852514642, guid: dbea8adb07e6e204cbca7a2a36cf5e15, type: 3}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 0
   skyBackground: {fileID: -3581628074278432912, guid: f34817090d9602348846042c8c46706c, type: 3}
   skyObjects: []
   cloudSprites:
@@ -36,5 +42,6 @@ MonoBehaviour:
   maxClouds: 8
   effectPrefabs: []
   ambientBackground: {fileID: 860544438658991203, guid: 4b6ccdb222c8dd24c9a1456c8521d672, type: 3}
+  groundBackground: {fileID: 0}
   groundFilterColor: {r: 1, g: 1, b: 1, a: 0}
   groundFilterAlpha: 0

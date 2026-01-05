@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_watermelon
   itemName: Watermelon
-  itemImgs:
-  - {fileID: -3739112387566351917, guid: 371f061f874f0df4f87d1aee5d7b3275, type: 3}
-  description: Perfect for rare buds+ type.
+  description: 'Perfect for rare buds+ type.
+
+    Stripe-clad giants bursting with
+    pink rivers rind doubles as the best forest drum.'
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 2
+    minimumRequirements: 1
   price: 50
   nutritionValue: 240
+  itemImgs:
+  - {fileID: -3739112387566351917, guid: 371f061f874f0df4f87d1aee5d7b3275, type: 3}
+  skeletonDataAsset: {fileID: 0}

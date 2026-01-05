@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decorationID: rainbowPot
   decorationName: Rainbow Pot
-  description: A colorfull rainbow pot.
+  description: A magical rainbow pot that sparkles like a treasure from a fairy tale.It
+    gives your home a lucky, whimsical feeling like something rare is always nearby.
+    Visual ambience only (no gameplay bonuses).
   thumbnail: {fileID: -2212637707095740557, guid: d7bec9f243af4da43aa0967bfadb0599, type: 3}
-  price: 100
+  price: 35
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 10

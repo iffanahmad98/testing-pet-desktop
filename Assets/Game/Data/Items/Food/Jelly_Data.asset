@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_jelly
   itemName: Jelly
-  itemImgs:
-  - {fileID: -172379230216952902, guid: dee5c7ab1b1f7a1498d873b92aca6f67, type: 3}
   description: Quivering gems that jiggle to every giggle.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 3
+    minimumRequirements: 1
   price: 90
   nutritionValue: 450
+  itemImgs:
+  - {fileID: -172379230216952902, guid: dee5c7ab1b1f7a1498d873b92aca6f67, type: 3}
+  skeletonDataAsset: {fileID: 0}

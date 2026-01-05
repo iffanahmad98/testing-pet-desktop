@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: med_moon_dew_syrup
   itemName: Moon Dew Syrup
-  itemImgs:
-  - {fileID: -73088951216644847, guid: d03333cb2d1e0e14e9aee34eaf13f126, type: 3}
-  description: 'Effect: Relieves coughing and soothes the lungs.'
+  description: 'Effect: Relieves coughing and soothes the lungs.
+
+    Ingredients:
+    One spoonful of honey dew and moonlight sap'
   category: 1
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 0
   price: 35
   nutritionValue: 7
+  itemImgs:
+  - {fileID: -73088951216644847, guid: d03333cb2d1e0e14e9aee34eaf13f126, type: 3}
+  skeletonDataAsset: {fileID: 0}

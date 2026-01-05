@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_pineapple
   itemName: Pineapple
-  itemImgs:
-  - {fileID: -2776803104228993094, guid: 86d6f4cd77f144646b3dc81ce9b8759c, type: 3}
   description: Perfect for uncommon bloom type. Bite-sized marbles strung in chains,
     chomp the whole sparkle strand at once!
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 0
   price: 20
   nutritionValue: 75
+  itemImgs:
+  - {fileID: -2776803104228993094, guid: 86d6f4cd77f144646b3dc81ce9b8759c, type: 3}
+  skeletonDataAsset: {fileID: 0}

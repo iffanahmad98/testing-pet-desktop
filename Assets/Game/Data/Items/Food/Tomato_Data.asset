@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_tomato
   itemName: Tomato
-  itemImgs:
-  - {fileID: 2593281799816401115, guid: 5812310985dd53745b792382942f29ae, type: 3}
   description: Perfect for common bloom type Sun-warmed splash-balls that giggle
     when you give them a gentle squish.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 1
   price: 5
   nutritionValue: 15
+  itemImgs:
+  - {fileID: 2593281799816401115, guid: 5812310985dd53745b792382942f29ae, type: 3}
+  skeletonDataAsset: {fileID: 0}

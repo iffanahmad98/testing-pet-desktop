@@ -14,9 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   facilityID: F1
   facilityName: MagicShovel
-  description: 
-  price: 50
+  description: "A vine-wrapped shovel that does a magical \u201Cinstant tidy.\u201DUse
+    it when your pets are being messy. One-time use per activation. Cannot be used
+    at the same time as other one-time consumables (ex: Time Keeper). Anti-spam:
+    10s cooldown after use"
+  price: 2500
   thumbnail: {fileID: -4841553974214538975, guid: cfbaf801512835b4a85b94baa7341c70, type: 3}
-  animator: {fileID: 9100000, guid: 57f616011aaaab14f9649124cda0fc0c, type: 2}
   animatorController: {fileID: 9100000, guid: 57f616011aaaab14f9649124cda0fc0c, type: 2}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 1
   cooldownSeconds: 60
+  isFreeToggleFacility: 0

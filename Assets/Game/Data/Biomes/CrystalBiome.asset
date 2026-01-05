@@ -14,9 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   biomeID: crystal_biome
   biomeName: Crystal
-  description: Description here.
-  price: 7
+  description: A magical crystal landscape sparkly, rare, and fantasy-level pretty.
+    Visual only (no gameplay changes). For collectors who want their biome to feel
+    truly special.
+  price: 3000
   thumbnail: {fileID: -3973128355438887921, guid: 055dad2bf20bbf04c84d448c40386cdc, type: 3}
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 3
+    minimumRequirements: 1
   skyBackground: {fileID: -3581628074278432912, guid: f34817090d9602348846042c8c46706c, type: 3}
   skyObjects: []
   cloudSprites:

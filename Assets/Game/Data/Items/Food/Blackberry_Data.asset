@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_blackberry
   itemName: Blackberry
-  itemImgs:
-  - {fileID: 1614161068848704061, guid: 768b21d4eca751143a07a56de927572b, type: 3}
-  description: Perfect for common buds type
+  description: 'Perfect for common buds type
+
+    Midnight candies that paint tongues
+    purple for hours of giggles.'
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 1
   price: 3
   nutritionValue: 7
+  itemImgs:
+  - {fileID: 1614161068848704061, guid: 768b21d4eca751143a07a56de927572b, type: 3}
+  skeletonDataAsset: {fileID: 0}

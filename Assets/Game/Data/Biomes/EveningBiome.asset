@@ -12,11 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d43525788b090c4aacd2306bac8c1b1, type: 3}
   m_Name: EveningBiome
   m_EditorClassIdentifier: 
-  biomeID: dusk_biome
-  biomeName: Dusk
-  description: Description here.
-  price: 7
+  biomeID: evening_biome
+  biomeName: Evening
+  description: Soft sunset glow with warm orange-pink horizons.Visual only (no gameplay
+    changes).Makes your home feel like golden hour every hour.
+  price: 1000
   thumbnail: {fileID: 3581194344524948491, guid: be6580af2255fd04b9c959e43ce9af55, type: 3}
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 0
+    minimumRequirements: 5
   skyBackground: {fileID: -1464231948672808547, guid: 9701ae48475370c4ab724711c8e7fbea, type: 3}
   skyObjects:
   - {fileID: 3583845952252806457, guid: 6b28665e197c9e3478245ce0bd65edba, type: 3}

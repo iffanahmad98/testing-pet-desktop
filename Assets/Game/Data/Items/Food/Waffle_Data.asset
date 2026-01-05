@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_waffle
   itemName: Waffle
-  itemImgs:
-  - {fileID: -3019631063285163690, guid: 684fe12359963bf4199a176dac0c46fb, type: 3}
   description: Silky frost clouds; one lick paints chilly swirls on monster cheeks.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 3
+    minimumRequirements: 2
   price: 130
   nutritionValue: 650
+  itemImgs:
+  - {fileID: -3019631063285163690, guid: 684fe12359963bf4199a176dac0c46fb, type: 3}
+  skeletonDataAsset: {fileID: 0}

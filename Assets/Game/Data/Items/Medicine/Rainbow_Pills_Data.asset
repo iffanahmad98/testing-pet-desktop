@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: med_rainbow_pills
   itemName: Rainbow Pills
-  itemImgs:
-  - {fileID: -3796427897449644277, guid: e99ee4fb73cd9934fa052e5c31678c85, type: 3}
-  description: 'Effect: Heals internal wounds and speeds up regeneration.'
+  description: 'Effect: Heals internal wounds and speeds up regeneration.
+
+    Form:
+    Small glowing pellets; dissolve in warm sap water.'
   category: 1
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 1
   price: 10
   nutritionValue: 30
+  itemImgs:
+  - {fileID: -3796427897449644277, guid: e99ee4fb73cd9934fa052e5c31678c85, type: 3}
+  skeletonDataAsset: {fileID: 0}

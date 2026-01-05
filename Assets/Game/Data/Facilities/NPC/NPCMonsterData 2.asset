@@ -14,7 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterName: Mushkina
   id: 200
-  description: 
+  description: "A tiny forest-keeper mushroom buddy who happily toddles around your
+    home.  Auto-feeds pets by randomly dropping food (food cost is paid using your
+    coins). Auto-collects coins dropped by pets Auto-interacts/pokes pets when Happiness
+    goes down Mushkina is the \u201Cwalking\u201D version cute and steady, but slower.
+    Progression: Must be purchased first to unlock Mushkino. Also unlocks the 1-Flower
+    Station Post decoration."
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 8
   monType: 5
   poopType: 1
   moveSpd: 400
@@ -65,7 +74,7 @@ MonoBehaviour:
   evolutionBehaviors:
   - evolutionLevel: 1
     behaviorConfig: {fileID: 11400000, guid: 3c0869c87e2ad4b419beda05f6631124, type: 2}
-  monsterPrice: 10
+  monsterPrice: 2500
   sellPriceStage1: 0
   sellPriceStage2: 0
   sellPriceStage3: 0

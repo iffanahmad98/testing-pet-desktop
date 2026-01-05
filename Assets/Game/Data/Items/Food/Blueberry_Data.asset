@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_blueberry
   itemName: Blueberry
-  itemImgs:
-  - {fileID: 3592526310586181136, guid: a75c28247e2e4dc439ad2b12374ddbb6, type: 3}
-  description: Perfect for common buds type
+  description: 'Perfect for common buds type
+
+    Tiny indigo spheres that pop like
+    sweet soap bubbles.'
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 0
+    minimumRequirements: 0
   price: 2
   nutritionValue: 5
+  itemImgs:
+  - {fileID: 3592526310586181136, guid: a75c28247e2e4dc439ad2b12374ddbb6, type: 3}
+  skeletonDataAsset: {fileID: 0}
