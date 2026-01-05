@@ -6,6 +6,7 @@ using Spine.Unity;
 public class MonsterCardUI : MonoBehaviour
 {
     [Header("UI References")] public Image monsterIcon;
+    public GameObject grayscaleObj;
     public TMP_Text monsterNameText;
     public TMP_Text priceText;
     public Button selectButton;
@@ -98,6 +99,11 @@ public class MonsterCardUI : MonoBehaviour
                 monsterGraphic.AnimationState.SetAnimation(0, "idle", true);
             }
         }
+    }
+
+    public void SetGrayscale(bool grayscale)
+    {
+        grayscaleObj.SetActive(grayscale);
     }
 
     bool HasAnimation(string animName)

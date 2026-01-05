@@ -2,6 +2,14 @@ using System;
 using UnityEngine;
 using Spine.Unity;
 
+[System.Serializable]
+public class MonsterRequirements
+{
+    public bool anyTypeMonster = false;
+    public MonsterType monsterType;
+    public int minimumRequirements;
+}
+
 [CreateAssetMenu(fileName = "NewMonsterData", menuName = "Monster/Monster Data")]
 public class MonsterDataSO : ScriptableObject
 {
@@ -9,6 +17,7 @@ public class MonsterDataSO : ScriptableObject
     public string monsterName;
     public string id;
     public string description;
+    public MonsterRequirements[] monsterRequirements;
 
     [Header("Classification")]
     public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)

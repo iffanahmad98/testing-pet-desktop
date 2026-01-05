@@ -25,6 +25,7 @@ public class MonsterShopManager : MonoBehaviour
     // Object pool for monster cards
     private List<MonsterCardUI> cardPool = new List<MonsterCardUI>();
     private List<MonsterCardUI> activeCards = new List<MonsterCardUI>();
+    private bool canBuyMonster = false;
 
     private void Start()
     {
@@ -84,6 +85,15 @@ public class MonsterShopManager : MonoBehaviour
             activeCards.Add(card);
         }
 
+        foreach (var card in activeCards)
+        {
+            if (card.monsterItemData.monsterRequirements != null)
+            {
+                CheckBuyingRequirement(card);
+                card.SetGrayscale(!canBuyMonster);
+            }
+        }
+
         ClearMonsterInfo(); // Reset info panel
     }
 
@@ -132,20 +142,74 @@ public class MonsterShopManager : MonoBehaviour
 
     private void OnMonsterBuy(MonsterCardUI card)
     {
-        var monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
-        if (SaveSystem.TryBuyMonster(monsterItem))
-        {
-            OnMonsterSelected(card);
+        MonsterDataSO monsterItem = CheckBuyingRequirement(card);
 
-            // Success message
-            ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monsterItem.name}!", 2f);
-            ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
+        if (canBuyMonster)
+        {
+            if (SaveSystem.TryBuyMonster(monsterItem))
+            {
+                OnMonsterSelected(card);
+
+                // Success message
+                ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monsterItem.name}!", 2f);
+                ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
+            }
+            else
+            {
+                // Failure message
+                ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy!", 2f);
+            }
         }
         else
         {
-            // Failure message
-            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy!", 2f);
+            Debug.Log("Minimum Requirement Monster not enough!");
         }
+    }
+
+    private MonsterDataSO CheckBuyingRequirement(MonsterCardUI card)
+    {
+        var monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
+
+        if (monsterItem == null)
+            return null;
+
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+
+        foreach (var required in monsterItem.monsterRequirements)
+        {
+            if (!required.anyTypeMonster)
+            {
+                for (int i = 0; i < required.minimumRequirements; i++)
+                {
+                    if (monsters.Count >= required.minimumRequirements)
+                    {
+                        if (required.monsterType != monsters[i].MonsterData.monType)
+                        {
+                            canBuyMonster = false;
+                            break;
+                        }
+                        else
+                        {
+                            canBuyMonster = true;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (monsters.Count >= required.minimumRequirements)
+                    canBuyMonster = true;
+                else
+                    canBuyMonster = false;
+            }
+        }
+
+        return monsterItem;
     }
 
     private void ShowMonsterInfo(ItemDataSO monster)
