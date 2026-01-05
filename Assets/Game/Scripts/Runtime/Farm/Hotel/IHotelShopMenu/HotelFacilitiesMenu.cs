@@ -35,8 +35,9 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
     public List <HiredHotelFacilityData> hiredHotelFacilityData = new ();
 
     [Header ("Start Dictionary")]
-    public Dictionary <string, int> dictionaryHiredFacility = new Dictionary <string, int> ();
-
+    public Dictionary <string, int> dictionaryHiredMaxFacility = new Dictionary <string, int> ();
+    public Dictionary <string, int> dictionaryCurrentFacility = new Dictionary <string, int> ();
+    
     public enum HotelFacilitiesType {
         Single, Multiple    
     }
@@ -73,8 +74,13 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
    }
 
    void LoadStartDictionary () {
-    dictionaryHiredFacility.Add ("robo_shroom", 3);
-    dictionaryHiredFacility.Add ("bellboy_shroom", 2);
+    dictionaryHiredMaxFacility.Add ("robo_shroom", 3);
+    dictionaryHiredMaxFacility.Add ("bellboy_shroom", 2);
+
+    dictionaryCurrentFacility.Add ("wizard_shroom", 0);
+    dictionaryCurrentFacility.Add ("nerd_shroom", 0);
+    dictionaryCurrentFacility.Add ("robo_shroom", 0);
+    dictionaryCurrentFacility.Add ("bellboy_shroom",0);
    } 
     
    void InstantiateHotelFacilities () {
@@ -105,7 +111,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
 
         for (int i = 0; i <listPodiumCard.Count; i++) {
              int index = i; // penting!
-             if (dictionaryHiredFacility.ContainsKey (listPodiumCard[index].facilityData.id)) {
+             if (dictionaryHiredMaxFacility.ContainsKey (listPodiumCard[index].facilityData.id)) {
                 // Hired System :
                 var card = listPodiumCard[index];
                 string facilityId = card.facilityData.id;
@@ -123,7 +129,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
 
                     if (hiredData != null)
                     {
-                        int maxHire = dictionaryHiredFacility[facilityId];
+                        int maxHire = dictionaryHiredMaxFacility[facilityId];
                         isMaximum = hiredData.hired == maxHire;
                     }
 
@@ -252,11 +258,11 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
 
         SpawnHotelFacilities (data.id, true, HotelFacilitiesType.Multiple);
         podiumCard.hiredText.text = "Hired: " + SaveSystem.PlayerConfig.GetHiredHotelFacilityData (data.id).hired.ToString ();
-
+        
         bool isMaximum = false;
 
      
-        int maxHire = dictionaryHiredFacility[data.id];
+        int maxHire = dictionaryHiredMaxFacility[data.id];
         isMaximum = SaveSystem.PlayerConfig.GetHiredHotelFacilityData (data.id).hired == maxHire;
         
 
@@ -271,6 +277,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
         SaveSystem.SaveAll ();
         
         DestroyHotelFacilities (data.id);
+        dictionaryCurrentFacility[data.id] --;
    }
 
    public void ApplyFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
@@ -327,7 +334,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
     void SpawnHotelFacilities (string facilityId, bool refreshButton, HotelFacilitiesType hotelFacilitiesType) {
         HotelFacilitiesDataSO data = database.GetHotelFacilitiesDataSO (facilityId);
         GameObject facilityClone = GameObject.Instantiate (data.facilityPrefab);
-        facilityClone.transform.position = data.facilitySpawnPosition;
+        facilityClone.transform.position = data.facilitySpawnPositions[dictionaryCurrentFacility[facilityId]];
         facilityClone.SetActive (true);
         if (hotelFacilitiesType == HotelFacilitiesType.Single) {
             dictionaryHotelFacilities.Add (facilityId, facilityClone);
@@ -336,6 +343,10 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 RefreshBuyButton (GetHotelFacilitiesPodiumCard (data.id), "Applied");
             }
         }
+
+        dictionaryCurrentFacility[facilityId] ++;
+
+
     }
 
     void DestroyHotelFacilities (string facilityId) {

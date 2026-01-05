@@ -348,6 +348,17 @@ public class PlayerConfig
         }
         return null;
     }
+
+    public int GetTotalHiredService () { // HotelController.cs
+        int result = 0;
+        foreach (HiredHotelFacilityData data in hiredHotelFacilityData) {
+            if (data.id == "robo_shroom" || data.id == "bellboy_shroom") {
+                result += data.hired;
+            }
+        }
+
+        return result;
+    }
     #endregion
     #region Hotel Gift World
     public void AddHotelGiftWorld (Vector3 position) {// HotelGiftHandler

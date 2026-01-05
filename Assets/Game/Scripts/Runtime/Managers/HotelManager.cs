@@ -46,8 +46,9 @@ namespace MagicalGarden.Manager
 
         [Header ("Management")]
         public List <HotelController> listHotelControllerHasRequest = new List <HotelController> ();
+        public List <HotelController> listHotelControllerHasReward = new List <HotelController> ();
 
-        [Tooltip ("NPC Robo Shroom")]
+        [Tooltip ("NPC Service")]
         public List <NPCService> listNPCService = new List <NPCService> ();
         
         [Tooltip ("Data")]
@@ -567,18 +568,46 @@ namespace MagicalGarden.Manager
 
         public void AddHotelControllerHasRequest (HotelController hotelController) {
             if (!listHotelControllerHasRequest.Contains (hotelController))
-            Debug.Log ("Add Hotel Request");
+           // Debug.Log ("Add Hotel Request");
             listHotelControllerHasRequest.Add (hotelController);
         }
 
         public void RemoveHotelControllerHasRequest (HotelController hotelController, bool refreshRobo = false) {
             if (listHotelControllerHasRequest.Contains (hotelController))
-             Debug.Log ("Remove Hotel Request");
+           //  Debug.Log ("Remove Hotel Request");
             listHotelControllerHasRequest.Remove (hotelController);
             if (refreshRobo) {
                 RefreshAllMovementRoboShroom (hotelController); // mencegahBug (stuck isServing)
             }
         }
+
+        public bool IsHasHotelRequest () { // HoteRequestDetector.cs
+            return listHotelControllerHasRequest.Count > 0;
+        }
+        #region HotelControllerHasReward
+        public void AddListHotelControllerHasReward(HotelController hotelController) {
+            if (!listHotelControllerHasReward.Contains (hotelController))
+           // Debug.Log ("Add Hotel Request");
+            listHotelControllerHasReward.Add (hotelController);
+        }
+
+        public void RemoveListHotelControllerHasReward (HotelController hotelController, bool refreshNPC = false) {
+            if (listHotelControllerHasReward.Contains (hotelController))
+           //  Debug.Log ("Remove Hotel Request");
+            listHotelControllerHasReward.Remove (hotelController);
+            if (refreshNPC) {
+                RefreshAllMovementRoboShroom (hotelController); // mencegahBug (stuck isServing)
+            }
+        }
+
+        public bool IsHasHotelReward () { // NPCBellboyShroom.cs
+            return listHotelControllerHasReward.Count > 0;
+        }
+
+        public List <HotelController> GetListHotelControllerHasReward () { // NPCBellboyShroom.cs
+            return listHotelControllerHasReward;
+        }
+        #endregion
 
         public void AddGuestRequestAfterCheckOut () { // called at HotelController.cs when their check out.
             if (todayGuestRequests.Count < 20) {
@@ -601,10 +630,6 @@ namespace MagicalGarden.Manager
             HotelController targetHotel = listHotelControllerHasRequest[target];
             RemoveHotelControllerHasRequest (targetHotel, false);
             return targetHotel;
-        }
-
-        public bool IsHasHotelRequest () {
-            return listHotelControllerHasRequest.Count > 0;
         }
 
         public List <HotelController> GetListHotelController () {
@@ -633,6 +658,8 @@ namespace MagicalGarden.Manager
                 npc.ResetMovementHotel (hotelController);    
             }
         }
+
+        
         #endregion
 
         #region Data
@@ -703,14 +730,51 @@ namespace MagicalGarden.Manager
         IEnumerator nLoadHotelControllerDatasDebug ()
         {
             yield return null;
+            
+            
 
             List<HotelControllerData> listHotelControllerData =
                 playerConfig.GetListHotelControllerData();
 
+            // Increase Happiness System
+            TimeSpan diff = TimeManager.Instance.currentTime 
+                            - SaveSystem.PlayerConfig.lastRefreshTimeHotel;
+
+            double hours = diff.TotalHours;
+
+           
+            int cycles = (int)(hours / 1.0); // 1 cycle setiap 1 jam
+            if (cycles > 0) {
+                 int totalNPCService = playerConfig.GetTotalHiredService ();
+                int totalHotelCanHandled = totalNPCService * 3;
+                for (int c = 0; c < cycles; c++) {
+                    //-- Memasukan element
+                    List <int> cloneRandomListHotelControllerData = new List <int> ();
+                    for (int x = 0; x < listHotelControllerData.Count; x++) {
+                        cloneRandomListHotelControllerData.Add (x);
+                    }
+
+                    for (int i = 0; i < totalHotelCanHandled; i++) {
+                        if (cloneRandomListHotelControllerData.Count > 0) {
+                            int targetHotel = cloneRandomListHotelControllerData[UnityEngine.Random.Range (0,cloneRandomListHotelControllerData.Count)];
+                            hotelControllers [targetHotel].ChangeHappinessOffline (true);
+                            cloneRandomListHotelControllerData.Remove (targetHotel);
+                        }
+                    }
+                    for (int j=0; j < cloneRandomListHotelControllerData.Count; j++) {
+                        int targetHotel = cloneRandomListHotelControllerData[j];
+                        hotelControllers [targetHotel].ChangeHappinessOffline (false);
+                    }
+                }
+            }
+            // Load Data
             for (int i = listHotelControllerData.Count - 1; i >= 0; i--)
             {
                 hotelControllers [listHotelControllerData[i].idHotel].LoadData (listHotelControllerData[i]);
             }
+
+          //  SaveSystem.SaveAll ();
+
         }
 
         public void PauseAllHotelControllersTime () {

@@ -14,5 +14,6 @@ public class HotelFacilitiesDataSO : ScriptableObject {
 
     [Header ("Facilities World")]
     public Vector3 facilitySpawnPosition;
+    public Vector3 [] facilitySpawnPositions;
     
 }

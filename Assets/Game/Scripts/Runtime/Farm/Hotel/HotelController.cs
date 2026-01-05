@@ -88,6 +88,7 @@ namespace MagicalGarden.Hotel
         public HotelControllerData hotelControllerData;
         PlayerConfig playerConfig;
         Dictionary <string, Action> dictionaryGenerateRequest = new Dictionary <string, Action> ();
+        int offlineHappiness = 0;
 
         [Header ("Debug")]
         bool timePaused = false;
@@ -694,6 +695,18 @@ namespace MagicalGarden.Hotel
         public void NPCAutoService (INPCHotelService npc) { // NPCRoboShroom.cs
             FulfillRequest (currentGuestRequestType, NPCService.NPCAutoService, npc);
         }
+
+        public void NPCAutoClaimReward (INPCHotelService npc) { // NPCBellboyShroom.cs
+            if (holdReward) {
+               // ClaimCoin ();
+                string roomName = gameObject.name;
+                Debug.Log($" [NPC Claim Reward] mengirim pemain untuk mengambil reward");
+                
+                npc.hotelControlRef = this;
+                npc.AddRewardEvent (ClaimCoin);
+                StartCoroutine (npc.NPCHotelCleaning());
+            }
+        }
         #endregion
         #region Random Guest Request Type
 
@@ -781,6 +794,8 @@ namespace MagicalGarden.Hotel
                 coinBubble.transform.localPosition += new Vector3 (0,10,0);
                 coinBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => ClaimCoin ());
                 coinBubbleClone = coinBubble;
+
+                HotelManager.Instance.AddListHotelControllerHasReward (this);
             }
             
         }
@@ -804,13 +819,24 @@ namespace MagicalGarden.Hotel
             if (isDirty) {
                 SetCleanOnly ();
             }
+            HotelManager.Instance.RemoveListHotelControllerHasReward (this);
 
             playerConfig.RemoveHotelControllerData (hotelControllerData);
             SaveSystem.SaveAll ();
         }
         #endregion
         #region Data
-        public void LoadData (HotelControllerData data) { // HotelManager.cs
+        public void ChangeHappinessOffline (bool isIncrease) { // HotelManager.cs
+            if (isIncrease) {
+                Debug.Log ("Increase Happiness");
+                offlineHappiness += UnityEngine.Random.Range (4,10 +1); 
+            } else {
+                Debug.Log ("Decrease Happiness");
+                offlineHappiness -= UnityEngine.Random.Range (2,5);
+            }
+        }
+
+        public void LoadData (HotelControllerData data) { // HotelManager.cs (Debugging)
             hotelControllerData = data;
 
             isDirty = data.isDirty;
@@ -843,15 +869,31 @@ namespace MagicalGarden.Hotel
         }
 
         
-        // HotelManager.cs (Debugging)
+        // this
         public void LoadEventHappinessOffline (string codeRequest) {
+            if (offlineHappiness == 0) { // kurang dari 1 jam.
+                LoadEventCodeRequest (codeRequest);
+                
+            }
+            else {
+                happiness = Mathf.Clamp(happiness + offlineHappiness, 0, 100);
+                offlineHappiness = 0;
+                SetHappinessData ();
+                hotelControllerData.codeRequest = "";
+                SaveSystem.SaveAll ();
+            }
+
+            SetTimePaused (false);
+            /*
             TimeSpan diff = TimeManager.Instance.currentTime 
                             - SaveSystem.PlayerConfig.lastRefreshTimeHotel;
 
             double hours = diff.TotalHours;
 
             Debug.Log("Total Hours Happiness : " + hours.ToString () + TimeManager.Instance.currentTime.ToString ());
-            if (!playerConfig.HasHotelFacilityAndIsActive("robo_shroom")) {
+
+            int totalNPCService = playerConfig.GetTotalHiredService ();
+            if (totalNPCService > 0) {
                 if (hours >= 1)
                 {
                     int cycles = (int)(hours / 1.0); // 1 cycle setiap 1 jam
@@ -904,6 +946,7 @@ namespace MagicalGarden.Hotel
                 }
             }
             SetTimePaused (false);
+            */
         }
 
         void LoadEventCodeRequest (string value) {
