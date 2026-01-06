@@ -85,11 +85,15 @@ namespace MagicalGarden.Hotel
         GameObject vfxRay;
         [Header ("Data")]
         public int idHotel = 0; // HotelManager.cs
+        int offlineHappiness = 0;
+        public bool isLocked = false;
         public HotelControllerData hotelControllerData;
         PlayerConfig playerConfig;
         Dictionary <string, Action> dictionaryGenerateRequest = new Dictionary <string, Action> ();
-        int offlineHappiness = 0;
+        [SerializeField] Color colorHotelUnlocked, colorHotelLocked;
 
+        [Header ("History")]
+        IPlayerHistory iPlayerHistory;
         [Header ("Debug")]
         bool timePaused = false;
         void Start()
@@ -109,6 +113,7 @@ namespace MagicalGarden.Hotel
             worldCanvas = MagicalGarden.Farm.UIManager.Instance.uIWorldNonScaleable; 
 
             playerConfig = SaveSystem.PlayerConfig;
+            iPlayerHistory = PlayerHistoryManager.instance as IPlayerHistory;
         }
         void Update()
         {
@@ -824,7 +829,8 @@ namespace MagicalGarden.Hotel
                 SetCleanOnly ();
             }
             HotelManager.Instance.RemoveListHotelControllerHasReward (this);
-
+            iPlayerHistory.SetHotelRoomCompleted (1);
+            
             playerConfig.RemoveHotelControllerData (hotelControllerData);
             SaveSystem.SaveAll ();
         }
@@ -884,7 +890,12 @@ namespace MagicalGarden.Hotel
                 offlineHappiness = 0;
                 SetHappinessData ();
                 hotelControllerData.codeRequest = "";
-                SaveSystem.SaveAll ();
+                if (happiness >0) {
+                    SaveSystem.SaveAll ();
+                } else {
+                    price = 0;
+                    CheckOutRoom ();
+                }
             }
 
             SetTimePaused (false);
@@ -971,6 +982,16 @@ namespace MagicalGarden.Hotel
 
         void SetHappinessData () {
             playerConfig.HotelControllerDataChangeHappiness (idHotel, happiness);
+        }
+        #endregion
+        #region Locked
+        public void HotelLocked () { // HotelLocker.cs
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            spriteRenderer.color = colorHotelLocked;
+        }
+
+        public void HotelUnlocked () {
+            spriteRenderer.color = colorHotelUnlocked;
         }
         #endregion
         #region Debug

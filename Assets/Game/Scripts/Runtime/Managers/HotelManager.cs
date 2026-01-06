@@ -13,6 +13,7 @@ namespace MagicalGarden.Manager
     public class HotelManager : MonoBehaviour
     {
         public static HotelManager Instance;
+        [SerializeField] HotelLocker hotelLocker;
         [Header("Visual FX")]
         public GameObject cleaningVfx;
         public GameObject rayCleaningVfx;
@@ -79,7 +80,7 @@ namespace MagicalGarden.Manager
             CheckGenerateGuestList();
             LoadAllHotelControllerDatas ();
             LoadAllPetMonsterHotelDatas ();
-            
+            hotelLocker.StartSystem ();
             DebugTimeController.instance.AddPreDebuggingEvent (PauseAllHotelControllersTime);
             DebugTimeController.instance.AddDebuggingEvent (LoadAllHotelControllerDatas);
         }
@@ -141,7 +142,7 @@ namespace MagicalGarden.Manager
 
             foreach (var room in hotelControllers)
             {
-                if (!room.IsOccupied && !room.holdReward)
+                if (!room.IsOccupied && !room.holdReward && !room.isLocked)
                     availableRooms.Add(room);
             }
 
@@ -198,7 +199,7 @@ namespace MagicalGarden.Manager
 
             foreach (var room in hotelControllers)
             {
-                if (!room.IsOccupied && !room.holdReward)
+                if (!room.IsOccupied && !room.holdReward && !room.isLocked)
                     availableRooms.Add(room);
             }
 
@@ -702,6 +703,10 @@ namespace MagicalGarden.Manager
                 }
             }
             return total;
+        }
+
+        public List <HotelController> GetHotelControllers () { // HotelLocker.cs
+            return hotelControllers;
         }
         #endregion
 

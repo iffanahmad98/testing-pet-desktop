@@ -432,6 +432,7 @@ MonoBehaviour:
   coinClaimDisplay: {fileID: 8937317510074289321, guid: a05ae5f29659ee5428f8a34baec07347, type: 3}
   holdReward: 0
   idHotel: 0
+  isLocked: 0
   hotelControllerData:
     idHotel: 0
     isDirty: 0
@@ -445,6 +446,8 @@ MonoBehaviour:
     hasRequest: 0
     codeRequest: 
     holdReward: 0
+  colorHotelUnlocked: {r: 1, g: 1, b: 1, a: 1}
+  colorHotelLocked: {r: 0.3882353, g: 0.3882353, b: 0.3882353, a: 1}
 --- !u!114 &8579248136603560872
 MonoBehaviour:
   m_ObjectHideFlags: 0
