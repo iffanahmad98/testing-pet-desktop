@@ -11,6 +11,9 @@ public class BiomeDataSO : ScriptableObject
     public int price = 777;
     public Sprite thumbnail; // Used in shop card UI
 
+    [Header("Buying Requierements")]
+    public MonsterRequirements[] monsterRequirements;
+
     [Header("Sky Layer")]
     public Sprite skyBackground;
     public GameObject[] skyObjects;

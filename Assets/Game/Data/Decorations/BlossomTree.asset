@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decorationID: blossomTree
   decorationName: Blossom Tree
-  description: A beautful cherry blossom tree.
+  description: A dreamy blossom tree that rains soft petals and pure cozy energy.
+    Perfect for making your pets look extra adorable in screenshots. Visual ambience
+    only (no gameplay bonuses).
   thumbnail: {fileID: 8909375682267701268, guid: f175dcb4c0293cb468d504a817e80742, type: 3}
-  price: 200
+  price: 3000
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 8

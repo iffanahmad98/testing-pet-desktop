@@ -14,9 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   facilityID: F4
   facilityName: Pumpkin
-  description: 
+  description: 'A magical pumpkin carriage that gives you quick access to Pomodoro
+    anytime. Adds a Pumpkin button to the HUD (show/hide anytime). Tap to open a
+    cute mini preview, tap again to open the full Pomodoro window. Pomodoro runs
+    in the background even if you close the window
+
+    Includes: Focus/Break cycles
+    + To-Do checklist. Visual/Utility only no gameplay bonuses.'
   price: 0
   thumbnail: {fileID: 3601917648352172991, guid: 683c31b611c7ef849a28530f1f44a348, type: 3}
   animatorController: {fileID: 0}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 1
   cooldownSeconds: 10
   isFreeToggleFacility: 1

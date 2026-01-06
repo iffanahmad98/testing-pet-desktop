@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: med_evergreen_leaf_elixir
   itemName: Evergreen Leaf Elixir
-  itemImgs:
-  - {fileID: 1126446965603347298, guid: b6872ba43aad8514b8f5a9a281a070bf, type: 3}
   description: "Effect: Cures forest fever and strengthens the monster\u2019s immune
-    system."
+    system.\nIngredients: Evergreen leaves, skyroot, wild honey."
   category: 1
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 0
   price: 10
   nutritionValue: 2
+  itemImgs:
+  - {fileID: 1126446965603347298, guid: b6872ba43aad8514b8f5a9a281a070bf, type: 3}
+  skeletonDataAsset: {fileID: 0}

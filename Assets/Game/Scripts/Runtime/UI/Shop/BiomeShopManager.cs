@@ -35,7 +35,7 @@ public class BiomeShopManager : MonoBehaviour
     {
         biomeParentRect = biomeParent.GetComponent<RectTransform>();
         originalBiomeParentHeight = biomeParentRect.sizeDelta.y;
-        
+
         // Pre-populate pool with initial cards
         InitializeCardPool();
     }
@@ -44,7 +44,7 @@ public class BiomeShopManager : MonoBehaviour
     {
         // Create initial pool size based on expected biome count
         int initialPoolSize = Mathf.Max(10, biomes?.allBiomes?.Count ?? 10);
-        
+
         for (int i = 0; i < initialPoolSize; i++)
         {
             GameObject cardObj = Instantiate(biomeCardPrefab, cardParent);
@@ -120,10 +120,10 @@ public class BiomeShopManager : MonoBehaviour
             card.OnApplyClicked = OnBiomeApply;
             card.OnCancelApplied = OnBiomeCancel;
             card.OnBuyClicked = OnBiomeBuy;
-            
+
             activeCards.Add(card);
         }
-        
+
         AdjustBiomeParentHeight(biomes.allBiomes.Count);
         ClearInfo();
     }
@@ -214,13 +214,58 @@ public class BiomeShopManager : MonoBehaviour
     {
         var biome = card.BiomeData;
 
-        if (SaveSystem.TryBuyBiome(biome.biomeID, biome.price))
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+
+        bool canBuyItem = false;
+
+        foreach (var required in biome.monsterRequirements)
         {
-            ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{biome.biomeName}'!");
+            if (!required.anyTypeMonster)
+            {
+                for (int i = 0; i < required.minimumRequirements; i++)
+                {
+                    if (monsters.Count >= required.minimumRequirements)
+                    {
+                        if (required.monsterType != monsters[i].MonsterData.monType)
+                        {
+                            canBuyItem = false;
+                            break;
+                        }
+                        else
+                        {
+                            canBuyItem = true;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (monsters.Count >= required.minimumRequirements)
+                    canBuyItem = true;
+                else
+                    canBuyItem = false;
+            }
+        }
+
+        if (canBuyItem)
+        {
+            if (SaveSystem.TryBuyBiome(biome.biomeID, biome.price))
+            {
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{biome.biomeName}'!");
+            }
+            else
+            {
+                ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy biome!");
+            }
         }
         else
         {
-            ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy biome!");
+            Debug.Log("Minimum Requirement Monster not enough!");
         }
 
         SaveSystem.SaveAll();

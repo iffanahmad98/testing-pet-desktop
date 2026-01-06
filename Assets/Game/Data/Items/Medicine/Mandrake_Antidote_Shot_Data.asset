@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: med_mandrake_antidote_shot
   itemName: Mandrake Antidote Shot
-  itemImgs:
-  - {fileID: -8447012215657100702, guid: bc677403d9c16be41a1f251ec4917fec, type: 3}
-  description: 'Effect: Neutralizes poison from toxic forest spores.'
+  description: 'Effect: Neutralizes poison from toxic forest spores.
+
+    Side effect:
+    May cause hallucination.'
   category: 1
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 2
+    minimumRequirements: 1
   price: 10
   nutritionValue: 35
+  itemImgs:
+  - {fileID: -8447012215657100702, guid: bc677403d9c16be41a1f251ec4917fec, type: 3}
+  skeletonDataAsset: {fileID: 0}

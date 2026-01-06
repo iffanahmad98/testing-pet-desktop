@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_peach
   itemName: Peach
-  itemImgs:
-  - {fileID: 9100736973377243134, guid: 7c8b1c07ce56b664392ac9d29412e134, type: 3}
-  description: Perfect for uncommon buds type and common bloom type
+  description: 'Perfect for uncommon buds type and common bloom type
+
+    Fuzzy sunset
+    orbs; rolling one downhill perfumes the whole forest.'
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 2
   price: 10
   nutritionValue: 35
+  itemImgs:
+  - {fileID: 9100736973377243134, guid: 7c8b1c07ce56b664392ac9d29412e134, type: 3}
+  skeletonDataAsset: {fileID: 0}

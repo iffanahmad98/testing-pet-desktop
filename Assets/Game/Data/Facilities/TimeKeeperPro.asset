@@ -14,9 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   facilityID: F2
   facilityName: Time Keeper Pro
-  description: 
-  price: 50
+  description: "A bigger, fancier time shrine for \u201CI want the vibes to progress
+    now.\u201D\nEffect: Fast-forward simulation by +1 day (86,400s).\nCounts coins
+    + timer progress as if 1 day passed (does NOT apply to poop & feeding).\nRestrictions:
+    10s cooldown after use\n\u2022 Can\u2019t be used while simulation is being calculated.
+    Can\u2019t be used together with other one-time consumables (ex: Magic Shovel)
+    \nDaily Limit: Max total fast-forward 48 hours per 24h real-time."
+  price: 60
   thumbnail: {fileID: 21300000, guid: 8e22bd5f562db9f4baa5d4bbfcfacc57, type: 3}
-  animator: {fileID: 9100000, guid: 0d77d5ba082cd524ea47c7e34118edc0, type: 2}
   animatorController: {fileID: 9100000, guid: 0d77d5ba082cd524ea47c7e34118edc0, type: 2}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 8
   cooldownSeconds: 10
+  isFreeToggleFacility: 0

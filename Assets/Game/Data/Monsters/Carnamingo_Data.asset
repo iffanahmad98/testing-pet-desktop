@@ -15,6 +15,10 @@ MonoBehaviour:
   monsterName: Carnamingo
   id: carnamingo
   description: 
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 6
   monType: 1
   poopType: 1
   moveSpd: 110
@@ -101,6 +105,7 @@ MonoBehaviour:
   sellPriceStage1: 260
   sellPriceStage2: 520
   sellPriceStage3: 1040
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

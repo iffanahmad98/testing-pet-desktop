@@ -12,6 +12,9 @@ public class ItemDataSO : ScriptableObject
     public ItemType category; // Use enum ItemType for categorization (e.g., Food, Medicine)
     public float unlockRequirement; // If used as a requirement for unlocking or crafting
 
+    [Header("Buy Requirements")]
+    public MonsterRequirements[] monsterRequirements;
+
     [Header("Stats")]
     public int price;
     public float nutritionValue; // If used as food & medicine

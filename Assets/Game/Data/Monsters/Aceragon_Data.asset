@@ -15,6 +15,10 @@ MonoBehaviour:
   monsterName: Aceragon
   id: aceragon
   description: 
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 0
   monType: 3
   poopType: 10
   moveSpd: 90
@@ -116,6 +120,7 @@ MonoBehaviour:
   sellPriceStage1: 960
   sellPriceStage2: 1920
   sellPriceStage3: 3840
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

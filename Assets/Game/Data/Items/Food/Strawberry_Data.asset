@@ -14,10 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_strawberry
   itemName: Strawberry
-  itemImgs:
-  - {fileID: 3280087702915194715, guid: 52498d519dff565478aeb1ccec44fcda, type: 3}
-  description: Perfect for common buds type
+  description: "Perfect for common buds type\nHeart-shaped bites that leave rosy
+    \u201Ckiss marks\u201D on monster noses."
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 0
   price: 1
   nutritionValue: 2
+  itemImgs:
+  - {fileID: 3280087702915194715, guid: 52498d519dff565478aeb1ccec44fcda, type: 3}
+  skeletonDataAsset: {fileID: 0}

@@ -14,7 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterName: Mushkino
   id: 100
-  description: 
+  description: "A bigger mushroom guardian with tiny legs that move FAST. Same adorable
+    caretaker behavior as Mushkina.  Auto-feeds pets (deducts coins automatically)\u2022
+    Auto-collects dropped coins\u2022 Auto-interacts/pokes pets when Happiness goes
+    down Mushkino is the \u201Crunning\u201D version much faster at feeding & collecting.
+    Progression: Unlocks only after Mushkina is owned. Also upgrades the Station
+    Post to the 2-Flower version."
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 12
+  - anyTypeMonster: 0
+    monsterType: 5
+    minimumRequirements: 1
   monType: 5
   poopType: 1
   moveSpd: 100
@@ -65,10 +77,11 @@ MonoBehaviour:
   evolutionBehaviors:
   - evolutionLevel: 1
     behaviorConfig: {fileID: 11400000, guid: 3c0869c87e2ad4b419beda05f6631124, type: 2}
-  monsterPrice: 10
+  monsterPrice: 6000
   sellPriceStage1: 0
   sellPriceStage2: 0
   sellPriceStage3: 0
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

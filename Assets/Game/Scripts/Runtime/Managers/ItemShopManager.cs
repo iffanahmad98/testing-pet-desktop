@@ -77,19 +77,64 @@ public class ItemShopManager : MonoBehaviour
     {
         var item = card.itemData;
 
-        if (SaveSystem.TryBuyItem(item))
-        {
-            OnItemSelected(card);
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
 
-            // Refresh all inventory views when item is bought
-            ServiceLocator.Get<ItemInventoryUI>().StartPopulateAllInventories();
-            // Success message
-            ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
+        bool canBuyItem = false;
+
+        foreach (var required in item.monsterRequirements)
+        {
+            if (!required.anyTypeMonster)
+            {
+                for (int i = 0; i < required.minimumRequirements; i++)
+                {
+                    if (monsters.Count >= required.minimumRequirements)
+                    {
+                        if (required.monsterType != monsters[i].MonsterData.monType)
+                        {
+                            canBuyItem = false;
+                            break;
+                        }
+                        else
+                        {
+                            canBuyItem = true;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (monsters.Count >= required.minimumRequirements)
+                    canBuyItem = true;
+                else
+                    canBuyItem = false;
+            }
+        }
+
+        if (canBuyItem)
+        {
+            if (SaveSystem.TryBuyItem(item))
+            {
+                OnItemSelected(card);
+
+                // Refresh all inventory views when item is bought
+                ServiceLocator.Get<ItemInventoryUI>().StartPopulateAllInventories();
+                // Success message
+                ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
+            }
+            else
+            {
+                // Failure message
+                ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {item.itemName}!", 2f);
+            }
         }
         else
         {
-            // Failure message
-            ServiceLocator.Get<UIManager>().ShowMessage($"Not enough coins to buy {item.itemName}!", 2f);
+            Debug.Log("Minimum Requirement Monster not enough!");
         }
     }
 

@@ -14,9 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   biomeID: night_biome
   biomeName: Night
-  description: Description here.
-  price: 7
+  description: "Cool moonlit scenery with deep blues and calm, sleepy vibes. Visual
+    only (no gameplay changes).Best for players who love a cozy \u201Clate-night
+    cuddle\u201D atmosphere."
+  price: 1200
   thumbnail: {fileID: -6026290202229535829, guid: ef8c56371a9fd2a42a8775fa83b807bf, type: 3}
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 5
   skyBackground: {fileID: -4724065527059522205, guid: f9e6a923aaf701b42bcb461e6a5555ee, type: 3}
   skyObjects:
   - {fileID: 33214316413452072, guid: f9cee63d16dd2224aaf2da39064efd81, type: 3}

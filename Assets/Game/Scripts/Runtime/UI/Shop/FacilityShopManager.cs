@@ -95,7 +95,7 @@ public class FacilityShopManager : MonoBehaviour
                 card.OnCancelClicked = OnNPCCancel;
 
                 activeCards.Add(card);
-                StartCoroutine (card.nSetActiveAnim ());
+                StartCoroutine(card.nSetActiveAnim());
                 totalCount++;
             }
         }
@@ -195,13 +195,58 @@ public class FacilityShopManager : MonoBehaviour
     {
         var facility = card.FacilityData;
 
-        if (SaveSystem.TryPurchaseFacility(facility))
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+
+        bool canBuyItem = false;
+
+        foreach (var required in facility.monsterRequirements)
         {
-            ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{facility.name}'!");
+            if (!required.anyTypeMonster)
+            {
+                for (int i = 0; i < required.minimumRequirements; i++)
+                {
+                    if (monsters.Count >= required.minimumRequirements)
+                    {
+                        if (required.monsterType != monsters[i].MonsterData.monType)
+                        {
+                            canBuyItem = false;
+                            break;
+                        }
+                        else
+                        {
+                            canBuyItem = true;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (monsters.Count >= required.minimumRequirements)
+                    canBuyItem = true;
+                else
+                    canBuyItem = false;
+            }
+        }
+
+        if (canBuyItem)
+        {
+            if (SaveSystem.TryPurchaseFacility(facility))
+            {
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{facility.name}'!");
+            }
+            else
+            {
+                ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy facility!");
+            }
         }
         else
         {
-            ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy facility!");
+            Debug.Log("Minimum Requirement Monster not enough!");
         }
 
         SaveSystem.SaveAll();

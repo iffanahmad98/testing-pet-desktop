@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_cherry
   itemName: Cherry
-  itemImgs:
-  - {fileID: -7135974614427124191, guid: cb49dbb916ffd3a418d7771866e4cb59, type: 3}
-  description: Perfect for common buds type
+  description: 'Perfect for common buds type
+
+    Twin jingle-bells that clink in
+    the basket before a happy gulp.'
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 1
   price: 4
   nutritionValue: 12
+  itemImgs:
+  - {fileID: -7135974614427124191, guid: cb49dbb916ffd3a418d7771866e4cb59, type: 3}
+  skeletonDataAsset: {fileID: 0}

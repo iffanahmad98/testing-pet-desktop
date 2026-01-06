@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: med_aura_balance_serum
   itemName: Aura Balance Serum
-  itemImgs:
-  - {fileID: -5398443910084377389, guid: 821ce0254fdab3043954f8f840cfebfd, type: 3}
   description: "Effect: Stabilizes disrupted magical flow within the monster\u2019s
-    body."
+    body.\nApplication: Injected near the heart or upper spine."
   category: 1
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 1
   price: 4
   nutritionValue: 12
+  itemImgs:
+  - {fileID: -5398443910084377389, guid: 821ce0254fdab3043954f8f840cfebfd, type: 3}
+  skeletonDataAsset: {fileID: 0}

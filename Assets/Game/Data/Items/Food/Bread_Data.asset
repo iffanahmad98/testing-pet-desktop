@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_bread
   itemName: Bread
-  itemImgs:
-  - {fileID: -3202004631190316120, guid: 73074c9ffcadcd54290d52f3000fe181, type: 3}
   description: Pastel sandwich-pebbles that burst with coconut sparks.
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 3
+    minimumRequirements: 2
   price: 140
   nutritionValue: 700
+  itemImgs:
+  - {fileID: -3202004631190316120, guid: 73074c9ffcadcd54290d52f3000fe181, type: 3}
+  skeletonDataAsset: {fileID: 0}

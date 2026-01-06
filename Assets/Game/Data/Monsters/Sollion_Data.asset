@@ -15,6 +15,10 @@ MonoBehaviour:
   monsterName: Sollion
   id: sollion
   description: 
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 12
   monType: 1
   poopType: 1
   moveSpd: 110
@@ -102,6 +106,7 @@ MonoBehaviour:
   sellPriceStage1: 375
   sellPriceStage2: 750
   sellPriceStage3: 1500
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

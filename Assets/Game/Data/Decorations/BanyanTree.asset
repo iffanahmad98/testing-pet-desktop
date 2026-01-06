@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decorationID: banyanTree
   decorationName: Banyan Tree
-  description: Green tree that can make your scent more beautiful.
+  description: "A big friendly banyan tree shade, comfort, and \u201Cforest guardian\u201D
+    vibes.Makes your place feel like a peaceful jungle home where pets love to hang
+    out.Visual ambience only (no gameplay bonuses)."
   thumbnail: {fileID: 2732476558734019482, guid: 945163e363c157a46afd3b43decd8580, type: 3}
-  price: 50
+  price: 2500
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 5

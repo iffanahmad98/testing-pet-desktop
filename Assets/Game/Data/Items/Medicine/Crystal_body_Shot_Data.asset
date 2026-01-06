@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: med_crystal_body_shot
   itemName: Crystal body Shot
-  itemImgs:
-  - {fileID: 6281357866879334878, guid: f861ea24c65bc9847a973547a01cad21, type: 3}
-  description: 'Use: Makes the monster stronger and helps fight sickness.'
+  description: 'Use: Makes the monster stronger and helps fight sickness.
+
+    Ingredients:
+    magical fairy mushroom extract'
   category: 1
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 2
+    minimumRequirements: 1
   price: 5
   nutritionValue: 15
+  itemImgs:
+  - {fileID: 6281357866879334878, guid: f861ea24c65bc9847a973547a01cad21, type: 3}
+  skeletonDataAsset: {fileID: 0}

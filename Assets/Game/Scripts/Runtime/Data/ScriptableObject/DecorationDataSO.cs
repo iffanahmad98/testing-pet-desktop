@@ -8,4 +8,7 @@ public class DecorationDataSO : ScriptableObject
     public string description;
     public Sprite thumbnail;
     public int price;
+
+    [Header("Buying Requirements")]
+    public MonsterRequirements[] monsterRequirements;
 }

@@ -14,10 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: food_grapes
   itemName: Grapes
-  itemImgs:
-  - {fileID: -7467693729091053928, guid: 2da4ba024f2b8e64a969420eaeb8a383, type: 3}
-  description: Perfect for uncommon buds type and common bloom type.
+  description: 'Perfect for uncommon buds type and common bloom type.
+
+    Bite-sized
+    marbles strung in chains chomp the whole sparkle strand at once!'
   category: 0
   unlockRequirement: 0
+  monsterRequirements:
+  - anyTypeMonster: 0
+    monsterType: 1
+    minimumRequirements: 1
   price: 15
   nutritionValue: 50
+  itemImgs:
+  - {fileID: -7467693729091053928, guid: 2da4ba024f2b8e64a969420eaeb8a383, type: 3}
+  skeletonDataAsset: {fileID: 0}
