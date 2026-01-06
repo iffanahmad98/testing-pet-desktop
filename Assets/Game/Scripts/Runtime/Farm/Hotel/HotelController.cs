@@ -705,6 +705,10 @@ namespace MagicalGarden.Hotel
                 npc.hotelControlRef = this;
                 npc.AddRewardEvent (ClaimCoin);
                 StartCoroutine (npc.NPCHotelCleaning());
+            
+                Destroy (coinBubbleClone);
+                coinBubbleClone = null;
+                holdReward = false;
             }
         }
         #endregion
