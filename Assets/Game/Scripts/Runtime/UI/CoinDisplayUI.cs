@@ -11,38 +11,57 @@ public class CoinDisplayUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI mainCoinText;
     [SerializeField] private TextMeshProUGUI shopCoinText;
 
+    void Awake()
+    {
+        ServiceLocator.Register(this);
+    }
+
     void Start()
     {
-        if (MagicalGarden.Farm.CoinManager.Instance != null)
-        {
-            UpdateCoinText();
-        }
+        //Template Magical Garden
+        // if (MagicalGarden.Farm.CoinManager.Instance != null)
+        // {
+        //     UpdateCoinText();
+        // }
+
+        UpdateCoinText();
     }
 
     private void OnEnable()
     {
-        if (MagicalGarden.Farm.CoinManager.Instance != null)
-        {
-            MagicalGarden.Farm.CoinManager.Instance.OnCoinChanged += UpdateCoinText;
-            UpdateCoinText();
-        }
+        //Template MagicalGarden
+        // if (MagicalGarden.Farm.CoinManager.Instance != null)
+        // {
+        //     MagicalGarden.Farm.CoinManager.Instance.OnCoinChanged += UpdateCoinText;
+        //     UpdateCoinText();
+        // }
+
+        UpdateCoinText();
     }
 
     private void OnDisable()
     {
-        if (MagicalGarden.Farm.CoinManager.Instance != null)
-        {
-            MagicalGarden.Farm.CoinManager.Instance.OnCoinChanged -= UpdateCoinText;
-        }
+        //Template MagicalGarden
+        // if (MagicalGarden.Farm.CoinManager.Instance != null)
+        // {
+        //     MagicalGarden.Farm.CoinManager.Instance.OnCoinChanged -= UpdateCoinText;
+        // }
+
+        UpdateCoinText();
     }
 
-    private void UpdateCoinText()
+    public void UpdateCoinText()
     {
-        if (MagicalGarden.Farm.CoinManager.Instance == null)
-            return;
+        //Template MagicalGarden
+        // if (MagicalGarden.Farm.CoinManager.Instance == null)
+        //     return;
 
-        int coins = MagicalGarden.Farm.CoinManager.Instance.coins;
-        string displayText = coins >= 10000 ? "9999+" : coins.ToString("N0");
+        //int coins = MagicalGarden.Farm.CoinManager.Instance.coins;
+
+        int coins = CoinManager.Coins;
+        Debug.Log($"Update Coin = {coins}");
+        
+        string displayText = coins >= 10000 ? "9999+" : coins.ToString();
 
         if (mainCoinText != null)
             mainCoinText.text = displayText;
