@@ -5,6 +5,7 @@ using System;
 
 public class BiomeCardUI : MonoBehaviour
 {
+    public GameObject grayscaleObj;
     public TMP_Text nameText;
     public TMP_Text priceText;
     public Button selectButton;
@@ -14,6 +15,10 @@ public class BiomeCardUI : MonoBehaviour
     public Image highlightImage; // Optional highlight for selection
 
     public Image thumbnail;
+
+    [Header("Grayscaleable Components")]
+    public Material grayscaleMat;
+    public Image[] grayscaleImage;
 
     public Action<BiomeCardUI> OnSelected;
     public Action<BiomeCardUI> OnApplyClicked;
@@ -71,10 +76,30 @@ public class BiomeCardUI : MonoBehaviour
     {
         OnSelected?.Invoke(this);
     }
+
     public void SetCancelActive(bool isActive)
     {
         if (cancelButton != null)
             cancelButton.gameObject.SetActive(isActive);
     }
 
+    public void SetGrayscale(bool grayscale)
+    {
+        grayscaleObj.SetActive(grayscale);
+
+        if (grayscale)
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = grayscaleMat;
+            }
+        }
+        else
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = null;
+            }
+        }
+    }
 }

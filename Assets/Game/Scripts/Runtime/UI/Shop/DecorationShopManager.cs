@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DecorationShopManager : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class DecorationShopManager : MonoBehaviour
     public DecorationDatabaseSO decorations; // List of all available decorations
 
     private DecorationCardUI selectedCard;
+    private bool canBuyItem = false;
 
     private Queue<DecorationCardUI> cardPool = new Queue<DecorationCardUI>();
     private List<DecorationCardUI> activeCards = new List<DecorationCardUI>();
@@ -32,6 +34,8 @@ public class DecorationShopManager : MonoBehaviour
         instance = this;
         LoadListTreeDecoration1();
         InitializeCardPool();
+
+        ServiceLocator.Register(this);
     }
 
     private void Start()
@@ -73,6 +77,11 @@ public class DecorationShopManager : MonoBehaviour
         card.gameObject.SetActive(false);
         card.transform.SetAsLastSibling();
         cardPool.Enqueue(card);
+    }
+
+    public void RefreshItem()
+    {
+        RefreshDecorationCards();
     }
 
     private void RefreshDecorationCards()
@@ -123,9 +132,35 @@ public class DecorationShopManager : MonoBehaviour
             totalCount++;
         }
 
+        // Check requirement & grayscale
+        foreach (var card in activeCards)
+        {
+            if (card.DecorationData.monsterRequirements != null)
+            {
+                bool canBuy = CheckBuyingRequirement(card);
+                card.SetGrayscale(!canBuy);
+            }
+        }
+
+        // Sort: BUYABLE → TOP
+        var filtered = activeCards
+            .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
+            .ToList();
+
+        // Apply order to activeCards
+        activeCards.Clear();
+        activeCards.AddRange(filtered);
+
+        // Apply order to UI
+        for (int i = 0; i < activeCards.Count; i++)
+        {
+            activeCards[i].transform.SetSiblingIndex(i);
+        }
+
         // memberikan tombol terakhir treeDecoration1 (Pas awal load data + nampilkan menu)
         if (!treeDecoration1 && lastLoadTreeDecoration1 != "") { Debug.Log("Decoration Tree : " + lastLoadTreeDecoration1); treeDecoration1 = GetDecorationCardById(lastLoadTreeDecoration1); lastLoadTreeDecoration1 = ""; }
-        ClearInfo();
+        OnDecorationSelected(activeCards[0]);
+        //ClearInfo();
     }
 
 
@@ -182,46 +217,8 @@ public class DecorationShopManager : MonoBehaviour
     private void OnDecorationBuy(DecorationCardUI card)
     {
         var deco = card.DecorationData;
-
-        // Reference All Monster Player Have
-        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-
-        bool canBuyItem = false;
-
-        foreach (var required in deco.monsterRequirements)
-        {
-            if (!required.anyTypeMonster)
-            {
-                for (int i = 0; i < required.minimumRequirements; i++)
-                {
-                    if (monsters.Count >= required.minimumRequirements)
-                    {
-                        if (required.monsterType != monsters[i].MonsterData.monType)
-                        {
-                            canBuyItem = false;
-                            break;
-                        }
-                        else
-                        {
-                            canBuyItem = true;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                if (monsters.Count >= required.minimumRequirements)
-                    canBuyItem = true;
-                else
-                    canBuyItem = false;
-            }
-        }
-
-        if (canBuyItem)
+        
+        if (CheckBuyingRequirement(card))
         {
             if (SaveSystem.TryPurchaseDecoration(card.DecorationData))
             {
@@ -230,6 +227,9 @@ public class DecorationShopManager : MonoBehaviour
                 ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(card.DecorationData.decorationID);
                 DecorationUIFixHandler.SetDecorationStats(card.DecorationData.decorationID);
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought and applied '{deco.decorationName}'!");
+
+                // Update UI Coin Text
+                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
             }
             else
             {
@@ -249,6 +249,63 @@ public class DecorationShopManager : MonoBehaviour
 
 
 
+    }
+
+    private bool CheckBuyingRequirement(DecorationCardUI card)
+    {
+        var itemData = card.DecorationData;
+
+        if (itemData == null)
+            return false;
+
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+
+        // value to check if every index of Array/List is Eligible
+        int valid = 0;
+
+        // check every single current active monster to meet minimum requirement
+        foreach (var required in itemData.monsterRequirements)
+        {
+            if (!required.anyTypeMonster)
+            {
+                int requiredValue = 0;
+                for (int i = 0; i < monsters.Count; i++)
+                {
+                    if (required.monsterType == monsters[i].MonsterData.monType)
+                    {
+                        requiredValue++;
+                    }
+                }
+
+                if (requiredValue >= required.minimumRequirements)
+                {
+                    valid++;
+                }
+                else
+                {
+                    //Debug.Log($"{required.monsterType} Failed required value = {requiredValue}/{required.minimumRequirements}");
+                }
+            }
+            else
+            {
+                if (monsters.Count >= required.minimumRequirements)
+                {
+                    valid++;
+                }
+            }
+        }
+
+        if (valid == itemData.monsterRequirements.Length)
+        {
+            canBuyItem = true;
+        }
+        else
+        {
+            canBuyItem = false;
+        }
+
+        return canBuyItem;
     }
 
     private void ShowDecorationInfo(DecorationDataSO deco)

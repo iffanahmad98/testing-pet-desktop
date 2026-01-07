@@ -26,17 +26,24 @@ public class MonsterShopManager : MonoBehaviour
     private List<MonsterCardUI> cardPool = new List<MonsterCardUI>();
     private List<MonsterCardUI> activeCards = new List<MonsterCardUI>();
     private bool canBuyMonster = false;
+    private int indexTab = 0;
+
+    void Awake()
+    {
+        ServiceLocator.Register(this);
+    }
 
     private void Start()
     {
         rarityTabController.OnTabChanged += OnRarityTabChanged;
-        OnRarityTabChanged(0); // Default to "All"
+        OnRarityTabChanged(indexTab); // Default to "All"
         detailPanel.SetActive(false);
         ClearMonsterInfo();
     }
 
     private void OnRarityTabChanged(int index)
     {
+        indexTab = index;
         switch (index)
         {
             case 0:
@@ -52,7 +59,12 @@ public class MonsterShopManager : MonoBehaviour
         }
     }
 
-    private void ShowAllMonsters()
+    public void RefreshItem()
+    {
+        rarityTabController.OnTabChanged.Invoke(indexTab);
+    }
+
+    public void ShowAllMonsters()
     {
         if (monsterItemDatabase != null && monsterItemDatabase.allItems != null)
         {
@@ -71,10 +83,10 @@ public class MonsterShopManager : MonoBehaviour
 
     private void Populate(List<ItemDataSO> list)
     {
-        // Return all active cards to pool
         ReturnCardsToPool();
+        activeCards.Clear();
 
-        // Get or create cards for the list
+        // Create cards
         for (int i = 0; i < list.Count; i++)
         {
             MonsterCardUI card = GetCardFromPool();
@@ -85,16 +97,33 @@ public class MonsterShopManager : MonoBehaviour
             activeCards.Add(card);
         }
 
+        // Check requirement & grayscale
         foreach (var card in activeCards)
         {
             if (card.monsterItemData.monsterRequirements != null)
             {
-                CheckBuyingRequirement(card);
-                card.SetGrayscale(!canBuyMonster);
+                bool canBuy = CheckBuyingRequirement(card);
+                card.SetGrayscale(!canBuy);
             }
         }
 
-        ClearMonsterInfo(); // Reset info panel
+        // Sort: BUYABLE → TOP
+        var filtered = activeCards
+            .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
+            .ToList();
+
+        // Apply order to activeCards
+        activeCards.Clear();
+        activeCards.AddRange(filtered);
+
+        // Apply order to UI
+        for (int i = 0; i < activeCards.Count; i++)
+        {
+            activeCards[i].transform.SetSiblingIndex(i);
+        }
+
+        OnMonsterSelected(activeCards[0]);
+        //ClearMonsterInfo();
     }
 
     private MonsterCardUI GetCardFromPool()
@@ -112,6 +141,7 @@ public class MonsterShopManager : MonoBehaviour
         GameObject obj = Instantiate(monsterCardPrefab, monsterCardParent);
         MonsterCardUI card = obj.GetComponent<MonsterCardUI>();
         cardPool.Add(card);
+
         return card;
     }
 
@@ -142,9 +172,9 @@ public class MonsterShopManager : MonoBehaviour
 
     private void OnMonsterBuy(MonsterCardUI card)
     {
-        MonsterDataSO monsterItem = CheckBuyingRequirement(card);
+        MonsterDataSO monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
 
-        if (canBuyMonster)
+        if (CheckBuyingRequirement(card))
         {
             if (SaveSystem.TryBuyMonster(monsterItem))
             {
@@ -153,6 +183,12 @@ public class MonsterShopManager : MonoBehaviour
                 // Success message
                 ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monsterItem.name}!", 2f);
                 ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
+
+                // Update UI Coin Text
+                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
+
+                // Update Shop Item
+                RefreshItem();
             }
             else
             {
@@ -166,50 +202,61 @@ public class MonsterShopManager : MonoBehaviour
         }
     }
 
-    private MonsterDataSO CheckBuyingRequirement(MonsterCardUI card)
+    private bool CheckBuyingRequirement(MonsterCardUI card)
     {
         var monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
 
         if (monsterItem == null)
-            return null;
+            return false;
 
         // Reference All Monster Player Have
         var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
 
+        // value to check if every index of Array/List is Eligible
+        int valid = 0;
+
+        // check every single current active monster to meet minimum requirement
         foreach (var required in monsterItem.monsterRequirements)
         {
             if (!required.anyTypeMonster)
             {
-                for (int i = 0; i < required.minimumRequirements; i++)
+                int requiredValue = 0;
+                for (int i = 0; i < monsters.Count; i++)
                 {
-                    if (monsters.Count >= required.minimumRequirements)
+                    if (required.monsterType == monsters[i].MonsterData.monType)
                     {
-                        if (required.monsterType != monsters[i].MonsterData.monType)
-                        {
-                            canBuyMonster = false;
-                            break;
-                        }
-                        else
-                        {
-                            canBuyMonster = true;
-                        }
+                        requiredValue++;
                     }
-                    else
-                    {
-                        break;
-                    }
+                }
+
+                if (requiredValue >= required.minimumRequirements)
+                {
+                    valid++;
+                }
+                else
+                {
+                    //Debug.Log($"Failed required value = {requiredValue}/{required.minimumRequirements}");
                 }
             }
             else
             {
                 if (monsters.Count >= required.minimumRequirements)
-                    canBuyMonster = true;
-                else
-                    canBuyMonster = false;
+                {
+                    valid++;
+                }
             }
         }
 
-        return monsterItem;
+        if (valid == monsterItem.monsterRequirements.Length)
+        {
+            canBuyMonster = true;
+        }
+        else
+        {
+            canBuyMonster = false;
+        }
+
+        return canBuyMonster;
     }
 
     private void ShowMonsterInfo(ItemDataSO monster)

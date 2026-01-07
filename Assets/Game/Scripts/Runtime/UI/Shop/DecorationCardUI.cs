@@ -5,6 +5,7 @@ using System;
 
 public class DecorationCardUI : MonoBehaviour
 {
+    public GameObject grayscaleObj;
     public TMP_Text nameText;
     public TMP_Text priceText;
     public Button selectButton;
@@ -14,6 +15,10 @@ public class DecorationCardUI : MonoBehaviour
     public Image highlightImage;
 
     public Image thumbnail;
+
+    [Header("Grayscaleable Components")]
+    public Material grayscaleMat;
+    public Image[] grayscaleImage;
 
     public Action<DecorationCardUI> OnSelected;
     public Action<DecorationCardUI> OnApplyClicked;
@@ -78,5 +83,25 @@ public class DecorationCardUI : MonoBehaviour
     {
         if (cancelButton != null)
             cancelButton.gameObject.SetActive(isActive);
+    }
+
+    public void SetGrayscale(bool grayscale)
+    {
+        grayscaleObj.SetActive(grayscale);
+
+        if (grayscale)
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = grayscaleMat;
+            }
+        }
+        else
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = null;
+            }
+        }
     }
 }
