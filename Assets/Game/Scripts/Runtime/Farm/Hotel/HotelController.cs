@@ -81,16 +81,23 @@ namespace MagicalGarden.Hotel
         int holdCoin = 0;
         public bool holdReward = false; // this, HotelManager.cs
         
+        [Header ("Eligible Data")]
+        [SerializeField] HotelControllerEligibleDataSO eligibleDataSO;
+        [SerializeField] GameObject hotelPurchasePrefab;
+        [SerializeField] Color colorHotelUnlocked, colorHotelLocked;
+        GameObject hotelPurchase;
         [Header ("Vfx")]
+        public GameObject buyHotelRay;
         GameObject vfxRay;
+        
         [Header ("Data")]
         public int idHotel = 0; // HotelManager.cs
-        int offlineHappiness = 0;
         public bool isLocked = false;
         public HotelControllerData hotelControllerData;
+        int offlineHappiness = 0;
         PlayerConfig playerConfig;
         Dictionary <string, Action> dictionaryGenerateRequest = new Dictionary <string, Action> ();
-        [SerializeField] Color colorHotelUnlocked, colorHotelLocked;
+        
 
         [Header ("History")]
         IPlayerHistory iPlayerHistory;
@@ -687,6 +694,15 @@ namespace MagicalGarden.Hotel
             
         }
 
+        void InstantiateVfxBuy () {
+            Debug.Log ("Vfx Buy");
+            GameObject buyRay = GameObject.Instantiate (buyHotelRay);
+            buyRay.transform.SetParent (this.transform);
+            buyRay.transform.localPosition = new Vector3 (0,1.5f,0);
+            buyRay.transform.localEulerAngles = new Vector3 (-90,0,0);
+            buyRay.SetActive (true);
+        }
+
         void DestroyVfxClean () {
             Destroy (vfxRay);
         }
@@ -988,17 +1004,60 @@ namespace MagicalGarden.Hotel
         public void HotelLocked () { // HotelLocker.cs
             spriteRenderer = GetComponent<SpriteRenderer>();
             spriteRenderer.color = colorHotelLocked;
+            isLocked = true;
+            
         }
 
         public void HotelUnlocked () {
             spriteRenderer.color = colorHotelUnlocked;
+            isLocked = false;
         }
+
+        public void GiveOptionBuy () { // HotelLocker.cs
+            CheckAvailableToBuy ();
+        }
+
+        void CheckAvailableToBuy () {
+            if (isLocked && !hotelPurchase) {
+                    
+                if (eligibleDataSO.IsEligibleWithoutCoin ()) {
+                    GameObject purchaseParent = GameObject.Instantiate (hotelPurchasePrefab);
+                    Button purchaseButton = purchaseParent.transform.Find ("PurchaseButton").GetComponent <Button> ();
+                    if (eligibleDataSO.IsEligible ()) {
+                        purchaseButton.image.color = new Color (1,1,1,1);
+                        purchaseButton.onClick.AddListener (BuyHotelController);
+                    } else {
+                        purchaseButton.image.color = new Color (0.5f,0.5f,0.5f,1);
+                    }
+                    TMP_Text priceText = purchaseButton.transform.Find ("PriceText").GetComponent <TMP_Text> ();
+                    priceText.text = eligibleDataSO.GetPrice ().ToString ();
+                    purchaseParent.transform.SetParent (this.gameObject.transform);
+                    purchaseParent.transform.localPosition = new Vector3 (0, 1.5f,0);
+                    purchaseParent.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
+                    hotelPurchase = purchaseParent;
+                    hotelPurchase.SetActive (true);
+                }
+
+            }
+        }
+        
+        public void BuyHotelController () {
+            HotelManager.Instance.hotelLocker.BuyHotelController (this);
+            CoinManager.SpendCoins (eligibleDataSO.GetPrice ());
+            Destroy (hotelPurchase);
+            hotelPurchase = null;
+            InstantiateVfxBuy ();
+        }
+
+        
         #endregion
+       
         #region Debug
         public void SetTimePaused (bool value) { // HotelManager.cs = true, this = false.
             timePaused = value;
         }
         #endregion
+        
     }
 
 }

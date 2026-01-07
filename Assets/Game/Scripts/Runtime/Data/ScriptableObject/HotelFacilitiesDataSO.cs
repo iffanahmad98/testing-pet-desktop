@@ -24,11 +24,12 @@ public class HotelFacilitiesDataSO : ScriptableObject {
     public Vector3 facilitySpawnPosition;
     public Vector3 [] facilitySpawnPositions;
 
-    [Header ("Hotel Facilities Menu")]
+    [Header ("Eligibility (Hotel Facilities Menu)")]
     public List<EligibilityRuleSO> rules = new();
     public List <HiredEligibility> rulesHiredEligibility = new List <HiredEligibility> ();
 
-    public bool IsEligible()
+    #region Eligibility
+    public bool IsEligible() // untuk yang tidak ada tingkat
     { // HotelFacilitiesMenu.cs
         foreach (var rule in rules)
         {
@@ -38,7 +39,7 @@ public class HotelFacilitiesDataSO : ScriptableObject {
         return true;
     }
 
-    public bool IsHiredEligible (int target)
+    public bool IsHiredEligible (int target) // untuk yang ada tingkat (HiredEligibility)
     {
         foreach (var rule in rulesHiredEligibility[target].rules)
         {
@@ -48,6 +49,7 @@ public class HotelFacilitiesDataSO : ScriptableObject {
         return true;
     }
 
+    #endregion
     
 }
 

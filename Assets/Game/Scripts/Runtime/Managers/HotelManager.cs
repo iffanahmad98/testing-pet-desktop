@@ -13,7 +13,7 @@ namespace MagicalGarden.Manager
     public class HotelManager : MonoBehaviour
     {
         public static HotelManager Instance;
-        [SerializeField] HotelLocker hotelLocker;
+        public HotelLocker hotelLocker;
         [Header("Visual FX")]
         public GameObject cleaningVfx;
         public GameObject rayCleaningVfx;
@@ -65,16 +65,18 @@ namespace MagicalGarden.Manager
         private void Start()
         {
             playerConfig =  SaveSystem.PlayerConfig;
+            FindAllHotelRoom();
             StartCoroutine(InitializeAfterDelay());
         }
 
         IEnumerator InitializeAfterDelay()
         {
-            yield return new WaitForSeconds(1f);
+           // yield return new WaitForSeconds(1f);
+           yield return new WaitForSeconds (0.1f);
             emptyGuest.SetActive(false);
             PlayerPrefs.DeleteAll();
             PlayerPrefs.Save();
-            FindAllHotelRoom();
+            // FindAllHotelRoom();
             LoadLastDate();
             LoadGuestRequests();
             CheckGenerateGuestList();

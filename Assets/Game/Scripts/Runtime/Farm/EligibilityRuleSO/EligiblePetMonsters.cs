@@ -7,7 +7,7 @@ public class EligiblePetMonster : EligibilityRuleSO
 
     public override bool IsEligible()
     {
-        return  PlayerHistoryManager.instance.hotelRoomCompleted >= minPetMonster;
+        return  MonsterManager.instance.GetTotalMonstersEqualRequirements (true)>= minPetMonster;
     }
 
     public override string GetFailReason()

@@ -10,7 +10,7 @@ public class HotelLocker : MonoBehaviour
  public void StartSystem () {
     playerConfig = SaveSystem.PlayerConfig;
     CheckFirstTime ();
-    StartLock ();
+    RefreshLock ();
  }
  #region FirstTime
  void CheckFirstTime () {
@@ -20,7 +20,7 @@ public class HotelLocker : MonoBehaviour
     }
  }  
  #endregion
- void StartLock () {
+ void RefreshLock () {
     // Let's make all hotels locked first
     List<HotelController> hotelControllers = HotelManager.Instance.GetHotelControllers ();
     foreach (HotelController hotel in hotelControllers) {
@@ -31,6 +31,18 @@ public class HotelLocker : MonoBehaviour
     foreach (int id in playerConfig.listIdHotelOpen) {
         hotelControllers[id].HotelUnlocked ();
     }
- }
+
+    foreach (HotelController hotel in hotelControllers) {
+        hotel.GiveOptionBuy ();
+    }
+
+  }
+
+  public void BuyHotelController (HotelController hotelController) { // HotelController.cs
+    if (!playerConfig.listIdHotelOpen.Contains (hotelController.idHotel)) {
+        playerConfig.listIdHotelOpen.Add (hotelController.idHotel);
+    }
+    RefreshLock ();
+  }
 
 }
