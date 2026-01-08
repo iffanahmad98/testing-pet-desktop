@@ -92,7 +92,7 @@ namespace MagicalGarden.AI
         public override IEnumerator nChangeAreaPoints () {
             if (!hotelRequestDetector.IsHasHotelRequest () && !HotelGiftHandler.instance.IsAnyGifts ()) {
                 currentNPCAreaPointsSO = npcAreaPointsDatabase.GetRandomNPCAreaPointsSO ();
-            
+                
             // Debug.Log ("Current NPC Area Point : " + currentNPCAreaPointsSO);
                 
             }

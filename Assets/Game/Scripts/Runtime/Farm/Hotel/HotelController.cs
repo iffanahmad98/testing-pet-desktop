@@ -81,14 +81,26 @@ namespace MagicalGarden.Hotel
         int holdCoin = 0;
         public bool holdReward = false; // this, HotelManager.cs
         
+        [Header ("Eligible Data")]
+        [SerializeField] HotelControllerEligibleDataSO eligibleDataSO;
+        [SerializeField] GameObject hotelPurchasePrefab;
+        [SerializeField] Color colorHotelUnlocked, colorHotelLocked;
+        GameObject hotelPurchase;
         [Header ("Vfx")]
+        public GameObject buyHotelRay;
         GameObject vfxRay;
+        
         [Header ("Data")]
         public int idHotel = 0; // HotelManager.cs
+        public bool isLocked = false;
         public HotelControllerData hotelControllerData;
+        int offlineHappiness = 0;
         PlayerConfig playerConfig;
         Dictionary <string, Action> dictionaryGenerateRequest = new Dictionary <string, Action> ();
+        
 
+        [Header ("History")]
+        IPlayerHistory iPlayerHistory;
         [Header ("Debug")]
         bool timePaused = false;
         void Start()
@@ -108,6 +120,7 @@ namespace MagicalGarden.Hotel
             worldCanvas = MagicalGarden.Farm.UIManager.Instance.uIWorldNonScaleable; 
 
             playerConfig = SaveSystem.PlayerConfig;
+            iPlayerHistory = PlayerHistoryManager.instance as IPlayerHistory;
         }
         void Update()
         {
@@ -681,6 +694,15 @@ namespace MagicalGarden.Hotel
             
         }
 
+        void InstantiateVfxBuy () {
+            Debug.Log ("Vfx Buy");
+            GameObject buyRay = GameObject.Instantiate (buyHotelRay);
+            buyRay.transform.SetParent (this.transform);
+            buyRay.transform.localPosition = new Vector3 (0,1.5f,0);
+            buyRay.transform.localEulerAngles = new Vector3 (-90,0,0);
+            buyRay.SetActive (true);
+        }
+
         void DestroyVfxClean () {
             Destroy (vfxRay);
         }
@@ -693,6 +715,22 @@ namespace MagicalGarden.Hotel
 
         public void NPCAutoService (INPCHotelService npc) { // NPCRoboShroom.cs
             FulfillRequest (currentGuestRequestType, NPCService.NPCAutoService, npc);
+        }
+
+        public void NPCAutoClaimReward (INPCHotelService npc) { // NPCBellboyShroom.cs
+            if (holdReward) {
+               // ClaimCoin ();
+                string roomName = gameObject.name;
+                Debug.Log($" [NPC Claim Reward] mengirim pemain untuk mengambil reward");
+                
+                npc.hotelControlRef = this;
+                npc.AddRewardEvent (ClaimCoin);
+                StartCoroutine (npc.NPCHotelCleaning());
+            
+                Destroy (coinBubbleClone);
+                coinBubbleClone = null;
+                holdReward = false;
+            }
         }
         #endregion
         #region Random Guest Request Type
@@ -781,6 +819,8 @@ namespace MagicalGarden.Hotel
                 coinBubble.transform.localPosition += new Vector3 (0,10,0);
                 coinBubble.GetComponentInChildren <Button> ().onClick.AddListener (() => ClaimCoin ());
                 coinBubbleClone = coinBubble;
+
+                HotelManager.Instance.AddListHotelControllerHasReward (this);
             }
             
         }
@@ -804,13 +844,25 @@ namespace MagicalGarden.Hotel
             if (isDirty) {
                 SetCleanOnly ();
             }
-
+            HotelManager.Instance.RemoveListHotelControllerHasReward (this);
+            iPlayerHistory.SetHotelRoomCompleted (1);
+            
             playerConfig.RemoveHotelControllerData (hotelControllerData);
             SaveSystem.SaveAll ();
         }
         #endregion
         #region Data
-        public void LoadData (HotelControllerData data) { // HotelManager.cs
+        public void ChangeHappinessOffline (bool isIncrease) { // HotelManager.cs
+            if (isIncrease) {
+                Debug.Log ("Increase Happiness");
+                offlineHappiness += UnityEngine.Random.Range (4,10 +1); 
+            } else {
+                Debug.Log ("Decrease Happiness");
+                offlineHappiness -= UnityEngine.Random.Range (2,5);
+            }
+        }
+
+        public void LoadData (HotelControllerData data) { // HotelManager.cs (Debugging)
             hotelControllerData = data;
 
             isDirty = data.isDirty;
@@ -843,15 +895,36 @@ namespace MagicalGarden.Hotel
         }
 
         
-        // HotelManager.cs (Debugging)
+        // this
         public void LoadEventHappinessOffline (string codeRequest) {
+            if (offlineHappiness == 0) { // kurang dari 1 jam.
+                LoadEventCodeRequest (codeRequest);
+                
+            }
+            else {
+                happiness = Mathf.Clamp(happiness + offlineHappiness, 0, 100);
+                offlineHappiness = 0;
+                SetHappinessData ();
+                hotelControllerData.codeRequest = "";
+                if (happiness >0) {
+                    SaveSystem.SaveAll ();
+                } else {
+                    price = 0;
+                    CheckOutRoom ();
+                }
+            }
+
+            SetTimePaused (false);
+            /*
             TimeSpan diff = TimeManager.Instance.currentTime 
                             - SaveSystem.PlayerConfig.lastRefreshTimeHotel;
 
             double hours = diff.TotalHours;
 
             Debug.Log("Total Hours Happiness : " + hours.ToString () + TimeManager.Instance.currentTime.ToString ());
-            if (!playerConfig.HasHotelFacilityAndIsActive("robo_shroom")) {
+
+            int totalNPCService = playerConfig.GetTotalHiredService ();
+            if (totalNPCService > 0) {
                 if (hours >= 1)
                 {
                     int cycles = (int)(hours / 1.0); // 1 cycle setiap 1 jam
@@ -904,6 +977,7 @@ namespace MagicalGarden.Hotel
                 }
             }
             SetTimePaused (false);
+            */
         }
 
         void LoadEventCodeRequest (string value) {
@@ -926,11 +1000,64 @@ namespace MagicalGarden.Hotel
             playerConfig.HotelControllerDataChangeHappiness (idHotel, happiness);
         }
         #endregion
+        #region Locked
+        public void HotelLocked () { // HotelLocker.cs
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            spriteRenderer.color = colorHotelLocked;
+            isLocked = true;
+            
+        }
+
+        public void HotelUnlocked () {
+            spriteRenderer.color = colorHotelUnlocked;
+            isLocked = false;
+        }
+
+        public void GiveOptionBuy () { // HotelLocker.cs
+            CheckAvailableToBuy ();
+        }
+
+        void CheckAvailableToBuy () {
+            if (isLocked && !hotelPurchase) {
+                    
+                if (eligibleDataSO.IsEligibleWithoutCoin ()) {
+                    GameObject purchaseParent = GameObject.Instantiate (hotelPurchasePrefab);
+                    Button purchaseButton = purchaseParent.transform.Find ("PurchaseButton").GetComponent <Button> ();
+                    if (eligibleDataSO.IsEligible ()) {
+                        purchaseButton.image.color = new Color (1,1,1,1);
+                        purchaseButton.onClick.AddListener (BuyHotelController);
+                    } else {
+                        purchaseButton.image.color = new Color (0.5f,0.5f,0.5f,1);
+                    }
+                    TMP_Text priceText = purchaseButton.transform.Find ("PriceText").GetComponent <TMP_Text> ();
+                    priceText.text = eligibleDataSO.GetPrice ().ToString ();
+                    purchaseParent.transform.SetParent (this.gameObject.transform);
+                    purchaseParent.transform.localPosition = new Vector3 (0, 1.5f,0);
+                    purchaseParent.transform.SetParent (worldCanvas.GetComponent <RectTransform> ());
+                    hotelPurchase = purchaseParent;
+                    hotelPurchase.SetActive (true);
+                }
+
+            }
+        }
+        
+        public void BuyHotelController () {
+            HotelManager.Instance.hotelLocker.BuyHotelController (this);
+            CoinManager.SpendCoins (eligibleDataSO.GetPrice ());
+            Destroy (hotelPurchase);
+            hotelPurchase = null;
+            InstantiateVfxBuy ();
+        }
+
+        
+        #endregion
+       
         #region Debug
         public void SetTimePaused (bool value) { // HotelManager.cs = true, this = false.
             timePaused = value;
         }
         #endregion
+        
     }
 
 }

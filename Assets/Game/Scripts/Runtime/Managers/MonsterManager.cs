@@ -842,6 +842,21 @@ public class MonsterManager : MonoBehaviour
 
         return true;
     }
+
+    public int GetTotalMonstersEqualRequirements (bool anyRequirements, MonsterType monsterType = MonsterType.Common) { // EligiblePetMonster.cs
+        int result = 0;
+        foreach (MonsterController monsterController in activeMonsters) {
+            if (anyRequirements) {
+                result ++;
+            } else {
+                if (monsterController.MonsterData.monType == monsterType) {
+                    result ++;
+                }
+            }
+        }
+
+        return result;
+    }
     #endregion
 
     #region Lifecycle Events

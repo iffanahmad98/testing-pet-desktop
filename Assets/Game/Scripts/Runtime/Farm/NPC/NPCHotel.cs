@@ -13,6 +13,8 @@ namespace MagicalGarden.AI
         public HotelController hotelControlRef { get; set; }
         public Action<int> finishEvent;
         int finishEventValue;
+        public Action rewardEvent;
+        string codeEvent = "";
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -35,14 +37,22 @@ namespace MagicalGarden.AI
             HotelManager.Instance.AddNPCHotelAvailable (this);
         }
 
-
-        
-
         public void AddFinishEventHappiness(Action<int> callback, int value)
         {
-            finishEvent = null;      // clear semua listener sebelumnya
+            ClearAllEvent ();      // clear semua listener sebelumnya
             finishEvent += callback; // tambah listener baru
             finishEventValue = value;
+        }
+
+        public void AddRewardEvent(Action callback)
+        {    
+            ClearAllEvent (); // clear semua listener sebelumnya
+            rewardEvent += callback; // tambah listener baru
+        }
+
+        void ClearAllEvent () {
+            finishEvent = null;
+            rewardEvent = null;
         }
 
         public IEnumerator NPCHotelCleaning()
@@ -65,7 +75,9 @@ namespace MagicalGarden.AI
 
             // 2. Timer countdown (bisa sambil munculkan efek/animasi jika perlu)
            // HotelManager.Instance.CallCleaningVFX(hotelControlRef.dustPos);
-           hotelControlRef.InstantiateVfxDust ();
+           if (finishEvent != null) { 
+            hotelControlRef.InstantiateVfxDust ();
+           }
             float timer = 0f;
             while (timer < cleanDuration)
             {

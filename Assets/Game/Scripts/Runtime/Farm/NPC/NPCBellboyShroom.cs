@@ -22,9 +22,9 @@ namespace MagicalGarden.AI
                 isOverridingState = false;
             }
 
-            if (hotelRequestDetector.IsHasHotelRequest ()) {
+            if (hotelRequestDetector.IsHasHotelRequest () || IsHasHotelReward ()) {
                 List<HotelController> listHotelController = hotelRequestDetector.GetListHotelController();
-
+                List<HotelController> listHotelReward = HotelManager.Instance.GetListHotelControllerHasReward ();
                 Transform origin = transform; // posisi NPC / player
 
                 float nearestDistance = float.MaxValue;
@@ -45,15 +45,36 @@ namespace MagicalGarden.AI
                     }
                 }
 
-              if (nearestTargetType == NearestTargetType.Hotel) {
+                foreach (HotelController hotel in listHotelReward)
+                {
+                    if (hotel == null) continue;
+
+                    float dist = Vector3.Distance(origin.position, hotel.transform.position);
+                    if (dist < nearestDistance)
+                    {
+                        nearestDistance = dist;
+                        nearestTarget = hotel.transform;
+                        nearestTargetType = NearestTargetType.Reward;
+                    }
+                }
+
+                if (nearestTargetType == NearestTargetType.Hotel) {
                     HotelController hotelController = nearestTarget.GetComponent <HotelController> ();
                     hotelControlRef = hotelController;
                     isServingRoom = true;
-                    Debug.Log ("Hotel Robo Target Position : " + hotelController.gameObject.name);
+                    // Debug.Log ("Hotel Robo Target Position : " + hotelController.gameObject.name);
                     isOverridingState = true; // di overridingState duluan, karena default dari NPCCleaning ada jeda waktu untuk move target.
                     hotelRequestDetector.RemoveSpecificHotelControllerHasRequest (hotelController);
                     hotelController.NPCAutoService (this);
                     
+                } else if (nearestTargetType == NearestTargetType.Reward) {
+                    HotelController hotelController = nearestTarget.GetComponent <HotelController> ();
+                    hotelControlRef = hotelController;
+                    isServingRoom = true;
+                    // Debug.Log ("Hotel Robo Target Position : " + hotelController.gameObject.name);
+                    isOverridingState = true; // di overridingState duluan, karena default dari NPCCleaning ada jeda waktu untuk move target.
+                    HotelManager.Instance.RemoveListHotelControllerHasReward (hotelController);
+                    hotelController.NPCAutoClaimReward (this);
                 }
             } else {
                 StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[UnityEngine.Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
@@ -66,7 +87,7 @@ namespace MagicalGarden.AI
         }
 
         public override IEnumerator nChangeAreaPoints () {
-            if (!hotelRequestDetector.IsHasHotelRequest ()) {
+            if (!hotelRequestDetector.IsHasHotelRequest () && !IsHasHotelReward ()) {
                 currentNPCAreaPointsSO = npcAreaPointsDatabase.GetRandomNPCAreaPointsSO ();
             // Debug.Log ("Current NPC Area Point : " + currentNPCAreaPointsSO);
             }
@@ -75,5 +96,9 @@ namespace MagicalGarden.AI
             
             StartCoroutine (nChangeAreaPoints ());
         }
+
+        bool IsHasHotelReward () {
+            return HotelManager.Instance.IsHasHotelReward ();
+        } 
     }
 }

@@ -15,6 +15,10 @@ public class PlayerConfig
     public int rareEgg = 0;
     public int hotelGift = 0;
 
+    public int hotelRoomCompleted =0;
+    public int harvestFruit = 0;
+    public int harvestEggMonsters = 0;
+
     public string lastLoginTimeString;
     public string totalPlayTimeString;
 
@@ -42,6 +46,7 @@ public class PlayerConfig
     public List <int> listHotelGoldenTickets = new List <int> ();
     public List <int> listHotelNormalEggs = new List <int> ();
     public List <int> listHotelRareEggs = new List <int> ();
+    public List <int> listIdHotelOpen = new List <int> (); // HotelLocker.cs
     public DateTime lastRefreshTimeHotelGoldenTickets;
     public DateTime lastRefreshTimeNormalEggs;
     public DateTime lastRefreshTimeRareEggs;
@@ -71,6 +76,7 @@ public class PlayerConfig
         NormalEgg.instance.LoadLoot (normalEgg);
         RareEgg.instance.LoadLoot (rareEgg);
         HotelGift.instance.LoadLoot (hotelGift);
+        PlayerHistoryManager.instance.GetLoadPlayerConfig (hotelRoomCompleted,harvestFruit,harvestEggMonsters);
     }
 
     public void SyncGuestRequestData () {
@@ -325,7 +331,7 @@ public class PlayerConfig
         }
     }
 
-    OwnedHotelFacilityData GetHotelFacilityData (string dataId) {
+    public OwnedHotelFacilityData GetHotelFacilityData (string dataId) {
         foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
             if (data.id == dataId) {
                 return data;
@@ -347,6 +353,17 @@ public class PlayerConfig
             if (data.id == dataId) return data;
         }
         return null;
+    }
+
+    public int GetTotalHiredService () { // HotelController.cs
+        int result = 0;
+        foreach (HiredHotelFacilityData data in hiredHotelFacilityData) {
+            if (data.id == "robo_shroom" || data.id == "bellboy_shroom") {
+                result += data.hired;
+            }
+        }
+
+        return result;
     }
     #endregion
     #region Hotel Gift World

@@ -25,6 +25,8 @@ namespace MagicalGarden.AI
         public HotelController hotelControlRef { get; set; }
         public Action<int> finishEvent;
         int finishEventValue;
+
+        public Action rewardEvent;
         [HideInInspector] public bool isServingRoom = false;
         
         [HideInInspector] public NPCAreaPointsSO currentNPCAreaPointsSO;
@@ -193,6 +195,7 @@ namespace MagicalGarden.AI
         #region NPCRoboShroom
 
         void PatrolingRobo () {
+            currentNPCAreaPointsSO = npcAreaPointsDatabase.GetRandomNPCAreaPointsSO ();
             StartCoroutine (service.nChangeAreaPoints ());
             StartCoroutine (service.nCheckAreaPosition ());
         }
@@ -337,9 +340,20 @@ namespace MagicalGarden.AI
         #region Service Features
         public void AddFinishEventHappiness(Action<int> callback, int value)
         {
-            finishEvent = null;      // clear semua listener sebelumnya
+            ClearAllEvent ();      // clear semua listener sebelumnya
             finishEvent += callback; // tambah listener baru
             finishEventValue = value;
+        }
+
+        public void AddRewardEvent(Action callback)
+        {
+            ClearAllEvent ();// clear semua listener sebelumnya
+            rewardEvent += callback; // tambah listener baru
+        }
+
+        void ClearAllEvent () {
+            finishEvent = null;
+            rewardEvent = null;
         }
 
         public IEnumerator NPCHotelCleaning()
@@ -361,7 +375,9 @@ namespace MagicalGarden.AI
 
             // 2. Timer countdown (bisa sambil munculkan efek/animasi jika perlu)
            // HotelManager.Instance.CallCleaningVFX(hotelControlRef.dustPos);
-           hotelControlRef.InstantiateVfxDust ();
+           if (finishEvent != null) { 
+            hotelControlRef.InstantiateVfxDust ();
+           }
             float timer = 0f;
             while (timer < cleanDuration)
             {
@@ -385,6 +401,7 @@ namespace MagicalGarden.AI
             yield return new WaitForSeconds(2);
             GetComponent<MeshRenderer>().enabled = true;
             finishEvent?.Invoke(finishEventValue);
+            rewardEvent?.Invoke ();
             // 5. Lanjut wander 
             isServingRoom = false;
             isOverridingState = false;
@@ -397,7 +414,8 @@ namespace MagicalGarden.AI
         {
             None,
             Gift,
-            Hotel
+            Hotel,
+            Reward,
         }
     }
 }

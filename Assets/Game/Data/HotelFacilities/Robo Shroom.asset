@@ -19,4 +19,22 @@ MonoBehaviour:
   facilityPrefab: {fileID: 8081953010715517390, guid: 2dd49906e7e03c74daa48c58fdeb468e, type: 3}
   facilityLocalPosition: {x: 0, y: 0, z: 1}
   facilityLocalScale: {x: 0.75, y: 0.75, z: 0.75}
-  facilitySpawnPosition: {x: 177.5446, y: 34.02, z: 0}
+  facilitySpawnPosition: {x: 173.21, y: 32.27, z: 0}
+  facilitySpawnPositions:
+  - {x: 173.21, y: 32.27, z: 0}
+  - {x: 180.59, y: 25.19, z: 0}
+  - {x: 161.3, y: 25.19, z: 0}
+  rules: []
+  rulesHiredEligibility:
+  - hired: 0
+    rules:
+    - {fileID: 11400000, guid: 28f076d55e68d9e43ba89daac11c52a5, type: 2}
+    - {fileID: 11400000, guid: 2fc21ef9e7ac0614cbeb6794fc1add08, type: 2}
+  - hired: 1
+    rules:
+    - {fileID: 11400000, guid: 1cfde9f38ae698f4a9e0541d2f501e33, type: 2}
+    - {fileID: 11400000, guid: 2fc21ef9e7ac0614cbeb6794fc1add08, type: 2}
+  - hired: 2
+    rules:
+    - {fileID: 11400000, guid: dcffe45ea51deab4498e45e118f00697, type: 2}
+    - {fileID: 11400000, guid: 2fc21ef9e7ac0614cbeb6794fc1add08, type: 2}
