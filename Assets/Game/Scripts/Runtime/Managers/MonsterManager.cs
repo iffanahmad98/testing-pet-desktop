@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using UnityEngine.UI;
+using System;
 
 public class MonsterManager : MonoBehaviour
 {
@@ -57,6 +58,7 @@ public class MonsterManager : MonoBehaviour
     [SerializeField] private Button spawnNPC2;
 
     public System.Action<int> OnPoopChanged;
+    public System.Action OnPetMonsterChanged;
     #endregion
 
     #region Initialization and Setup
@@ -248,6 +250,7 @@ public class MonsterManager : MonoBehaviour
         {
             activeMonsters.Add(monster);
         }
+        OnPetMonsterChanged?.Invoke ();
     }
 
     public void RemoveSavedMonsterID(string monsterID)
@@ -255,6 +258,8 @@ public class MonsterManager : MonoBehaviour
         activeMonsters.RemoveAll(m => m.monsterID == monsterID);
         savedMonIDs.Remove(monsterID);
         SaveSystem.SaveMonIDs(savedMonIDs);
+
+        OnPetMonsterChanged?.Invoke ();
     }
 
     public void AddSavedMonsterID(string monsterID)
@@ -551,7 +556,7 @@ public class MonsterManager : MonoBehaviour
                 return testPos;
 
             // Try a random nearby position
-            Vector2 randomOffset = Random.insideUnitCircle * (minDistance * 2f);
+            Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * (minDistance * 2f);
             testPos = preferredPos + randomOffset;
 
             // Keep within game area bounds
@@ -620,6 +625,8 @@ public class MonsterManager : MonoBehaviour
             _monsterPool.Enqueue(obj);
             activeMonsters.Remove(monsterController);
             npcMonsters.Remove(monsterController);
+
+            OnPetMonsterChanged?.Invoke ();
         }
         else if (obj.name.Contains("Poop"))
         {
@@ -939,5 +946,10 @@ public class MonsterManager : MonoBehaviour
         Debug.Log($"Time Skip Complete: Affected {activeMonsters.Count} monsters");
     }
 
+    #endregion
+    #region Event
+    public void AddEventPetMonsterChanged (Action value) { // HotelLocker.cs
+        OnPetMonsterChanged += value;
+    }
     #endregion
 }

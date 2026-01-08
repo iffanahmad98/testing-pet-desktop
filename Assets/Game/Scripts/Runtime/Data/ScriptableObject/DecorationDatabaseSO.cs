@@ -9,4 +9,8 @@ public class DecorationDatabaseSO : ScriptableObject
     {
         return allDecorations.Find(decoration => decoration.decorationID == id);
     }
+
+    public int GetTotalAllDecorations () { // RewawrdAnimator.cs 
+        return allDecorations.Count;
+    }
 }

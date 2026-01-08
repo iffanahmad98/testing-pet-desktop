@@ -4,15 +4,48 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
+
 public class RewardAnimator : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI rewardAmountText;
-    [SerializeField] private int minGoldReward = 20;
-    [SerializeField] private int maxGoldReward = 100;
+    [SerializeField] private int minGoldReward = 150;
+    [SerializeField] private int maxGoldReward = 500;
     [SerializeField] Button closeButton;
     [SerializeField] GameObject vfxShiny;
+    [SerializeField] Image rewardImage;
+    [SerializeField] Sprite coinSprite;
+    [SerializeField] Sprite goldenTicketSprite;
+    [SerializeField] Vector3 coinScale, goldenTicketScale;
     Animator animator;
+
     public Action closeBoxEvent;
+    public List <RewardTypeConfig> listRewardTypeConfig = new ();
+    [SerializeField] DecorationDatabaseSO decorationDatabase;
+
+    [Header ("Data")]
+    PlayerConfig playerConfig;
+    [Serializable]
+    public class RewardTypeConfig {
+        public RewardType rewardType;
+        public int weight;
+        public bool included = true;
+        public Rewardable [] rewardables; 
+       
+        public Rewardable GetRandomRewardable () {
+            return rewardables[UnityEngine.Random.Range (0,rewardables.Length)];
+        }
+    }
+
+    public enum RewardType {
+        Coin,
+        FoodPack,
+        Medicine,
+        GoldenTicket,
+        Decoration,
+        Fertilizer,
+    }
+
     void Start () {
         animator = GetComponentInChildren <Animator> ();
         closeButton.onClick.AddListener (CloseBox);
@@ -22,17 +55,38 @@ public class RewardAnimator : MonoBehaviour
 
    // HotelGiftExchangeMenu 
     public void OpenBox () {
+        playerConfig = SaveSystem.PlayerConfig;
+
         vfxShiny.gameObject.SetActive (true);
         closeButton.interactable = false;
         closeButton.gameObject.SetActive (true);
         animator.SetTrigger ("Open");
-        int goldAmount = UnityEngine.Random.Range (minGoldReward, maxGoldReward);
-        if (rewardAmountText != null)
+        
+
+        RewardTypeConfig rewardTypeConfig = GetRandomRewardTypeConfig();
+
+        switch (rewardTypeConfig.rewardType)
         {
-            rewardAmountText.text = goldAmount.ToString() + " GOLD";
+            case RewardType.Coin:
+                RewardCoin ();
+                break;
+            case RewardType.FoodPack:
+                RewardRewardable (rewardTypeConfig);
+                break;
+            case RewardType.Medicine:
+                RewardRewardable (rewardTypeConfig);
+                break;
+            case RewardType.GoldenTicket:
+                RewardGoldenTicket ();
+                break;
+            case RewardType.Decoration:
+                RewardRewardable (rewardTypeConfig);
+                break;
+            case RewardType.Fertilizer:
+                RewardRewardable (rewardTypeConfig);
+                break;
         }
-        SaveReward (goldAmount);
-        StartCoroutine (nCanClose ());
+        
     }
 
     IEnumerator nCanClose () {
@@ -53,6 +107,100 @@ public class RewardAnimator : MonoBehaviour
         closeBoxEvent += action;
     }
 
+    #region Reward Configuration
+    public RewardTypeConfig GetRandomRewardTypeConfig()
+{
+    RefreshIncluded();
+
+    Debug.Log("=== Reward Pool Debug ===");
+
+    int totalWeight = 0;
+
+    foreach (RewardTypeConfig c in listRewardTypeConfig)
+    {
+        Debug.Log($"{c} | included={c.included} | weight={c.weight}");
+
+        if (!c.included) continue;
+        if (c.weight <= 0) continue;
+
+        totalWeight += c.weight;
+    }
+
+    Debug.Log($"TotalWeight = {totalWeight}");
+
+    if (totalWeight <= 0)
+    {
+        Debug.LogError("No included reward with weight > 0");
+        return null;
+    }
+
+    int randomValue = UnityEngine.Random.Range(0, totalWeight);
+    int currentWeight = 0;
+
+    foreach (RewardTypeConfig c in listRewardTypeConfig)
+    {
+        if (!c.included || c.weight <= 0) continue;
+
+        currentWeight += c.weight;
+
+        if (randomValue < currentWeight)
+            return c;
+    }
+
+    return null;
+}
+
+
+
+    void RefreshIncluded () {
+        // Element 4 : Decoration
+        if (playerConfig.GetTotalOwnedDecorations () == decorationDatabase.GetTotalAllDecorations ()) {
+            listRewardTypeConfig[4].included = false;
+        } else {
+            listRewardTypeConfig[4].included = true;
+        }
+
+    }
+
+    #endregion
+    #region Reward Saving
+    void RewardCoin () {
+        int goldAmount = UnityEngine.Random.Range (minGoldReward, maxGoldReward);
+        if (rewardAmountText != null)
+        {
+            rewardAmountText.text = goldAmount.ToString() + " Gold";
+        }
+        rewardImage.sprite = coinSprite;
+        rewardImage.transform.localScale = coinScale;
+        SaveReward(goldAmount);
+        StartCoroutine(nCanClose());
+    }
+
+    void RewardGoldenTicket () {
+        int amount = 1;
+        if (rewardAmountText != null)
+        {
+            rewardAmountText.text = amount.ToString() + " Ticket";
+        }
+        rewardImage.sprite = goldenTicketSprite;
+         rewardImage.transform.localScale = goldenTicketScale;
+        GoldenTicket.instance.GetLoot (amount);
+        StartCoroutine(nCanClose());
+    }
+
+    void RewardRewardable (RewardTypeConfig rewardTypeConfig) {
+        Rewardable itemReward = rewardTypeConfig.GetRandomRewardable ();
+        int amount = 1;
+        if (rewardAmountText != null)
+        {
+            rewardAmountText.text = amount.ToString() + " " + itemReward.ItemName;
+        }
+        rewardImage.sprite = itemReward.RewardSprite;
+        rewardImage.transform.localScale = itemReward.RewardScale;
+        itemReward.RewardGotItem (amount);
+        StartCoroutine(nCanClose());
+    }
+    #endregion
     #region Data
     public void SaveReward (int coinAmount) {
         CoinManager.AddCoins (coinAmount);

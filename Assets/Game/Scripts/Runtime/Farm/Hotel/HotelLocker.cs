@@ -6,11 +6,17 @@ using MagicalGarden.Hotel;
 
 public class HotelLocker : MonoBehaviour
 {  // semua setup data tetap disini, karena PlayerConfig sudah kebanyakan
+ IPlayerHistory iPlayerHistory;
  PlayerConfig playerConfig;
- public void StartSystem () {
+ 
+ public void StartSystem () { // HotelManager.cs
+    iPlayerHistory = PlayerHistoryManager.instance;
     playerConfig = SaveSystem.PlayerConfig;
     CheckFirstTime ();
     RefreshLock ();
+    iPlayerHistory.AddHotelRoomCompletedChanged (RefreshGiveOptionBuy);
+    CoinManager.AddCoinChangedRefreshEvent (RefreshGiveOptionBuy);
+    MonsterManager.instance.AddEventPetMonsterChanged (RefreshGiveOptionBuy);
  }
  #region FirstTime
  void CheckFirstTime () {
@@ -37,6 +43,17 @@ public class HotelLocker : MonoBehaviour
     }
 
   }
+
+   void RefreshGiveOptionBuy () {
+        List<HotelController> hotelControllers = HotelManager.Instance.GetHotelControllers ();
+        if (playerConfig.listIdHotelOpen.Count < hotelControllers.Count) {
+            foreach (HotelController hotel in hotelControllers) {
+                if (hotel.GetIsLocked ()) {
+                    hotel.GiveOptionBuy ();
+                }
+            }
+        }
+   } 
 
   public void BuyHotelController (HotelController hotelController) { // HotelController.cs
     if (!playerConfig.listIdHotelOpen.Contains (hotelController.idHotel)) {

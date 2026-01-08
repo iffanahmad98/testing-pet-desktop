@@ -2,7 +2,7 @@ using UnityEngine;
 using Spine.Unity;
 
 [CreateAssetMenu(menuName = "Item/Item Data")]
-public class ItemDataSO : ScriptableObject
+public class ItemDataSO : Rewardable
 {
     [Header("Basic Info")]
     public string itemID; // Unique identifier for the item
@@ -22,4 +22,19 @@ public class ItemDataSO : ScriptableObject
     [Header("Visuals")]
     public Sprite[] itemImgs; // [0] base, [1+] rotten forms
     public SkeletonDataAsset skeletonDataAsset;
+
+    [Header ("Rewardable")]
+    public Vector3 rewardScale;
+    public override string ItemName => itemName;
+    public override Sprite RewardSprite => itemImgs[0];
+    public override Vector3 RewardScale => rewardScale;
+    #region Rewardable
+        
+    public override void RewardGotItem(int quantities)
+    {
+        Debug.Log($"You got item {itemName} x{quantities}");
+        SaveSystem.PlayerConfig.AddItem (itemID,category,quantities);
+        SaveSystem.SaveAll ();
+    }
+    #endregion
 }
