@@ -187,8 +187,13 @@ public class MonsterShopManager : MonoBehaviour
                 // Update UI Coin Text
                 ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
 
+                // Update List Monster Catalogue
+                if (ServiceLocator.Get<MonsterCatalogueListUI>() != null)
+                    ServiceLocator.Get<MonsterCatalogueListUI>().RefreshCatalogue();
+
                 // Update Shop Item
                 RefreshItem();
+                OnMonsterSelected(card);
             }
             else
             {

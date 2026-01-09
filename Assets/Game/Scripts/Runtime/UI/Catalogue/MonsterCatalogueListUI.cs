@@ -19,16 +19,26 @@ public class MonsterCatalogueListUI : MonoBehaviour
     private List<GameObject> activeItems = new List<GameObject>();
     private MonsterCatalogueItemUI currentSelectedItem;
 
+    void Awake()
+    {
+        ServiceLocator.Register(this);
+    }
+
     private void Start()
     {
         monsterManager = ServiceLocator.Get<MonsterManager>();
         InitializeItemPool();
-        RefreshCatalogue();
+        //RefreshCatalogue();
         
         // Subscribe to evolution events
         MonsterEvolutionHandler.OnMonsterEvolved += OnMonsterEvolved;
     }
-    
+
+    void OnEnable()
+    {
+        RefreshCatalogue();
+    }
+
     private void OnDestroy()
     {
         // Unsubscribe to prevent memory leaks

@@ -84,7 +84,7 @@ public class FacilityShopManager : MonoBehaviour
         }
 
         activeCards.Clear();
-        selectedCard = null;
+        //selectedCard = null;
 
         int totalCount = 0;
 
@@ -125,7 +125,6 @@ public class FacilityShopManager : MonoBehaviour
             }
         }
 
-        //Invoke(nameof(SortByBuyRequirement), 0.2f);
         SortByBuyRequirement();
         //ClearInfo();
     }
@@ -228,6 +227,7 @@ public class FacilityShopManager : MonoBehaviour
 
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Applied '{facility.facilityName}'!");
                 RefreshFacilityCards();
+                OnFacilitySelected(card);
                 return;
             }
 
@@ -244,6 +244,8 @@ public class FacilityShopManager : MonoBehaviour
             }
 
             RefreshFacilityCards();
+
+            OnFacilitySelected(card);
         }
     }
 
@@ -426,6 +428,8 @@ public class FacilityShopManager : MonoBehaviour
             facilityManager.CancelFacilityCooldown(facility.facilityID);
             ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled cooldown for '{facility.facilityName}'!");
             RefreshFacilityCards();
+
+            OnFacilitySelected(card);
         }
     }
 
@@ -433,8 +437,8 @@ public class FacilityShopManager : MonoBehaviour
 
     private void OnNPCSelected(FacilityCardUI card)
     {
-        if (selectedCard != null)
-            selectedCard.SetSelected(false);
+        // if (selectedCard != null)
+        //     selectedCard.SetSelected(false);
 
         selectedCard = card;
         selectedCard.SetSelected(true);
@@ -576,6 +580,8 @@ public class FacilityShopManager : MonoBehaviour
         RefreshNPCIdleFlower();
         RefreshFacilityCards();
         SaveSystem.SaveAll();
+
+        OnNPCSelected(card);
     }
 
     private void Update()
