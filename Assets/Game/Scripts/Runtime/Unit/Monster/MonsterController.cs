@@ -776,6 +776,10 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         SetHovered(true);
         OnHoverChanged?.Invoke(_isHovered);
         UI.OnHoverEnter();
+
+        //ServiceLocator.Get<TooltipController>().HoverEnter(monsterData.tooltipData, transform.position);
+        TooltipManager.Instance.StartHover(monsterData.tooltipData.infoData);
+
         _interactionHandler?.OnPointerEnter(eventData);
     }
 
@@ -784,6 +788,10 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         SetHovered(false);
         OnHoverChanged?.Invoke(_isHovered);
         UI.OnHoverExit();
+
+        //ServiceLocator.Get<TooltipController>().HoverExit(monsterData.tooltipData);
+        TooltipManager.Instance.EndHover();
+
         _interactionHandler?.OnPointerExit(eventData);
     }
 

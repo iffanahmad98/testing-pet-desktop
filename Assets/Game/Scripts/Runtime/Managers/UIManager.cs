@@ -33,6 +33,11 @@ public class UIManager : MonoBehaviour
     public Button closeCatalogueButton;
     public Button mainInventoryButton;
 
+    [Header("Buttons On Shop Panel")]
+    public Button catalogueShopButton;
+    public Button settingShopButton;
+    public Button helpShopButton;
+
     public TextMeshProUGUI messageText;
 
     [Header("Animation Settings")] [SerializeField]
@@ -145,6 +150,7 @@ public class UIManager : MonoBehaviour
         miniWindowButton?.onClick.AddListener(ToggleMiniWindowMode);
 
         settingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
+        settingShopButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, true));
         shopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, true));
         miniInventoryButton?.onClick.AddListener(() =>
         {
@@ -177,6 +183,7 @@ public class UIManager : MonoBehaviour
             }
         });
         catalogueButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
+        catalogueShopButton?.onClick.AddListener(() => FadePanel(CataloguePanel, CatalogueCanvasGroup, true));
 
         closeSettingsButton?.onClick.AddListener(() => FadePanel(SettingPanel, SettingCanvasGroup, false));
         closeShopButton?.onClick.AddListener(() => FadePanel(ShopPanel, ShopCanvasGroup, false));
@@ -191,10 +198,12 @@ public class UIManager : MonoBehaviour
         windowButton?.onClick.RemoveAllListeners();
         miniWindowButton?.onClick.RemoveAllListeners();
         settingsButton?.onClick.RemoveAllListeners();
+        settingShopButton?.onClick.RemoveAllListeners();
         shopButton?.onClick.RemoveAllListeners();
         closeSettingsButton?.onClick.RemoveAllListeners();
         closeShopButton?.onClick.RemoveAllListeners();
         catalogueButton?.onClick.RemoveAllListeners();
+        catalogueShopButton?.onClick.RemoveAllListeners();
         closeCatalogueButton?.onClick.RemoveAllListeners();
         miniInventoryButton?.onClick.RemoveAllListeners();
         mainInventoryButton?.onClick.RemoveAllListeners();
