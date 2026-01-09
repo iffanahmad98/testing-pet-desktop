@@ -3,7 +3,7 @@ using System;
 public static class CoinManager
 {
     public static event Action<int> OnCoinChanged;
-
+    public static event Action OnCoinChangedRefreshEvent;
     public static int Coins
     {
         get => SaveSystem.PlayerConfig != null 
@@ -21,8 +21,13 @@ public static class CoinManager
                 SaveSystem.PlayerConfig.coins = value;
                 SaveSystem.SaveAll();
                 OnCoinChanged?.Invoke(value);
+                OnCoinChangedRefreshEvent?.Invoke ();
             }
         }
+    }
+
+    public static void AddCoinChangedRefreshEvent (Action value) { // HotelController.cs
+        OnCoinChangedRefreshEvent += value;
     }
 
     public static void AddCoins(int amount)

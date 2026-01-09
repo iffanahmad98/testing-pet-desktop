@@ -300,6 +300,9 @@ public class PlayerConfig
         if (!HasDecoration(decorationID))
             ownedDecorations.Add(new OwnedDecorationData { decorationID = decorationID, isActive = isActive });
     }
+    public int GetTotalOwnedDecorations () { // RewardAnimator.cs
+        return ownedDecorations.Count;
+    }
     #endregion
     #region Hotel Facility Logic
     public bool HasHotelFacility(string id)

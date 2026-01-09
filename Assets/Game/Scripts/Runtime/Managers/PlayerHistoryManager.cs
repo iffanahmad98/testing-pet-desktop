@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
 {
@@ -10,6 +11,7 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
     public int harvestFruit = 0;
     public int harvestEggMonsters = 0;
 
+    public event Action OnHotelRoomCompletedChanged;
     void Awake () {
         instance = this;
     }
@@ -17,6 +19,11 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
     void Start () {
         playerConfig = SaveSystem.PlayerConfig;
     }
+    #region Event
+    public void AddHotelRoomCompletedChanged (Action actionValue) {
+        OnHotelRoomCompletedChanged += actionValue;
+    }
+    #endregion
     #region Load
     // PlayerConfig.cs
     public void GetLoadPlayerConfig (

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace MagicalGarden.Inventory
 {
     [CreateAssetMenu(fileName = "NewItem", menuName = "Inventory/Item")]
-    public class ItemData : ScriptableObject
+    public class ItemData : Rewardable
     {
         public string itemId;
         public string displayName;
@@ -31,5 +31,19 @@ namespace MagicalGarden.Inventory
         public int needHourWatering;
         public int needHourGrow;
         // [Header("Animation")]
+        [Header ("Rewardable")]
+        public Vector3 rewardScale = new Vector3 (1,1,1);
+        public override string ItemName => displayName;
+        public override Sprite RewardSprite => icon;
+        public override Vector3 RewardScale => rewardScale;
+        #region Rewardable
+        
+        public override void RewardGotItem(int quantities)
+        {
+            Debug.Log($"You got item {displayName} x{quantities} (Not save system yet)");
+           // SaveSystem.PlayerConfig.AddItem (itemId,itemType,quantities);
+           // SaveSystem.SaveAll ();
+        }
+        #endregion
     }
 }

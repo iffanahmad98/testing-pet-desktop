@@ -1038,6 +1038,16 @@ namespace MagicalGarden.Hotel
                     hotelPurchase.SetActive (true);
                 }
 
+            } else {
+                if (hotelPurchase) { // had Hotel Purchase button, but player dont has enough coin.
+                    Button purchaseButton = hotelPurchase.transform.Find ("PurchaseButton").GetComponent <Button> ();
+                    if (eligibleDataSO.IsEligible ()) {
+                        purchaseButton.image.color = new Color (1,1,1,1);
+                        purchaseButton.onClick.AddListener (BuyHotelController);
+                    } else {
+                        purchaseButton.image.color = new Color (0.5f,0.5f,0.5f,1);
+                    }
+                }
             }
         }
         
@@ -1048,10 +1058,11 @@ namespace MagicalGarden.Hotel
             hotelPurchase = null;
             InstantiateVfxBuy ();
         }
-
         
+        public bool GetIsLocked () { // hotelLocker
+            return isLocked;
+        }
         #endregion
-       
         #region Debug
         public void SetTimePaused (bool value) { // HotelManager.cs = true, this = false.
             timePaused = value;
