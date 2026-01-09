@@ -42,6 +42,7 @@ public class PlayerConfig
     public bool isCloudEnabled = false;
     public bool isAmbientEnabled = false;
     public bool isRainEnabled = false;
+    public bool isMondayReset = false;
 
     public List <int> listHotelGoldenTickets = new List <int> ();
     public List <int> listHotelNormalEggs = new List <int> ();
@@ -50,6 +51,7 @@ public class PlayerConfig
     public DateTime lastRefreshTimeHotelGoldenTickets;
     public DateTime lastRefreshTimeNormalEggs;
     public DateTime lastRefreshTimeRareEggs;
+    public DateTime lastGatchaTimeReset;
     
     public DateTime lastRefreshGenerateGuest;
     public List <GuestRequestData> listGuestRequestData = new List <GuestRequestData> ();

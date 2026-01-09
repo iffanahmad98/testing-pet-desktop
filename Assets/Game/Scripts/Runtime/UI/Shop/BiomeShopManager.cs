@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 public class BiomeShopManager : MonoBehaviour
 {
@@ -31,8 +32,12 @@ public class BiomeShopManager : MonoBehaviour
     private Queue<BiomeCardUI> cardPool = new Queue<BiomeCardUI>();
     private List<BiomeCardUI> activeCards = new List<BiomeCardUI>();
 
+    private bool canBuyMonster;
+
     private void Awake()
     {
+        ServiceLocator.Register(this);
+
         biomeParentRect = biomeParent.GetComponent<RectTransform>();
         originalBiomeParentHeight = biomeParentRect.sizeDelta.y;
 
@@ -102,6 +107,11 @@ public class BiomeShopManager : MonoBehaviour
         }
     }
 
+    public void RefreshItem()
+    {
+        RefreshBiomeCards();
+    }
+
     private void RefreshBiomeCards()
     {
         // Return all active cards to pool
@@ -124,8 +134,35 @@ public class BiomeShopManager : MonoBehaviour
             activeCards.Add(card);
         }
 
+        // Check requirement & grayscale
+        foreach (var card in activeCards)
+        {
+            if (card.BiomeData != null)
+            {
+                bool canBuy = CheckBuyingRequirement(card);
+                card.SetGrayscale(!canBuy);
+            }
+        }
+
+        // Sort: BUYABLE → TOP
+        var filtered = activeCards
+            .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
+            .ToList();
+
+        // Apply order to activeCards
+        activeCards.Clear();
+        activeCards.AddRange(filtered);
+
+        // Apply order to UI
+        for (int i = 0; i < activeCards.Count; i++)
+        {
+            activeCards[i].transform.SetSiblingIndex(i);
+        }
+
         AdjustBiomeParentHeight(biomes.allBiomes.Count);
-        ClearInfo();
+        
+        OnBiomeSelected(activeCards[0]);
+        //ClearInfo();
     }
     private void AdjustBiomeParentHeight(int biomeCount)
     {
@@ -214,49 +251,17 @@ public class BiomeShopManager : MonoBehaviour
     {
         var biome = card.BiomeData;
 
-        // Reference All Monster Player Have
-        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-
-        bool canBuyItem = false;
-
-        foreach (var required in biome.monsterRequirements)
-        {
-            if (!required.anyTypeMonster)
-            {
-                for (int i = 0; i < required.minimumRequirements; i++)
-                {
-                    if (monsters.Count >= required.minimumRequirements)
-                    {
-                        if (required.monsterType != monsters[i].MonsterData.monType)
-                        {
-                            canBuyItem = false;
-                            break;
-                        }
-                        else
-                        {
-                            canBuyItem = true;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                if (monsters.Count >= required.minimumRequirements)
-                    canBuyItem = true;
-                else
-                    canBuyItem = false;
-            }
-        }
-
-        if (canBuyItem)
+        if (CheckBuyingRequirement(card))
         {
             if (SaveSystem.TryBuyBiome(biome.biomeID, biome.price))
             {
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{biome.biomeName}'!");
+
+                // Update UI Coin Text
+                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
+
+                // Update Shop Item
+                //ServiceLocator.Get<RefreshShopItems>().RefreshAllShop();
             }
             else
             {
@@ -273,6 +278,64 @@ public class BiomeShopManager : MonoBehaviour
         OnBiomeSelected(card);
     }
 
+    private bool CheckBuyingRequirement(BiomeCardUI card)
+    {
+        var biome = card.BiomeData;
+
+        if (biome == null)
+            return false;
+
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+
+        // value to check if every index of Array/List is Eligible
+        int valid = 0;
+
+        // check every single current active monster to meet minimum requirement
+        foreach (var required in biome.monsterRequirements)
+        {
+            if (!required.anyTypeMonster)
+            {
+                int requiredValue = 0;
+                for (int i = 0; i < monsters.Count; i++)
+                {
+                    if (required.monsterType == monsters[i].MonsterData.monType)
+                    {
+                        requiredValue++;
+                    }
+                }
+
+                if (requiredValue >= required.minimumRequirements)
+                {
+                    valid++;
+                }
+                else
+                {
+                    Debug.Log($"{required.monsterType} Failed required value = {requiredValue}/{required.minimumRequirements}");
+                }
+            }
+            else
+            {
+                if (monsters.Count >= required.minimumRequirements)
+                {
+                    valid++;
+                }
+            }
+        }
+
+        if (valid == biome.monsterRequirements.Length)
+        {
+            canBuyMonster = true;
+        }
+        else
+        {
+            canBuyMonster = false;
+        }
+
+        Debug.Log(canBuyMonster);
+
+        return canBuyMonster;
+    }
 
     private void ShowBiomeInfo(BiomeDataSO biome)
     {

@@ -16,8 +16,12 @@ MonoBehaviour:
   itemName: Wolcissus
   description: A wolf pup mixed with narcissus flower vibes cool eyes, gentle heart.
     It tries to look fierce, but melts instantly when you give it affection.
-  category: 4
+  category: 3
   unlockRequirement: 12
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 4
   price: 400
   nutritionValue: 0
   itemImgs:

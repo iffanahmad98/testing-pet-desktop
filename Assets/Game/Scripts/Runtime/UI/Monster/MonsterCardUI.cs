@@ -15,6 +15,11 @@ public class MonsterCardUI : MonoBehaviour
     public SkeletonGraphic monsterGraphic;
     public Material monsterMaterial; // Optional: For custom material effects
 
+    [Header("Grayscaleable Components")]
+    public Material grayscaleMat;
+    public Image[] grayscaleImage;
+    public SkeletonGraphic grayscaleSkeleton;
+
     [Header("Data")] public ItemDataSO monsterItemData;
 
     private bool isSelected = false;
@@ -32,7 +37,7 @@ public class MonsterCardUI : MonoBehaviour
         if (buyButton != null)
             buyButton.onClick.AddListener(HandleBuy);
 
-        SetSelected(false);
+        //SetSelected(false);
     }
 
     public void Setup(ItemDataSO data)
@@ -104,6 +109,23 @@ public class MonsterCardUI : MonoBehaviour
     public void SetGrayscale(bool grayscale)
     {
         grayscaleObj.SetActive(grayscale);
+
+        if (grayscale)
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = grayscaleMat;
+            }
+            grayscaleSkeleton.material = grayscaleMat;
+        }
+        else
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = null;
+            }
+            grayscaleSkeleton.material = null;
+        }
     }
 
     bool HasAnimation(string animName)

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 public class FacilityCardUI : MonoBehaviour
 {
     [Header("UI References")]
+    public GameObject grayscaleObj;
     public TMP_Text nameText;
     public TMP_Text priceText;
     public Button selectButton;
@@ -19,6 +20,11 @@ public class FacilityCardUI : MonoBehaviour
     public Image thumbnail;
     public Image cooldownOverlay;
     public TMP_Text cooldownText;
+
+    [Header("Grayscaleable Components")]
+    public Material grayscaleMat;
+    public Image[] grayscaleImage;
+    
     [SerializeField] private SkeletonGraphic _anim;
     [SerializeField] private Animator _animator;
 
@@ -83,8 +89,11 @@ public class FacilityCardUI : MonoBehaviour
 
     public IEnumerator nSetActiveAnim () { // menghilangkan bug jamur ketarik.
         yield return null;
-         _anim.timeScale=1f;
-         AnimUtils.SetIdle(_anim);
+        if (_anim != null)
+        {
+            _anim.timeScale=1f;
+            AnimUtils.SetIdle(_anim);
+        }
     }
 
     public void SetupFacility(FacilityDataSO data)
@@ -282,5 +291,27 @@ public class FacilityCardUI : MonoBehaviour
 
         // Check if player owns the prerequisite NPC
         return SaveSystem.HasNPC(npcData.prerequisiteNPCId);
+    }
+
+    public void SetGrayscale(bool grayscale)
+    {
+        grayscaleObj.SetActive(grayscale);
+
+        if (grayscale)
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = grayscaleMat;
+            }
+            _anim.material = grayscaleMat;
+        }
+        else
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = null;
+            }
+            _anim.material = null;
+        }
     }
 }

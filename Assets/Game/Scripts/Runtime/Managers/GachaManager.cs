@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
 using TMPro;
+using MagicalGarden.Manager;
 
 [System.Serializable]
 public class RarityWeight
@@ -39,7 +40,7 @@ public class GachaManager : MonoBehaviour
     [Header("Gacha Configuration")]
     public MonsterDatabaseSO monsterDatabase;
     public List<RarityWeight> rarityWeights;
-    public int gachaCost = 1000;
+    public int gachaCost = 0;
 
     // Internal counters
     private int totalPullCount = 0;
@@ -64,6 +65,12 @@ public class GachaManager : MonoBehaviour
 
     [Header("UI References")]
     public GachaResultPanel gachaResultPanel;
+    public TextMeshProUGUI gachaPriceText;
+    public Image buyImage;
+    public Image coinImage;
+
+    [Header("Grayscale Components")]
+    public Material grayscaleMaterial;
 
     private void Awake()
     {
@@ -72,6 +79,28 @@ public class GachaManager : MonoBehaviour
         LoadPityCounters();
     }
 
+    void Start()
+    {
+        if (currentTotalPulls >= 7 && TimeManager.Instance.CheckIfMonday() && SaveSystem.PlayerConfig.isMondayReset == true)
+        {
+            SaveSystem.PlayerConfig.isMondayReset = false;
+        }
+        else
+        {
+            Debug.Log($"Cannot Reset Because: CurrentTotalPulls = {currentTotalPulls}, TimeManager.CheckIfMonday = {TimeManager.Instance.CheckIfMonday()}, and SaveSystem.IsMondayReset = {SaveSystem.PlayerConfig.isMondayReset}");
+        }
+
+        if (SaveSystem.PlayerConfig.isMondayReset == false)
+        {
+            Debug.Log($"Pertama kali login");
+
+            totalPullCount = 0;
+            TimeManager.Instance.ResetGatchaWeek();
+            SaveSystem.SetMondayReset();
+        }
+
+        UpdateGatchaCost();
+    }
 
     private void OnDestroy()
     {
@@ -95,15 +124,26 @@ public class GachaManager : MonoBehaviour
 
     public void RollGacha()
     {
+        Debug.Log($"this is gacha cost = {gachaCost}");
+
         if (!CoinManager.SpendCoins(gachaCost))
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);
             return;
         }
+        else if (totalPullCount >= 7)
+        {
+            ServiceLocator.Get<UIManager>().ShowMessage("Limit Gacha!", 1f);
+            return;
+        }
+
+        // Update UI Coin Text
+        ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
 
         // Increment total pull count
         totalPullCount++;
         IncrementAllPityCounters();
+        UpdateGatchaCost();
 
         Debug.Log($"[Pull #{totalPullCount}] Rolling gacha for {gachaCost} coins...");
 
@@ -307,6 +347,49 @@ public class GachaManager : MonoBehaviour
         }
     }
 
+    private void UpdateGatchaCost()
+    {
+        // Update Gacha Cost
+        if (currentTotalPulls < 1)
+        {
+            PlayerPrefs.SetInt("gachaPrice", 0);
+            gachaCost = PlayerPrefs.GetInt("gachaPrice");
+
+            gachaPriceText.text = "FREE!";
+            return;
+        }
+        else if (currentTotalPulls == 1)
+        {
+            PlayerPrefs.SetInt("gachaPrice", 200);
+        }
+        else if (currentTotalPulls < 7)
+        {
+            PlayerPrefs.SetInt("gachaPrice", PlayerPrefs.GetInt("gachaPrice") + 50);
+        }
+        else if (currentTotalPulls >= 7)
+        {
+            PlayerPrefs.SetInt("gachaPrice", 0);
+            
+            if (totalPullCount == 0)
+            {
+                gachaPriceText.text = "Free";
+                buyImage.material = null;
+                coinImage.enabled = false;
+            }
+            else
+            {
+                buyImage.material = grayscaleMaterial;
+                gachaPriceText.text = "";
+                coinImage.enabled = false;
+            }
+            return;
+        }
+
+        gachaCost = PlayerPrefs.GetInt("gachaPrice");
+        Debug.Log($"Gacha Cost Update = {gachaCost}");
+        gachaPriceText.text = gachaCost.ToString();
+    }
+
     private void OnValidate()
     {
         // Update display when in editor
@@ -319,6 +402,10 @@ public class GachaManager : MonoBehaviour
     private void SpawnMonster(MonsterDataSO monsterData)
     {
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
+
+        // Update List Monster Catalogue
+        if (ServiceLocator.Get<MonsterCatalogueListUI>() != null)
+            ServiceLocator.Get<MonsterCatalogueListUI>().RefreshCatalogue();
     }
 
     private void SellMonster(MonsterDataSO monsterData)

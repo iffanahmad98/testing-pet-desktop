@@ -153,6 +153,23 @@ public static class SaveSystem
         return DateTime.Now - _sessionStartTime;
     }
 
+    public static void SetMondayReset()
+    {
+        _playerConfig.isMondayReset = true;
+
+        SaveAll();
+    }
+
+    public static void SetLastGatchaTimeReset(DateTime time)
+    {
+        _playerConfig.lastGatchaTimeReset = time;
+    }
+
+    public static DateTime GetLastGachaTimeReset()
+    {
+        return _playerConfig.lastGatchaTimeReset;
+    }
+
     private static void UpdatePlayTime()
     {
         _playerConfig.totalPlayTime += GetCurrentSessionPlayTime();

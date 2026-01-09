@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
+using MagicalGarden.Farm;
 public class FacilityShopManager : MonoBehaviour
 {
     [Header("UI References")]
@@ -24,6 +26,7 @@ public class FacilityShopManager : MonoBehaviour
     private float originalFacilityParentHeight;
     private RectTransform facilityParentRect;
     private FacilityManager facilityManager;
+    private bool canBuyItem = false;
 
     private List<FacilityCardUI> activeCards = new List<FacilityCardUI>();
 
@@ -67,6 +70,11 @@ public class FacilityShopManager : MonoBehaviour
         }
     }
 
+    public void RefreshItem()
+    {
+        RefreshFacilityCards();
+    }
+
     public void RefreshFacilityCards()
     {
         // Destroy all existing cards
@@ -76,7 +84,7 @@ public class FacilityShopManager : MonoBehaviour
         }
 
         activeCards.Clear();
-        selectedCard = null;
+        //selectedCard = null;
 
         int totalCount = 0;
 
@@ -117,10 +125,57 @@ public class FacilityShopManager : MonoBehaviour
             }
         }
 
-        ClearInfo();
+        SortByBuyRequirement();
+        //ClearInfo();
     }
 
+    private void SortByBuyRequirement()
+    {
+        // Check requirement & grayscale
+        foreach (var card in activeCards)
+        {
+            if (card.FacilityData != null)
+            {
+                if (card.FacilityData.monsterRequirements != null)
+                {
+                    bool canBuy = CheckBuyingRequirement(card, false);
+                    card.SetGrayscale(!canBuy);
+                }
+            }
+            else if (card.npc != null)
+            {
+                if (card.npc.monsterRequirements != null)
+                {
+                    bool canBuy = CheckBuyingRequirement(card, true);
+                    card.SetGrayscale(!canBuy);
+                }
+            }
+        }
 
+        // Sort: BUYABLE → TOP
+        var filtered = activeCards
+            .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
+            .ToList();
+
+        // Apply order to activeCards
+        activeCards.Clear();
+        activeCards.AddRange(filtered);
+
+        // Apply order to UI
+        for (int i = 0; i < activeCards.Count; i++)
+        {
+            activeCards[i].transform.SetSiblingIndex(i);
+        }
+
+        if (activeCards[0].FacilityData != null)
+        {
+            OnFacilitySelected(activeCards[0]);
+        }
+        else if (activeCards[0].npc != null)
+        {
+            OnNPCSelected(activeCards[0]);
+        }
+    }
 
     private void ClearInfo()
     {
@@ -172,6 +227,7 @@ public class FacilityShopManager : MonoBehaviour
 
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Applied '{facility.facilityName}'!");
                 RefreshFacilityCards();
+                OnFacilitySelected(card);
                 return;
             }
 
@@ -188,6 +244,8 @@ public class FacilityShopManager : MonoBehaviour
             }
 
             RefreshFacilityCards();
+
+            OnFacilitySelected(card);
         }
     }
 
@@ -195,49 +253,14 @@ public class FacilityShopManager : MonoBehaviour
     {
         var facility = card.FacilityData;
 
-        // Reference All Monster Player Have
-        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-
-        bool canBuyItem = false;
-
-        foreach (var required in facility.monsterRequirements)
-        {
-            if (!required.anyTypeMonster)
-            {
-                for (int i = 0; i < required.minimumRequirements; i++)
-                {
-                    if (monsters.Count >= required.minimumRequirements)
-                    {
-                        if (required.monsterType != monsters[i].MonsterData.monType)
-                        {
-                            canBuyItem = false;
-                            break;
-                        }
-                        else
-                        {
-                            canBuyItem = true;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                if (monsters.Count >= required.minimumRequirements)
-                    canBuyItem = true;
-                else
-                    canBuyItem = false;
-            }
-        }
-
-        if (canBuyItem)
+        if (CheckBuyingRequirement(card, false))
         {
             if (SaveSystem.TryPurchaseFacility(facility))
             {
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{facility.name}'!");
+
+                // Update UI Coin Text
+                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
             }
             else
             {
@@ -252,6 +275,131 @@ public class FacilityShopManager : MonoBehaviour
         SaveSystem.SaveAll();
         RefreshFacilityCards();
         OnFacilitySelected(card);
+    }
+
+    private bool CheckBuyingRequirement(FacilityCardUI card, bool monsterData)
+    {
+        var facilityData = card.FacilityData;
+        var npcData = card.npc;
+
+        // if (facilityData == null)
+        //     return false;
+
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+
+        // value to check if every index of Array/List is Eligible
+        int valid = 0;
+
+        if (!monsterData)
+        {
+            // check every single current active monster to meet minimum requirement
+            foreach (var required in facilityData.monsterRequirements)
+            {
+                if (!required.anyTypeMonster)
+                {
+                    int requiredValue = 0;
+                    for (int i = 0; i < monsters.Count; i++)
+                    {
+                        if (required.monsterType == monsters[i].MonsterData.monType)
+                        {
+                            requiredValue++;
+                        }
+                    }
+
+                    if (requiredValue >= required.minimumRequirements)
+                    {
+                        valid++;
+                    }
+                    else
+                    {
+                        //Debug.Log($"{required.monsterType} Failed required value = {requiredValue}/{required.minimumRequirements}");
+                    }
+                }
+                else
+                {
+                    if (monsters.Count >= required.minimumRequirements)
+                    {
+                        valid++;
+                    }
+                }
+            }
+
+            if (valid == facilityData.monsterRequirements.Length)
+            {
+                canBuyItem = true;
+            }
+            else
+            {
+                canBuyItem = false;
+            }
+        }
+        else if (monsterData)
+        {
+            // Reference All Monster Player Have
+            var npcs = ServiceLocator.Get<MonsterManager>().npcMonsters;
+            // check every single current active monster to meet minimum requirement
+            foreach (var required in npcData.monsterRequirements)
+            {
+                if (!required.anyTypeMonster)
+                {
+                    int requiredValue = 0;
+                    for (int i = 0; i < monsters.Count; i++)
+                    {
+                        if (required.monsterType == monsters[i].MonsterData.monType)
+                        {
+                            requiredValue++;
+                        }
+                    }
+
+                    for (int i = 0; i < npcs.Count; i++)
+                    {
+                        if (required.monsterType == npcs[i].MonsterData.monType)
+                        {
+                            requiredValue++;
+                        }
+                    }
+
+                    if (requiredValue >= required.minimumRequirements)
+                    {
+                        valid++;
+                    }
+                    else
+                    {
+                        string npcID = GetNPCIDFromCard(card);
+
+                        Debug.Log(npcID);
+
+                        // Check if already owned
+                        if (SaveSystem.HasNPC(npcID))
+                        {
+                            ServiceLocator.Get<UIManager>()?.ShowMessage($"You already own '{npcData.monsterName}'!");
+                            valid++;
+                        }
+                        
+                        Debug.Log($"{required.monsterType} Failed required value = {requiredValue}/{required.minimumRequirements}");
+                    }
+                }
+                else
+                {
+                    if (monsters.Count >= required.minimumRequirements)
+                    {
+                        valid++;
+                    }
+                }
+            }
+
+            if (valid == npcData.monsterRequirements.Length)
+            {
+                canBuyItem = true;
+            }
+            else
+            {
+                canBuyItem = false;
+            }
+        }
+
+        return canBuyItem;
     }
 
     private void OnFacilityCancel(FacilityCardUI card)
@@ -280,6 +428,8 @@ public class FacilityShopManager : MonoBehaviour
             facilityManager.CancelFacilityCooldown(facility.facilityID);
             ServiceLocator.Get<UIManager>()?.ShowMessage($"Cancelled cooldown for '{facility.facilityName}'!");
             RefreshFacilityCards();
+
+            OnFacilitySelected(card);
         }
     }
 
@@ -287,8 +437,8 @@ public class FacilityShopManager : MonoBehaviour
 
     private void OnNPCSelected(FacilityCardUI card)
     {
-        if (selectedCard != null)
-            selectedCard.SetSelected(false);
+        // if (selectedCard != null)
+        //     selectedCard.SetSelected(false);
 
         selectedCard = card;
         selectedCard.SetSelected(true);
@@ -384,22 +534,31 @@ public class FacilityShopManager : MonoBehaviour
             }
         }
 
-        // Try to buy
-        if (SaveSystem.TryBuyMonster(npcData))
+        if (CheckBuyingRequirement(card, true))
         {
-            SaveSystem.AddNPC(npcID);
-            ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{npcData.monsterName}'!");
+            // Try to buy
+            if (SaveSystem.TryBuyMonster(npcData))
+            {
+                SaveSystem.AddNPC(npcID);
+                ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{npcData.monsterName}'!");
+                // Update UI Coin Text
+                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
 
-            // Refresh NPCIdleFlower ownership check (untuk update idle station availability)
-            RefreshNPCIdleFlower();
+                OnNPCUse(card);
 
-            // Refresh ALL facility cards (untuk update prerequisite check di cards lain)
-            RefreshFacilityCards();
+                // Refresh NPCIdleFlower ownership check (untuk update idle station availability)
+                RefreshNPCIdleFlower();
+
+                // Refresh ALL facility cards (untuk update prerequisite check di cards lain)
+                RefreshFacilityCards();
+            }
+            else
+            {
+                ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy NPC!");
+            }
         }
-        else
-        {
-            ServiceLocator.Get<UIManager>()?.ShowMessage("Not enough coins to buy NPC!");
-        }
+
+        RefreshItem();
 
         // Finalize
         SaveSystem.SaveAll();
@@ -421,6 +580,8 @@ public class FacilityShopManager : MonoBehaviour
         RefreshNPCIdleFlower();
         RefreshFacilityCards();
         SaveSystem.SaveAll();
+
+        OnNPCSelected(card);
     }
 
     private void Update()
@@ -454,6 +615,8 @@ public class FacilityShopManager : MonoBehaviour
             {
                 npcIdleFlower.RefreshNPCOwnership();
                 Debug.Log("NPCIdleFlower ownership refreshed after NPC purchase");
+
+                RefreshItem();
             }
             else
             {

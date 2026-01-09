@@ -5,12 +5,17 @@ using TMPro;
 public class ItemCardUI : MonoBehaviour
 {
     [Header("UI References")]
+    public GameObject grayscaleObj;
     public Image itemIcon;
     public TMP_Text itemNameText;
     public TMP_Text priceText;
     public Button selectButton;
     public Button buyButton;
     public Image highlightBorder; // Optional: For showing selection
+
+    [Header("Grayscaleable Components")]
+    public Material grayscaleMat;
+    public Image[] grayscaleImage;
 
     [Header("Data")]
     public ItemDataSO itemData;
@@ -28,7 +33,7 @@ public class ItemCardUI : MonoBehaviour
         if (buyButton != null)
             buyButton.onClick.AddListener(HandleBuy);
 
-        SetSelected(false);
+        //SetSelected(false);
     }
 
     public void Setup(ItemDataSO data)
@@ -68,5 +73,25 @@ public class ItemCardUI : MonoBehaviour
     public bool IsSelected()
     {
         return isSelected;
+    }
+
+    public void SetGrayscale(bool grayscale)
+    {
+        grayscaleObj.SetActive(grayscale);
+
+        if (grayscale)
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = grayscaleMat;
+            }
+        }
+        else
+        {
+            foreach(var img in grayscaleImage)
+            {
+                img.material = null;
+            }
+        }
     }
 }
