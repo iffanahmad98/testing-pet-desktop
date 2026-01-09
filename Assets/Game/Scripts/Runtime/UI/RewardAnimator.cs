@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
-
+using System.Linq;
 public class RewardAnimator : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI rewardAmountText;
@@ -20,11 +20,13 @@ public class RewardAnimator : MonoBehaviour
     Animator animator;
 
     public Action closeBoxEvent;
+    [Header ("Data")]
+    PlayerConfig playerConfig;
+
+    [Header ("RewardConfiguration")]
     public List <RewardTypeConfig> listRewardTypeConfig = new ();
     [SerializeField] DecorationDatabaseSO decorationDatabase;
 
-    [Header ("Data")]
-    PlayerConfig playerConfig;
     [Serializable]
     public class RewardTypeConfig {
         public RewardType rewardType;
@@ -34,6 +36,10 @@ public class RewardAnimator : MonoBehaviour
        
         public Rewardable GetRandomRewardable () {
             return rewardables[UnityEngine.Random.Range (0,rewardables.Length)];
+        }
+
+        public Rewardable GetSpecificRewardableById (string targetId) {
+            return rewardables.FirstOrDefault(r => r.ItemId == targetId);
         }
     }
 
@@ -80,7 +86,9 @@ public class RewardAnimator : MonoBehaviour
                 RewardGoldenTicket ();
                 break;
             case RewardType.Decoration:
-                RewardRewardable (rewardTypeConfig);
+                string targetId = decorationDatabase.GetRandomAvailableDecorationSO ().decorationID;
+                Rewardable reward = rewardTypeConfig.GetSpecificRewardableById (targetId);
+                RewardRewardable (rewardTypeConfig, reward);
                 break;
             case RewardType.Fertilizer:
                 RewardRewardable (rewardTypeConfig);
@@ -180,7 +188,7 @@ public class RewardAnimator : MonoBehaviour
         int amount = 1;
         if (rewardAmountText != null)
         {
-            rewardAmountText.text = amount.ToString() + " Ticket";
+            rewardAmountText.text = amount.ToString() + " Golden Ticket";
         }
         rewardImage.sprite = goldenTicketSprite;
          rewardImage.transform.localScale = goldenTicketScale;
@@ -188,8 +196,13 @@ public class RewardAnimator : MonoBehaviour
         StartCoroutine(nCanClose());
     }
 
-    void RewardRewardable (RewardTypeConfig rewardTypeConfig) {
-        Rewardable itemReward = rewardTypeConfig.GetRandomRewardable ();
+    void RewardRewardable (RewardTypeConfig rewardTypeConfig, Rewardable rewardable = null) {
+        Rewardable itemReward = rewardable;
+        if (!rewardable) {
+            itemReward = rewardTypeConfig.GetRandomRewardable ();
+        } else {
+            itemReward = rewardable;
+        }
         int amount = 1;
         if (rewardAmountText != null)
         {

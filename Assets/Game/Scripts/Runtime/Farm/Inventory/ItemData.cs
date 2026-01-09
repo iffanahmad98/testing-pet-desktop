@@ -33,6 +33,7 @@ namespace MagicalGarden.Inventory
         // [Header("Animation")]
         [Header ("Rewardable")]
         public Vector3 rewardScale = new Vector3 (1,1,1);
+        public override string ItemId => itemId;
         public override string ItemName => displayName;
         public override Sprite RewardSprite => icon;
         public override Vector3 RewardScale => rewardScale;

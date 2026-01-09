@@ -15,6 +15,7 @@ public class DecorationDataSO : Rewardable
 
     [Header ("Rewardable")]
     public Vector3 rewardScale;
+    public override string ItemId => decorationID;
     public override string ItemName => decorationName;
     public override Sprite RewardSprite => thumbnail;
     public override Vector3 RewardScale => rewardScale;
