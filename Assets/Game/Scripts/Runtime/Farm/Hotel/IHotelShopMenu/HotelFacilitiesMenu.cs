@@ -7,7 +7,7 @@ using Spine.Unity;
 using MagicalGarden.AI;
 [System.Serializable]
 public class HotelFacilitiesPodiumCard {
-    public Button buyButton;
+    public Button hireButtonOnce; // Dulu ini sebelumnya sistem buy 1x saja.
     public TMP_Text nameText;
     public TMP_Text priceText;
     public TMP_Text detailText;
@@ -18,7 +18,7 @@ public class HotelFacilitiesPodiumCard {
     public Button hireButton;
     public TMP_Text hiredText;
     public HotelFacilitiesDataSO facilityData;
-    public BaseEntityAI baseEntityAI;
+    public GameObject cloneAI;
 }
 
 public class HotelFacilitiesMenu : HotelShopMenuBase {
@@ -93,7 +93,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
         foreach (HotelFacilitiesDataSO data in database.allDatas) {
             GameObject podiumClone = GameObject.Instantiate (podiumCardPrefab);
             HotelFacilitiesPodiumCard newPodiumCard = new HotelFacilitiesPodiumCard {
-                buyButton = podiumClone.transform.Find ("BuyButton").GetComponent <Button> (),
+                hireButtonOnce = podiumClone.transform.Find ("HireButton (Once)").GetComponent <Button> (),
                 nameText = podiumClone.transform.Find ("Name").GetComponent <TMP_Text> (),
                 priceText = podiumClone.transform.Find ("Price").GetComponent <TMP_Text> (),
                 detailText = podiumClone.transform.Find ("DetailTab/DetailText").GetComponent <TMP_Text> (),
@@ -122,7 +122,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 string facilityId = card.facilityData.id;
 
                 // default state
-                card.buyButton.onClick.RemoveAllListeners();
+                card.hireButtonOnce.onClick.RemoveAllListeners();
                 card.appliedButton.gameObject.SetActive(false);
 
                 bool isMaximum = false;
@@ -147,7 +147,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 if (isMaximum)
                 {
                     // APPLIED STATE
-                  //  card.buyButton.gameObject.SetActive(false);
+                  //  card.hireButtonOnce.gameObject.SetActive(false);
                   //  card.hireButton.gameObject.SetActive(true);
                  //   card.hireButton.interactable = false;
                  //   card.priceText.gameObject.SetActive(false);
@@ -158,7 +158,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 {
                     // HIRE / BUY STATE
                  //   card.hireButton.gameObject.SetActive(true);
-                  //  card.buyButton.gameObject.SetActive(false);
+                  //  card.hireButtonOnce.gameObject.SetActive(false);
                  //   card.priceText.gameObject.SetActive(true);
                 //    card.coinTypeImage.gameObject.SetActive(true);
 
@@ -170,13 +170,13 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 
              } else {
                 if (SaveSystem.PlayerConfig.HasHotelFacility (listPodiumCard[index].facilityData.id)) {
-                    listPodiumCard[index].buyButton.gameObject.SetActive (false);
+                    listPodiumCard[index].hireButtonOnce.gameObject.SetActive (false);
                     listPodiumCard[index].priceText.gameObject.SetActive (false);
                     listPodiumCard[index].coinTypeImage.gameObject.SetActive (false);
                     listPodiumCard[index].appliedButton.gameObject.SetActive (true);
                 } else {
-                    listPodiumCard[index].buyButton.gameObject.SetActive (true);
-                    listPodiumCard[index].buyButton.onClick.AddListener(() => 
+                    listPodiumCard[index].hireButtonOnce.gameObject.SetActive (true);
+                    listPodiumCard[index].hireButtonOnce.onClick.AddListener(() => 
                         BuyFacilities(listPodiumCard[index], listPodiumCard[index].facilityData)
                     );
                     listPodiumCard[index].appliedButton.gameObject.SetActive (false);
@@ -195,13 +195,13 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
             listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.price.ToString ();
             listPodiumCard[i].detailText.text = listPodiumCard[i].facilityData.detailText;
             
-            GameObject facilityClone = GameObject.Instantiate (listPodiumCard[i].facilityData.facilityPrefab);
+            GameObject facilityClone = GameObject.Instantiate (listPodiumCard[i].facilityData.facilityUIPrefab);
             facilityClone.transform.SetParent (listPodiumCard[i].podium.transform);
-            facilityClone.transform.localPosition = listPodiumCard[i].facilityData.facilityLocalPosition;
-            facilityClone.transform.localScale = listPodiumCard[i].facilityData.facilityLocalScale;
+            facilityClone.transform.localPosition = listPodiumCard[i].facilityData.facilityUILocalPosition;
+            facilityClone.transform.localScale = listPodiumCard[i].facilityData.facilityUILocalScale;
             facilityClone.SetActive (true);
             
-            listPodiumCard[index].baseEntityAI = facilityClone.GetComponent <BaseEntityAI> ();
+            listPodiumCard[index].cloneAI = facilityClone;
             if (facilityClone.GetComponent <IsometricSpineSorting> ()) {
                 // facilityClone.GetComponent <SkeletonAnimation> ().sortingLayerName  = "MotionUI";
                SkeletonRenderer skeletonRenderer = facilityClone.GetComponent<SkeletonRenderer>();
@@ -233,26 +233,32 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
    }
 
    public void BuyFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
-    Debug.Log ("Facilities Price : " + data.price);
-    if (CoinManager.CheckCoins (data.price)) {
-        CoinManager.SpendCoins (data.price);
+        Debug.Log("Facilities Price : " + data.price);
 
-        SaveSystem.PlayerConfig.AddHotelFacilityData (data.id);
-        SaveSystem.SaveAll ();
-        
-        var state = podiumCard.baseEntityAI.skeleton.AnimationState;
-        // play jump sekali
-        state.SetAnimation(0, "jumping", false);
-        // setelah selesai, lanjut idle
-        state.AddAnimation(0, "idle", true, 0f);
+        if (CoinManager.CheckCoins(data.price)) {
+            CoinManager.SpendCoins(data.price);
 
-        SpawnHotelFacilities (data.id, true, HotelFacilitiesType.Single);
-        
-        foreach (HotelFacilitiesPodiumCard podium in listPodiumCard) {
-            CheckEligibleCard (podium, podium.facilityData);
+            SaveSystem.PlayerConfig.AddHotelFacilityData(data.id);
+            SaveSystem.SaveAll();
+
+            SkeletonGraphic skeletonGraphic =
+                podiumCard.cloneAI.GetComponent<SkeletonGraphic>();
+
+            if (skeletonGraphic != null) {
+                var state = skeletonGraphic.AnimationState;
+                state.SetAnimation(0, "jumping", false);
+                state.AddAnimation(0, "idle", true, 0f);
+                skeletonGraphic.Update(0);
+            }
+
+            SpawnHotelFacilities(data.id, true, HotelFacilitiesType.Single);
+
+            foreach (HotelFacilitiesPodiumCard podium in listPodiumCard) {
+                CheckEligibleCard(podium, podium.facilityData);
+            }
         }
     }
-   }
+
 
    public void HireFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
     Debug.Log ("Facilities Price : " + data.price);
@@ -262,11 +268,23 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
         SaveSystem.PlayerConfig.AddHiredHotelFacilityData (data.id, 1);
         SaveSystem.SaveAll ();
         
+        /*
         var state = podiumCard.baseEntityAI.skeleton.AnimationState;
         // play jump sekali
         state.SetAnimation(0, "jumping", false);
         // setelah selesai, lanjut idle
         state.AddAnimation(0, "idle", true, 0f);
+        */
+
+        SkeletonGraphic skeletonGraphic =
+                podiumCard.cloneAI.GetComponent<SkeletonGraphic>();
+
+        if (skeletonGraphic != null) {
+            var state = skeletonGraphic.AnimationState;
+            state.SetAnimation(0, "jumping", false);
+            state.AddAnimation(0, "idle", true, 0f);
+            skeletonGraphic.Update(0);
+        }
 
         SpawnHotelFacilities (data.id, true, HotelFacilitiesType.Multiple);
         podiumCard.hiredText.text = "Hired: " + SaveSystem.PlayerConfig.GetHiredHotelFacilityData (data.id).hired.ToString ();
@@ -299,26 +317,37 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
    public void ApplyFacilities (HotelFacilitiesPodiumCard podiumCard, HotelFacilitiesDataSO data) {
         SaveSystem.PlayerConfig.ChangeHotelFacilityData (data.id, true);
         SaveSystem.SaveAll ();
+        /*
         var state = podiumCard.baseEntityAI.skeleton.AnimationState;
         // play jump sekali
         state.SetAnimation(0, "jumping", false);
         // setelah selesai, lanjut idle
         state.AddAnimation(0, "idle", true, 0f);
+        */
+        SkeletonGraphic skeletonGraphic =
+                podiumCard.cloneAI.GetComponent<SkeletonGraphic>();
 
+        if (skeletonGraphic != null) {
+            var state = skeletonGraphic.AnimationState;
+            state.SetAnimation(0, "jumping", false);
+            state.AddAnimation(0, "idle", true, 0f);
+            skeletonGraphic.Update(0);
+        }
+        
         SpawnHotelFacilities (data.id, true, HotelFacilitiesType.Single);
    }
 
    void RefreshBuyButton (HotelFacilitiesPodiumCard podiumCard, string buttonCode) {
         if (buttonCode == "Applied") {
-            podiumCard.buyButton.gameObject.SetActive (false);
+            podiumCard.hireButtonOnce.gameObject.SetActive (false);
             podiumCard.appliedButton.gameObject.SetActive (true);
             podiumCard.applyButton.gameObject.SetActive (false);
         } else if (buttonCode == "Apply") {
-            podiumCard.buyButton.gameObject.SetActive (false);
+            podiumCard.hireButtonOnce.gameObject.SetActive (false);
             podiumCard.appliedButton.gameObject.SetActive (false);
             podiumCard.applyButton.gameObject.SetActive (true);
         } else if (buttonCode == "Buy") {
-            podiumCard.buyButton.gameObject.SetActive (true);
+            podiumCard.hireButtonOnce.gameObject.SetActive (true);
             podiumCard.appliedButton.gameObject.SetActive (false);
             podiumCard.applyButton.gameObject.SetActive (false);
         }
@@ -326,7 +355,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
     #region Eligibility
     void CheckEligibleCard (HotelFacilitiesPodiumCard newPodiumCard, HotelFacilitiesDataSO data ) {
          if (dictionaryHiredMaxFacility.ContainsKey (data.id)) { // data.maxHired > 0
-                newPodiumCard.buyButton.gameObject.SetActive (false);
+                newPodiumCard.hireButtonOnce.gameObject.SetActive (false);
                 newPodiumCard.hireButton.gameObject.SetActive (true);
                 HiredHotelFacilityData hiredHotelFacilityData = SaveSystem.PlayerConfig.GetHiredHotelFacilityData (data.id);
                 int curHired = 0;
@@ -353,22 +382,27 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 }
 
             } else {
-                newPodiumCard.buyButton.gameObject.SetActive (true);
+                newPodiumCard.hireButtonOnce.gameObject.SetActive (true);
                 newPodiumCard.hireButton.gameObject.SetActive (false);
 
                 if (data.IsEligible () && SaveSystem.PlayerConfig.GetHotelFacilityData (data.id) == null) {
-                    newPodiumCard.buyButton.image.sprite = onBuySprite;
-                    newPodiumCard.buyButton.interactable = true;
+                    newPodiumCard.hireButtonOnce.image.sprite = onBuySprite;
+                    newPodiumCard.hireButtonOnce.interactable = true;
                     newPodiumCard.priceText.gameObject.SetActive (true);
                     newPodiumCard.coinTypeImage.gameObject.SetActive (true);
                 } else {
                     if (SaveSystem.PlayerConfig.GetHotelFacilityData (data.id) != null) {
-                        newPodiumCard.buyButton.gameObject.SetActive (false);
-                    } else {
-                        newPodiumCard.buyButton.image.sprite = offBuySprite;
-                        newPodiumCard.buyButton.interactable = false;
+                        newPodiumCard.hireButtonOnce.gameObject.SetActive (false);
+                        newPodiumCard.hireButtonOnce.image.sprite = offBuySprite;
+                        newPodiumCard.hireButtonOnce.interactable = false;
                         newPodiumCard.priceText.gameObject.SetActive (false);
                         newPodiumCard.coinTypeImage.gameObject.SetActive (false);
+                    } else {
+                        newPodiumCard.hireButtonOnce.gameObject.SetActive (false);
+                        newPodiumCard.hireButtonOnce.image.sprite = offBuySprite;
+                        newPodiumCard.hireButtonOnce.interactable = false;
+                        newPodiumCard.priceText.gameObject.SetActive (true);
+                        newPodiumCard.coinTypeImage.gameObject.SetActive (true);
                     }
                     
                 }

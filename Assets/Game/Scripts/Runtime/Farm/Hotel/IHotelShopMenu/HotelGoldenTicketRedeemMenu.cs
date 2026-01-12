@@ -4,12 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
+using Spine.Unity;
 public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
 {
   int totalRemainGoldenTicket = 0;
   [SerializeField] TMP_Text goldenTicketText;
   bool onListenerLoaded = false;
-  
+
   [Header ("Exchange Slot")]
   [SerializeField] GameObject goldenTicketCardPrefab;
   [SerializeField] Transform goldenTicketCardParent; 
@@ -18,6 +19,8 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
   bool isAllExchangeEntries = false;
   public GoldenTicketsExchangeEntry [] goldenTicketsExchangeEntries;
   public List <GoldenTicketCard> listGoldenTicketCards = new ();
+
+  [System.Serializable]
   public class GoldenTicketCard {
       public GameObject clone;
       public GoldenTicketsExchangeEntry data;
@@ -27,14 +30,25 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
   [SerializeField] Image exchangeImage;
   [SerializeField] TMP_Text exchangeNameText;
   [SerializeField] TMP_Text exchangeText;
-  
+  [SerializeField] SkeletonGraphic npcSkeletonGrpahic;
+  [SerializeField] NumberingUtility remainGoldenTicketUtility;
+  [SerializeField] GotItemMotion gotItemMotion;
+  [SerializeField] Transform gotItemParent;
+  [SerializeField] Animator motionSelectedPrize;
    
   [Header ("Exchange Redeem")]
   [SerializeField] Sprite redeemOn, redeemOff;
+  [SerializeField] Sprite redeemRed;
   [SerializeField] Button redeemButton;
+  Coroutine cnRedeemButton; 
+  [Header ("Data")]
+  PlayerConfig playerConfig;
+
   public override void ShowMenu () {
         base.ShowMenu ();
-        RefreshDisplay ();
+        playerConfig = SaveSystem.PlayerConfig;
+
+        RefreshDisplay (true);
         OnLoadListener ();
    }
 
@@ -42,8 +56,11 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
     base.HideMenu ();
    }
 
-   void RefreshDisplay () {
+   void RefreshDisplay (bool refreshGoldenTicketRemain = true) {
+      if (refreshGoldenTicketRemain) {
       totalRemainGoldenTicket = SaveSystem.PlayerConfig.goldenTicket;
+      remainGoldenTicketUtility.SetImmediate (totalRemainGoldenTicket);
+      }
       goldenTicketText.text = totalRemainGoldenTicket.ToString ();
       InstantiateAllExchangeEntries ();
    }
@@ -54,42 +71,69 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
       if (!isAllExchangeEntries) {
          isAllExchangeEntries = true;
          bool isStarter = false;
-         foreach (GoldenTicketsExchangeEntry entry in goldenTicketsExchangeEntries) {
-            GameObject card = GameObject.Instantiate (goldenTicketCardPrefab);
-            card.transform.SetParent (goldenTicketCardParent);
-            card.SetActive (true);
-            Image iconCard = card.transform.Find ("Icon").GetComponent<Image> ();
-            TMP_Text nameCard = card.transform.Find ("Name").GetComponent <TMP_Text> ();
-            TMP_Text goldenTicketText = card.transform.Find ("GoldenTicketText").GetComponent <TMP_Text> ();
+         foreach (GoldenTicketsExchangeEntry entry in goldenTicketsExchangeEntries)
+         {
+            // Skip decoration yang sudah dimiliki player
+            if (entry.rewardable is DecorationDataSO &&
+               playerConfig.HasDecoration(entry.rewardable.ItemId))
+            {
+               continue;
+            }
+
+            GameObject card = Instantiate(goldenTicketCardPrefab, goldenTicketCardParent);
+            card.SetActive(true);
+
+            Image iconCard = card.transform.Find("Icon").GetComponent<Image>();
+            TMP_Text nameCard = card.transform.Find("Name").GetComponent<TMP_Text>();
+            TMP_Text goldenTicketText = card.transform.Find("GoldenTicketText").GetComponent<TMP_Text>();
 
             iconCard.sprite = entry.rewardable.RewardSprite;
             nameCard.text = entry.rewardable.ItemName;
-            goldenTicketText.text = entry.ticketCost.ToString ();
+            goldenTicketText.text = entry.ticketCost.ToString();
 
-            Vector3 scaleAverage = new Vector3 (
-               entry.rewardable.RewardScale.x - (entry.rewardable.RewardScale.x * 10/100),
-               entry.rewardable.RewardScale.y - (entry.rewardable.RewardScale.y * 10/100),
-               entry.rewardable.RewardScale.z - (entry.rewardable.RewardScale.z * 10/100)
-            );
+            Vector3 scaleAverage = entry.rewardable.RewardScale * 0.9f;
+            iconCard.transform.localScale = scaleAverage;
+
             Toggle toggle = card.GetComponent<Toggle>();
             toggle.group = goldenTicketGroup;
             toggle.onValueChanged.AddListener(
-               (bool value) => ToggleGoldenTicketCard(toggle, value)
+               value => ToggleGoldenTicketCard(toggle, value)
             );
-            
-            iconCard.transform.localScale = scaleAverage;
 
-            GoldenTicketCard goldenTicketCard = new GoldenTicketCard ();
-            goldenTicketCard.clone = card;
-            goldenTicketCard.data = entry;
-            listGoldenTicketCards.Add (goldenTicketCard);
+            GoldenTicketCard goldenTicketCard = new GoldenTicketCard
+            {
+               clone = card,
+               data = entry
+            };
+            listGoldenTicketCards.Add(goldenTicketCard);
 
-            if (!isStarter) {
+            if (!isStarter)
+            {
                isStarter = true;
                toggle.isOn = true;
-               ToggleGoldenTicketCard (toggle, true);
+               ToggleGoldenTicketCard(toggle, true);
             }
          }
+      }
+   }
+
+   void RefreshToggleCard () {
+      for (int i = listGoldenTicketCards.Count-1; i >= 0; i--) {
+        
+         if (listGoldenTicketCards[i].data.rewardable is DecorationDataSO &&
+               playerConfig.HasDecoration(listGoldenTicketCards[i].data.rewardable.ItemId))
+         {
+            Destroy (listGoldenTicketCards[i].clone);
+            listGoldenTicketCards.RemoveAt(i);
+            // if Destroyed, target next card.
+            int targetElement = i;
+            if (targetElement >= listGoldenTicketCards.Count-1) {targetElement = 0;}
+            Toggle toggle = listGoldenTicketCards[targetElement].clone.GetComponent <Toggle> ();
+            toggle.isOn = true;
+            ToggleGoldenTicketCard(toggle, true);
+         }
+
+               
       }
    }
 
@@ -99,7 +143,9 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
       {
          Debug.Log("Toggle aktif: " + toggle.name);
          SelectedGoldenTicketCard (GetGoldenTicketCardByClone (toggle.gameObject));
-
+         toggle.gameObject.transform.Find ("SelectedArea").gameObject.SetActive (true);
+      } else {
+         toggle.gameObject.transform.Find ("SelectedArea").gameObject.SetActive (false);
       }
    }
 
@@ -115,14 +161,62 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
       RefreshRedeemEligible (card);
    }
 
+   void NpcThankyou () {
+
+        if (npcSkeletonGrpahic != null) {
+            var state = npcSkeletonGrpahic.AnimationState;
+            state.SetAnimation(0, "jumping", false);
+            state.AddAnimation(0, "idle", true, 0f);
+            npcSkeletonGrpahic.Update(0);
+        }
+   }
+
+   void RefreshMotionRedeem (int target) {
+      // Decrease Number
+      remainGoldenTicketUtility.AnimateTo (target);
+
+   }
+
+   void RefreshMotionAddInventory (int quantities) {
+      
+      // Motion Add Inventory
+      Rewardable rewardable = curGoldenTicketCard.data.rewardable;
+      GameObject clone = GameObject.Instantiate (gotItemMotion.gameObject);
+      clone.transform.SetParent (gotItemParent);
+      clone.transform.localPosition = new Vector3 (0,0,0);
+      clone.GetComponent <GotItemMotion> ().ChangeDisplay (rewardable.RewardSprite, rewardable.RewardScale, quantities);
+   }
+
+   void RefreshMotionPrize () {
+      motionSelectedPrize.SetTrigger ("OnMotion");
+   }
+
+   void RefreshRedeemColorButton () {
+      if (cnRedeemButton == null)
+      cnRedeemButton = StartCoroutine (nRefreshRedeemColorButton ());
+   }
+
+   IEnumerator nRefreshRedeemColorButton () {
+      redeemButton.image.sprite = redeemRed;
+      yield return new WaitForSeconds (0.2f);
+      RefreshRedeemEligible (curGoldenTicketCard);
+      cnRedeemButton = null;
+   }
    #endregion
    #region Exchange Redeem
    public void Redeem () {
       if (curGoldenTicketCard.data.IsEligible ()) {
          GoldenTicket.instance.UsingLoot (curGoldenTicketCard.data.ticketCost);
          curGoldenTicketCard.data.rewardable.RewardGotItem (1);
-         RefreshDisplay ();
-         RefreshRedeemEligible (curGoldenTicketCard);
+         RefreshDisplay (false);
+        // RefreshRedeemEligible (curGoldenTicketCard);
+         // Invoke ("RefreshToggleCard",0.5f);
+         RefreshToggleCard ();
+         NpcThankyou ();
+         RefreshMotionRedeem (GoldenTicket.instance.TotalValue);
+         RefreshMotionAddInventory (1);
+         RefreshMotionPrize ();
+         RefreshRedeemColorButton ();
       }
       
    }

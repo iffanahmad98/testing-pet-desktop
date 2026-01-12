@@ -19,6 +19,11 @@ public class HotelFacilitiesDataSO : ScriptableObject {
     public GameObject facilityPrefab;
     public Vector3 facilityLocalPosition;
     public Vector3 facilityLocalScale;
+    
+    [Header ("Facilities Motion Config (UI)")]
+    public GameObject facilityUIPrefab;
+    public Vector3 facilityUILocalPosition;
+    public Vector3 facilityUILocalScale;
 
     [Header ("Facilities World")]
     public Vector3 facilitySpawnPosition;
