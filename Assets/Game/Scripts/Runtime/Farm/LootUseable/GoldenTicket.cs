@@ -21,6 +21,7 @@ public class GoldenTicket : LootUseable
     public override void UsingLoot(int value)
     {
         totalValue -= value;
+        SaveSystem.PlayerConfig.goldenTicket = totalValue;
         SaveLoot();
     }
 
