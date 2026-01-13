@@ -136,7 +136,7 @@ public class MonsterInteractionHandler
         if (!_isNPC)
         {
             _controller.SetHovered(true);
-            _cursorManager?.Set(CursorType.Monster);
+            _cursorManager?.Set(CursorType.Monster, Vector2.zero);
         }
         else
         {

@@ -20,6 +20,9 @@ public class MonsterDataSO : ScriptableObject
     public TooltipDataSO tooltipData;
     public MonsterRequirements[] monsterRequirements;
 
+    [Header("Eating Properties")]
+    public Vector2 eatingOffset = Vector2.zero;
+
     [Header("Classification")]
     public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)
     public PoopType poopType = PoopType.Normal; // Type of poop this monster produces

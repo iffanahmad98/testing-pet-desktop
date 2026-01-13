@@ -95,12 +95,16 @@ public class MonsterConsumableHandler
         Vector2 consumablePos = GetConsumablePosition(NearestConsumable);
         float currentDistanceSqr = (consumablePos - currentPos).sqrMagnitude;
 
-        if (currentDistanceSqr < _consumeDistanceSqr)
+        Debug.Log($"currentDistanceSqr = {currentDistanceSqr}, consumeDistanceSqr = {_consumeDistanceSqr}");
+
+        if (currentDistanceSqr <= _consumeDistanceSqr)
         {
+            Debug.Log("Start Eating");
             StartConsumeSequence();
         }
         else
         {
+            Debug.Log("Adjusting Position");
             targetPosition = consumablePos;
         }
     }
@@ -112,6 +116,8 @@ public class MonsterConsumableHandler
 
         _isInternallyConsuming = true;
         _controller.StateMachine?.ChangeState(MonsterState.Eating);
+
+        SetConsumablePosition(NearestConsumable, _controller.EatingPos);
         _consumeCoroutine = _controller.StartCoroutine(ConsumeAfterDelay());
     }
 
@@ -165,6 +171,13 @@ public class MonsterConsumableHandler
     {
         RectTransform rt = ((MonoBehaviour)item).GetComponent<RectTransform>();
         return rt != null ? rt.anchoredPosition : Vector2.zero;
+    }
+
+    private void SetConsumablePosition(IConsumable item, Transform targetPos)
+    {
+        Transform pos = ((MonoBehaviour)item).GetComponent<Transform>();
+
+        pos.position = targetPos.position;
     }
 
     private void ClearConsumable()

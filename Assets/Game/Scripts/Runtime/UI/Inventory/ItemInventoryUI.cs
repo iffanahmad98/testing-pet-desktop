@@ -65,6 +65,8 @@ public class ItemInventoryUI : MonoBehaviour
     private Dictionary<Transform, List<OwnedItemData>> parentToItemsMap = new Dictionary<Transform, List<OwnedItemData>>();
     private bool isReordering = false;
 
+    public List<ItemSlotUI> ActiveSlots => activeSlots;
+
     private void Awake()
     {
         InitializeSlotPool();
@@ -321,7 +323,6 @@ public class ItemInventoryUI : MonoBehaviour
             var slot = GetSlotFromPool();
             slot.transform.SetParent(parent, false);
             slot.Initialize(itemData, item.type, item.amount);
-            activeSlots.Add(slot);
 
             // Small delay for smooth population
             if (i % 5 == 0) // Every 5 items
