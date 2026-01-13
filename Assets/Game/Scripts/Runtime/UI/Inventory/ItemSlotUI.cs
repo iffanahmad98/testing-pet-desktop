@@ -389,15 +389,31 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         ServiceLocator.Get<MonsterManager>().SpawnItem(itemData, position);
 
-        itemAmount--;
-        amountText.text = $"{itemAmount} pcs";
-        SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
+        UpdateValueInventory(itemData);
+    }
 
-        if (itemAmount <= 0)
+    private void UpdateValueInventory(ItemDataSO itemData)
+    {
+        var inventories = inventoryUI.ActiveSlots;
+
+        for (int i = inventories.Count - 1; i >= 0; i--)
         {
-            ServiceLocator.Get<PlacementManager>().CancelPlacement();
-            inventoryUI.HandleItemDepletion(this);
+            var slot = inventories[i];
+
+            if (slot.itemData == itemData)
+            {
+                slot.itemAmount--;
+                slot.amountText.text = $"{itemAmount} pcs";
+                SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
+                if (slot.itemAmount <= 0)
+                {
+                    ServiceLocator.Get<PlacementManager>().CancelPlacement();
+                    inventoryUI.HandleItemDepletion(slot);
+                }
+            }
         }
+
+        //inventoryUI.StartPopulateAllInventories();
     }
 
     private void OnCancelPlacement()

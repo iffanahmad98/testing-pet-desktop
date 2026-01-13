@@ -40,6 +40,11 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     [Header("Overall Progress")]
     [SerializeField] private float _evolutionProgressPercent;
 
+    [Space(5)]
+    [Header("Eating Components")]
+    [SerializeField] private Transform eatingPos;
+
+    [Space(5)]
     #region Fields & Properties
 
     // Monster identification & basic data
@@ -47,6 +52,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     public int evolutionLevel;
     [SerializeField] private MonsterDataSO monsterData;
     public MonsterDataSO MonsterData => monsterData;
+    public Transform EatingPos => eatingPos;
     public string timeCreated { get; private set; }
 
     // Event handlers
@@ -172,6 +178,9 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             UI.Initialize(_statsHandler, this);
             return;
         }
+
+        var eatingOffset = monsterData.eatingOffset;
+        eatingPos.transform.position = new Vector2(transform.position.x + eatingOffset.x, transform.position.y + eatingOffset.y);
 
         CreateHandlers();
         StartCoroutine(FinalizeInitialization());

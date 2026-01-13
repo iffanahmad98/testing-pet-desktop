@@ -341,6 +341,8 @@ public class MonsterDataSOEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("tooltipData"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterRequirements"));
 
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("eatingOffset"));
+
         EditorGUILayout.Space(3);
         EditorGUILayout.LabelField("Classification", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monType"));

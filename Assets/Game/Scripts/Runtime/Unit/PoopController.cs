@@ -6,6 +6,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 {
     public PoopType poopType;
     public int poopValue;
+    public Vector2 cursorOffset;
     private string poopId;
 
     private Animator animator;
@@ -19,7 +20,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private void Awake()
     {
-        animator = GetComponentInChildren<Animator>();
+        animator = transform.GetChild(1).GetComponent<Animator>();
         rectTransform = GetComponentInChildren<RectTransform>();
     }
 
@@ -71,6 +72,9 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
         // Despawn this poop object
         ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
+
+        // Change cursor texture
+        ServiceLocator.Get<CursorManager>().Set(CursorType.Default, Vector2.zero);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -80,11 +84,11 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        ServiceLocator.Get<CursorManager>().Set(CursorType.Poop);
+        ServiceLocator.Get<CursorManager>().Set(CursorType.Poop, cursorOffset);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        ServiceLocator.Get<CursorManager>().Set(CursorType.Default);
+        ServiceLocator.Get<CursorManager>().Set(CursorType.Default, Vector2.zero);
     }
 }

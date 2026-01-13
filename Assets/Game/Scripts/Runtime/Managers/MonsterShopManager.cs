@@ -103,7 +103,10 @@ public class MonsterShopManager : MonoBehaviour
             if (card.monsterItemData.monsterRequirements != null)
             {
                 bool canBuy = CheckBuyingRequirement(card);
-                card.SetGrayscale(!canBuy);
+                //card.SetGrayscale(!canBuy);
+                
+                // Debug Only
+                card.SetGrayscale(false);
             }
         }
 
@@ -174,7 +177,10 @@ public class MonsterShopManager : MonoBehaviour
     {
         MonsterDataSO monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
 
-        if (CheckBuyingRequirement(card))
+        //if (CheckBuyingRequirement(card))
+        
+        
+        if (true) // DEBUG ONLY
         {
             if (SaveSystem.TryBuyMonster(monsterItem))
             {

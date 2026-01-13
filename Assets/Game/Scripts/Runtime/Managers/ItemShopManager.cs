@@ -81,7 +81,9 @@ public class ItemShopManager : MonoBehaviour
             if (card.itemData.monsterRequirements != null)
             {
                 bool canBuy = CheckBuyingRequirement(card);
-                card.SetGrayscale(!canBuy);
+                //card.SetGrayscale(!canBuy);
+                
+                card.SetGrayscale(false); // DEBUG ONLY
             }
         }
 
@@ -121,7 +123,8 @@ public class ItemShopManager : MonoBehaviour
     {
         var item = card.itemData;
 
-        if (CheckBuyingRequirement(card))
+        //if (CheckBuyingRequirement(card))
+        if (true) // DEBUG ONLY
         {
             if (SaveSystem.TryBuyItem(item))
             {
