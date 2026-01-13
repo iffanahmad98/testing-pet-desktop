@@ -110,11 +110,19 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
             if (!isStarter)
             {
                isStarter = true;
+               // StartCoroutine (nToggleStarter (toggle));
                toggle.isOn = true;
                ToggleGoldenTicketCard(toggle, true);
             }
          }
       }
+   }
+
+   // jika ingin starter selected harus ada jeda 1 frame.
+   IEnumerator nToggleStarter (Toggle toggle) {
+      yield return null;
+      toggle.isOn = true;
+      ToggleGoldenTicketCard(toggle, true);
    }
 
    void RefreshToggleCard () {
