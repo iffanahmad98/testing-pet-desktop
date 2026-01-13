@@ -413,7 +413,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             }
         }
 
-        //inventoryUI.StartPopulateAllInventories();
+        inventoryUI.StartPopulateAllInventories();
     }
 
     private void OnCancelPlacement()

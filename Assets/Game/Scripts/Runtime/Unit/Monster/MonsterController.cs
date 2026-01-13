@@ -787,7 +787,10 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         UI.OnHoverEnter();
 
         //ServiceLocator.Get<TooltipController>().HoverEnter(monsterData.tooltipData, transform.position);
-        TooltipManager.Instance.StartHover(monsterData.tooltipData.infoData);
+        if (monsterData.tooltipData != null)
+            TooltipManager.Instance.StartHover(monsterData.tooltipData.infoData);
+        else
+            Debug.LogWarning($"Tooltip data of this object: {gameObject.name} is Empty");
 
         _interactionHandler?.OnPointerEnter(eventData);
     }

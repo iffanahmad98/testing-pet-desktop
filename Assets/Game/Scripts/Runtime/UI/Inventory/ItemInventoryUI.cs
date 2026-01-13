@@ -727,7 +727,7 @@ public class ItemInventoryUI : MonoBehaviour
             ReturnSlotToPool(slot);
 
             // Refresh inventories
-            StartPopulateAllInventories();
+            //StartPopulateAllInventories();
         }
     }
 }
