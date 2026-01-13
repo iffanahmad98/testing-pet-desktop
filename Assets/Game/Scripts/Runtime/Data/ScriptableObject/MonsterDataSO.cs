@@ -17,6 +17,7 @@ public class MonsterDataSO : ScriptableObject
     public string monsterName;
     public string id;
     public string description;
+    public TooltipDataSO tooltipData;
     public MonsterRequirements[] monsterRequirements;
 
     [Header("Classification")]

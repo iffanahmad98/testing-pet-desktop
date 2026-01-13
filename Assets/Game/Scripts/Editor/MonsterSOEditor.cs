@@ -130,6 +130,7 @@ public class MonsterDataSOEditor : Editor
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterName"), new GUIContent("Name"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("id"), new GUIContent("ID"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("description"), new GUIContent("Description"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("tooltipData"), new GUIContent("Tooltip Data"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterRequirements"), new GUIContent("Monster Requirements"));
                 }
                 
@@ -337,6 +338,7 @@ public class MonsterDataSOEditor : Editor
         EditorGUI.indentLevel++;
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterName"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("id"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("tooltipData"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterRequirements"));
 
         EditorGUILayout.Space(3);
