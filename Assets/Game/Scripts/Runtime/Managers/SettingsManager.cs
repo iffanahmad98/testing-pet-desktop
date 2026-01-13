@@ -357,6 +357,16 @@ public class SettingsManager : MonoBehaviour
                 monster.transform.localScale = Vector3.one * petScale;
             }
         }
+
+        if (gameManager?.npcMonsters == null) return;
+
+        foreach (var npc in gameManager.npcMonsters)
+        {
+            if (npc != null)
+            {
+                npc.transform.localScale = Vector3.one * petScale;
+            }
+        }
     }
     
     public void ApplyCurrentPetScaleToMonster(MonsterController monster)
@@ -385,6 +395,7 @@ public class SettingsManager : MonoBehaviour
 
     private void RepositionMonstersAfterScaling()
     {
+        #region Monster Manager
         if (gameManager?.activeMonsters == null) return;
 
         foreach (var monster in gameManager.activeMonsters)
@@ -400,7 +411,7 @@ public class SettingsManager : MonoBehaviour
             float monsterHalfHeight = rectTransform.rect.height / 2;
 
             // Calculate ground area bounds (same as MonsterBoundsHandler)
-            const float PADDING = 10f;
+            const float PADDING = 0f;
             const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
             const float MIN_MOVEMENT_DISTANCE = 10f;
 
@@ -509,6 +520,134 @@ public class SettingsManager : MonoBehaviour
             float distance = Vector2.Distance(targetPosition, newPos);
             Debug.Log($"Monster {monster.name} repositioned - Current: {newPos}, Target: {targetPosition}, Distance: {distance:F2}");
         }
+        #endregion
+        #region NPC Manager
+
+        if (gameManager?.npcMonsters == null) return;
+
+        foreach (var npc in gameManager.npcMonsters)
+        {
+            if (npc == null) continue;
+
+            var rectTransform = npc.GetComponent<RectTransform>();
+            Vector2 currentPos = rectTransform.anchoredPosition;
+
+            // Use proper bounds calculation like MonsterMovementBounds does
+            Vector2 gameAreaSize = gameArea.sizeDelta;
+            float monsterHalfWidth = rectTransform.rect.width / 2;
+            float monsterHalfHeight = rectTransform.rect.height / 2;
+
+            // Calculate ground area bounds (same as MonsterBoundsHandler)
+            const float PADDING = 0f;
+            const float GROUND_AREA_HEIGHT_RATIO = 0.4f;
+            const float MIN_MOVEMENT_DISTANCE = 10f;
+
+            Vector2 boundsMin = new Vector2(
+                -gameAreaSize.x / 2 + monsterHalfWidth + PADDING,
+                -gameAreaSize.y / 2 + monsterHalfHeight + PADDING
+            );
+
+            Vector2 boundsMax = new Vector2(
+                gameAreaSize.x / 2 - monsterHalfWidth - PADDING,
+                -gameAreaSize.y / 2 + (gameAreaSize.y * GROUND_AREA_HEIGHT_RATIO) - monsterHalfHeight
+            );
+
+            // Determine Y position based on game area height
+            float newY;
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            {
+                // Random Y within ground area when height is above half
+                newY = Random.Range(boundsMin.y, boundsMax.y);
+            }
+            else
+            {
+                // Center Y when height is below or equal to half
+                newY = (boundsMin.y + boundsMax.y) / 2f;
+            }
+
+            Vector2 newPos = new Vector2(
+                Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
+                newY
+            );
+
+            rectTransform.anchoredPosition = newPos;
+
+            // Set walking state to make monster move
+            if (npc.StateMachine != null)
+            {
+                npc.StateMachine.ChangeState(MonsterState.Walking);
+            }
+            else
+            {
+                Debug.LogWarning($"Failed to change state for monster {npc.name}: StateMachine is null");
+            }
+
+            // Generate target with minimum distance from current position
+            Vector2 targetPosition;
+
+            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            {
+                // Diagonal movement: generate random X and Y target
+                float targetX;
+                float targetY;
+                int attempts = 0;
+                int maxAttempts = 10;
+
+                do
+                {
+                    targetX = Random.Range(boundsMin.x, boundsMax.x);
+                    targetY = Random.Range(boundsMin.y, boundsMax.y);
+                    attempts++;
+                }
+                while (Vector2.Distance(new Vector2(targetX, targetY), newPos) < MIN_MOVEMENT_DISTANCE && attempts < maxAttempts);
+
+                // If still too close after max attempts, force minimum distance
+                if (Vector2.Distance(new Vector2(targetX, targetY), newPos) < MIN_MOVEMENT_DISTANCE)
+                {
+                    // Try moving right and up
+                    targetX = newPos.x + MIN_MOVEMENT_DISTANCE;
+                    targetY = newPos.y + MIN_MOVEMENT_DISTANCE;
+
+                    // Clamp to bounds
+                    targetX = Mathf.Clamp(targetX, boundsMin.x, boundsMax.x);
+                    targetY = Mathf.Clamp(targetY, boundsMin.y, boundsMax.y);
+                }
+
+                targetPosition = new Vector2(targetX, targetY);
+            }
+            else
+            {
+                // Horizontal only movement
+                float targetX;
+                int attempts = 0;
+                int maxAttempts = 10;
+
+                do
+                {
+                    targetX = Random.Range(boundsMin.x, boundsMax.x);
+                    attempts++;
+                }
+                while (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE && attempts < maxAttempts);
+
+                // If still too close after max attempts, force minimum distance
+                if (Mathf.Abs(targetX - newPos.x) < MIN_MOVEMENT_DISTANCE)
+                {
+                    targetX = newPos.x + MIN_MOVEMENT_DISTANCE;
+                    if (targetX > boundsMax.x)
+                        targetX = newPos.x - MIN_MOVEMENT_DISTANCE;
+                    targetX = Mathf.Clamp(targetX, boundsMin.x, boundsMax.x);
+                }
+
+                targetPosition = new Vector2(targetX, newPos.y);
+            }
+
+            npc.SetTargetPosition(targetPosition);
+
+            // Debug log for movement target
+            float distance = Vector2.Distance(targetPosition, newPos);
+            Debug.Log($"Monster {npc.name} repositioned - Current: {newPos}, Target: {targetPosition}, Distance: {distance:F2}");
+        }
+        #endregion
     }
 
     private void RepositionFoodsAfterScaling()

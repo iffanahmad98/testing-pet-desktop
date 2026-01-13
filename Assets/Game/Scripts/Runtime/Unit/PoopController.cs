@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public PoopType poopType;
     public int poopValue;
     public Vector2 cursorOffset;
+    public Image[] images;
     private string poopId;
 
     private Animator animator;
@@ -70,8 +72,11 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SaveSystem.UpdateItemData(poopId, ItemType.Poop, 1);
         SaveSystem.Flush();
 
-        // Despawn this poop object
-        ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
+        // Fadeout
+        for (int i = 0; i < images.Length; i++)
+        {
+            StartCoroutine(FadeOut(images[i], 0f, 0.5f));
+        }
 
         // Change cursor texture
         ServiceLocator.Get<CursorManager>().Set(CursorType.Default, Vector2.zero);
@@ -90,5 +95,26 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public void OnPointerExit(PointerEventData eventData)
     {
         ServiceLocator.Get<CursorManager>().Set(CursorType.Default, Vector2.zero);
+    }
+
+    IEnumerator FadeOut(Image image, float targetAlpha, float duration)
+    {
+        Color c = image.color;
+        float startAlpha = c.a;
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime; // use Time.deltaTime if you want it affected by timescale
+            c.a = Mathf.Lerp(startAlpha, targetAlpha, t / duration);
+            image.color = c;
+            yield return null;
+        }
+
+        c.a = targetAlpha;
+        image.color = c;
+
+        // Despawn this poop object
+        ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
     }
 }

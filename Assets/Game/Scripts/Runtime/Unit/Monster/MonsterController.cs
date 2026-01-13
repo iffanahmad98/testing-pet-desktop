@@ -179,8 +179,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             return;
         }
 
-        var eatingOffset = monsterData.eatingOffset;
-        eatingPos.transform.position = new Vector2(transform.position.x + eatingOffset.x, transform.position.y + eatingOffset.y);
+        UpdateEatingOffset(evolutionLevel);
 
         CreateHandlers();
         StartCoroutine(FinalizeInitialization());
@@ -626,6 +625,18 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         {
             _targetPosition = newTarget;
         }
+    }
+
+    public void UpdateEatingOffset(int evolutionLevel)
+    {
+        if (monsterData.eatingOffset.Length <= evolutionLevel)
+            return;
+
+        // Update Anchor of Eating Position
+        var eatingOffset = monsterData.eatingOffset[evolutionLevel];
+
+        if (eatingOffset != null)
+            eatingPos.transform.localPosition = new Vector2(eatingOffset.x, eatingOffset.y);
     }
 
     public void SetRandomTarget()

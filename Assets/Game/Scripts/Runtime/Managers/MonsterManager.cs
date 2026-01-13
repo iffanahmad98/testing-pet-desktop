@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine.UI;
 using System;
+using DG.Tweening;
 
 public class MonsterManager : MonoBehaviour
 {
@@ -413,6 +414,12 @@ public class MonsterManager : MonoBehaviour
         if (pooled != null)
         {
             SetupPooledObject(pooled, gameAreaRT, pos);
+
+            var poolPos = pooled.transform.position;
+            poolPos.y += 15f;
+            pooled.transform.position = poolPos;
+
+            pooled.transform.DOLocalMoveY(pos.y, 0.5f);
 
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {

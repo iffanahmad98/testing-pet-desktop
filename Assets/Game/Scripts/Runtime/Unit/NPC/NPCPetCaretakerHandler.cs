@@ -296,7 +296,7 @@ public class NPCPetCaretakerHandler
 
                         // Get position in front of the monster (based on facing direction)
                         Vector2 spawnPosition = GetFoodSpawnOffsetPosition(pet, 100f);
-
+                        spawnPosition.y += 15f;
                         _monsterManager.SpawnItem(cheapestFood, spawnPosition);
                         Debug.Log($"NPC successfully fed pet {pet.monsterID} with {cheapestFood.itemID} at offset position {spawnPosition} (cost: {cheapestFood.price})");
                     }
