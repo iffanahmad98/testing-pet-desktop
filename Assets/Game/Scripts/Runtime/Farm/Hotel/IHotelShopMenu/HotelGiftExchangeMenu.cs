@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
+using Spine.Unity;
 public class HotelGiftExchangeMenu : HotelShopMenuBase
 {
    
@@ -11,6 +12,7 @@ public class HotelGiftExchangeMenu : HotelShopMenuBase
    [SerializeField] RectTransform giftCollectionPanel;
    [SerializeField] GameObject hotelGiftExchangePrefab;
    [SerializeField] GameObject rewardAnimatorGift;
+   
 
    List <GameObject> listHotelGiftExchange = new List <GameObject> ();
    int totalGift;
@@ -20,6 +22,8 @@ public class HotelGiftExchangeMenu : HotelShopMenuBase
    [SerializeField] Button openBoxButton;
    [SerializeField] Sprite openBoxAvailableSprite;
    [SerializeField] Sprite openBoxNotAvailableSprite;
+
+   [SerializeField] SkeletonGraphic npcSkeletonGrpahic;
    void Start () {
       openBoxButton.onClick.AddListener (OpenBox);
       rewardAnimator.AddClosedEvent (CloseBox);
@@ -71,6 +75,7 @@ public class HotelGiftExchangeMenu : HotelShopMenuBase
          rewardAnimator.OpenBox ();
          HotelGift.instance.UsingLoot (1);
          RefreshDisplay ();
+         NpcThankyou ();
       }
    }
 
@@ -86,5 +91,15 @@ public class HotelGiftExchangeMenu : HotelShopMenuBase
          openBoxButton.image.sprite = openBoxNotAvailableSprite;
          return false;
       }
+   }
+
+   void NpcThankyou () {
+
+        if (npcSkeletonGrpahic != null) {
+            var state = npcSkeletonGrpahic.AnimationState;
+            state.SetAnimation(0, "jumping", false);
+            state.AddAnimation(0, "idle", true, 0f);
+            npcSkeletonGrpahic.Update(0);
+        }
    }
 }

@@ -24,4 +24,8 @@ public class ItemDatabaseSO : ScriptableObject
     {
         return allItems.FirstOrDefault(item => item.category == type);
     }
+
+    public List <ItemDataSO> GetAllItems () {
+        return allItems;
+    }
 }

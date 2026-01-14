@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Spine.Unity;
 
 [System.Serializable]
 public class HotelMenuEggCard {
@@ -13,7 +14,7 @@ public class HotelMenuEggCard {
    public Toggle cardToggle;
    public Image selectedCard;
    public TMP_Text remainText;
-
+   
    [HideInInspector] public int remain;
 
    public void RefreshRemain () {
@@ -71,6 +72,7 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
    [SerializeField] Button openEggButton;
    [SerializeField] Sprite openEggAvailable, openEggNotAvailable;
    [SerializeField] Image hotelShopBlocker;
+   [SerializeField] SkeletonGraphic npcSkeletonGrpahic;
    bool listenerLoaded = false;
 
    public override void ShowMenu () {
@@ -118,6 +120,7 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
          selectedHotelMenuEgg.UsingEgg ();
          RefreshDisplay ();
          hotelShopBlocker.gameObject.SetActive (true);
+         NpcThankyou ();
       }
    }
 
@@ -136,6 +139,14 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
       }
    }
 
+   void NpcThankyou () {
 
+        if (npcSkeletonGrpahic != null) {
+            var state = npcSkeletonGrpahic.AnimationState;
+            state.SetAnimation(0, "jumping", false);
+            state.AddAnimation(0, "idle", true, 0f);
+            npcSkeletonGrpahic.Update(0);
+        }
+   }
 
 }
