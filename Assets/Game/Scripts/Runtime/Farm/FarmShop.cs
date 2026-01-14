@@ -13,7 +13,8 @@ public class FarmShop : MonoBehaviour {
     [SerializeField] FarmShopMonsterPanel farmMonsterPanel;
     [SerializeField] FarmShopPlantPanel farmPlantPanel;
     [SerializeField] Button farmMonsterButton, farmPlantButton;
-    
+    [SerializeField] Button closeButton;
+
     public enum PanelType {Monster, Plant};
     bool loadListener;
     void Awake () {
@@ -22,19 +23,19 @@ public class FarmShop : MonoBehaviour {
     void Start() {
         farmMonsterPanel.FarmShop = this;
         farmPlantPanel.FarmShop = this;
-        
+        OffDisplay ();
     }
 
     public void OnDisplay() {
         LoadListener ();
         shopPanel.gameObject.SetActive(true);
-        MagicalGarden.Farm.UIManager.Instance.HideUIFarmBar ();
+      //  MagicalGarden.Farm.UIManager.Instance.HideUIFarmBar ();
         ShowSpecificPanel (PanelType.Monster);
     }
 
     public void OffDisplay() {
         shopPanel.gameObject.SetActive(false);
-        MagicalGarden.Farm.UIManager.Instance.ShowUIFarmBar ();
+       // MagicalGarden.Farm.UIManager.Instance.ShowUIFarmBar ();
     }
 
     void ShowSpecificPanel (PanelType panelType) {
@@ -58,6 +59,8 @@ public class FarmShop : MonoBehaviour {
 
             farmMonsterButton.onClick.AddListener(() => ShowSpecificPanel(PanelType.Monster));
             farmPlantButton.onClick.AddListener(() => ShowSpecificPanel(PanelType.Plant));
+
+            closeButton.onClick.AddListener (() => OffDisplay());
         }
     }
     #endregion

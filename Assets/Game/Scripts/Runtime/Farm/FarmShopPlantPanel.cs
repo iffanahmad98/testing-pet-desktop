@@ -8,11 +8,20 @@ public class FarmShopPlantPanel : FarmShopPanelBase
     [SerializeField] Transform parentPanel;
     [SerializeField] Image panel;
     [SerializeField] Sprite onPanel, offPanel;
-    [SerializeField] ItemDatabaseSO itemDatabaseSO;
+    [SerializeField] FarmItemDatabaseSO itemDatabaseSO;
     [SerializeField] GameObject cardPrefab;
     [SerializeField] Transform cardParent;
     List <ItemCard> listCardClone = new ();
     bool allItemsLoaded = false;
+
+    [Header ("Selected Item")]
+    [SerializeField] Image selectedItemPanel;
+    [SerializeField] Image infoIcon;
+    [SerializeField] TMP_Text infoPriceText, infoWaterText, infoHarvestText;
+    [SerializeField] TMP_Text infoDetailText;
+    ItemCard selectedItemCard;
+    [SerializeField] ToggleGroup cardGroup;
+    
 
     [System.Serializable]
     public class ItemCard {
@@ -21,25 +30,26 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         public Image icon;
         public Button buyButton;
         public TMP_Text priceText;
-        public ItemDataSO itemDataSO;
+        public MagicalGarden.Inventory.ItemData itemDataSO;
     }
 
     public override void ShowPanel() {
         panel.sprite = onPanel;
         panel.transform.SetSiblingIndex(parentPanel.childCount - 1);
         InstantiateAllItems ();
-        
+        selectedItemPanel.gameObject.SetActive (true);
     }
 
     public override void HidePanel() {
         panel.sprite = offPanel;
         HideAllInstantiatedAllItems ();
+        selectedItemPanel.gameObject.SetActive (false);
     }
 
     void InstantiateAllItems () {
         if (!allItemsLoaded) {
             allItemsLoaded = true;
-            foreach (ItemDataSO itemDataSO in itemDatabaseSO.GetAllItems ()) {
+            foreach (MagicalGarden.Inventory.ItemData itemDataSO in itemDatabaseSO.GetListItemData ()) {
                 GameObject clone = GameObject.Instantiate (cardPrefab);
                 ItemCard newItemCard = new ItemCard ();
                 newItemCard.cloneCard = clone;
@@ -48,6 +58,12 @@ public class FarmShopPlantPanel : FarmShopPanelBase
                 newItemCard.buyButton = clone.transform.Find ("BuyButton").gameObject.GetComponent <Button> ();
                 newItemCard.priceText = newItemCard.buyButton.gameObject.transform.Find ("PriceText").gameObject.GetComponent <TMP_Text> ();
                 newItemCard.itemDataSO  = itemDataSO;
+                Toggle toggle = clone.GetComponent<Toggle>();
+                toggle.group = cardGroup;
+                toggle.onValueChanged.AddListener(
+                value => SetSelectedItem(newItemCard, value)
+                );
+
                 listCardClone.Add (newItemCard);
             }
             Debug.Log ("Total clone" + listCardClone.Count);
@@ -61,7 +77,7 @@ public class FarmShopPlantPanel : FarmShopPanelBase
 
     void FillupItemCard (ItemCard itemCard) {
         itemCard.cloneCard.gameObject.transform.SetParent (cardParent);
-        itemCard.title.text = itemCard.itemDataSO.itemName;
+        itemCard.title.text = itemCard.itemDataSO.ItemName;
         itemCard.icon.sprite = itemCard.itemDataSO.RewardSprite;
         itemCard.priceText.text = itemCard.itemDataSO.price.ToString ();
         itemCard.cloneCard.gameObject.SetActive (true);
@@ -78,4 +94,28 @@ public class FarmShopPlantPanel : FarmShopPanelBase
             item.cloneCard.SetActive (false);
         }
     }
+
+    #region SelectedItem
+    public void SetSelectedItem (ItemCard itemCard, bool isOn) {
+        if (isOn) {
+            selectedItemCard = itemCard;
+            ShowInformationSelectedItem ();
+        } else {
+            
+        }
+
+        
+    }
+
+    void ShowInformationSelectedItem () {
+        selectedItemPanel.gameObject.SetActive (true);
+        MagicalGarden.Inventory.ItemData itemData = selectedItemCard.itemDataSO;
+        infoIcon.sprite = itemData.RewardSprite;
+
+        infoPriceText.text = itemData.price.ToString ();
+        infoWaterText.text = itemData.needHourWatering.ToString () + " hours";
+        infoHarvestText.text = itemData.needHourGrow.ToString () + " hours";
+        infoDetailText.text = itemData.description;
+    }
+    #endregion
 }

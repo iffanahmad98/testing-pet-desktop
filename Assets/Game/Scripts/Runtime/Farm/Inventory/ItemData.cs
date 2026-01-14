@@ -14,6 +14,7 @@ namespace MagicalGarden.Inventory
         public ItemType itemType;
         public ItemRarity rarity;
         public bool isStackable = true;
+        public int price;
         [TextArea(3, 10)]
         public string description;
         public List<TileBase> stageTiles;
@@ -41,7 +42,7 @@ namespace MagicalGarden.Inventory
         
         public override void RewardGotItem(int quantities)
         {
-            Debug.Log($"You got item {displayName} x{quantities} (Not save system yet)");
+            Debug.Log($"You got item {displayName} x{quantities} (doesnt has save system yet)");
            // SaveSystem.PlayerConfig.AddItem (itemId,itemType,quantities);
            // SaveSystem.SaveAll ();
         }

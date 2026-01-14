@@ -19,7 +19,9 @@ MonoBehaviour:
   itemType: 4
   rarity: 0
   isStackable: 1
-  description: this is monster seed
+  price: 150
+  description: Bury this speckled seed and watch it hatch into a surprise companion;
+    any monster in the forest might spring forth!
   stageTiles:
   - {fileID: 11400000, guid: 055df14576c0c6246b7077ba78c7132c, type: 2}
   - {fileID: 11400000, guid: 4114abe431e30f64b8dada7efc82fa10, type: 2}
@@ -34,3 +36,4 @@ MonoBehaviour:
   recipeCountPopRare: 0
   needHourWatering: 1
   needHourGrow: 3
+  rewardScale: {x: 1, y: 1, z: 1}
