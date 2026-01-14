@@ -67,7 +67,8 @@ namespace MagicalGarden.Farm
         }
         public void ShopUIToogle()
         {
-            ToggleUI(shopUI);
+           // ToggleUI(shopUI); old
+            FarmShop.instance.OnDisplay ();
         }
         public void GuestUIToogle()
         {
@@ -289,6 +290,13 @@ namespace MagicalGarden.Farm
             menuBar.gameObject.SetActive (false);
         }
 
+        public void ShowUIFarmBar () { // FarmShop
+            menuBar.gameObject.SetActive (true);
+        }
+
+        public void HideUIFarmBar () {
+            menuBar.gameObject.SetActive (false);
+        }
         #endregion
     
     
