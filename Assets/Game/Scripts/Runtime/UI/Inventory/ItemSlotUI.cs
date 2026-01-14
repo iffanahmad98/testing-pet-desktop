@@ -409,11 +409,16 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
                 {
                     ServiceLocator.Get<PlacementManager>().CancelPlacement();
                     inventoryUI.HandleItemDepletion(slot);
+                    //inventoryUI.StartPopulateAllInventories();
                 }
             }
         }
 
-        //inventoryUI.StartPopulateAllInventories();
+        if (itemAmount <= 0)
+        {
+            ServiceLocator.Get<PlacementManager>().CancelPlacement();
+            inventoryUI.StartPopulateAllInventories();
+        }
     }
 
     private void OnCancelPlacement()

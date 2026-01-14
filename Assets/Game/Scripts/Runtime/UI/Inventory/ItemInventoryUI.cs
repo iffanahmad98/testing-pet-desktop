@@ -721,13 +721,24 @@ public class ItemInventoryUI : MonoBehaviour
         {
             // Remove from active slots
             if (activeSlots.Contains(slot))
+            {
                 activeSlots.Remove(slot);
+                Debug.Log("Is Getting Remove!");
+            }
+            else
+            {
+                Debug.Log($"Doesn't have slot: this is slot from inventory {slot.gameObject.name}");
+            }
 
             // Return to pool instead of destroying
             ReturnSlotToPool(slot);
 
             // Refresh inventories
-            StartPopulateAllInventories();
+            //StartPopulateAllInventories();
+        }
+        else
+        {
+            Debug.Log("Slot is Null");
         }
     }
 }

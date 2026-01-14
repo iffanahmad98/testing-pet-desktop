@@ -20,10 +20,12 @@ MonoBehaviour:
     goes down Mushkina is the \u201Cwalking\u201D version cute and steady, but slower.
     Progression: Must be purchased first to unlock Mushkino. Also unlocks the 1-Flower
     Station Post decoration."
+  tooltipData: {fileID: 11400000, guid: 6dfcfd56dc1e58d438b55bbc8e5ad2e3, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
     minimumRequirements: 8
+  eatingOffset: {x: 0, y: 0}
   monType: 5
   poopType: 1
   moveSpd: 400
@@ -78,7 +80,7 @@ MonoBehaviour:
   sellPriceStage1: 0
   sellPriceStage2: 0
   sellPriceStage3: 0
-  prerequisiteNPCId: 100
+  prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
   eatSound: {fileID: 0}

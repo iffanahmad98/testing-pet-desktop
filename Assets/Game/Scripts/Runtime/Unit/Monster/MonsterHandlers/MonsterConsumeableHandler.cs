@@ -95,8 +95,6 @@ public class MonsterConsumableHandler
         Vector2 consumablePos = GetConsumablePosition(NearestConsumable);
         float currentDistanceSqr = (consumablePos - currentPos).sqrMagnitude;
 
-        Debug.Log($"currentDistanceSqr = {currentDistanceSqr}, consumeDistanceSqr = {_consumeDistanceSqr}");
-
         if (currentDistanceSqr <= _consumeDistanceSqr)
         {
             Debug.Log("Start Eating");

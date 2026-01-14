@@ -21,7 +21,7 @@ public class MonsterDataSO : ScriptableObject
     public MonsterRequirements[] monsterRequirements;
 
     [Header("Eating Properties")]
-    public Vector2 eatingOffset = Vector2.zero;
+    public Vector2[] eatingOffset;
 
     [Header("Classification")]
     public MonsterType monType = MonsterType.Common; // Type of monster (Common, Rare, etc.)

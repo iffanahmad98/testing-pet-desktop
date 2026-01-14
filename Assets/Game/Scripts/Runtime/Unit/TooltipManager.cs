@@ -93,7 +93,7 @@ public class TooltipManager : MonoBehaviour
     private IEnumerator HideTimer()
     {
         float timer = 0f;
-        
+
         while (timer < hoverHideTime)
         {
             Vector2 currentMousePos = Mouse.current.position.ReadValue();
@@ -143,23 +143,24 @@ public class TooltipManager : MonoBehaviour
     private void UpdatePosition()
     {
         Vector2 mousePos = Mouse.current.position.ReadValue();
+        mousePos += new Vector2(offsetX, offsetY);
 
-        mousePos.x += offsetX;
-        mousePos.y += offsetY;
-        // float pivotX = mousePos.x / Screen.width;
-        // float pivotY = mousePos.y / Screen.height;
-        // rectTransform.pivot = new Vector2(pivotX, pivotY);
+        var canvas = rectTransform.GetComponentInParent<Canvas>();
+        float scale = canvas ? canvas.scaleFactor : 1f;
 
-        float width = Screen.width;
-        float height = Screen.height;
-        float clampWidth = Mathf.Clamp(mousePos.x, clampX, Screen.width - clampX);
-        float clampHeight = Mathf.Clamp(mousePos.y, clampY, Screen.height - clampY);
+        // element size in *screen pixels*
+        float w = rectTransform.rect.width * scale;
+        float h = rectTransform.rect.height * scale;
 
-        mousePos.x = clampWidth;
-        mousePos.y = clampHeight;
+        // clamp so the whole rect stays on-screen (accounts for pivot)
+        float minX = w * rectTransform.pivot.x;
+        float maxX = Screen.width - w * (1f - rectTransform.pivot.x);
+        float minY = h * rectTransform.pivot.y;
+        float maxY = Screen.height - h * (1f - rectTransform.pivot.y);
 
-        tooltipWindow.transform.position = mousePos;
+        mousePos.x = Mathf.Clamp(mousePos.x, minX, maxX);
+        mousePos.y = Mathf.Clamp(mousePos.y, minY, maxY);
 
-        //transform.position = mousePos;
+        rectTransform.position = mousePos;
     }
 }

@@ -15,10 +15,14 @@ MonoBehaviour:
   monsterName: Llasalix
   id: llasalix
   description: 
+  tooltipData: {fileID: 0}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
     minimumRequirements: 2
+  eatingOffset:
+  - {x: -36.3, y: 36.3}
+  - {x: -47.7, y: 66.3}
   monType: 0
   poopType: 1
   moveSpd: 120

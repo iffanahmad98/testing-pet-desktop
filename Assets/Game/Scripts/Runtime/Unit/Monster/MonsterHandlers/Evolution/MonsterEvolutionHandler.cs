@@ -25,6 +25,7 @@ public class MonsterEvolutionHandler
     private int _nutritionConsumed;
     private int _interactionCount;
 
+    public int EvolutionLevel => _evolutionLevel;
     public bool CanEvolve => _controller?.MonsterData != null && _controller.MonsterData.canEvolve;
     public float TimeSinceCreation => _timeSinceCreation;
     public string TimeCreated => _timeCreated;
@@ -102,6 +103,7 @@ public class MonsterEvolutionHandler
         var nextEvolution = GetNextEvolutionRequirement();
         if (nextEvolution == null) return;
 
+        //if (true)
         if (MeetsEvolutionRequirements(nextEvolution))
         {
             var currentState = _controller.StateMachine?.CurrentState;
@@ -148,7 +150,7 @@ public class MonsterEvolutionHandler
         
         // CRITICAL: Update ID and save data IMMEDIATELY before visual effects
         _controller.evolutionLevel = _targetLevel;
-        UpdateMonsterID(_targetLevel); // Reuse existing method - this updates the ID AND saves
+        UpdateMonsterID(_controller.evolutionLevel); // Reuse existing method - this updates the ID AND saves
         
         // Reset evolution tracking data
         ResetEvolutionTracking();
@@ -295,6 +297,9 @@ public class MonsterEvolutionHandler
 
         foreach (var food in _controller.MonsterManager.activeFoods)
             FadeUtils.ShowRootThenFadeInVisual(food.gameObject, food.gameObject, 0.25f);
+
+        _controller.UpdateEatingOffset(_targetLevel);
+        Debug.Log($"Current Target Level = {_targetLevel}");
 
         yield return new WaitForSeconds(1f);
         _isEvolving = false;
