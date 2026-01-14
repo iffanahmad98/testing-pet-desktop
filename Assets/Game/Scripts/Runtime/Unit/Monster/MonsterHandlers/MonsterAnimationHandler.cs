@@ -213,6 +213,8 @@ public class MonsterAnimationHandler
 
     private Spine.Animation GetAnimation(string animationName)
     {
+        if (animationName == "walk")
+            animationName = "walking";
         // Use cached animation if available
         if (_animationCache.TryGetValue(animationName, out var cachedAnim))
             return cachedAnim;
@@ -272,7 +274,7 @@ public class MonsterAnimationHandler
         var key = state.ToString().ToLowerInvariant();
         return StateAnimationMap.TryGetValue(state, out var animations)
             ? animations
-            : new[] { "idle" };
+            : new[] { "idle", "walk" };
     }
 
     public float GetAnimationDuration(string animationName)
