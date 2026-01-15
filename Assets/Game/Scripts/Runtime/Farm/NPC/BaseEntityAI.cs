@@ -16,6 +16,7 @@ namespace MagicalGarden.AI
         public StateChance[] stateChances;
         protected string currentState = "";
         protected string currentCoroutineString="";
+        public TileAIType tileAIType = TileAIType.FacilityHotel; // TileType is in TileManager.cs
         public Tilemap terrainTilemap;
         public Vector2Int currentTile;
         protected Coroutine stateLoopCoroutine;
@@ -47,7 +48,9 @@ namespace MagicalGarden.AI
             Vector3 worldPos = transform.position;
             if (terrainTilemap == null)
             {
-                terrainTilemap = TileManager.Instance.tilemapWalkingAreaHotel;
+                if (tileAIType != TileAIType.None) {
+                    terrainTilemap = TileManager.Instance.GetTilemap (tileAIType);
+                }
             }
             Vector3Int cellPos = terrainTilemap.WorldToCell(worldPos);
             currentTile = new Vector2Int(cellPos.x, cellPos.y);

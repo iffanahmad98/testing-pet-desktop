@@ -12,13 +12,14 @@ GameObject:
   - component: {fileID: 4393472063575564424}
   - component: {fileID: 6259366645120623575}
   - component: {fileID: 2353908513851942319}
+  - component: {fileID: 1331921008434261532}
   m_Layer: 0
   m_Name: NPC Farmer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2576260932485627904
 Transform:
   m_ObjectHideFlags: 0
@@ -27,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8322022896367518381}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4.1, y: 7.64, z: -5.895262}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 0
@@ -127,6 +128,44 @@ MonoBehaviour:
   physicsMovementRelativeTo: {fileID: 0}
   updateTiming: 1
   unscaledTime: 0
-  _animationName: 
+  _animationName: idle
   loop: 1
   timeScale: 1
+--- !u!114 &1331921008434261532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322022896367518381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 234542543a60716479b28154d0f549ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skeleton: {fileID: 2353908513851942319}
+  walkSpeed: 1
+  runSpeed: 2
+  stateChances:
+  - stateName: idle
+    probability: 0.2
+  - stateName: jump
+    probability: 0.2
+  - stateName: eat
+    probability: 0.2
+  - stateName: walk
+    probability: 0.5
+  - stateName: run
+    probability: 0.2
+  tileAIType: 2
+  terrainTilemap: {fileID: 0}
+  currentTile: {x: 0, y: 0}
+  isOverridingState: 0
+  destinationTile: {x: 0, y: 0}
+  npcAreaPointsDatabase: {fileID: 11400000, guid: 492ec8fd45db65f4ca0892181e2bb947, type: 2}
+  codeNpcAreaPoints: 
+  checkAreaPositionMinSeconds: 5
+  checkAreaPositionMaxSeconds: 15
+  changeAreaPointsMinSeconds: 60
+  changeAreaPointsMaxSeconds: 90
+  currentNPCAreaPointsSO: {fileID: 0}

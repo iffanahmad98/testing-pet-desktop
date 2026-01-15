@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-
+using Spine.Unity;
 public class FarmShopMonsterPanel : FarmShopPanelBase {
     [SerializeField] Transform parentPanel;
     [SerializeField] Image panel;
@@ -13,17 +13,22 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
     [SerializeField] Transform cardParent;
     List <ItemCard> listCardClone = new ();
     bool allItemsLoaded = false;
+    bool firstSetup = false;
 
     [Header ("Selected Item")]
     [SerializeField] Image selectedItemPanel;
     [SerializeField] Image infoIcon;
     [SerializeField] Image smallPodium;
     [SerializeField] TMP_Text infoPriceText;
+    [SerializeField] TMP_Text infoHiredText;
     [SerializeField] TMP_Text infoDetailText;
     GameObject cloneMotionPodium;
     ItemCard selectedItemCard;
     [SerializeField] ToggleGroup cardGroup;
     
+    [Header ("Data")]
+    PlayerConfig playerConfig;
+    List <HiredFarmFacilityData> listHiredFarmFacilityData = new List <HiredFarmFacilityData> ();
 
     [System.Serializable]
     public class ItemCard {
@@ -36,7 +41,18 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
         public TMP_Text priceText;
         public FarmFacilitiesDataSO dataSO;
     }
+
+    void Start () {
+        playerConfig = SaveSystem.PlayerConfig;
+        LoadAllDatas ();
+    }
+
     public override void ShowPanel() {
+        if (!firstSetup) {
+            firstSetup = true;
+            CoinManager.AddCoinChangedRefreshEvent (CheckEligibleAllCards);
+        }
+
         panel.sprite = onPanel;
         panel.transform.SetSiblingIndex(parentPanel.childCount - 1);
         selectedItemPanel.gameObject.SetActive (true);
@@ -51,6 +67,7 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
     void InstantiateAllItems () {
         if (!allItemsLoaded) {
             allItemsLoaded = true;
+            bool isStarter = false;
             foreach (FarmFacilitiesDataSO dataSO in itemDatabaseSO.GetListFarmFacilitiesDataSO ()) {
                 GameObject clone = GameObject.Instantiate (cardPrefab);
                 GameObject cloneMotionSample = GameObject.Instantiate (dataSO.facilityUIPrefab);
@@ -64,8 +81,9 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
                 newItemCard.priceText = newItemCard.buyButton.gameObject.transform.Find ("PriceText").gameObject.GetComponent <TMP_Text> ();
                 newItemCard.dataSO  = dataSO;
 
-                cloneMotionSample.transform.SetParent (smallPodium.gameObject.transform);
-
+                cloneMotionSample.transform.SetParent (newItemCard.smallPodium.gameObject.transform);
+                cloneMotionSample.transform.localPosition = dataSO.facilityCardUILocalPosition;
+                cloneMotionSample.transform.localScale = dataSO.facilityCardUILocalScale;
                 Toggle toggle = clone.GetComponent<Toggle>();
                 toggle.group = cardGroup;
                 toggle.onValueChanged.AddListener(
@@ -73,6 +91,14 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
                 );
 
                 listCardClone.Add (newItemCard);
+                
+                if (!isStarter)
+                {
+                isStarter = true;
+                // StartCoroutine (nToggleStarter (toggle));
+                toggle.isOn = true;
+                SetSelectedItem(newItemCard, true);
+                }
             }
             Debug.Log ("Total clone" + listCardClone.Count);
             foreach (ItemCard itemCard in listCardClone) {
@@ -81,6 +107,8 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
         } else {
             ShowAllInstantiatedAllItems ();
         }
+
+        CheckEligibleAllCards ();
     }
 
     void FillupItemCard (ItemCard itemCard) {
@@ -89,6 +117,7 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
         itemCard.title.text = itemCard.dataSO.facilityName;
         itemCard.priceText.text = itemCard.dataSO.price.ToString ();
         itemCard.cloneCard.gameObject.SetActive (true);
+        itemCard.buyButton.onClick.AddListener (() => OnBuyItem (itemCard));
     }
 
     void ShowAllInstantiatedAllItems () {
@@ -107,7 +136,7 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
     public void SetSelectedItem (ItemCard itemCard, bool isOn) {
         if (isOn) {
             selectedItemCard = itemCard;
-            ShowInformationSelectedItem ();
+            ShowInformationSelectedItem (false);
         } else {
 
         }
@@ -115,20 +144,106 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
         
     }
 
-    void ShowInformationSelectedItem () {
+    void ShowInformationSelectedItem (bool playJump = false) {
         selectedItemPanel.gameObject.SetActive (true);
         FarmFacilitiesDataSO itemData = selectedItemCard.dataSO;
        // infoIcon.sprite = itemData.RewardSprite;
 
         infoPriceText.text = itemData.price.ToString ();
+        
+        if (playerConfig.GetHiredFarmFacilityData (itemData.id) != null) {
+            int hired = playerConfig.GetHiredFarmFacilityData (itemData.id).hired;
+            infoHiredText.text = hired.ToString () + " / " + itemData.maxHired.ToString ();
+            
+        } else {
+            infoHiredText.text = "0" + " / " + itemData.maxHired.ToString ();
+        }
         infoDetailText.text = itemData.detailText;
-
         if (cloneMotionPodium) {Destroy (cloneMotionPodium);}
         cloneMotionPodium = GameObject.Instantiate (itemData.facilityUIPrefab);
         cloneMotionPodium.transform.SetParent (smallPodium.gameObject.transform);
         cloneMotionPodium.transform.localScale = itemData.facilityPodiumUILocalScale;
         cloneMotionPodium.transform.localPosition = itemData.facilityPodiumUILocalPosition;
         cloneMotionPodium.SetActive (true);
+
+        if (playJump) {
+            SkeletonGraphic npcSkeletonGraphicCard = selectedItemCard.cloneMotion.GetComponent <SkeletonGraphic> ();
+            var stateCard = npcSkeletonGraphicCard.AnimationState;
+            stateCard.SetAnimation(0, "jumping", false);
+            stateCard.AddAnimation(0, "idle", true, 0f);
+            npcSkeletonGraphicCard.Update(0);
+            // Info Podium :
+            SkeletonGraphic npcSkeletonGraphic = cloneMotionPodium.GetComponent <SkeletonGraphic> ();
+            var state = npcSkeletonGraphic.AnimationState;
+            state.SetAnimation(0, "jumping", false);
+            state.AddAnimation(0, "idle", true, 0f);
+            npcSkeletonGraphic.Update(0);
+        }
+    }
+    #endregion
+    #region Buy Features
+    public void OnBuyItem (ItemCard itemCard) {
+        FarmFacilitiesDataSO dataSO = itemCard.dataSO;
+        if (playerConfig.GetHiredFarmFacilityData (dataSO.id) != null) {
+            int totalHired = playerConfig.GetHiredFarmFacilityData (dataSO.id).hired;
+            if (dataSO.IsHiredEligible(totalHired)) {
+                playerConfig.AddHiredFarmFacilityData (dataSO.id, 1);
+                CoinManager.SpendCoins (dataSO.price);
+                SaveSystem.SaveAll ();
+                SpawnFarmFacility (dataSO.id,totalHired);
+            }
+        } else {
+            if (dataSO.IsHiredEligible(0)) {
+                playerConfig.AddHiredFarmFacilityData (dataSO.id, 1);
+                CoinManager.SpendCoins (dataSO.price);
+                SaveSystem.SaveAll ();
+                SpawnFarmFacility (dataSO.id, 0);
+            }
+        }
+        ShowInformationSelectedItem (true);
+    }
+
+    #endregion
+    #region Eligible
+    void CheckEligibleAllCards () {
+        foreach (ItemCard itemCard in listCardClone) {
+            FarmFacilitiesDataSO dataSO = itemCard.dataSO;
+            if (playerConfig.GetHiredFarmFacilityData (dataSO.id) != null) {
+                int totalHired =  playerConfig.GetHiredFarmFacilityData (dataSO.id).hired;
+                Debug.Log ($"Hired Total : {totalHired} max hired {dataSO.maxHired}");
+                if (dataSO.IsHiredEligible(totalHired) && totalHired < dataSO.maxHired) {
+                    itemCard.buyButton.interactable = true;
+                } else {
+                    itemCard.buyButton.interactable = false;
+                }
+            } else {
+                if (dataSO.IsHiredEligible(0)) {
+                    itemCard.buyButton.interactable = true;
+                } else {
+                    itemCard.buyButton.interactable = false;
+                }
+            }
+            
+        }
+    }
+    #endregion
+    #region World Spawner
+    void SpawnFarmFacility (string id, int hiredElement) {
+        FarmFacilitiesDataSO data = itemDatabaseSO.GetFarmFacilitiesDataSO (id);
+        GameObject worldClone = GameObject.Instantiate (data.facilityPrefab);
+        worldClone.transform.position = data.facilitySpawnPositions[hiredElement];
+        worldClone.SetActive (true);
+    }
+
+    #endregion
+    #region Data
+    void LoadAllDatas () {
+        listHiredFarmFacilityData = playerConfig.hiredFarmFacilitiesData;
+        foreach (HiredFarmFacilityData data in listHiredFarmFacilityData) {
+            for (int x = 0; x < data.hired; x++) {
+                SpawnFarmFacility (data.id, x);
+            }
+        }
     }
     #endregion
 }

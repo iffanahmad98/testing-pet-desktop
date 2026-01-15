@@ -3,13 +3,20 @@ using MagicalGarden.Inventory;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
-
+using System.Collections;
+using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace MagicalGarden.Manager
 {
+    public enum TileAIType {
+        None,
+        FacilityHotel,
+        FacilityFarm
+    }
+
     public enum TileAction
     {
         None,
@@ -33,6 +40,7 @@ namespace MagicalGarden.Manager
         public Tilemap tilemapHighlight;
         public Tilemap tilemapWalkingAreaHotel;
         public Tilemap tilemapHotelFacilities;
+        public Tilemap tilemapFarmFacilities;
         [Header("Tiles")]
         public TileBase tileWater;
         public TileBase tileFertilizer;
@@ -44,9 +52,13 @@ namespace MagicalGarden.Manager
         private ItemData currentItemdata;
         public bool disableTileSelect = false;
 
+        [Header ("GetTilemap")]
+        Dictionary <TileAIType, Tilemap> dictionaryTilemap = new Dictionary <TileAIType, Tilemap> ();
+
         private void Awake()
         {
             Instance = this;
+            LoadDictionaryTilemap ();
         }
 
         public void SetAction(string action)
@@ -224,6 +236,19 @@ namespace MagicalGarden.Manager
         {
             currentAction = TileAction.None;
         }
+
+        #region GetTileMap
+        public void LoadDictionaryTilemap () {
+            dictionaryTilemap.Add (TileAIType.None, null);
+            dictionaryTilemap.Add (TileAIType.FacilityHotel, tilemapWalkingAreaHotel);
+            dictionaryTilemap.Add (TileAIType.FacilityFarm, tilemapFarmFacilities);
+        }
+
+        public Tilemap GetTilemap (TileAIType tileType) { // BaseEntity.AI
+            return dictionaryTilemap [tileType];
+        }
+        #endregion
+
         #region Queries
         public bool IsTileLocked(Vector3Int position)
         {

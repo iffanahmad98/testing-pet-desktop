@@ -9,8 +9,8 @@ public class FarmFacilitiesDataSO : ScriptableObject {
     public int price = 0;
     [TextArea (3,10)]
     public string detailText = "";
-
-    [Header ("Facilities Motion Config")]
+    public int maxHired = 0;
+    [Header ("Facilities Motion Config (World)")]
     public GameObject facilityPrefab;
     
     [Header ("Facilities Motion Config (UI)")]
@@ -42,6 +42,8 @@ public class FarmFacilitiesDataSO : ScriptableObject {
 
     public bool IsHiredEligible (int target) // untuk yang ada tingkat (HiredEligibility)
     {
+        if (target >= maxHired) return false;
+        
         foreach (var rule in rulesHiredEligibility[target].rules)
         {
             if (!rule.IsEligible())

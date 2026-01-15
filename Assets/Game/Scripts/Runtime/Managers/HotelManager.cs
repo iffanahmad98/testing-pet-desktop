@@ -752,7 +752,7 @@ namespace MagicalGarden.Manager
            
             int cycles = (int)(hours / 1.0); // 1 cycle setiap 1 jam
             if (cycles > 0) {
-                 int totalNPCService = playerConfig.GetTotalHiredService ();
+                 int totalNPCService = playerConfig.GetTotalHiredServiceWithNpcServiceFeatures ();
                 int totalHotelCanHandled = totalNPCService * 3;
                 for (int c = 0; c < cycles; c++) {
                     //-- Memasukan element

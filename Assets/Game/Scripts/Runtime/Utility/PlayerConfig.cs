@@ -35,6 +35,7 @@ public class PlayerConfig
     public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
     public List<HiredHotelFacilityData> hiredHotelFacilityData = new ();
     public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
+    public List<HiredFarmFacilityData> hiredFarmFacilitiesData = new ();
    
 
     public string activeBiomeID = "default_biome";
@@ -58,7 +59,6 @@ public class PlayerConfig
     public DateTime lastRefreshTimeHotel;
     public List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
     public List <PetMonsterHotelData> listPetMonsterHotelData = new List <PetMonsterHotelData> ();
-    
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -360,10 +360,10 @@ public class PlayerConfig
         return null;
     }
 
-    public int GetTotalHiredService () { // HotelController.cs
+    public int GetTotalHiredServiceWithNpcServiceFeatures () { // HotelController.cs
         int result = 0;
         foreach (HiredHotelFacilityData data in hiredHotelFacilityData) {
-            if (data.id == "robo_shroom" || data.id == "bellboy_shroom") {
+            if (data.id == "robo_shroom" || data.id == "bellboy_shroom") { // memiliki fitur NpcService
                 result += data.hired;
             }
         }
@@ -394,6 +394,23 @@ public class PlayerConfig
         Debug.LogError ("There is no HotelGiftWorldData similar with this position !");
         return null;
     }
+    #endregion
+    #region Farm Facility Logic
+    public void AddHiredFarmFacilityData (string dataId, int hiredValue)
+    {
+        if (GetHiredFarmFacilityData(dataId) == null) 
+            hiredFarmFacilitiesData.Add(new HiredFarmFacilityData { id = dataId, isActive = true, hired = hiredValue});
+        else
+            GetHiredFarmFacilityData (dataId).hired += hiredValue;
+    }
+
+    public HiredFarmFacilityData GetHiredFarmFacilityData (string dataId) {
+        foreach (HiredFarmFacilityData data in hiredFarmFacilitiesData) {
+            if (data.id == dataId) return data;
+        }
+        return null;
+    }
+
     #endregion
     #region Guest Request Data
     public void AddGuestRequestData (GuestRequestData guestRequestData) { // HotelManager.cs
@@ -574,6 +591,13 @@ public class OwnedHotelFacilityData
 }
 [Serializable]
 public class HiredHotelFacilityData
+{
+    public string id;
+    public bool isActive;
+    public int hired;
+}
+[Serializable]
+public class HiredFarmFacilityData
 {
     public string id;
     public bool isActive;

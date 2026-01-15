@@ -158,6 +158,8 @@ public class MonsterManager : MonoBehaviour
     {
         GameObject monster = CreateMonster(monsterData);
         var controller = monster.GetComponent<MonsterController>();
+       // Debug.Log ("Monster " + monster.name);
+        
 
         if (monster == null || controller == null)
         {
@@ -204,6 +206,12 @@ public class MonsterManager : MonoBehaviour
         if (settingsManager != null)
         {
             settingsManager.ApplyCurrentPetScaleToMonster(controller);
+        }
+
+        RectTransform monsterRectTransform = monster.GetComponent <RectTransform> ();
+        if (monsterRectTransform) {
+            Debug.Log ("Change Pivot to (0.5,0.0f)");
+            monsterRectTransform.pivot = new Vector2 (0.5f,0.0f);
         }
     }
 
@@ -917,6 +925,12 @@ public class MonsterManager : MonoBehaviour
         var settingsManager = ServiceLocator.Get<SettingsManager>();
         if (settingsManager != null)
             settingsManager.ApplyCurrentPetScaleToMonster(controller);
+
+        RectTransform monsterRectTransform = npcObj.GetComponent <RectTransform> ();
+        if (monsterRectTransform) {
+            Debug.Log ("Change Pivot to (0.5,0.0f)");
+            monsterRectTransform.pivot = new Vector2 (0.5f,0.0f);
+        }
     }
     public void DespawnNPC(string npcID)
     {

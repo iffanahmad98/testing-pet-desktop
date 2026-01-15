@@ -16,6 +16,7 @@ MonoBehaviour:
   facilityName: Farmer
   price: 500
   detailText: Farmer shroom assists you to manage farm area.
+  maxHired: 2
   facilityPrefab: {fileID: 8322022896367518381, guid: 7ab6b471c61068d408d9b51f2f637703, type: 3}
   facilityUIPrefab: {fileID: 7209922478693875093, guid: 7e2b6f86001592040b73b4d1176c3ead, type: 3}
   facilityCardUILocalPosition: {x: 3.161501, y: -47.6908, z: 0}
@@ -23,6 +24,14 @@ MonoBehaviour:
   facilityPodiumUILocalPosition: {x: 3.163, y: -70, z: 0}
   facilityPodiumUILocalScale: {x: 0.15, y: 0.15, z: 0.15}
   facilitySpawnPosition: {x: 0, y: 0, z: 0}
-  facilitySpawnPositions: []
+  facilitySpawnPositions:
+  - {x: 4.1, y: 8.57, z: 0}
+  - {x: 13.82, y: 1.99, z: 0}
   rules: []
-  rulesHiredEligibility: []
+  rulesHiredEligibility:
+  - hired: 0
+    rules:
+    - {fileID: 11400000, guid: 0bc6228c10593dd4c8377be7b8c3d888, type: 2}
+  - hired: 1
+    rules:
+    - {fileID: 11400000, guid: 0bc6228c10593dd4c8377be7b8c3d888, type: 2}

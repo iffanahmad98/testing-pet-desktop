@@ -48,7 +48,9 @@ public class FarmShopPlantPanel : FarmShopPanelBase
 
     void InstantiateAllItems () {
         if (!allItemsLoaded) {
+            
             allItemsLoaded = true;
+            bool isStarter = false;
             foreach (MagicalGarden.Inventory.ItemData itemDataSO in itemDatabaseSO.GetListItemData ()) {
                 GameObject clone = GameObject.Instantiate (cardPrefab);
                 ItemCard newItemCard = new ItemCard ();
@@ -65,6 +67,14 @@ public class FarmShopPlantPanel : FarmShopPanelBase
                 );
 
                 listCardClone.Add (newItemCard);
+
+                if (!isStarter)
+                {
+                isStarter = true;
+                // StartCoroutine (nToggleStarter (toggle));
+                toggle.isOn = true;
+                SetSelectedItem(newItemCard, true);
+                }
             }
             Debug.Log ("Total clone" + listCardClone.Count);
             foreach (ItemCard itemCard in listCardClone) {
