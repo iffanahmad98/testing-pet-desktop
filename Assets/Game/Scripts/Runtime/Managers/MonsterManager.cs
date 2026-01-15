@@ -416,10 +416,10 @@ public class MonsterManager : MonoBehaviour
             SetupPooledObject(pooled, gameAreaRT, pos);
 
             var poolPos = pooled.transform.position;
-            poolPos.y += 15f;
+            pooled.transform.DOMoveY(poolPos.y + 15f, 0.5f).SetEase(Ease.OutBack);
             pooled.transform.position = poolPos;
 
-            pooled.transform.DOLocalMoveY(pos.y, 0.5f);
+            //pooled.transform.DOLocalMoveY(pos.y, 0.5f);
 
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {

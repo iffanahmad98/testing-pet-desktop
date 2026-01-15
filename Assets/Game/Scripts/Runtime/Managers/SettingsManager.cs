@@ -49,14 +49,18 @@ public class SettingsManager : MonoBehaviour
 
     private float uiScale = 1f; // optionally make this persistent
     private float petScale = 1f; // pet scaling factor
+    private float petPivotY = 1.140f; // pet pivot.y default
 
     private const float MIN_SIZE = 270f;
     private const float DEFAULT_GAME_AREA_WIDTH = 1920f;
     private const float DEFAULT_GAME_AREA_HEIGHT = 1080f;
     private const float DEFAULT_UI_SCALE = 1f;
     private const float DEFAULT_PET_SCALE = 1f;
+    private const float DEFAULT_PET_PIVOT_Y = 1.140f;
     private const float MIN_PET_SCALE = 0.25f;
     private const float MAX_PET_SCALE = 1.5f;
+    private const float MIN_PET_PIVOT_Y = 0.3f;
+    private const float MAX_PET_PIVOT_Y = 1.7f;
     private const float MONSTER_BOUNDS_PADDING = 50f;
     private float maxScreenWidth;
     private float maxScreenHeight;
@@ -204,11 +208,13 @@ public class SettingsManager : MonoBehaviour
         
         // Pet Scale buttons
         if (petSizeIncreaseButton != null)
-            petSizeIncreaseButton.onClick.AddListener(() => AdjustPetScale(0.05f));
+            petSizeIncreaseButton.onClick.AddListener(() => {AdjustPetScale(0.05f); AdjustPetPivotY(0.012f);});
+
         if (petSizeDecreaseButton != null)
-            petSizeDecreaseButton.onClick.AddListener(() => AdjustPetScale(-0.05f));
+            petSizeDecreaseButton.onClick.AddListener(() => {AdjustPetScale(-0.05f); AdjustPetPivotY(-0.012f);});
+
         if (petSizeResetButton != null)
-            petSizeResetButton.onClick.AddListener(() => ResetPetScale());
+            petSizeResetButton.onClick.AddListener(() => {ResetPetScale(); ResetPetPivotY();});
             
         // Other buttons
         saveButton.onClick.AddListener(OnSaveSettings);
@@ -335,14 +341,31 @@ public class SettingsManager : MonoBehaviour
         ApplyPetScaleToAllMonsters();
     }
 
+    public void AdjustPetPivotY(float delta)
+    {
+        petPivotY = Mathf.Clamp(petPivotY + delta, MIN_PET_PIVOT_Y, MAX_PET_PIVOT_Y);
+        ApplyPetScaleToAllMonsters();
+    }
+
     public void ResetPetScale()
     {
         UpdatePetScale(DEFAULT_PET_SCALE);
     }
 
+    public void ResetPetPivotY()
+    {
+        UpdatePetPivotY(DEFAULT_PET_PIVOT_Y);
+    }
+
     public void UpdatePetScale(float value)
     {
         petScale = Mathf.Clamp(value, MIN_PET_SCALE, MAX_PET_SCALE);
+        ApplyPetScaleToAllMonsters();
+    }
+
+    public void UpdatePetPivotY(float value)
+    {
+        petPivotY = Mathf.Clamp(value, MIN_PET_PIVOT_Y, MAX_PET_PIVOT_Y);
         ApplyPetScaleToAllMonsters();
     }
 
@@ -354,6 +377,10 @@ public class SettingsManager : MonoBehaviour
         {
             if (monster != null)
             {
+                // Vector2 pivotValue = Vector2.up * petPivotY;
+
+                // monster.GetComponent<RectTransform>().pivot = new Vector2(0.5f, pivotValue.y);
+
                 monster.transform.localScale = Vector3.one * petScale;
             }
         }
@@ -364,6 +391,10 @@ public class SettingsManager : MonoBehaviour
         {
             if (npc != null)
             {
+                // Vector2 pivotValue = Vector2.up * petPivotY;
+
+                // npc.GetComponent<RectTransform>().pivot = new Vector2(0.5f, pivotValue.y);
+
                 npc.transform.localScale = Vector3.one * petScale;
             }
         }

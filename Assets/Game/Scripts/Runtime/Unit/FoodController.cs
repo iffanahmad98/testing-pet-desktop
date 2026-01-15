@@ -1,4 +1,6 @@
 using System.Collections;
+using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -18,11 +20,19 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
     public event System.Action OnPlaced;
     [SerializeField] private float dropSpeed = 10f;
     [SerializeField] private float overlapDepth = 10f; // How deep into the ground it sinks visually
+    [SerializeField] private float gravityScale = 1f;
+    private Vector3 velocity = Vector3.zero;
+    private float gravityForce;
 
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+    }
+
+    void Start()
+    {
+        gravityForce = Physics2D.gravity.y * gravityScale;
     }
 
     public void Initialize(ItemDataSO data, RectTransform groundRect = null)
@@ -122,15 +132,37 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
     public bool IsClaimed => claimedBy != null;
     private IEnumerator DropUntilOnGround(RectTransform groundRect = null)
     {
-        yield return null; // Ensure UI is initialized
+        yield return null;
+
+        Rect g = GetWorldRect(groundRect);
+
+        // Choose a random Y within the ground rect (this is the Y for the FOOD BOTTOM)
+        float targetBottomY = Random.Range(g.yMin, g.yMax);
+
+        // collision
+        if (GetWorldRect(rectTransform).Overlaps(GetWorldRect(groundRect)))
+        {
+            Vector2 defaultPos = rectTransform.anchoredPosition;
+
+            rectTransform.DOLocalMoveY(defaultPos.y - 25f, 1f);
+            yield break; // ends coroutine, so it stays there
+        }
 
         while (true)
         {
-            rectTransform.anchoredPosition += Vector2.down * dropSpeed * Time.deltaTime;
+            velocity.y -= gravityForce * Time.deltaTime;
 
-            if (IsOverlappingGroundWithOffset(rectTransform, groundRect, overlapDepth))
+            rectTransform.anchoredPosition += Vector2.down * velocity.y * Time.deltaTime;
+
+            Rect f = GetWorldRect(rectTransform);
+
+            bool xOverlap = f.xMin < g.xMax && f.xMax > g.xMin;
+            if (xOverlap && f.yMin <= targetBottomY)
             {
-                break;
+                // Snap exactly to the random Y (optional but recommended)
+                float delta = targetBottomY - f.yMin;
+                rectTransform.position += new Vector3(0f, delta, 0f);
+                yield break;
             }
 
             yield return null;

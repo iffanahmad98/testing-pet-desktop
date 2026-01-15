@@ -404,7 +404,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             {
                 slot.itemAmount--;
                 slot.amountText.text = $"{itemAmount} pcs";
-                SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
+                
                 if (slot.itemAmount <= 0)
                 {
                     ServiceLocator.Get<PlacementManager>().CancelPlacement();
@@ -419,6 +419,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             ServiceLocator.Get<PlacementManager>().CancelPlacement();
             inventoryUI.StartPopulateAllInventories();
         }
+
+        SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
     }
 
     private void OnCancelPlacement()

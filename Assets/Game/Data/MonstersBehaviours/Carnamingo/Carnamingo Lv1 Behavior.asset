@@ -23,6 +23,16 @@ MonoBehaviour:
     requiresFood: 0
     hungerThreshold: 0
     happinessThreshold: 0
+  - name: walk - idle
+    fromState: 1
+    toState: 0
+    probability: 0.8
+    blendDuration: 0
+    minDuration: 0
+    maxDuration: 0
+    requiresFood: 0
+    hungerThreshold: 0
+    happinessThreshold: 0
   - name: walk - run
     fromState: 1
     toState: 2
@@ -36,36 +46,6 @@ MonoBehaviour:
   - name: run - walk
     fromState: 2
     toState: 1
-    probability: 1
-    blendDuration: 0
-    minDuration: 0
-    maxDuration: 0
-    requiresFood: 0
-    hungerThreshold: 0
-    happinessThreshold: 0
-  - name: walk - idle
-    fromState: 1
-    toState: 0
-    probability: 0.8
-    blendDuration: 0
-    minDuration: 0
-    maxDuration: 0
-    requiresFood: 0
-    hungerThreshold: 0
-    happinessThreshold: 0
-  - name: idle - itch
-    fromState: 0
-    toState: 6
-    probability: 0.6
-    blendDuration: 0
-    minDuration: 0
-    maxDuration: 0
-    requiresFood: 0
-    hungerThreshold: 0
-    happinessThreshold: 0
-  - name: itch - idle
-    fromState: 0
-    toState: 6
     probability: 1
     blendDuration: 0
     minDuration: 0
