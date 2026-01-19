@@ -453,6 +453,36 @@ namespace MagicalGarden.Farm
             Debug.Log("Tanaman berhasil dimuat dari file.");
         }
 #endregion
+#region Plant AI Service
+    public Dictionary<Vector3Int, PlantController> GetPlants () {
+        return plants;
+    }
+
+    public Dictionary<Vector3Int, PlantController> GetPlantsAvailableWater()
+    {
+        Dictionary<Vector3Int, PlantController> result =
+            new Dictionary<Vector3Int, PlantController>();
+
+        foreach (KeyValuePair<Vector3Int, PlantController> kvp in plants)
+        {
+            SeedBase seedBase = kvp.Value.seed;
+
+            // contoh kondisi (ganti sesuai logic kamu)
+            if (seedBase != null && seedBase.IsNeedWater())
+            {
+                result.Add(kvp.Key, kvp.Value);
+            }
+        }
+
+        return result;
+    }
+
+    /*
+    public Dictionary <Vector3Int, PlantController> GetPlantsAvailableHarvest () {
+
+    }
+    */
+#endregion
     }
 }
 

@@ -22,6 +22,8 @@ public class FarmShopPlantPanel : FarmShopPanelBase
     ItemCard selectedItemCard;
     [SerializeField] ToggleGroup cardGroup;
     
+    [Header ("Data")]
+    PlayerConfig playerConfig;
 
     [System.Serializable]
     public class ItemCard {
@@ -33,6 +35,10 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         public MagicalGarden.Inventory.ItemData itemDataSO;
     }
 
+    void Start () {
+        playerConfig = SaveSystem.PlayerConfig;
+    }
+    
     public override void ShowPanel() {
         panel.sprite = onPanel;
         panel.transform.SetSiblingIndex(parentPanel.childCount - 1);
@@ -91,6 +97,7 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         itemCard.icon.sprite = itemCard.itemDataSO.RewardSprite;
         itemCard.priceText.text = itemCard.itemDataSO.price.ToString ();
         itemCard.cloneCard.gameObject.SetActive (true);
+        itemCard.buyButton.onClick.AddListener (() => OnBuyItem (itemCard));
     }
 
     void ShowAllInstantiatedAllItems () {
@@ -126,6 +133,30 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         infoWaterText.text = itemData.needHourWatering.ToString () + " hours";
         infoHarvestText.text = itemData.needHourGrow.ToString () + " hours";
         infoDetailText.text = itemData.description;
+    }
+    #endregion
+    #region Buy Features
+    public void OnBuyItem (ItemCard itemCard) {
+        MagicalGarden.Inventory.ItemData dataSO = itemCard.itemDataSO;
+        if (dataSO.IsEligible ()) {
+            playerConfig.AddItemFarm (dataSO.itemId, 1);
+            CoinManager.SpendCoins (dataSO.price);
+            SaveSystem.SaveAll ();
+        }
+        ShowInformationSelectedItem ();
+    }
+
+    #endregion
+    #region Eligible
+    void CheckEligibleAllCards () {
+        foreach (ItemCard itemCard in listCardClone) {
+            MagicalGarden.Inventory.ItemData dataSO = itemCard.itemDataSO;
+            if (dataSO.IsEligible ()) {
+                itemCard.buyButton.interactable = true;
+            } else {
+                itemCard.buyButton.interactable = false;
+            }
+        }
     }
     #endregion
 }

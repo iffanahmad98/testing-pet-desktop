@@ -34,14 +34,25 @@ namespace MagicalGarden.Inventory
         public TextMeshProUGUI descCount;
         public TextMeshProUGUI descWateringHour;
         public TextMeshProUGUI descLiveHour;
+
+        [Header ("Data")]
+        public FarmItemDatabaseSO allFarmItemDatabase;
+        PlayerConfig playerConfig;
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
             else Destroy(gameObject);
         }
 
+        void Start () 
+        {
+           // LoadAllItemFarmDatas ();
+        }
+
         public void AddItem(ItemData itemData, int amount)
         {
+            Debug.Log ("Add Item");
             if (itemData.itemType == ItemType.Crop)
             {
                 PlantManager.Instance.AddAmountHarvest();
@@ -64,6 +75,7 @@ namespace MagicalGarden.Inventory
 
         public bool RemoveItem(ItemData itemData, int amount)
         {
+            Debug.Log ("RemoveItem");
             var item = items.FirstOrDefault(i => i.itemData.itemId == itemData.itemId);
             if (item == null || item.quantity < amount) return false;
 
@@ -178,6 +190,20 @@ namespace MagicalGarden.Inventory
             DisableAllDescriptions();
             descAddSeed.SetActive(true);
         }
+
+        #region Data
+        void LoadAllItemFarmDatas () {
+            if (playerConfig == null) {
+                playerConfig = SaveSystem.PlayerConfig;
+            }
+
+            List <OwnedItemFarmData> listOwnedItemFarmData = playerConfig.GetOwnedItemFarmDatas ();
+            foreach (OwnedItemFarmData owned in listOwnedItemFarmData) {
+                AddItem (allFarmItemDatabase.GetItemData (owned.itemID), owned.amount);
+            }
+            
+        }
+        #endregion
     }
     public enum ItemType
     {

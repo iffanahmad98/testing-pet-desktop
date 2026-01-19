@@ -56,7 +56,7 @@ namespace MagicalGarden.Farm
         void Start()
         {
             GameManager.Instance.isDebugMode = true;
-            SetInventory();
+            // SetInventory(); 
             // DebugPlantReadyHarvest(new Vector2Int(0, 0), tomatoSeed);
 
         }
@@ -69,7 +69,7 @@ namespace MagicalGarden.Farm
             Debug.Log("📅 Simulasi hari baru. Guest request akan dibuat ulang saat start.");
         }
         private void SetInventory()
-        { 
+        { // (Not Used Anymore)
             var normalfertilizer = Resources.Load<ItemData>("Items/Fertilizer/Normal Fertilizer");
             var manaNectar = Resources.Load<ItemData>("Items/Fertilizer/Mana Nectar");
             var moonlightPollen = Resources.Load<ItemData>("Items/Fertilizer/Moonlight Pollen");

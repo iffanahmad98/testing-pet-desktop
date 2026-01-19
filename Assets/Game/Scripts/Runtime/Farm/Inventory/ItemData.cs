@@ -38,14 +38,30 @@ namespace MagicalGarden.Inventory
         public override string ItemName => displayName;
         public override Sprite RewardSprite => icon;
         public override Vector3 RewardScale => rewardScale;
+        [Header ("Eligibility (Hotel Facilities Menu)")]
+        public List<EligibilityRuleSO> rules = new();
+
+        #region Eligibility
+        public bool IsEligible() // untuk yang tidak ada tingkat
+        { // HotelFacilitiesMenu.cs
+            foreach (var rule in rules)
+            {
+                if (!rule.IsEligible())
+                    return false;
+            }
+            return true;
+        }
+
+        #endregion
         #region Rewardable
         
         public override void RewardGotItem(int quantities)
         {
             Debug.Log($"You got item {displayName} x{quantities} (doesnt has save system yet)");
-           // SaveSystem.PlayerConfig.AddItem (itemId,itemType,quantities);
-           // SaveSystem.SaveAll ();
+            SaveSystem.PlayerConfig.AddItemFarm (itemId,quantities);
+            SaveSystem.SaveAll ();
         }
         #endregion
+        
     }
 }

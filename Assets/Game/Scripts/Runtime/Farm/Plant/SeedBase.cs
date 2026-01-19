@@ -128,6 +128,19 @@ namespace MagicalGarden.Farm
             }
         }
 
+        public virtual bool IsNeedWater ()
+        {
+        
+            DateTime now = PlantManager.Instance != null ? PlantManager.Instance.simulatedNow : DateTime.Now;
+
+            // Cegah penyiraman ganda dalam 1 jam
+            if ((now - lastWateredTime).TotalHours < 1)
+                return false;
+            else
+                return true;
+
+        }
+
         public virtual void CheckHealth()
         {
             DateTime now = PlantManager.Instance != null ? PlantManager.Instance.simulatedNow : DateTime.Now;

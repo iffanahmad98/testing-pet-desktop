@@ -39,7 +39,7 @@ namespace MagicalGarden.Farm.UI
         {
             var recipe = allRecipes[index];
             string desc = GetRecipeDescription(recipe);
-            recipeDescriptionText.text = desc;
+        //    recipeDescriptionText.text = desc;
         }
 
         private string GetRecipeDescription(FertilizerRecipe recipe)
@@ -83,10 +83,11 @@ namespace MagicalGarden.Farm.UI
             int index = recipeDropdown.value;
             if (index >= recipeList.Count) return;
 
-            var selectedRecipe = recipeList[index];
+           var selectedRecipe = recipeList[index];
             if (FertilizerManager.Instance.IsHasActiveTask())
                 return;
 
+            
             if (InventoryManager.Instance.HasItems(selectedRecipe.ingredients))
             {
                 FertilizerManager.Instance.StartCrafting(selectedRecipe, type);
@@ -96,6 +97,7 @@ namespace MagicalGarden.Farm.UI
             {
                 Debug.LogError("bahan tidak cukup");
             }
+            
             switch (type)
             {
                 case FertilizerType.Garden:

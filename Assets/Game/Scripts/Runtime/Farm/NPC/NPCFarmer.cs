@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using MagicalGarden.Farm;
 namespace MagicalGarden.AI
 {
     public class NPCFarmer : BaseEntityAI
@@ -18,6 +18,18 @@ namespace MagicalGarden.AI
         public float changeAreaPointsMaxSeconds;
         [HideInInspector] public NPCAreaPointsSO currentNPCAreaPointsSO;
 
+        [Header ("Farmer Variables")]
+        public PlantManager plantManager;
+        bool isWatering = false;
+        bool isHarvesting = false;
+        Coroutine cnService;
+        public enum NearestTargetType
+        {
+            None,
+            Water,
+            Harvest,
+        }
+
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -25,6 +37,8 @@ namespace MagicalGarden.AI
                 case "idle": return IdleState();
                 case "walk": return WalkState();
                 case "run":  return RunState();
+                case "watering" : return WateringState ();
+               // case "fertilizing" : return FertilizingState ();
               //  case "collect": return CollectState ();
                 default:     return IdleState();
             }
@@ -40,6 +54,7 @@ namespace MagicalGarden.AI
             base.Start();
             stateLoopCoroutine = StartCoroutine(StateLoop());
             Patroling ();
+            
            // StartCoroutine (nTestWalk ());
         }
 
@@ -60,7 +75,7 @@ namespace MagicalGarden.AI
             
             if (!IsWalkableTile(destination))
             {
-              //  Debug.LogError("Destination is not walkable!");
+                Debug.LogError("Destination is not walkable!");
                // yield break;
             }
 
@@ -127,6 +142,9 @@ namespace MagicalGarden.AI
             }
 
             SetAnimation("idle");
+            isOverridingState = false;
+
+            stateLoopCoroutine = StartCoroutine(StateLoop());
             
         }
 
@@ -163,8 +181,53 @@ namespace MagicalGarden.AI
         }
 
         public virtual IEnumerator nCheckAreaPosition () {
-            isOverridingState = true;
-            StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[UnityEngine.Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
+           // isOverridingState = true;
+            if (!plantManager) {
+                yield return new WaitUntil (() => PlantManager.Instance);
+                plantManager = PlantManager.Instance;
+            }
+
+            if (stateLoopCoroutine != null) { // Farm Features
+                StopCoroutine (stateLoopCoroutine);
+                stateLoopCoroutine = null;
+                isOverridingState = false;
+            }
+
+            if (IsCanWatering())
+            { // Farm Features
+                Dictionary<Vector3Int, PlantController> dictionaryWaterAvailables = GetPlantsWatering();
+                Transform origin = transform; // posisi NPC / player
+
+                float nearestDistance = float.MaxValue;
+                PlantController nearestPlant = null;
+                Vector3Int nearestCell = default;
+
+                foreach (KeyValuePair<Vector3Int, PlantController> kvp in dictionaryWaterAvailables)
+                {
+                    PlantController plant = kvp.Value;
+                    if (plant == null) continue;
+
+                    float dist = Vector3.Distance(origin.position, plant.transform.position);
+
+                    if (dist < nearestDistance)
+                    {
+                        nearestDistance = dist;
+                        nearestPlant = plant;
+                        nearestCell = kvp.Key;
+                    }
+                }
+
+                if (nearestPlant != null)
+                {
+                    // contoh: gerak ke tanaman terdekat
+                    Debug.Log($"Nearest plant at {nearestCell}, distance {nearestDistance}");
+                    cnService = StartCoroutine (WateringState ());
+                }
+            }
+            else {
+                StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[UnityEngine.Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
+            }
+
             yield return new WaitUntil (() => !isOverridingState);
             yield return new WaitForSeconds (UnityEngine.Random.Range (checkAreaPositionMinSeconds, checkAreaPositionMaxSeconds));
             StartCoroutine (nCheckAreaPosition ());
@@ -296,8 +359,27 @@ namespace MagicalGarden.AI
         #endregion
         
         #region Farm Features
-       
+        bool IsCanWatering () {
+            return plantManager.GetPlantsAvailableWater ().Count > 0;
+        }
 
+        bool IsCanHarvesting () {
+            return false;
+        }
+
+        Dictionary<Vector3Int, PlantController> GetPlantsWatering () {
+            return plantManager.GetPlantsAvailableWater ();
+        }
+
+        IEnumerator WateringState () {
+            SetAnimation("watering");
+             
+            yield return new WaitForSeconds(1.50f);
+            isWatering = false;
+            stateLoopCoroutine = StartCoroutine(StateLoop());
+          //  giftObject.GetComponent <MagicalGarden.Gift.GiftItem> ().OpenGiftByNPC ();
+          //  giftObject = null;
+        }
         #endregion
     }
 }

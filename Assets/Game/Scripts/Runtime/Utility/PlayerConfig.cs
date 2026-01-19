@@ -36,7 +36,7 @@ public class PlayerConfig
     public List<HiredHotelFacilityData> hiredHotelFacilityData = new ();
     public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
     public List<HiredFarmFacilityData> hiredFarmFacilitiesData = new ();
-   
+    public List <OwnedItemFarmData> ownedItemFarmDatas = new ();
 
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
@@ -412,6 +412,46 @@ public class PlayerConfig
     }
 
     #endregion
+    #region Item Farm Data Logic
+    public void AddItemFarm(string itemID, int amount)
+    {
+        if (amount == 0 || string.IsNullOrEmpty(itemID)) return;
+
+        var item = ownedItemFarmDatas.Find(i => i.itemID == itemID);
+        if (item == null)
+        {
+            ownedItemFarmDatas.Add(new OwnedItemFarmData { itemID = itemID, amount = Mathf.Max(0, amount) });
+        }
+        else
+        {
+            item.amount = Mathf.Max(0, item.amount + amount);
+            if (item.amount == 0)
+                ownedItemFarmDatas.Remove(item);
+        }
+    }
+
+    public void RemoveItemFarm(string itemID, int amount)
+    {
+        if (amount <= 0 || string.IsNullOrEmpty(itemID)) return;
+
+        var existing = ownedItemFarmDatas.Find(i => i.itemID == itemID);
+        if (existing != null)
+        {
+            existing.amount -= amount;
+            if (existing.amount <= 0)
+                ownedItemFarmDatas.Remove(existing);
+        }
+    }
+
+    public int GetItemFarmAmount(string itemID)
+    {
+        return ownedItemFarmDatas.Find(i => i.itemID == itemID)?.amount ?? 0;
+    }
+
+    public List <OwnedItemFarmData> GetOwnedItemFarmDatas () {
+        return ownedItemFarmDatas;
+    }
+    #endregion
     #region Guest Request Data
     public void AddGuestRequestData (GuestRequestData guestRequestData) { // HotelManager.cs
         
@@ -604,6 +644,14 @@ public class HiredFarmFacilityData
     public int hired;
 }
 [Serializable]
+public class OwnedItemFarmData
+{
+    public string itemID;
+    // public ItemType type;
+    public int amount;
+}
+
+[Serializable]
 public class HotelGiftWorldData
 {
     public Vector3 dataPosition;
@@ -645,6 +693,7 @@ public class PetMonsterHotelData
     public string guestStageGroupName = "";
     public int guestStage = 0;
 }
+
 
 
 

@@ -33,6 +33,14 @@ namespace MagicalGarden.AI
         [HideInInspector] public bool isCollectingGift;
         [HideInInspector] public GameObject giftObject;
 
+        public enum NearestTargetType
+        {
+            None,
+            Gift,
+            Hotel,
+            Reward,
+        }
+
         [Header ("Reset")]
         HotelGiftHandler hotelGiftHandler;
         [HideInInspector] public Coroutine cnCollectGiftState;
@@ -166,7 +174,7 @@ namespace MagicalGarden.AI
                 GetComponent<MeshRenderer>().enabled = false;
                 stateLoopCoroutine = StartCoroutine(CleaningRoutine());
             }
-           // 
+            
         }
         private List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
         {
@@ -410,12 +418,6 @@ namespace MagicalGarden.AI
 
         #endregion
         
-        public enum NearestTargetType
-        {
-            None,
-            Gift,
-            Hotel,
-            Reward,
-        }
+        
     }
 }
