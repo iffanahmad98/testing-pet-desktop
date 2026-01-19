@@ -166,6 +166,7 @@ public class MonsterShopManager : MonoBehaviour
         if (selectedCard != null)
             selectedCard.SetSelected(false);
 
+        MonsterManager.instance.audio.PlaySFX("button_click");
         selectedCard = card;
         selectedCard.SetSelected(true);
         Debug.Log($"Selected Monster: {card.monsterItemData.itemName}");
@@ -200,6 +201,8 @@ public class MonsterShopManager : MonoBehaviour
                 // Update Shop Item
                 RefreshItem();
                 OnMonsterSelected(card);
+
+                MonsterManager.instance.audio.PlaySFX("buy");
             }
             else
             {

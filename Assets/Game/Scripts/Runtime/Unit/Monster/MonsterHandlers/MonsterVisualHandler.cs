@@ -341,7 +341,9 @@ public class MonsterVisualHandler
     {
         Vector2 launchPosition = GetCoinLaunchPosition();
         Vector2 targetPosition = GetRandomPositionOutsideBounds();
-        
+
+        MonsterManager.instance.audio.PlaySFX("drop_coin");
+
         // Spawn coin through MonsterManager
         ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
     }

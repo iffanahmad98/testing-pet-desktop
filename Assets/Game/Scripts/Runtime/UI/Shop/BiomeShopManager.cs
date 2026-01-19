@@ -185,6 +185,8 @@ public class BiomeShopManager : MonoBehaviour
         if (selectedCard != null)
             selectedCard.SetSelected(false);
 
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         selectedCard = card;
         selectedCard.SetSelected(true);
         ShowBiomeInfo(card.BiomeData);
@@ -256,6 +258,8 @@ public class BiomeShopManager : MonoBehaviour
             if (SaveSystem.TryBuyBiome(biome.biomeID, biome.price))
             {
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{biome.biomeName}'!");
+
+                MonsterManager.instance.audio.PlaySFX("buy");
 
                 // Update UI Coin Text
                 ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();

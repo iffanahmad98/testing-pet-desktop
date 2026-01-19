@@ -203,6 +203,8 @@ public class FacilityShopManager : MonoBehaviour
         if (selectedCard != null)
             selectedCard.SetSelected(false);
 
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         selectedCard = card;
         selectedCard.SetSelected(true);
         ShowFacilityInfo(card.FacilityData);
@@ -243,6 +245,8 @@ public class FacilityShopManager : MonoBehaviour
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"'{facility.name}' is on cooldown!");
             }
 
+            MonsterManager.instance.audio.PlaySFX("placing_facility");
+
             RefreshFacilityCards();
 
             OnFacilitySelected(card);
@@ -261,6 +265,7 @@ public class FacilityShopManager : MonoBehaviour
 
                 // Update UI Coin Text
                 ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
+                MonsterManager.instance.audio.PlaySFX("buy");
             }
             else
             {

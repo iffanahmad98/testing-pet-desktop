@@ -60,6 +60,8 @@ public class MonsterManager : MonoBehaviour
 
     public System.Action<int> OnPoopChanged;
     public System.Action OnPetMonsterChanged;
+
+    public AudioManager audio { get; private set; }
     #endregion
 
     #region Initialization and Setup
@@ -90,6 +92,9 @@ public class MonsterManager : MonoBehaviour
             spawnNPC1.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("100")));
         if (spawnNPC2 != null)
             spawnNPC2.onClick.AddListener(() => SpawnNPCMonster(npcMonsterDatabase.GetMonsterByID("200")));
+
+        audio = GetComponentInChildren<AudioManager>();
+        audio.PlaySFX("opening");
     }
 
     private void InitializePools()

@@ -206,6 +206,12 @@ public class AdditiveSceneLoader : MonoBehaviour
             sceneRoot.SetActive(true);
             currentActiveScene = sceneName;
             Debug.Log($"[AdditiveSceneLoader] Scene '{sceneName}' is now visible");
+
+            Scene targetScene = sceneRoot.scene;
+            if (targetScene.IsValid() && targetScene.isLoaded && SceneManager.GetActiveScene() != targetScene)
+            {
+                SceneManager.SetActiveScene(targetScene);
+            }
         }
     }
 

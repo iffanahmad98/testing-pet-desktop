@@ -65,6 +65,8 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
         if (isCollected) return;
 
         var coinRectTransform = rectTransform.GetChild(1).transform;
+
+        MonsterManager.instance.audio.PlaySFX("collect_coin");
         
         coinRectTransform.DOJump(coinRectTransform.position, 200, 1, 0.5f).SetEase(Ease.OutQuad)
             .OnComplete(() =>
