@@ -113,6 +113,8 @@ public class ItemShopManager : MonoBehaviour
 
         Debug.Log("Selected Item");
 
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         selectedCard = card;
         selectedCard.SetSelected(true);
 
@@ -129,6 +131,8 @@ public class ItemShopManager : MonoBehaviour
             if (SaveSystem.TryBuyItem(item))
             {
                 OnItemSelected(card);
+
+                MonsterManager.instance.audio.PlaySFX("buy");
 
                 // Refresh all inventory views when item is bought
                 ServiceLocator.Get<ItemInventoryUI>().StartPopulateAllInventories();

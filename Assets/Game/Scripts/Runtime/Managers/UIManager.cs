@@ -250,6 +250,8 @@ public class UIManager : MonoBehaviour
             canvasGroup.alpha = 0f;
             rect.localScale = Vector3.one;
 
+            MonsterManager.instance.audio.PlaySFX("button_click");
+
             canvasGroup.DOFade(1f, duration)
                 .SetEase(Ease.OutQuad)
                 .OnComplete(() =>
@@ -260,6 +262,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
+            MonsterManager.instance.audio.PlaySFX("menu_close");
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
             canvasGroup.DOFade(0f, duration)
@@ -309,6 +312,8 @@ public class UIManager : MonoBehaviour
         float duration = animationDuration;
         float elapsed = 0f;
 
+        MonsterManager.instance.audio.PlaySFX("menu_open");
+
         while (elapsed < duration)
         {
             float t = elapsed / duration;
@@ -348,6 +353,8 @@ public class UIManager : MonoBehaviour
         float elapsed = 0f;
 
         UIMenuButton.interactable = true;
+
+        MonsterManager.instance.audio.PlaySFX("menu_close");
 
         while (elapsed < duration)
         {
@@ -417,6 +424,7 @@ public class UIManager : MonoBehaviour
 
     private void EnterMiniWindowMode()
     {
+        MonsterManager.instance.audio.PlaySFX("menu_close");
         if (_gameContentCanvasGroup != null)
         {
             _gameContentCanvasGroup.alpha = gameAreaOpacity;
@@ -448,6 +456,7 @@ public class UIManager : MonoBehaviour
 
     private void ExitMiniWindowMode()
     {
+        MonsterManager.instance.audio.PlaySFX("menu_open");
         if (_gameContentCanvasGroup != null)
         {
             _gameContentCanvasGroup.alpha = 1f;

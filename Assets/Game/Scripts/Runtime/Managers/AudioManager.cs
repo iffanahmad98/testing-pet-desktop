@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
@@ -19,6 +20,13 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip buttonClickSFX;
     [SerializeField] private AudioClip menuOpenSFX;
     [SerializeField] private AudioClip notificationSFX;
+    [SerializeField] private AudioClip menuCloseSFX;
+    [SerializeField] private AudioClip dropCoinSFX;
+    [SerializeField] private AudioClip petJumpSFX;
+    [SerializeField] private AudioClip collectCoinSFX;
+    [SerializeField] private AudioClip buySFX;
+    [SerializeField] private AudioClip openingSFX;
+    [SerializeField] private AudioClip placingFaciltySFX;
 
     [Header("Audio Mixer")]
     [SerializeField] private AudioMixer masterMixer;
@@ -36,6 +44,35 @@ public class AudioManager : MonoBehaviour
         InitializeSFXPool();
         InitializeSFXDictionary();
         AssignOutputsToMixerGroups();
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.activeSceneChanged += OnActiveSceneChanged;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+    }
+
+    private void OnActiveSceneChanged(Scene oldScene, Scene newScene)
+    {
+        ApplyBGMForScene(newScene);
+    }
+
+    private void ApplyBGMForScene(Scene scene)
+    {
+        Debug.Log("New scene name: " + scene.name);
+        switch (scene.name)
+        {
+            case "Pet":
+                PlayMainMenuBGM();
+                break;
+            case "FarmGame":
+                PlayGameplayBGM();
+                break;
+        }
     }
 
     private void InitializeSFXPool()
@@ -84,8 +121,15 @@ public class AudioManager : MonoBehaviour
     private void InitializeSFXDictionary()
     {
         // Add all your SFX to the dictionary here
-        // sfxDictionary.Add("monster_hit", hitSFX);
-        // sfxDictionary.Add("monster_eat", eatSFX);
+        sfxDictionary.Add("button_click", buttonClickSFX);
+        sfxDictionary.Add("menu_close", menuCloseSFX);
+        sfxDictionary.Add("menu_open", menuOpenSFX);
+        sfxDictionary.Add("drop_coin", dropCoinSFX);
+        sfxDictionary.Add("pet_jump", petJumpSFX);
+        sfxDictionary.Add("collect_coin", collectCoinSFX);
+        sfxDictionary.Add("buy", buySFX);
+        sfxDictionary.Add("opening", openingSFX);
+        sfxDictionary.Add("placing_facility", placingFaciltySFX);
     }
 
     private void Update()
@@ -138,11 +182,10 @@ public class AudioManager : MonoBehaviour
 
     public void PlayBGM(AudioClip clip, bool loop = true)
     {
-        if (bgmSource.isPlaying)
-        {
-            bgmSource.Stop();
-        }
+        if (clip == null) return;
+        if (bgmSource.isPlaying && bgmSource.clip == clip) return;
 
+        bgmSource.Stop();
         bgmSource.clip = clip;
         bgmSource.loop = loop;
         bgmSource.Play();

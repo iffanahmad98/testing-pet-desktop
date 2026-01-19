@@ -169,6 +169,8 @@ public class DecorationShopManager : MonoBehaviour
         if (selectedCard != null)
             selectedCard.SetSelected(false);
 
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         selectedCard = card;
         selectedCard.SetSelected(true);
         ShowDecorationInfo(card.DecorationData);
@@ -230,6 +232,7 @@ public class DecorationShopManager : MonoBehaviour
 
                 // Update UI Coin Text
                 ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
+                MonsterManager.instance.audio.PlaySFX("buy");
             }
             else
             {
