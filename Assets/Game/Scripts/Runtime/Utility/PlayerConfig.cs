@@ -59,6 +59,8 @@ public class PlayerConfig
     public DateTime lastRefreshTimeHotel;
     public List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
     public List <PetMonsterHotelData> listPetMonsterHotelData = new List <PetMonsterHotelData> ();
+
+    public event System.Action <OwnedItemFarmData,int> eventItemFarmData;
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -420,7 +422,8 @@ public class PlayerConfig
         var item = ownedItemFarmDatas.Find(i => i.itemID == itemID);
         if (item == null)
         {
-            ownedItemFarmDatas.Add(new OwnedItemFarmData { itemID = itemID, amount = Mathf.Max(0, amount) });
+            item = new OwnedItemFarmData { itemID = itemID, amount = Mathf.Max(0, amount) };
+            ownedItemFarmDatas.Add(item);
         }
         else
         {
@@ -428,6 +431,8 @@ public class PlayerConfig
             if (item.amount == 0)
                 ownedItemFarmDatas.Remove(item);
         }
+
+        eventItemFarmData?.Invoke (item, amount);
     }
 
     public void RemoveItemFarm(string itemID, int amount)
@@ -450,6 +455,11 @@ public class PlayerConfig
 
     public List <OwnedItemFarmData> GetOwnedItemFarmDatas () {
         return ownedItemFarmDatas;
+    }
+
+    public void AddEventItemFarmData (System.Action <OwnedItemFarmData, int> actionValue) { // FarmShopPlantPanel
+       // eventItemFarmData = null;
+        eventItemFarmData += actionValue;
     }
     #endregion
     #region Guest Request Data

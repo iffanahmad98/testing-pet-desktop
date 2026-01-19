@@ -37,8 +37,9 @@ public class FarmShopPlantPanel : FarmShopPanelBase
 
     void Start () {
         playerConfig = SaveSystem.PlayerConfig;
+        CoinManager.AddCoinChangedRefreshEvent (CheckEligibleAllCards);
     }
-    
+
     public override void ShowPanel() {
         panel.sprite = onPanel;
         panel.transform.SetSiblingIndex(parentPanel.childCount - 1);
@@ -89,6 +90,8 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         } else {
             ShowAllInstantiatedAllItems ();
         }
+
+        CheckEligibleAllCards ();
     }
 
     void FillupItemCard (ItemCard itemCard) {
@@ -149,6 +152,7 @@ public class FarmShopPlantPanel : FarmShopPanelBase
     #endregion
     #region Eligible
     void CheckEligibleAllCards () {
+       
         foreach (ItemCard itemCard in listCardClone) {
             MagicalGarden.Inventory.ItemData dataSO = itemCard.itemDataSO;
             if (dataSO.IsEligible ()) {

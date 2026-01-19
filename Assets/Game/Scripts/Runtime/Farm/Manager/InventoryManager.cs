@@ -47,7 +47,7 @@ namespace MagicalGarden.Inventory
 
         void Start () 
         {
-           // LoadAllItemFarmDatas ();
+            LoadAllItemFarmDatas ();
         }
 
         public void AddItem(ItemData itemData, int amount)
@@ -84,6 +84,8 @@ namespace MagicalGarden.Inventory
             {
                 items.Remove(item);
             }
+            //---- Data :
+            playerConfig.RemoveItemFarm (itemData.itemId,1);
             RefreshAllInventoryUI();
             return true;
         }
@@ -195,6 +197,7 @@ namespace MagicalGarden.Inventory
         void LoadAllItemFarmDatas () {
             if (playerConfig == null) {
                 playerConfig = SaveSystem.PlayerConfig;
+                playerConfig.AddEventItemFarmData (AddItembyPlayerConfig);
             }
 
             List <OwnedItemFarmData> listOwnedItemFarmData = playerConfig.GetOwnedItemFarmDatas ();
@@ -202,6 +205,10 @@ namespace MagicalGarden.Inventory
                 AddItem (allFarmItemDatabase.GetItemData (owned.itemID), owned.amount);
             }
             
+        }
+
+        void AddItembyPlayerConfig (OwnedItemFarmData itemFarmData, int amount) { // PlayerConfig.cs
+            AddItem (allFarmItemDatabase.GetItemData (itemFarmData.itemID), amount);
         }
         #endregion
     }
