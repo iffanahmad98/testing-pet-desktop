@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace MagicalGarden.Inventory
 {
     [CreateAssetMenu(fileName = "NewItem", menuName = "Inventory/Item")]
-    public class ItemData : Rewardable, EligibleItem
+    public class ItemData : Rewardable
     {
         public string itemId;
         public string displayName;

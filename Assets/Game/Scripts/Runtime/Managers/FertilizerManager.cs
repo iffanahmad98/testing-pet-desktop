@@ -12,6 +12,7 @@ namespace MagicalGarden.Manager
     public class FertilizerManager : MonoBehaviour
     {
         public static FertilizerManager Instance;
+        public MagicalGarden.Farm.UI.FertilizerUI fertilizerUI;
         public Animator craftingAnimator;
         public NPCFertilizer npc;
 
@@ -19,6 +20,9 @@ namespace MagicalGarden.Manager
         public List<FertilizerUI> fertilizerUIs;
         // private List<FertilizerTask> activeTasks = new();
         private FertilizerTask activeTasks = null;
+
+        [Header ("Data")]
+        PlayerConfig playerConfig;
 
         private void Awake()
         {
@@ -50,8 +54,9 @@ namespace MagicalGarden.Manager
             }
         }
 
+        /*
         public void StartCrafting(FertilizerRecipe recipe, FertilizerType type)
-        {
+        { // (NotUsed)
             if (InventoryManager.Instance.HasItems(recipe.ingredients))
             {
                 InventoryManager.Instance.RemoveItems(recipe.ingredients);
@@ -77,11 +82,41 @@ namespace MagicalGarden.Manager
                 }
             }
         }
+        */
+        public void StartCrafting(FertilizerRecipe recipe, FertilizerType type)
+        { 
+            if (recipe.IsEligible ())
+            {
+                recipe.UsingAllItems ();
+
+                var task = new FertilizerTask
+                {
+                    recipe = recipe,
+                    startTime = DateTime.Now,
+                    duration = recipe.craftDuration
+                };
+
+                activeTasks = task;
+                StartCoroutine(npc.NPCFertiMake());
+                if (craftingAnimator != null)
+                    craftingAnimator.SetBool("run", true);
+                foreach (var ui in fertilizerUIs)
+                {
+                    bool isActive = ui.type == type;
+                    ui.timeRemainingGO.SetActive(isActive);
+                    ui.btnDone.gameObject.SetActive(!isActive);
+                    ui.btnCreate.gameObject.SetActive(!isActive);
+                    ui.btnDisable.gameObject.SetActive(!isActive);
+                }
+            }
+        }
 
         private void CompleteTask(FertilizerTask task)
         {
-            // InventoryManager.Instance.AddItem(task.recipe.outputItem.item, task.recipe.outputItem.quantity);
+            // (Ini coba hilangkan) InventoryManager.Instance.AddItem(task.recipe.outputItem.item, task.recipe.outputItem.quantity);
             // InventoryManager.Instance.RefreshAllInventoryUI();
+           
+
             foreach (var ui in fertilizerUIs)
             {
                 bool isTarget = ui.type == task.recipe.type;
@@ -101,10 +136,18 @@ namespace MagicalGarden.Manager
             // Instantiate(particles, machineTransform.position, Quaternion.identity);
         }
 
-        private void ClaimFertilizerReward(FertilizerType type)
+        private void ClaimFertilizerReward(FertilizerType type, FertilizerRecipe fertilizerRecipe)
         {
-            InventoryManager.Instance.AddItem(activeTasks.recipe.outputItem.item, activeTasks.recipe.outputItem.quantity);
-            InventoryManager.Instance.RefreshAllInventoryUI();
+          //  (Not Used) InventoryManager.Instance.AddItem(activeTasks.recipe.outputItem.item, activeTasks.recipe.outputItem.quantity);
+         //   InventoryManager.Instance.RefreshAllInventoryUI();
+     
+            if (playerConfig == null) {
+                playerConfig = SaveSystem.PlayerConfig;
+            }
+
+            playerConfig.AddItemFarm (fertilizerRecipe.outputItem.item.itemId, fertilizerRecipe.outputItem.quantity);
+            SaveSystem.SaveAll ();
+            
             var ui = fertilizerUIs.Find(f => f.type == type);
             if (ui != null)
             {
@@ -117,28 +160,28 @@ namespace MagicalGarden.Manager
 
         public void OnClickDoneGarden()
         {
-            ClaimFertilizerReward(FertilizerType.Garden);
+            ClaimFertilizerReward(FertilizerType.Garden, fertilizerUI.allRecipes[0]);
         }
 
         public void OnClickDoneMana()
         {
-            ClaimFertilizerReward(FertilizerType.Mana);
+            ClaimFertilizerReward(FertilizerType.Mana, fertilizerUI.allRecipes[1]);
         }
 
         public void OnClickDoneMoon()
         {
-            ClaimFertilizerReward(FertilizerType.Moon);
+            ClaimFertilizerReward(FertilizerType.Moon, fertilizerUI.allRecipes[2]);
         }
 
         public void OnClickDoneSpirit()
         {
-            ClaimFertilizerReward(FertilizerType.Spirit);
+            ClaimFertilizerReward(FertilizerType.Spirit, fertilizerUI.allRecipes[3]);
         }
 
         public void RefreshAllFertilizerUI()
         {
             var items = InventoryManager.Instance.items;
-
+            List <FertilizerRecipe> listFertilizerRecipe = fertilizerUI.GetAllRecipes ();
             int countNormal = items
                 .Where(i => i.itemData.itemId == "poop_normal")
                 .Sum(i => i.quantity);
@@ -147,6 +190,7 @@ namespace MagicalGarden.Manager
                 .Where(i => i.itemData.itemId == "poop_rare")
                 .Sum(i => i.quantity);
 
+            /* Not Used
             foreach (var ui in fertilizerUIs)
             {
                 bool canCraft = false;
@@ -171,6 +215,18 @@ namespace MagicalGarden.Manager
                 ui.btnCreate.gameObject.SetActive(canCraft);
                 ui.btnDisable.gameObject.SetActive(!canCraft);
             }
+            */
+            for (int i=0; i < fertilizerUIs.Count; i++) {
+                var ui = fertilizerUIs[i];
+                ui.recipe = listFertilizerRecipe[i];
+            }
+
+            foreach (var ui in fertilizerUIs)
+            {
+                bool canCraft = ui.recipe.IsEligible ();
+                ui.btnCreate.gameObject.SetActive(canCraft);
+                ui.btnDisable.gameObject.SetActive(!canCraft);
+            }
         }
     }
     [Serializable]
@@ -179,7 +235,7 @@ namespace MagicalGarden.Manager
         public string nameRecipe;
         public FertilizerType type;
         public List<ItemStack> ingredients; // (Not Used)
-        public List<EligibleMaterial> itemEligibles;
+        public List <EligibilityRuleSO> listEligibilityRuleSO = new List <EligibilityRuleSO> ();
         public ItemStack outputItem;
 
         [Tooltip("Durasi crafting dalam menit.")]
@@ -188,10 +244,19 @@ namespace MagicalGarden.Manager
         public string FormattedDuration => craftDuration.ToString(@"hh\:mm\:ss");
 
         public bool IsEligible () {
-            foreach (EligibleMaterial itemEligible in itemEligibles) {
-                
+            foreach (EligibilityRuleSO itemEligible in listEligibilityRuleSO) {
+                if (!itemEligible.IsEligible ()) {
+                    return false;
+                }
             }  
             return true;
+        }
+
+        public void UsingAllItems () {
+            foreach (EligibilityRuleSO itemEligible in listEligibilityRuleSO) {
+                EligibleMaterials eligibleMaterials = itemEligible as EligibleMaterials;
+                eligibleMaterials.UsingAllItems ();
+            }
         }
     }
 
@@ -224,12 +289,15 @@ namespace MagicalGarden.Manager
     [System.Serializable]
     public class FertilizerUI
     {
+        public FertilizerRecipe recipe;
         public FertilizerType type;
         public GameObject timeRemainingGO;
         public TextMeshProUGUI timeRemainingText;
         public Button btnCreate;
         public Button btnDisable;
         public Button btnDone;
+
+
     }
     public enum FertilizerType { Garden, Mana, Moon, Spirit }
 }

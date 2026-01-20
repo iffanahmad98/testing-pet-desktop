@@ -61,6 +61,7 @@ public class PlayerConfig
     public List <PetMonsterHotelData> listPetMonsterHotelData = new List <PetMonsterHotelData> ();
 
     public event System.Action <OwnedItemFarmData,int> eventItemFarmData;
+    public event System.Action <OwnedItemFarmData,int> eventRemoveItemFarmData;
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -440,20 +441,25 @@ public class PlayerConfig
             if (item.amount == 0)
                 ownedItemFarmDatas.Remove(item);
         }
-
+        Debug.Log ($"Item {itemID} {item.amount} bertambah {amount}");
         eventItemFarmData?.Invoke (item, amount);
     }
 
-    public void RemoveItemFarm(string itemID, int amount)
+    public void RemoveItemFarm(string itemID, int amount, bool refreshEvent = false)
     {
         if (amount <= 0 || string.IsNullOrEmpty(itemID)) return;
-
+        
         var existing = ownedItemFarmDatas.Find(i => i.itemID == itemID);
+        Debug.Log ($"Item {itemID} {existing.amount} berkurang {amount}");
         if (existing != null)
         {
             existing.amount -= amount;
             if (existing.amount <= 0)
                 ownedItemFarmDatas.Remove(existing);
+        }
+
+        if (refreshEvent) {
+            eventRemoveItemFarmData?.Invoke (existing, amount);
         }
     }
 
@@ -469,6 +475,11 @@ public class PlayerConfig
     public void AddEventItemFarmData (System.Action <OwnedItemFarmData, int> actionValue) { // FarmShopPlantPanel
        // eventItemFarmData = null;
         eventItemFarmData += actionValue;
+    }
+
+    public void AddEventRemoveItemFarmData (System.Action <OwnedItemFarmData, int> actionValue) { // FarmShopPlantPanel
+       // eventItemFarmData = null;
+        eventRemoveItemFarmData += actionValue;
     }
     #endregion
     #region Guest Request Data
@@ -588,6 +599,7 @@ public class PlayerConfig
         listPetMonsterHotelData.Remove (data);
        // SaveSystem.SaveAll ();
     }
+    
     #endregion
 }
 

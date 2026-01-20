@@ -80,6 +80,7 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SaveSystem.Flush();
         */
         SaveSystem.PlayerConfig.AddItemFarm (poopItemData.itemId, 1);
+        SaveSystem.SaveAll ();
         // Fadeout
         for (int i = 0; i < images.Length; i++)
         {

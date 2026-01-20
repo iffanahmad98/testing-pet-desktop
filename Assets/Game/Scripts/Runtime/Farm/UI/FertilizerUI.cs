@@ -88,7 +88,7 @@ namespace MagicalGarden.Farm.UI
                 return;
 
             
-            if (InventoryManager.Instance.HasItems(selectedRecipe.ingredients))
+            if (selectedRecipe.IsEligible ()) // InventoryManager.Instance.HasItems(selectedRecipe.ingredients)
             {
                 FertilizerManager.Instance.StartCrafting(selectedRecipe, type);
                 StartProgressUI(selectedRecipe);
@@ -140,5 +140,11 @@ namespace MagicalGarden.Farm.UI
                 activeTask = null;
             }
         }
+
+        #region Utility
+        public List<FertilizerRecipe> GetAllRecipes () { // FertilizerManager.cs
+            return allRecipes;
+        }
+        #endregion
     }
 }

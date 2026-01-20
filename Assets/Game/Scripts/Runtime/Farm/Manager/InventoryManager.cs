@@ -85,7 +85,7 @@ namespace MagicalGarden.Inventory
                 items.Remove(item);
             }
             //---- Data :
-            playerConfig.RemoveItemFarm (itemData.itemId,1);
+            // playerConfig.RemoveItemFarm (itemData.itemId,amount, false);
             RefreshAllInventoryUI();
             return true;
         }
@@ -132,14 +132,19 @@ namespace MagicalGarden.Inventory
         }
 
         public bool RemoveItems(List<ItemStack> requiredItems)
-        {
+        { 
+            /* (Not Used)
             if (!HasItems(requiredItems))
                 return false;
 
             foreach (var stack in requiredItems)
             {
-                RemoveItem(stack.item, stack.quantity);
+                // (Not Used) RemoveItem(stack.item, stack.quantity);
+                playerConfig.RemoveItemFarm (stack.itemId,stack.quantity, false);
             }
+
+            SaveSystem.SaveAll ();
+            */
             return true;
         }
 
@@ -198,6 +203,7 @@ namespace MagicalGarden.Inventory
             if (playerConfig == null) {
                 playerConfig = SaveSystem.PlayerConfig;
                 playerConfig.AddEventItemFarmData (AddItembyPlayerConfig);
+                 playerConfig.AddEventRemoveItemFarmData (RemoveItembyPlayerConfig);
             }
 
             List <OwnedItemFarmData> listOwnedItemFarmData = playerConfig.GetOwnedItemFarmDatas ();
@@ -209,6 +215,10 @@ namespace MagicalGarden.Inventory
 
         void AddItembyPlayerConfig (OwnedItemFarmData itemFarmData, int amount) { // PlayerConfig.cs
             AddItem (allFarmItemDatabase.GetItemData (itemFarmData.itemID), amount);
+        }
+
+         void RemoveItembyPlayerConfig (OwnedItemFarmData itemFarmData, int amount) { // PlayerConfig.cs
+            RemoveItem (allFarmItemDatabase.GetItemData (itemFarmData.itemID), amount);
         }
         #endregion
     }
