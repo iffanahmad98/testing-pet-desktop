@@ -178,13 +178,21 @@ namespace MagicalGarden.Manager
     {
         public string nameRecipe;
         public FertilizerType type;
-        public List<ItemStack> ingredients;
+        public List<ItemStack> ingredients; // (Not Used)
+        public List<EligibleMaterial> itemEligibles;
         public ItemStack outputItem;
 
         [Tooltip("Durasi crafting dalam menit.")]
         public float durationInMinutes;
         public TimeSpan craftDuration => TimeSpan.FromMinutes(durationInMinutes);
         public string FormattedDuration => craftDuration.ToString(@"hh\:mm\:ss");
+
+        public bool IsEligible () {
+            foreach (EligibleMaterial itemEligible in itemEligibles) {
+                
+            }  
+            return true;
+        }
     }
 
     [Serializable]

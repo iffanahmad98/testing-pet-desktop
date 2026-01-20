@@ -29,6 +29,7 @@ public class ItemDataSO : Rewardable
     public override string ItemName => itemName;
     public override Sprite RewardSprite => itemImgs[0];
     public override Vector3 RewardScale => rewardScale;
+    
     #region Rewardable
         
     public override void RewardGotItem(int quantities)
@@ -38,4 +39,5 @@ public class ItemDataSO : Rewardable
         SaveSystem.SaveAll ();
     }
     #endregion
+        
 }

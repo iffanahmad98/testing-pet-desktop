@@ -177,6 +177,7 @@ public class ItemInventoryUI : MonoBehaviour
             ResetInventoryGroupvisibility();
             ExitDeleteMode();
         });
+        
         StartPopulateAllInventories();
     }
 
@@ -250,6 +251,7 @@ public class ItemInventoryUI : MonoBehaviour
     private IEnumerator PopulateAllInventoriesCoroutine()
     {
         yield return new WaitForEndOfFrame(); // Ensure UI is ready
+        ClearAllUnusedDatas ();
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
 
         if (ownedItems == null)
@@ -741,4 +743,21 @@ public class ItemInventoryUI : MonoBehaviour
             Debug.Log("Slot is Null");
         }
     }
+
+    #region UnusedData
+    void ClearAllUnusedDatas ()
+    {
+        var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
+        for (int i = ownedItems.Count - 1; i >= 0; i--)
+        {
+            if (ownedItems[i].itemID == "poop_ori" || ownedItems[i].itemID == "poop_rare")
+            {
+                SaveSystem.PlayerConfig.ClearItem(
+                    ownedItems[i].itemID
+                );
+            }
+        }
+        SaveSystem.SaveAll();
+    }
+    #endregion
 }

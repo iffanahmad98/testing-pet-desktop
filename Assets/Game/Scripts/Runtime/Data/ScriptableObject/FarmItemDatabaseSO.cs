@@ -18,4 +18,6 @@ public class FarmItemDatabaseSO : ScriptableObject
     public List<ItemData> GetListItemData () {
         return allDatas;
     }
+
+
 }

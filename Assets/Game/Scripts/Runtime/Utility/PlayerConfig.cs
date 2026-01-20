@@ -118,6 +118,15 @@ public class PlayerConfig
         }
     }
 
+    public void ClearItem (string itemID) // ItemInventoryUI.cs (Clear All Unused Data)
+    {
+        var existing = ownedItems.Find(i => i.itemID == itemID);
+        if (existing != null)
+        {
+            ownedItems.Remove(existing);
+        }
+    }
+
     public int GetItemAmount(string itemID)
     {
         return ownedItems.Find(i => i.itemID == itemID)?.amount ?? 0;

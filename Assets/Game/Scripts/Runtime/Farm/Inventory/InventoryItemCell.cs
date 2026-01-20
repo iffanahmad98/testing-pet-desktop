@@ -21,7 +21,8 @@ namespace MagicalGarden.Inventory
         {
             currentItem = item;
             icon.sprite = item.itemData.icon;
-            quantityText.text = item.quantity > 1 ? item.quantity.ToString() : "";
+           // quantityText.text = item.quantity > 1 ? item.quantity.ToString() : "";
+            quantityText.text = item.quantity.ToString ();
             nameText.text = item.itemData.displayName;
             gameObject.SetActive(true);
             button.onClick.RemoveAllListeners();
