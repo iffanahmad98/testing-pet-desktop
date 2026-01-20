@@ -27,6 +27,11 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip buySFX;
     [SerializeField] private AudioClip openingSFX;
     [SerializeField] private AudioClip placingFaciltySFX;
+    [SerializeField] private AudioClip torchIgniteSFX;
+    [SerializeField] private AudioClip timeKeeperSFX;
+    [SerializeField] private AudioClip magicShovelSFX;
+    [SerializeField] private AudioClip rainbowPotSFX;
+    [SerializeField] private AudioClip[] farmAndHotelSFX;
 
     [Header("Audio Mixer")]
     [SerializeField] private AudioMixer masterMixer;
@@ -71,6 +76,7 @@ public class AudioManager : MonoBehaviour
                 break;
             case "FarmGame":
                 PlayGameplayBGM();
+                playFarmAmbiance();
                 break;
         }
     }
@@ -130,6 +136,10 @@ public class AudioManager : MonoBehaviour
         sfxDictionary.Add("buy", buySFX);
         sfxDictionary.Add("opening", openingSFX);
         sfxDictionary.Add("placing_facility", placingFaciltySFX);
+        sfxDictionary.Add("torch_ignite", torchIgniteSFX);
+        sfxDictionary.Add("time_keeper", timeKeeperSFX);
+        sfxDictionary.Add("magic_shovel", magicShovelSFX);
+        sfxDictionary.Add("rainbow_pot", rainbowPotSFX);
     }
 
     private void Update()
@@ -210,7 +220,7 @@ public class AudioManager : MonoBehaviour
     #endregion
 
     #region Enhanced SFX Controls with Pooling
-    public void PlaySFX(AudioClip clip, float volumeScale = 1f, float pitch = 1f)
+    public void PlaySFX(AudioClip clip, float volumeScale = 1f, float pitch = 1f, bool loop = false)
     {
         if (clip == null) return;
 
@@ -218,19 +228,53 @@ public class AudioManager : MonoBehaviour
         source.clip = clip;
         source.volume = volumeScale;
         source.pitch = pitch;
+        source.loop = loop;
         source.Play();
         activeSfxSources.Add(source);
     }
 
-    public void PlaySFX(string sfxKey, float volumeScale = 1f, float pitch = 1f)
+    public void PlaySFX(string sfxKey, float volumeScale = 1f, float pitch = 1f, bool loop = false)
     {
         if (sfxDictionary.TryGetValue(sfxKey, out AudioClip clip))
         {
-            PlaySFX(clip, volumeScale, pitch);
+            PlaySFX(clip, volumeScale, pitch, loop);
         }
         else
         {
             Debug.LogWarning($"SFX with key '{sfxKey}' not found!");
+        }
+    }
+
+    public void PlayFarmSFX(int index)
+    {
+        if (index >= 0 && index < farmAndHotelSFX.Length)
+        {
+            PlaySFX(farmAndHotelSFX[index]);
+        }
+    }
+
+    public void PlayFarmSFX(int index, float volumeScale = 1f, bool loop = false)
+    {
+        if (index >= 0 && index < farmAndHotelSFX.Length)
+        {
+            PlaySFX(farmAndHotelSFX[index], volumeScale, 1, loop);
+        }
+    }
+
+    public void playFarmAmbiance(string currentTime = "day")
+    {
+        // currentTime bisa day, evening, night
+        StopAllSFX();
+
+        if (currentTime == "day")
+        {
+            // Farm ambiance daytime is at index 10
+            PlayFarmSFX(10, 0.3f, true);
+        }
+        else if (currentTime == "night")
+        {
+            // Farm ambiance night is at index 11
+            PlayFarmSFX(11, 0.3f, true);
         }
     }
 

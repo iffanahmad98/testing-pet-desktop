@@ -194,6 +194,9 @@ namespace MagicalGarden.Manager
                             if (PlantManager.Instance.CanPlantMonsterSeedAt(cellPos))
                             {
                                 PlantManager.Instance.PlantSeedAt(cellPos, currentItemdata, true);
+
+                                // plant seed sfx is at index 6
+                                MonsterManager.instance.audio.PlayFarmSFX(6);
                             }
                             else
                             {
@@ -203,6 +206,9 @@ namespace MagicalGarden.Manager
                         else
                         {
                             PlantManager.Instance.PlantSeedAt(cellPos, currentItemdata);
+
+                            // plant seed sfx is at index 6
+                            MonsterManager.instance.audio.PlayFarmSFX(6);
                         }
 
                         break;
@@ -210,10 +216,16 @@ namespace MagicalGarden.Manager
                         CursorIconManager.Instance.PlayPourAnimation("watering");
                         PlantManager.Instance.PlantWaterAt(cellPos);
                         tilemapWater.SetTile(cellPos, tileWater);
+
+                        // watering sfx is at index 5
+                        MonsterManager.instance.audio.PlayFarmSFX(5);
                         break;
                     case TileAction.Fertilizer:
                         CursorIconManager.Instance.PlayPourAnimation("ferti_normal");
                         PlantManager.Instance.PlantFertilizeAt(cellPos, currentItemdata);
+
+                        // fertilizer sfx is at index 7
+                        MonsterManager.instance.audio.PlayFarmSFX(7);
                         break;
                     case TileAction.Remove:
                         PlantManager.Instance.RemovePlantAt(cellPos);

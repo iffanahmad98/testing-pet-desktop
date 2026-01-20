@@ -193,6 +193,9 @@ namespace MagicalGarden.Gift
         {
             // Bounce animation
             StartCoroutine(BounceAnimation());
+
+            // collect gift SFX is at index 1
+            MonsterManager.instance.audio.PlayFarmSFX(1);
         }
 
         /// <summary>
