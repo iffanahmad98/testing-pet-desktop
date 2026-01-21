@@ -23,10 +23,16 @@ namespace MagicalGarden.Manager
 
         [Header ("Data")]
         PlayerConfig playerConfig;
-
+        FertilizerMachineData fertilizerMachineData;
+        
         private void Awake()
         {
             Instance = this;
+        }
+
+        void Start ()
+        {
+            LoadFertilizerMachineData ();
         }
 
         public bool IsHasActiveTask()
@@ -83,31 +89,71 @@ namespace MagicalGarden.Manager
             }
         }
         */
-        public void StartCrafting(FertilizerRecipe recipe, FertilizerType type)
+        public void StartCrafting(FertilizerRecipe recipe, FertilizerType type, bool isLoad = false, DateTime dateTimeLoad = new DateTime ())
         { 
-            if (recipe.IsEligible ())
-            {
-                recipe.UsingAllItems ();
-
-                var task = new FertilizerTask
+            if (!isLoad) {
+                if (recipe.IsEligible ())
                 {
-                    recipe = recipe,
-                    startTime = DateTime.Now,
-                    duration = recipe.craftDuration
-                };
+                    recipe.UsingAllItems ();
 
-                activeTasks = task;
-                StartCoroutine(npc.NPCFertiMake());
-                if (craftingAnimator != null)
-                    craftingAnimator.SetBool("run", true);
-                foreach (var ui in fertilizerUIs)
-                {
-                    bool isActive = ui.type == type;
-                    ui.timeRemainingGO.SetActive(isActive);
-                    ui.btnDone.gameObject.SetActive(!isActive);
-                    ui.btnCreate.gameObject.SetActive(!isActive);
-                    ui.btnDisable.gameObject.SetActive(!isActive);
+                    var task = new FertilizerTask
+                    {
+                        recipe = recipe,
+                        // startTime = DateTime.Now,
+                        startTime = TimeManager.Instance.currentTime,
+                        duration = recipe.craftDuration
+                        
+                    };
+
+                    activeTasks = task;
+                    StartCoroutine(npc.NPCFertiMake());
+                    if (craftingAnimator != null)
+                        craftingAnimator.SetBool("run", true);
+                    foreach (var ui in fertilizerUIs)
+                    {
+                        bool isActive = ui.type == type;
+                        ui.timeRemainingGO.SetActive(isActive);
+                        ui.btnDone.gameObject.SetActive(!isActive);
+                        ui.btnCreate.gameObject.SetActive(!isActive);
+                        ui.btnDisable.gameObject.SetActive(!isActive);
+                    }
+
+                    SaveFertilizerMachineData (type);
                 }
+            } else {
+                var task = new FertilizerTask
+                    {
+                        recipe = recipe,
+                        startTime = dateTimeLoad,
+                        duration = recipe.craftDuration
+                    };
+                    
+                    activeTasks = task;
+                    StartCoroutine(npc.NPCFertiMake());
+                    if (craftingAnimator != null)
+                        craftingAnimator.SetBool("run", true);
+
+                    
+                    Debug.Log ("Refresh Task 2");
+                    foreach (var ui in fertilizerUIs)
+                    {
+                        ui.btnCreate.gameObject.SetActive(false);
+                        ui.btnDisable.gameObject.SetActive(true);
+                    }
+                    
+                    foreach (var ui in fertilizerUIs)
+                    {
+                        bool isActive = ui.type == type;
+                        ui.timeRemainingGO.SetActive(isActive);
+                        ui.btnDone.gameObject.SetActive(!isActive);
+                        ui.btnCreate.gameObject.SetActive(!isActive);
+                        ui.btnDisable.gameObject.SetActive(!isActive);
+                    }
+
+                    SaveFertilizerMachineData (type);
+
+                   
+                
             }
         }
 
@@ -144,7 +190,7 @@ namespace MagicalGarden.Manager
             if (playerConfig == null) {
                 playerConfig = SaveSystem.PlayerConfig;
             }
-
+           
             playerConfig.AddItemFarm (fertilizerRecipe.outputItem.item.itemId, fertilizerRecipe.outputItem.quantity);
             SaveSystem.SaveAll ();
             
@@ -156,6 +202,9 @@ namespace MagicalGarden.Manager
             }
 
             activeTasks = null;
+
+             SaveFertilizerMachineDataDone (type);
+             SaveSystem.SaveAll ();
         }
 
         public void OnClickDoneGarden()
@@ -221,13 +270,46 @@ namespace MagicalGarden.Manager
                 ui.recipe = listFertilizerRecipe[i];
             }
 
+            Debug.Log ("Refresh Task 1");
             foreach (var ui in fertilizerUIs)
             {
                 bool canCraft = ui.recipe.IsEligible ();
                 ui.btnCreate.gameObject.SetActive(canCraft);
                 ui.btnDisable.gameObject.SetActive(!canCraft);
             }
+            
         }
+
+        #region Data
+        void SaveFertilizerMachineData (FertilizerType type) {
+            playerConfig.AddFertilizerMachineData (type, TimeManager.Instance.currentTime);
+
+            SaveSystem.SaveAll ();
+        }
+
+        void SaveFertilizerMachineDataDone (FertilizerType type) {
+            playerConfig.RemoveFertilizerMachineData (type);
+        }
+
+        public void LoadFertilizerMachineData () {
+            if (playerConfig == null) {
+                playerConfig = SaveSystem.PlayerConfig;
+            }
+
+            if (playerConfig.fertilizerMachineDatas.Count > 0) {
+                fertilizerMachineData = playerConfig.fertilizerMachineDatas[0];
+                FertilizerRecipe recipe = fertilizerUI.GetRecipe (fertilizerMachineData.fertilizerType);
+               // StartCrafting (recipe,fertilizerMachineData.fertilizerType, true, fertilizerMachineData.startDate);
+               
+               DateTime fixedTime = TimeManager.Instance.GetFixedTimeInFuture (fertilizerMachineData.startDate);
+               Debug.Log ("Your : " + fixedTime);
+               fertilizerUI.OnStartButtonPressed (fertilizerMachineData.fertilizerType, recipe, true, fixedTime);
+            } else {
+                RefreshAllFertilizerUI();
+            }
+        }
+
+        #endregion
     }
     [Serializable]
     public class FertilizerRecipe
@@ -270,7 +352,7 @@ namespace MagicalGarden.Manager
 
         public bool IsComplete()
         {
-            return DateTime.Now >= startTime + duration;
+            return TimeManager.Instance.currentTime >= startTime + duration;
         }
     }
 

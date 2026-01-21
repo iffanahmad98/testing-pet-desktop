@@ -77,58 +77,97 @@ namespace MagicalGarden.Farm.UI
         public void OnStartBtnMana() => OnStartButtonPressed(FertilizerType.Mana);
         public void OnStartBtnMoon() => OnStartButtonPressed(FertilizerType.Moon);
         public void OnStartBtnSpirit() => OnStartButtonPressed(FertilizerType.Spirit);
-        public void OnStartButtonPressed(FertilizerType type)
+        public void OnStartButtonPressed(FertilizerType type, FertilizerRecipe recipe = null, bool isLoaded = false, DateTime dateTime = new DateTime ())
         {
-            var recipeList = allRecipes.Where(r => r.type == type).ToList();
-            int index = recipeDropdown.value;
-            if (index >= recipeList.Count) return;
+            if (!isLoaded) {
+                var recipeList = allRecipes.Where(r => r.type == type).ToList();
+                int index = recipeDropdown.value;
+                if (index >= recipeList.Count) return;
 
-           var selectedRecipe = recipeList[index];
-            if (FertilizerManager.Instance.IsHasActiveTask())
-                return;
+                var selectedRecipe = recipeList[index];
+                if (FertilizerManager.Instance.IsHasActiveTask())
+                    return;
 
-            
-            if (selectedRecipe.IsEligible ()) // InventoryManager.Instance.HasItems(selectedRecipe.ingredients)
-            {
-                FertilizerManager.Instance.StartCrafting(selectedRecipe, type);
-                StartProgressUI(selectedRecipe);
-            }
-            else
-            {
-                Debug.LogError("bahan tidak cukup");
-            }
-            
-            switch (type)
-            {
-                case FertilizerType.Garden:
-                    progressText = gardenRemaining;
-                    break;
-                case FertilizerType.Mana:
-                    progressText = manaRemaining;
-                    break;
-                case FertilizerType.Moon:
-                    progressText = moonlightRemaining;
-                    break;
-                case FertilizerType.Spirit:
-                    progressText = spiritRemaining;
-                    break;
+                
+                if (selectedRecipe.IsEligible ()) // InventoryManager.Instance.HasItems(selectedRecipe.ingredients)
+                {
+                    FertilizerManager.Instance.StartCrafting(selectedRecipe, type);
+                    StartProgressUI(selectedRecipe);
+                }
+                else
+                {
+                    Debug.LogError("bahan tidak cukup");
+                }
+                
+                switch (type)
+                {
+                    case FertilizerType.Garden:
+                        progressText = gardenRemaining;
+                        break;
+                    case FertilizerType.Mana:
+                        progressText = manaRemaining;
+                        break;
+                    case FertilizerType.Moon:
+                        progressText = moonlightRemaining;
+                        break;
+                    case FertilizerType.Spirit:
+                        progressText = spiritRemaining;
+                        break;
+                }
+
+            } else {
+
+
+                var selectedRecipe = recipe;
+
+                FertilizerManager.Instance.StartCrafting(selectedRecipe, type, true, dateTime);
+                StartProgressUI(selectedRecipe, isLoaded, dateTime);
+                
+                
+                switch (type)
+                {
+                    case FertilizerType.Garden:
+                        progressText = gardenRemaining;
+                        break;
+                    case FertilizerType.Mana:
+                        progressText = manaRemaining;
+                        break;
+                    case FertilizerType.Moon:
+                        progressText = moonlightRemaining;
+                        break;
+                    case FertilizerType.Spirit:
+                        progressText = spiritRemaining;
+                        break;
+                }
             }
         }
-        private void StartProgressUI(FertilizerRecipe recipe)
+        
+
+        private void StartProgressUI(FertilizerRecipe recipe, bool isLoaded = false, DateTime dateTime = new DateTime ())
         {
-            activeTask = new FertilizerTask
-            {
-                recipe = recipe,
-                startTime = DateTime.Now,
-                duration = recipe.craftDuration
-            };
+            if (!isLoaded) {
+                activeTask = new FertilizerTask
+                {
+                    recipe = recipe,
+                    startTime = TimeManager.Instance.currentTime,
+                    duration = recipe.craftDuration
+                };
+            }
+            else {
+                activeTask = new FertilizerTask
+                {
+                    recipe = recipe,
+                    startTime = dateTime,
+                    duration = recipe.craftDuration
+                };
+            }
         }
 
         private void Update()
         {
             if (activeTask == null) return;
 
-            TimeSpan elapsed = DateTime.Now - activeTask.startTime;
+            TimeSpan elapsed = TimeManager.Instance.currentTime - activeTask.startTime;
             float progress = Mathf.Clamp01((float)(elapsed.TotalSeconds / activeTask.duration.TotalSeconds));
             TimeSpan remaining = activeTask.duration - elapsed;
             if (remaining.TotalSeconds < 0) remaining = TimeSpan.Zero;
@@ -144,6 +183,10 @@ namespace MagicalGarden.Farm.UI
         #region Utility
         public List<FertilizerRecipe> GetAllRecipes () { // FertilizerManager.cs
             return allRecipes;
+        }
+        
+        public FertilizerRecipe GetRecipe (MagicalGarden.Manager.FertilizerType type ) {
+            return allRecipes.Find (m => m.type == type);
         }
         #endregion
     }
