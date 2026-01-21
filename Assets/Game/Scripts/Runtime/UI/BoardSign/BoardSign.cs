@@ -140,6 +140,11 @@ public class BoardSign : MonoBehaviour
             return;
         }
 
+        MonsterManager.instance.audio.playFarmAmbiance();
+        // farm game intro SFX is at index 0
+        MonsterManager.instance.audio.PlayFarmSFX(0);
+        
+        
         // Set focus target to Farm before switching scene
         SceneFocusManager.SetFocusTarget(SceneFocusManager.FocusTarget.Farm);
 
@@ -160,6 +165,11 @@ public class BoardSign : MonoBehaviour
             Debug.LogError("[BoardSign] AdditiveSceneLoader instance not found!");
             return;
         }
+
+        MonsterManager.instance.audio.PlayHotelAmbiance();
+        // farm game intro SFX is at index 0
+        MonsterManager.instance.audio.PlayFarmSFX(0);
+        
 
         // Set focus target to Hotel before switching scene
         SceneFocusManager.SetFocusTarget(SceneFocusManager.FocusTarget.Hotel);

@@ -210,10 +210,7 @@ public class AdditiveSceneLoader : MonoBehaviour
             Scene targetScene = sceneRoot.scene;
             if (targetScene.IsValid() && targetScene.isLoaded && SceneManager.GetActiveScene() != targetScene)
             {
-                // farm game intro SFX is at index 0
-                if (sceneName == "FarmGame") MonsterManager.instance.audio.PlayFarmSFX(0);
-                MonsterManager.instance.audio.StopAllSFX();
-
+                // MonsterManager.instance.audio.StopAllSFX();
                 SceneManager.SetActiveScene(targetScene);
             }
         }

@@ -468,13 +468,19 @@ namespace MagicalGarden.Hotel
             switch (guestRequestType) {
                 case GuestRequestType.RoomService :
                 prefabTarget = roomServiceBubblePrefab;
+                    // Hotel service is at index 18
+                    MonsterManager.instance.audio.PlayFarmSFX(18);
                 break;
                 case GuestRequestType.Food :
                 prefabTarget = foodBubblePrefab;
+                    // hotel notification for hotel quest is at index 19
+                    MonsterManager.instance.audio.PlayFarmSFX(19);
                 break;
                 case GuestRequestType.Gift :
                 prefabTarget = giftBubblePrefab;
-                break;
+                    // hotel notification for hotel quest is at index 19
+                    MonsterManager.instance.audio.PlayFarmSFX(19);
+                    break;
             }
 
             GameObject clone = GameObject.Instantiate (prefabTarget);
@@ -538,11 +544,12 @@ namespace MagicalGarden.Hotel
             // hasRequest = false; (Pindah ke IncreaseHappiness)
             HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
             // happiness = Mathf.Min(happiness + 20, 100);
-           // happiness = Mathf.Min (happiness + GetGuestRequest (currentGuestRequestType).increaseHappiness,100);
+            // happiness = Mathf.Min (happiness + GetGuestRequest (currentGuestRequestType).increaseHappiness,100);
 
-           // Debug.Log($"✅ {nameGuest} puas dengan {type}! Happiness: {happiness} (+20)");
+            // Debug.Log($"✅ {nameGuest} puas dengan {type}! Happiness: {happiness} (+20)");
 
-            
+            // Klik bubble button hotel is at index 20
+            MonsterManager.instance.audio.PlayFarmSFX(20);
 
             if (type == GuestRequestType.RoomService)
             {

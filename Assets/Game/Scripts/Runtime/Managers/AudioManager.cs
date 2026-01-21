@@ -43,6 +43,8 @@ public class AudioManager : MonoBehaviour
     private List<AudioSource> activeSfxSources = new List<AudioSource>();
     private Transform sfxPoolParent;
 
+    private float ambianceVolume = 0.3f;
+
     private void Awake()
     {
         ServiceLocator.Register(this);
@@ -76,7 +78,6 @@ public class AudioManager : MonoBehaviour
                 break;
             case "FarmGame":
                 PlayGameplayBGM();
-                playFarmAmbiance();
                 break;
         }
     }
@@ -269,12 +270,28 @@ public class AudioManager : MonoBehaviour
         if (currentTime == "day")
         {
             // Farm ambiance daytime is at index 10
-            PlayFarmSFX(10, 0.3f, true);
+            PlayFarmSFX(10, ambianceVolume, true);
         }
         else if (currentTime == "night")
         {
             // Farm ambiance night is at index 11
-            PlayFarmSFX(11, 0.3f, true);
+            PlayFarmSFX(11, ambianceVolume, true);
+        }
+    }
+
+    public void PlayHotelAmbiance(string currentTime = "day")
+    {
+        StopAllSFX();
+
+        if (currentTime == "day")
+        {
+            // Hotel ambiance day is at index 12
+            PlayFarmSFX(12, ambianceVolume, true);
+        }
+        else if (currentTime == "night")
+        {
+            // hotel ambiance night is at index 13
+            PlayFarmSFX(13, ambianceVolume, true);
         }
     }
 

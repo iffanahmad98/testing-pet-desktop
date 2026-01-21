@@ -29,6 +29,9 @@ public class BridgeTeleport : MonoBehaviour
     private Vector3 originalScale;
     private bool isHovered = false;
 
+    [SerializeField] private ChickenAI[] animals;
+    [SerializeField] private HotelFountain[] hotelFountains;
+
     private void Start()
     {
         originalScale = transform.localScale;
@@ -63,7 +66,15 @@ public class BridgeTeleport : MonoBehaviour
         {
             case TeleportTarget.ToHotel:
                 if (hotelSpawnPoint != null)
-                { 
+                {
+                    foreach (var t in animals) t.StopAnimalSoundCoroutine();
+                    
+                    MonsterManager.instance.audio.PlayHotelAmbiance();
+                    foreach (var f in hotelFountains) f.PlayFountainSound();
+
+                    // farm game intro SFX is at index 0
+                    MonsterManager.instance.audio.PlayFarmSFX(0);
+
                     camMove.FocusOnTarget(hotelSpawnPoint.position, targetZoom, transitionDuration, isHotel: true);
                     menuBarFarm.SetActive(false);
                     if (CursorIconManager.Instance) {CursorIconManager.Instance.HideSeedIcon ();}
@@ -72,7 +83,12 @@ public class BridgeTeleport : MonoBehaviour
 
             case TeleportTarget.ToFarm:
                 if (farmSpawnPoint != null)
-                { 
+                {
+                    foreach (var t in animals) t.StartAnimalSoundCoroutine();
+                    MonsterManager.instance.audio.playFarmAmbiance();
+                    // farm game intro SFX is at index 0
+                    MonsterManager.instance.audio.PlayFarmSFX(0);
+
                     camMove.FocusOnTarget(farmSpawnPoint.position, targetZoom, transitionDuration, isHotel: false);
                     menuBarFarm.SetActive(true);
                 }

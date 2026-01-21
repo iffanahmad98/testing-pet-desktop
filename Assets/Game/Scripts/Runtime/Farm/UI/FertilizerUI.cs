@@ -92,6 +92,9 @@ namespace MagicalGarden.Farm.UI
             {
                 FertilizerManager.Instance.StartCrafting(selectedRecipe, type);
                 StartProgressUI(selectedRecipe);
+
+                // Fertilizer machine is at index 9
+                MonsterManager.instance.audio.PlayFarmSFX(9);
             }
             else
             {

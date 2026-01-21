@@ -120,10 +120,16 @@ public class ChickenAI : MonoBehaviour
             giftDropCoroutine = StartCoroutine(GiftDropLoop());
         }
 
-        if (chickenCluckInterval > 0)
+        StartAnimalSoundCoroutine();
+    }
+
+    public void StartAnimalSoundCoroutine()
+    {
+        Debug.Log("Starts animal sound coroutine");
+        if (chickenCluckInterval > 0 && cluckCoroutine == null)
             cluckCoroutine = StartCoroutine(MakeChickenCluck());
 
-        if (cowMooInterval > 0)
+        if (cowMooInterval > 0 && mooCoroutine == null)
             mooCoroutine = StartCoroutine(MakeCowMoo());
     }
 
@@ -171,11 +177,29 @@ public class ChickenAI : MonoBehaviour
             StopCoroutine(giftDropCoroutine);
         }
 
-        if (cluckCoroutine != null) StopCoroutine(cluckCoroutine);
-        if (mooCoroutine != null) StopCoroutine(mooCoroutine);
+        StopAnimalSoundCoroutine();
 
         // Clean up spawned gifts
         CleanupAllGifts();
+    }
+
+    public void StopAnimalSoundCoroutine()
+    {
+        if (cluckCoroutine != null)
+        {
+            StopCoroutine(cluckCoroutine);
+            cluckCoroutine = null;
+            Debug.Log("Stops cluckCoroutine");
+        }
+
+        if (mooCoroutine != null)
+        {
+            StopCoroutine(mooCoroutine);
+            mooCoroutine = null;
+            Debug.Log("Stops mooCoroutine");
+        }
+
+        MonsterManager.instance.audio.StopAllSFX();
     }
 
     #region State Machine
@@ -548,6 +572,7 @@ public class ChickenAI : MonoBehaviour
     {
         while (true)
         {
+            Debug.Log("MakeChickenCluck() called");
             yield return new WaitForSeconds(chickenCluckInterval);
 
             // Chicken cluck is at index 3
