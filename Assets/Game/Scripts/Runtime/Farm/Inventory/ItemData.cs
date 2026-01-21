@@ -38,6 +38,8 @@ namespace MagicalGarden.Inventory
         public override string ItemName => displayName;
         public override Sprite RewardSprite => icon;
         public override Vector3 RewardScale => rewardScale;
+        [Header ("EligibleItem")]
+       // public string ItemId => itemId;
         [Header ("Eligibility (Hotel Facilities Menu)")]
         public List<EligibilityRuleSO> rules = new();
 

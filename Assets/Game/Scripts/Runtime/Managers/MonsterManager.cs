@@ -593,9 +593,9 @@ public class MonsterManager : MonoBehaviour
 
     public void CollectPoop(int amount = 1)
     {
-        poopCollected += amount;
-        SaveSystem.SavePoop(poopCollected);
-        OnPoopChanged?.Invoke(poopCollected);
+      //  poopCollected += amount;
+      //  SaveSystem.SavePoop(poopCollected);
+      //  OnPoopChanged?.Invoke(poopCollected);
     }
     #endregion
 

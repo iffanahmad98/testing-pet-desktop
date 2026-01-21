@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+using MagicalGarden.Inventory;
 public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, ITargetable
 {
     public PoopType poopType;
@@ -19,6 +19,10 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     // NPC reservation system to prevent multiple NPCs targeting the same poop
     public MonsterController ReservedBy { get; private set; }
+
+    [Header ("Database")]
+    public ItemData [] poopItemDatas;
+    ItemData poopItemData;
 
     private void Awake()
     {
@@ -37,12 +41,13 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         {
             animator.SetTrigger("Normal");
             poopId = "poop_ori";
-
+            poopItemData = poopItemDatas [0];
         }
         else if (type == PoopType.Sparkle)
         {
             animator.SetTrigger("Special");
             poopId = "poop_rare";
+            poopItemData = poopItemDatas [1];
         }
     }
 
@@ -65,13 +70,17 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public void OnCollected()
     {
         // Notify the MonsterManager about the poop collection
-        ServiceLocator.Get<MonsterManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<MonsterManager>().poopCollected += poopValue);
+        // (Not Used)
+        // ServiceLocator.Get<MonsterManager>().OnPoopChanged?.Invoke(ServiceLocator.Get<MonsterManager>().poopCollected += poopValue);
 
         // Save the updated poop count
+        /* (Not Used)
         SaveSystem.SavePoop(ServiceLocator.Get<MonsterManager>().poopCollected);
         SaveSystem.UpdateItemData(poopId, ItemType.Poop, 1);
         SaveSystem.Flush();
-
+        */
+        SaveSystem.PlayerConfig.AddItemFarm (poopItemData.itemId, 1);
+        SaveSystem.SaveAll ();
         // Fadeout
         for (int i = 0; i < images.Length; i++)
         {

@@ -12,7 +12,7 @@ public static class SaveSystem
     private static PlayerConfig _playerConfig;
     public static PlayerConfig PlayerConfig => _playerConfig;
     private static DateTime _sessionStartTime;
-    public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig
+    public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig (Not Used)
     public static int LoadPoop() => _playerConfig.poops;
     public static event Action <PlayerConfig> DataLoaded; // DecorationManager
     
