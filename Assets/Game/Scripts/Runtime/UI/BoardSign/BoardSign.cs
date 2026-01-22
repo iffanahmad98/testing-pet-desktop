@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 /// <summary>
@@ -169,7 +170,9 @@ public class BoardSign : MonoBehaviour
         MonsterManager.instance.audio.PlayHotelAmbiance();
         // farm game intro SFX is at index 0
         MonsterManager.instance.audio.PlayFarmSFX(0);
-        
+        // Hotel fountain is at index 17
+        MonsterManager.instance.audio.PlayFarmSFX(17, 1f, true);
+
 
         // Set focus target to Hotel before switching scene
         SceneFocusManager.SetFocusTarget(SceneFocusManager.FocusTarget.Hotel);

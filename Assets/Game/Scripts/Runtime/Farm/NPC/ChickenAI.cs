@@ -125,7 +125,6 @@ public class ChickenAI : MonoBehaviour
 
     public void StartAnimalSoundCoroutine()
     {
-        Debug.Log("Starts animal sound coroutine");
         if (chickenCluckInterval > 0 && cluckCoroutine == null)
             cluckCoroutine = StartCoroutine(MakeChickenCluck());
 
@@ -189,14 +188,12 @@ public class ChickenAI : MonoBehaviour
         {
             StopCoroutine(cluckCoroutine);
             cluckCoroutine = null;
-            Debug.Log("Stops cluckCoroutine");
         }
 
         if (mooCoroutine != null)
         {
             StopCoroutine(mooCoroutine);
             mooCoroutine = null;
-            Debug.Log("Stops mooCoroutine");
         }
 
         MonsterManager.instance.audio.StopAllSFX();
@@ -266,8 +263,6 @@ public class ChickenAI : MonoBehaviour
             // Normal idle
             SetAnimation("idle");
 
-            // farm chicken cluck sfx is at index 3
-            MonsterManager.instance.audio.PlayFarmSFX(3);
             yield return new WaitForSeconds(Random.Range(minIdleTime, maxIdleTime));
         }
     }
@@ -572,7 +567,6 @@ public class ChickenAI : MonoBehaviour
     {
         while (true)
         {
-            Debug.Log("MakeChickenCluck() called");
             yield return new WaitForSeconds(chickenCluckInterval);
 
             // Chicken cluck is at index 3

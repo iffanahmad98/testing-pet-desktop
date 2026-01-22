@@ -916,6 +916,9 @@ namespace MagicalGarden.Hotel
                 if (happiness >0) {
                     SaveSystem.SaveAll ();
                 } else {
+                    // Guest hotel runaway is at index 22
+                    MonsterManager.instance.audio.PlayFarmSFX(22);
+
                     price = 0;
                     CheckOutRoom ();
                 }
@@ -1064,6 +1067,9 @@ namespace MagicalGarden.Hotel
             Destroy (hotelPurchase);
             hotelPurchase = null;
             InstantiateVfxBuy ();
+
+            // Unlocked hotel room is at index 24
+            MonsterManager.instance.audio.PlayFarmSFX(24);
         }
         
         public bool GetIsLocked () { // hotelLocker
