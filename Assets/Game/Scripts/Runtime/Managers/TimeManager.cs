@@ -183,9 +183,22 @@ namespace MagicalGarden.Manager
 
         public bool IsTimeInFuture(DateTime savedTime)
         { // HotelRandomLoot :
-            return savedTime > DateTime.UtcNow;
+            // return savedTime > DateTime.UtcNow;
+            return savedTime > realCurrentTime;
         }
 
+        public DateTime GetFixedTimeInFuture (DateTime dateTime)
+        { //FertilizerManager.cs
+            Debug.Log ("Time 0 : " + dateTime + " time 1 :" + realCurrentTime);
+            
+            if (IsTimeInFuture (dateTime)) {
+                Debug.Log ("Time 1");
+                return TimeManager.Instance.realCurrentTime;
+            } else {
+                Debug.Log ("Time 2");
+                return dateTime;
+            }
+        }
         #endregion
     }
     public class TimedEvent

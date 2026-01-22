@@ -140,11 +140,14 @@ namespace MagicalGarden.AI
                 transform.position = targetPos;
                 currentTile = next;
             }
-
+        
             SetAnimation("idle");
-            isOverridingState = false;
-
-            stateLoopCoroutine = StartCoroutine(StateLoop());
+            if (isWatering) {
+                cnService = StartCoroutine (WateringState ());
+            } else {
+                isOverridingState = false;
+                stateLoopCoroutine = StartCoroutine(StateLoop());
+            }
             
         }
 
@@ -221,7 +224,8 @@ namespace MagicalGarden.AI
                 {
                     // contoh: gerak ke tanaman terdekat
                     Debug.Log($"Nearest plant at {nearestCell}, distance {nearestDistance}");
-                    cnService = StartCoroutine (WateringState ());
+                    isWatering = true;
+                     StartNewCoroutine (MoveToTarget (DetectTiles (nearestCell)));
                 }
             }
             else {
@@ -380,6 +384,26 @@ namespace MagicalGarden.AI
           //  giftObject.GetComponent <MagicalGarden.Gift.GiftItem> ().OpenGiftByNPC ();
           //  giftObject = null;
         }
+        #endregion
+        #region Converter Vector2
+        Vector2Int DetectTiles(Vector3Int tilePos)
+        {
+            if (terrainTilemap == null)
+            {
+                Debug.LogError("Tilemap belum di-assign!");
+                return Vector2Int.zero;
+            }
+
+            // Optional: cek apakah tile benar-benar ada
+            if (!terrainTilemap.HasTile(tilePos))
+            {
+                Debug.LogWarning("Tidak ada tile di posisi: " + tilePos);
+                return Vector2Int.zero;
+            }
+
+            return new Vector2Int(tilePos.x, tilePos.y);
+        }
+
         #endregion
     }
 }

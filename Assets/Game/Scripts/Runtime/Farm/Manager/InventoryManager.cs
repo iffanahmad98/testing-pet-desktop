@@ -70,7 +70,7 @@ namespace MagicalGarden.Inventory
 
             items.Add(new InventoryItem(itemData, amount));
             RefreshAllInventoryUI();
-            FertilizerManager.Instance.RefreshAllFertilizerUI();
+           // FertilizerManager.Instance.RefreshAllFertilizerUI();
         }
 
         public bool RemoveItem(ItemData itemData, int amount)

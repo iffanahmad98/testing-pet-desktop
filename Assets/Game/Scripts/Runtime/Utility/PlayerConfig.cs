@@ -36,7 +36,8 @@ public class PlayerConfig
     public List<HiredHotelFacilityData> hiredHotelFacilityData = new ();
     public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
     public List<HiredFarmFacilityData> hiredFarmFacilitiesData = new ();
-    public List <OwnedItemFarmData> ownedItemFarmDatas = new ();
+    public List<OwnedItemFarmData> ownedItemFarmDatas = new ();
+    
 
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
@@ -62,6 +63,8 @@ public class PlayerConfig
 
     public event System.Action <OwnedItemFarmData,int> eventItemFarmData;
     public event System.Action <OwnedItemFarmData,int> eventRemoveItemFarmData;
+
+    public List<FertilizerMachineData> fertilizerMachineDatas = new ();
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -601,6 +604,30 @@ public class PlayerConfig
     }
     
     #endregion
+  
+    #region Fertilizer Machine Data
+    public void AddFertilizerMachineData (MagicalGarden.Manager.FertilizerType fertilizerType, DateTime startDate) { // FertilizerManager.cs
+        Debug.Log ("Save 1");
+        if (GetFertilizerMachineData (fertilizerType) == null) {
+            FertilizerMachineData newData = new FertilizerMachineData ();
+            newData.id = fertilizerMachineDatas.Count;
+            newData.fertilizerType = fertilizerType;
+            newData.startDate = startDate;
+            Debug.Log ("Save 2");
+            fertilizerMachineDatas.Add (newData);
+        }
+    }
+
+    public void RemoveFertilizerMachineData (MagicalGarden.Manager.FertilizerType type) {
+        if (GetFertilizerMachineData (type) != null) {
+            fertilizerMachineDatas.Remove (GetFertilizerMachineData (type));
+        }
+    }
+
+    FertilizerMachineData GetFertilizerMachineData (MagicalGarden.Manager.FertilizerType type) {
+        return fertilizerMachineDatas.Find(f => f.fertilizerType == type);
+    }
+    #endregion
 }
 
 [Serializable]
@@ -723,6 +750,14 @@ public class PetMonsterHotelData
     public int idHotel = 0;
     public string guestStageGroupName = "";
     public int guestStage = 0;
+}
+
+[Serializable]
+public class FertilizerMachineData
+{
+    public int id = 0;
+    public MagicalGarden.Manager.FertilizerType fertilizerType;
+    public DateTime startDate;
 }
 
 
