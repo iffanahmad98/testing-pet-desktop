@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace MagicalGarden.Inventory
 {
+    
     [CreateAssetMenu(fileName = "NewItem", menuName = "Inventory/Item")]
     public class ItemData : Rewardable
     {
@@ -20,7 +21,8 @@ namespace MagicalGarden.Inventory
         public List<TileBase> stageTiles;
         public TileBase stageWilted;
         public Sprite markHarvest;
-        public List<DropItem> dropItems;
+        public List<DropItem> dropItems; // (Not Used)
+        
         //for fertilizer
         [Header("Fertilizer")]
         [Range(1, 100)]
@@ -32,6 +34,8 @@ namespace MagicalGarden.Inventory
         public int needHourWatering;
         public int needHourGrow;
         // [Header("Animation")]
+        [Header ("Harvest")]
+        public HarvestConfig harvestConfig;
         [Header ("Rewardable")]
         public Vector3 rewardScale = new Vector3 (1,1,1);
         public override string ItemId => itemId;
@@ -42,6 +46,12 @@ namespace MagicalGarden.Inventory
        // public string ItemId => itemId;
         [Header ("Eligibility (Hotel Facilities Menu)")]
         public List<EligibilityRuleSO> rules = new();
+
+        [System.Serializable]
+        public class HarvestConfig {
+            public ItemDataSO itemDataSO;
+            public int amount = 1;
+        }
 
         #region Eligibility
         public bool IsEligible() // untuk yang tidak ada tingkat

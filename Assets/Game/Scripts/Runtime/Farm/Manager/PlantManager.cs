@@ -497,7 +497,7 @@ namespace MagicalGarden.Farm
         return result;
     }
 
-    public Dictionary <Vector3Int,PlantController> GetPlantsAvailableHarvest ()
+    Dictionary <Vector3Int,PlantController> GetPlantsAvailableHarvest ()
     {
         Dictionary <Vector3Int, PlantController> result = new Dictionary <Vector3Int, PlantController> ();
 
@@ -505,6 +505,23 @@ namespace MagicalGarden.Farm
             SeedBase seedBase = kvp.Value.seed;
             
             if (seedBase != null & seedBase.IsReadyToHarvest())
+            {
+                result.Add (kvp.Key, kvp.Value);
+            }
+
+        }
+        return result;
+
+    }
+
+    public Dictionary <Vector3Int,PlantController> GetPlantsAvailableHarvestExceptSeedMonster ()
+    {
+        Dictionary <Vector3Int, PlantController> result = new Dictionary <Vector3Int, PlantController> ();
+
+        foreach  (KeyValuePair<Vector3Int, PlantController> kvp in plants) {
+            SeedBase seedBase = kvp.Value.seed;
+            
+            if (seedBase != null & seedBase.IsReadyToHarvest() & !seedBase.typeMonster)
             {
                 result.Add (kvp.Key, kvp.Value);
             }
@@ -526,6 +543,10 @@ namespace MagicalGarden.Farm
 
     public List <PlantController> GetListTargettingPlantControllers () {
         return listTargettingPlantControllers;
+    }
+
+    public bool IsCanHarvest (Vector3Int target) {
+        return GetPlantsAvailableHarvest ().ContainsKey (target);
     }
 #endregion
     }

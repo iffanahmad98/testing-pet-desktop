@@ -230,19 +230,22 @@ namespace MagicalGarden.Farm
             }
             else
             {
+                /* (Not Used)
                 foreach (var drop in itemData.dropItems)
                 {
                     if (UnityEngine.Random.value <= drop.dropChance)
                     {
                         int amount = UnityEngine.Random.Range(drop.minAmount, drop.maxAmount + 1);
-                        InventoryManager.Instance.AddItem(drop.item, amount);
+                        // (Not Used)InventoryManager.Instance.AddItem(drop.item, amount);
+                        InventoryManager.Instance.AddAssistant (drop.item, amount);
                         // for (int i = 0; i < Mathf.Min(amount, 3); i++)
                         // {
                         //     AnimateDrop(drop.item, TileManager.Instance.tilemapSeed.CellToWorld(cellPosition) + Vector3.one * 0.5f);
                         // }
                     }
                 }
-
+                */
+                InventoryManager.Instance.AddAssistant (itemData);
                 InventoryManager.Instance.RefreshAllInventoryUI();
                 markHarvest.gameObject.SetActive(false);
                 Clear();

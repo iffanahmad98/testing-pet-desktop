@@ -126,7 +126,7 @@ namespace MagicalGarden.AI
                 }
                 else
                 {
-
+                    
                     while (Vector3.Distance(transform.position, targetPos) > 0.1f)
                     {
                         float speed = walkOnly ? walkSpeed : runSpeed;
@@ -478,11 +478,11 @@ namespace MagicalGarden.AI
 
         // ----------------- Harvesting
         bool IsCanHarvesting () {
-            return plantManager.GetPlantsAvailableHarvest ().Count > 0;
+            return plantManager.GetPlantsAvailableHarvestExceptSeedMonster ().Count > 0;
         }
 
         Dictionary<Vector3Int, PlantController> GetPlantsHarvesting () {
-            return plantManager.GetPlantsAvailableHarvest ();
+            return plantManager.GetPlantsAvailableHarvestExceptSeedMonster ();
         }
 
         IEnumerator HarvestingState()
@@ -497,7 +497,9 @@ namespace MagicalGarden.AI
             SetAnimation("idle");
             isHarvesting = false;
             isOverridingState = false;
-            PlantManager.Instance.HarvestAt(nearestCell);
+            if (PlantManager.Instance.IsCanHarvest (nearestCell)) {
+                PlantManager.Instance.HarvestAt(nearestCell);
+            }
             stateLoopCoroutine = StartCoroutine(StateLoop()); // ini coba dinyalakan dulu
             RemovePlantControllerNPCTargeting();
         }

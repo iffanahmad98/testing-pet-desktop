@@ -38,6 +38,7 @@ namespace MagicalGarden.Inventory
         [Header ("Data")]
         public FarmItemDatabaseSO allFarmItemDatabase;
         PlayerConfig playerConfig;
+        public ItemDatabaseSO itemDatabaseSO;
         [SerializeField] List <OwnedItemFarmData> listOwnedItemFarmData = new ();
         private void Awake()
         {
@@ -235,6 +236,12 @@ namespace MagicalGarden.Inventory
             playerConfig.RemoveItemFarm ("banana", 1, true);
             */
             playerConfig.RemoveItemFarm (itemData.itemId, 1, true);
+        }
+
+        public void AddAssistant (ItemData itemData) {// PlantManager.cs (kalau add langsung dari situ dia error sendiri.)
+            Debug.Log ("Add Assistant : " + itemData.name + itemData.harvestConfig.itemDataSO.ItemId);
+            ItemDataSO itemDataSO = itemData.harvestConfig.itemDataSO;
+            playerConfig.AddItem (itemDataSO.ItemId, itemDataSO.category, itemData.harvestConfig.amount);
         }
         #endregion
     }
