@@ -221,6 +221,27 @@ namespace MagicalGarden.AI
                 nearestCell = default;
                 NearestTargetType nearestTarget = NearestTargetType.None;
 
+                // Focus on the Harvest first :
+                foreach (KeyValuePair<Vector3Int, PlantController> kvp in dictionaryHarvestAvailables)
+                {
+                    PlantController plant = kvp.Value;
+                    if (plant == null) continue;
+
+                    // 🔴 SKIP jika sudah ada di listTargettingPlantControllers
+                    if (plantManager.GetListTargettingPlantControllers ().Contains(plant))
+                        continue;
+
+                    float dist = Vector3.Distance(origin.position, plant.transform.position);
+
+                    if (dist < nearestDistance)
+                    {
+                        nearestTarget = NearestTargetType.Harvest;
+                        nearestDistance = dist;
+                        nearestPlant = plant;
+                        nearestCell = kvp.Key;
+                    }
+                }
+
                 foreach (KeyValuePair<Vector3Int, PlantController> kvp in dictionaryWaterAvailables)
                 {
                     PlantController plant = kvp.Value;
@@ -241,25 +262,7 @@ namespace MagicalGarden.AI
                     }
                 }
 
-                foreach (KeyValuePair<Vector3Int, PlantController> kvp in dictionaryHarvestAvailables)
-                {
-                    PlantController plant = kvp.Value;
-                    if (plant == null) continue;
-
-                    // 🔴 SKIP jika sudah ada di listTargettingPlantControllers
-                    if (plantManager.GetListTargettingPlantControllers ().Contains(plant))
-                        continue;
-
-                    float dist = Vector3.Distance(origin.position, plant.transform.position);
-
-                    if (dist < nearestDistance)
-                    {
-                        nearestTarget = NearestTargetType.Harvest;
-                        nearestDistance = dist;
-                        nearestPlant = plant;
-                        nearestCell = kvp.Key;
-                    }
-                }
+                
 
                 if (nearestPlant != null)
                 {
@@ -288,7 +291,7 @@ namespace MagicalGarden.AI
                 else
                 {
                     // 🟡 Tidak ada plant valid selain yang sudah ditarget
-                    Debug.Log("Stay it");
+                  //  Debug.Log("Stay it");
                   //  isWatering = false;
                     StartNewCoroutine(
                     MoveToTarget(
@@ -475,11 +478,11 @@ namespace MagicalGarden.AI
 
         // ----------------- Harvesting
         bool IsCanHarvesting () {
-            return plantManager.GetPlants ().Count > 0;
+            return plantManager.GetPlantsAvailableHarvest ().Count > 0;
         }
 
         Dictionary<Vector3Int, PlantController> GetPlantsHarvesting () {
-            return plantManager.GetPlants ();
+            return plantManager.GetPlantsAvailableHarvest ();
         }
 
         IEnumerator HarvestingState()

@@ -497,11 +497,23 @@ namespace MagicalGarden.Farm
         return result;
     }
 
-    /*
-    public Dictionary <Vector3Int, PlantController> GetPlantsAvailableHarvest () {
+    public Dictionary <Vector3Int,PlantController> GetPlantsAvailableHarvest ()
+    {
+        Dictionary <Vector3Int, PlantController> result = new Dictionary <Vector3Int, PlantController> ();
+
+        foreach  (KeyValuePair<Vector3Int, PlantController> kvp in plants) {
+            SeedBase seedBase = kvp.Value.seed;
+            
+            if (seedBase != null & seedBase.IsReadyToHarvest())
+            {
+                result.Add (kvp.Key, kvp.Value);
+            }
+
+        }
+        return result;
 
     }
-    */
+    
 #endregion
 #region NPC
     public void AddPlantControllerNPCTargeting (PlantController plantController) { // NPCFarmer.cs
