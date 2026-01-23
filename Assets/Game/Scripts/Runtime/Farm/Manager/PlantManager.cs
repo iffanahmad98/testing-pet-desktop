@@ -38,6 +38,7 @@ namespace MagicalGarden.Farm
        
         private void Update()
         {
+            /*
             if (Input.GetKeyDown(KeyCode.S))
             {
                 SaveToJson();
@@ -49,6 +50,7 @@ namespace MagicalGarden.Farm
                 LoadFromJson();
                 Debug.Log("⌨️ [Load] Tombol L ditekan — Data tanaman dimuat dari file JSON.");
             }
+            */
             // Tambahkan waktu simulasi setiap frame
             simulatedNow = simulatedNow.AddSeconds(Time.deltaTime * timeMultiplier);
         }
@@ -60,6 +62,7 @@ namespace MagicalGarden.Farm
         void Start()
         {
             LoadAllItems();
+            LoadFromJson ();
         }
 
         public void AddAmountHarvest()
@@ -88,6 +91,7 @@ namespace MagicalGarden.Farm
 
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
             InventoryManager.Instance.RemoveAssistant (itemdata);
+
             // (Not Used :)
             // bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
             // if (!removed) return;
@@ -156,6 +160,8 @@ namespace MagicalGarden.Farm
                     TileManager.Instance.tilemapSeed.SetTile(cellPosition, itemdata.stageTiles[0]);
                 });
             });
+
+            SaveToJson ();
         }
 
         public void PlantWaterAt(Vector3Int cellPosition)
@@ -170,6 +176,7 @@ namespace MagicalGarden.Farm
             {
                 Debug.LogWarning($"No plant found at {cellPosition} to water.");
             }
+             SaveToJson ();
         }
         public void RemovePlantAt(Vector3Int cellPosition)
         {
@@ -195,6 +202,7 @@ namespace MagicalGarden.Farm
             {
                 Debug.LogWarning($"Tidak ada tanaman di {cellPosition} untuk dicabut.");
             }
+             SaveToJson ();
         }
 
         public void PlantFertilizeAt(Vector3Int cellPosition, ItemData itemdata)
@@ -228,6 +236,8 @@ namespace MagicalGarden.Farm
             {
                 CursorIconManager.Instance.HideSeedIcon();
             }
+
+            SaveToJson ();
         }
         //bisa harvert kalau sudah siap
         public void HarvestAt(Vector3Int cellPosition)
@@ -246,6 +256,8 @@ namespace MagicalGarden.Farm
                     Debug.Log("Seed not ready to be harvested.");
                 }
             }
+
+            SaveToJson ();
         }
         //plant monster seed jika sekeliling tanamannya sama
         public bool CanPlantMonsterSeedAt(Vector3Int center)
@@ -281,7 +293,7 @@ namespace MagicalGarden.Farm
                 else if (thisPlantType != referencePlantType)
                     return false;
             }
-
+             SaveToJson ();
             return true;
         }
 
@@ -454,7 +466,7 @@ namespace MagicalGarden.Farm
             }
         }
         public void SaveToJson()
-        {
+        { 
             var dataList = GetSaveDataList();
             var wrapper = new PlantSaveWrapper { data = dataList };
             string json = JsonUtility.ToJson(wrapper, true);
