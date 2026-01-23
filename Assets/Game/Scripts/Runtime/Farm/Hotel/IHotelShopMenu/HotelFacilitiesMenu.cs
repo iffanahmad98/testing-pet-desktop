@@ -267,6 +267,9 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
 
         SaveSystem.PlayerConfig.AddHiredHotelFacilityData (data.id, 1);
         SaveSystem.SaveAll ();
+
+        // Hire autopals is at index 23
+        MonsterManager.instance.audio.PlayFarmSFX(23);
         
         /*
         var state = podiumCard.baseEntityAI.skeleton.AnimationState;

@@ -210,6 +210,7 @@ public class AdditiveSceneLoader : MonoBehaviour
             Scene targetScene = sceneRoot.scene;
             if (targetScene.IsValid() && targetScene.isLoaded && SceneManager.GetActiveScene() != targetScene)
             {
+                // MonsterManager.instance.audio.StopAllSFX();
                 SceneManager.SetActiveScene(targetScene);
             }
         }

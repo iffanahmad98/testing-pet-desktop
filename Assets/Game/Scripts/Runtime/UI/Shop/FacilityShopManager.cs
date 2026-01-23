@@ -68,6 +68,8 @@ public class FacilityShopManager : MonoBehaviour
                 card.UpdateState();
             }
         }
+
+        MonsterManager.instance.audio.PlaySFX("time_keeper");
     }
 
     public void RefreshItem()

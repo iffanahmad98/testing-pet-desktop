@@ -88,6 +88,35 @@ namespace MagicalGarden.Farm.UI
                 if (FertilizerManager.Instance.IsHasActiveTask())
                     return;
 
+            
+                if (selectedRecipe.IsEligible ()) // InventoryManager.Instance.HasItems(selectedRecipe.ingredients)
+                {
+                    FertilizerManager.Instance.StartCrafting(selectedRecipe, type);
+                    StartProgressUI(selectedRecipe);
+
+                    // Fertilizer machine is at index 9
+                    MonsterManager.instance.audio.PlayFarmSFX(9);
+                }
+                else
+                {
+                    Debug.LogError("bahan tidak cukup");
+                }
+
+                switch (type)
+                {
+                    case FertilizerType.Garden:
+                        progressText = gardenRemaining;
+                        break;
+                    case FertilizerType.Mana:
+                        progressText = manaRemaining;
+                        break;
+                    case FertilizerType.Moon:
+                        progressText = moonlightRemaining;
+                        break;
+                    case FertilizerType.Spirit:
+                        progressText = spiritRemaining;
+                        break;
+                }
                 
                 if (selectedRecipe.IsEligible ()) // InventoryManager.Instance.HasItems(selectedRecipe.ingredients)
                 {

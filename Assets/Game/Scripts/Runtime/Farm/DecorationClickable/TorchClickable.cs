@@ -28,8 +28,16 @@ public class TorchClickable : DecorationClickable
    }
 
    public void OnEvent () {
+        MonsterManager.instance.audio.PlaySFX("torch_ignite");
         foreach (GameObject torch in torchLights) {
             torch.SetActive (true);
+        }
+
+        string activeBiome = SaveSystem.GetActiveBiome();
+        if (activeBiome == "night_biome")
+        {
+            // BGM malam dengan torch menyala harus ada di elemen 0
+            MonsterManager.instance.audio.PlaySituationalBGM(0);
         }
    }
 
@@ -37,6 +45,12 @@ public class TorchClickable : DecorationClickable
         foreach (GameObject torch in torchLights) {
             torch.SetActive (false);
         }
-   }
+
+        string activeBiome = SaveSystem.GetActiveBiome();
+        if (activeBiome == "night_biome")
+        {
+            MonsterManager.instance.audio.PlayMainMenuBGM();
+        }
+    }
 
 }

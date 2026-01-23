@@ -67,6 +67,14 @@ public class ChickenAI : MonoBehaviour
     [Tooltip("Offset posisi spawn gift dari posisi chicken")]
     public Vector3 giftSpawnOffset = Vector3.zero;
 
+    [Tooltip("Interval waktu berkokoknya ayam (dalam detik).")]
+    public float chickenCluckInterval = 60;
+    private Coroutine cluckCoroutine;
+
+    [Tooltip("Interval waktu melenguh sapi (dalam detik).")]
+    public float cowMooInterval = 60;
+    private Coroutine mooCoroutine;
+
     // Internal state
     private Vector2Int currentTile;
     private string currentState = "";
@@ -111,6 +119,17 @@ public class ChickenAI : MonoBehaviour
         {
             giftDropCoroutine = StartCoroutine(GiftDropLoop());
         }
+
+        StartAnimalSoundCoroutine();
+    }
+
+    public void StartAnimalSoundCoroutine()
+    {
+        if (chickenCluckInterval > 0 && cluckCoroutine == null)
+            cluckCoroutine = StartCoroutine(MakeChickenCluck());
+
+        if (cowMooInterval > 0 && mooCoroutine == null)
+            mooCoroutine = StartCoroutine(MakeCowMoo());
     }
 
     private void SetupPhysicsComponents()
@@ -157,8 +176,27 @@ public class ChickenAI : MonoBehaviour
             StopCoroutine(giftDropCoroutine);
         }
 
+        StopAnimalSoundCoroutine();
+
         // Clean up spawned gifts
         CleanupAllGifts();
+    }
+
+    public void StopAnimalSoundCoroutine()
+    {
+        if (cluckCoroutine != null)
+        {
+            StopCoroutine(cluckCoroutine);
+            cluckCoroutine = null;
+        }
+
+        if (mooCoroutine != null)
+        {
+            StopCoroutine(mooCoroutine);
+            mooCoroutine = null;
+        }
+
+        MonsterManager.instance.audio.StopAllSFX();
     }
 
     #region State Machine
@@ -224,6 +262,7 @@ public class ChickenAI : MonoBehaviour
         {
             // Normal idle
             SetAnimation("idle");
+
             yield return new WaitForSeconds(Random.Range(minIdleTime, maxIdleTime));
         }
     }
@@ -524,6 +563,28 @@ public class ChickenAI : MonoBehaviour
         }
     }
 
+    private IEnumerator MakeChickenCluck()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(chickenCluckInterval);
+
+            // Chicken cluck is at index 3
+            MonsterManager.instance.audio.PlayFarmSFX(3);
+        }
+    }
+
+    private IEnumerator MakeCowMoo()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(cowMooInterval);
+
+            // Cow moo is at index 4
+            MonsterManager.instance.audio.PlayFarmSFX(4);
+        }
+    }
+
     /// <summary>
     /// Spawn gift di posisi chicken saat ini
     /// Jika sudah mencapai maxGiftCount, hapus gift tertua
@@ -554,6 +615,9 @@ public class ChickenAI : MonoBehaviour
         // Spawn gift baru di posisi chicken
         Vector3 spawnPosition = transform.position + giftSpawnOffset;
         GameObject newGift = Instantiate(prefabToSpawn, spawnPosition, Quaternion.identity);
+
+        // Drop gift sfx is at index 2
+        MonsterManager.instance.audio.PlayFarmSFX(2);
 
         // Simpan reference gift ke queue
         spawnedGifts.Enqueue(newGift);

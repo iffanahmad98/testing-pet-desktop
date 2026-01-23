@@ -92,6 +92,9 @@ namespace MagicalGarden.Farm
             // bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
             // if (!removed) return;
 
+            // plant seed sfx is at index 6
+            MonsterManager.instance.audio.PlayFarmSFX(6);
+
             Vector3 worldPos = TileManager.Instance.tilemapSeed.CellToWorld(cellPosition) + new Vector3(0f, 0.5f, 0);
             var plantObj = Instantiate(plantPrefab, worldPos, Quaternion.identity);
             plantObj.transform.parent = poolPlant;
@@ -159,6 +162,8 @@ namespace MagicalGarden.Farm
         {
             if (plants.TryGetValue(cellPosition, out var plant))
             {
+                // watering sfx is at index 5
+                MonsterManager.instance.audio.PlayFarmSFX(5);
                 plant.seed.Water();
             }
             else
@@ -209,6 +214,11 @@ namespace MagicalGarden.Farm
                 return;
             }
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
+          //  bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
+         //  if (!removed) return;
+
+            // fertilizer sfx is at index 7
+            MonsterManager.instance.audio.PlayFarmSFX(7);
            // bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
             //if (!removed) return;
             InventoryManager.Instance.RemoveAssistant (itemdata);
@@ -226,6 +236,8 @@ namespace MagicalGarden.Farm
             {
                 if (plant.seed.IsReadyToHarvest())
                 {
+                    // harvesting is at index 25
+                    MonsterManager.instance.audio.PlayFarmSFX(25);
                     plant.seed.Harvest();
                     // plants.Remove(cellPosition);
                 }
@@ -429,6 +441,8 @@ namespace MagicalGarden.Farm
                     //cek status layu/mati untuk update tile
                     if (seed.status == PlantStatus.Mati)
                     {
+                        // Crops died is at index 26
+                        MonsterManager.instance.audio.PlayFarmSFX(26);
                         TileManager.Instance.tilemapSeed.SetTile(data.cellPosition, stageWilted);
                     }
                     if (seed.status == PlantStatus.Layu)

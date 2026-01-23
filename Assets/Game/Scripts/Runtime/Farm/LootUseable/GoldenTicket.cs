@@ -12,6 +12,8 @@ public class GoldenTicket : LootUseable
     bool firstTime = false;
     public override void GetLoot(int value)
     {
+        // Collect egg golden ticket is at index 14
+        MonsterManager.instance.audio.PlayFarmSFX(14);
         totalValue += value;
         SaveSystem.PlayerConfig.goldenTicket = totalValue;
         Debug.Log ($"Golden Tickets saved : " + SaveSystem.PlayerConfig.goldenTicket);

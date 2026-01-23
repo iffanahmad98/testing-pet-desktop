@@ -92,6 +92,9 @@ namespace MagicalGarden.Farm
                     UpdateStage(); // final stage
                     markHarvest.sprite = itemData.markHarvest;
                     AnimateHarvestIcon();
+
+                    // Notif plant ready to harvest is at index 27
+                    MonsterManager.instance.audio.PlayFarmSFX(27);
                     Debug.Log($"[{seedName}] Siap panen! Final stage tercapai di posisi {cellPosition}");
                 }
                 ResetStageProgress();
@@ -155,6 +158,9 @@ namespace MagicalGarden.Farm
             }
             else if (hoursSince > 24)
             {
+                // notification for farm quest is at index 28
+                MonsterManager.instance.audio.PlayFarmSFX(28);
+
                 status = PlantStatus.Layu;
                 TileManager.Instance.tilemapSeed.SetTile(cellPosition, PlantManager.Instance.stageWilted);
             }

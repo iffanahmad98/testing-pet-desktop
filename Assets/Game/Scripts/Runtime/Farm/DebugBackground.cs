@@ -65,12 +65,14 @@ public class DebugBackground : MonoBehaviour
         {
             case "day":
                 dayBackground.SetActive(true);
+                MonsterManager.instance.audio.playFarmAmbiance();
                 break;
             case "evening":
                 eveningBackground.SetActive(true);
                 break;
             case "night":
                 nightBackground.SetActive(true);
+                MonsterManager.instance.audio.playFarmAmbiance("night");
                 break;
             case "overcast":
                 overcastBackground.SetActive(true);

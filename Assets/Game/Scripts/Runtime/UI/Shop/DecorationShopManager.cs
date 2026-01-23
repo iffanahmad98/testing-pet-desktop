@@ -187,7 +187,10 @@ public class DecorationShopManager : MonoBehaviour
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Applied '{card.DecorationData.decorationName}' decoration!");
         DecorationUIFixHandler.SetDecorationStats(card.DecorationData.decorationID);
 
-
+        if (decoID == "rainbowPot")
+        {
+            MonsterManager.instance.audio.PlaySFX("rainbow_pot");
+        }
 
         RefreshDecorationCards();
         OnDecorationSelected(card);

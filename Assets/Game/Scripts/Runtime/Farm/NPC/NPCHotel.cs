@@ -98,6 +98,9 @@ namespace MagicalGarden.AI
 
             Debug.Log($"✅ [NPC CLEANING COMPLETE] Kamar '{hotelName}' sudah bersih | Tamu: {guestName}");
 
+            // Hotel clean done is at index 21
+            MonsterManager.instance.audio.PlayFarmSFX(21);
+
             yield return new WaitForSeconds(2);
             GetComponent<MeshRenderer>().enabled = true;
             HotelManager.Instance.AddNPCHotelAvailable (this);

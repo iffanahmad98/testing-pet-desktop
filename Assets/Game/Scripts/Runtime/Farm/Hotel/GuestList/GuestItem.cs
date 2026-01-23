@@ -69,12 +69,16 @@ namespace MagicalGarden.Hotel
         private void HandleGuestCheckIn()
         {
             if (HotelManager.Instance.IsCanAssign ()) {
+                // Confirm guest is at index 15
+                MonsterManager.instance.audio.PlayFarmSFX(15);
                 HotelManager.Instance.AssignGuestToAvailableRoom(guest);
                 Destroy(gameObject);
             }
         }
 
         private void HandleGuestDecline () {
+            // Decline guest ias at index 16
+            MonsterManager.instance.audio.PlayFarmSFX(16);
              HotelManager.Instance.DeclineGuest(guest);
             Destroy (gameObject);
         }

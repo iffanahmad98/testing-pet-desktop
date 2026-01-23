@@ -70,6 +70,9 @@ namespace MagicalGarden.Farm
                 Vector3 worldPos = TileManager.Instance.tilemapSoil.CellToWorld(new Vector3Int(blockId.x, blockId.y, 0));
                 Instantiate(unlockVFX, worldPos, Quaternion.identity);
                 UpdateOverlayVisual(blockId, true);
+
+                // unlock new farm area is at index 8
+                MonsterManager.instance.audio.PlayFarmSFX(8);
             }
         }
         public void UpdateOverlayVisual(Vector2Int center, bool unlocked)

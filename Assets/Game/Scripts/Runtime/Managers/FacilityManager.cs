@@ -194,6 +194,8 @@ public class FacilityManager : MonoBehaviour
             }
         }
 
+        MonsterManager.instance.audio.PlaySFX("magic_shovel");
+
         Debug.Log("Magic Shovel used to clean all poop in the current area.");
     }
 
