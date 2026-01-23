@@ -327,6 +327,11 @@ public class MonsterManager : MonoBehaviour
             .Where(m => m != null && m.gameObject.activeInHierarchy)
             .Select(m => m.transform));
 
+        // Add foods
+        allObjectsForSorting.AddRange(activeFoods
+            .Where(m => m != null && m.gameObject.activeInHierarchy)
+            .Select(m => m.transform));
+
         // Add NPCs
         allObjectsForSorting.AddRange(npcMonsters
             .Where(m => m != null && m.gameObject.activeInHierarchy)
