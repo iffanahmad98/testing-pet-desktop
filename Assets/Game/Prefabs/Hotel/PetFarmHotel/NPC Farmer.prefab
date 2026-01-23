@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6259366645120623575}
   - component: {fileID: 2353908513851942319}
   - component: {fileID: 1331921008434261532}
+  - component: {fileID: 6635325384562986241}
   m_Layer: 0
   m_Name: NPC Farmer
   m_TagString: Untagged
@@ -161,6 +162,7 @@ MonoBehaviour:
   terrainTilemap: {fileID: 0}
   currentTile: {x: 0, y: 0}
   isOverridingState: 0
+  lockFlipTarget: 0
   destinationTile: {x: 0, y: 0}
   npcAreaPointsDatabase: {fileID: 11400000, guid: 492ec8fd45db65f4ca0892181e2bb947, type: 2}
   codeNpcAreaPoints: 
@@ -169,3 +171,19 @@ MonoBehaviour:
   changeAreaPointsMinSeconds: 60
   changeAreaPointsMaxSeconds: 90
   currentNPCAreaPointsSO: {fileID: 0}
+  plantManager: {fileID: 0}
+  tileTargetType: 3
+  tileTarget: {fileID: 0}
+--- !u!114 &6635325384562986241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322022896367518381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6933d486bbd9b214292fd038fc756fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerOffset: 0

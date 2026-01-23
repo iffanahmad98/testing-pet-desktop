@@ -21,6 +21,7 @@ namespace MagicalGarden.AI
         public Vector2Int currentTile;
         protected Coroutine stateLoopCoroutine;
         public bool isOverridingState = false;
+        public bool lockFlipTarget = false;
         protected string lastChosenState = "";
         protected Dictionary<string, string> animationFallbacks = new Dictionary<string, string>
         {
@@ -481,21 +482,23 @@ namespace MagicalGarden.AI
         }
         protected virtual void FlipByTarget(Vector3 currentPos, Vector3 targetPos)
         {
-            float deltaX = targetPos.x - currentPos.x;
+            if (!lockFlipTarget) {
+                float deltaX = targetPos.x - currentPos.x;
 
-            if (deltaX > 0.01f)
-            {
-                skeleton.skeleton.ScaleX = -1f; // kanan
-                lastDirection = 1;
-            }
-            else if (deltaX < -0.01f)
-            {
-                skeleton.skeleton.ScaleX = 1f;  // kiri
-                lastDirection = -1;
-            }
-            else
-            {
-                skeleton.skeleton.ScaleX = lastDirection == 1 ? -1f : 1f;
+                if (deltaX > 0.01f)
+                {
+                    skeleton.skeleton.ScaleX = -1f; // kanan
+                    lastDirection = 1;
+                }
+                else if (deltaX < -0.01f)
+                {
+                    skeleton.skeleton.ScaleX = 1f;  // kiri
+                    lastDirection = -1;
+                }
+                else
+                {
+                    skeleton.skeleton.ScaleX = lastDirection == 1 ? -1f : 1f;
+                }
             }
         }
 

@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using MagicalGarden.Farm;
+using UnityEngine.Tilemaps;
+using MagicalGarden.Manager;
 namespace MagicalGarden.AI
 {
     public class NPCFarmer : BaseEntityAI
@@ -20,7 +22,7 @@ namespace MagicalGarden.AI
 
         [Header ("Farmer Variables")]
         public PlantManager plantManager;
-        bool isWatering = false;
+        [SerializeField] bool isWatering = false;
         bool isHarvesting = false;
         Coroutine cnService;
         public enum NearestTargetType
@@ -30,6 +32,11 @@ namespace MagicalGarden.AI
             Harvest,
         }
 
+        [Header ("Navigation")]
+        public TileAIType tileTargetType = TileAIType.FarmPlant; // TileType is in TileManager.cs
+        public Tilemap tileTarget;
+        Vector3Int nearestCell;
+        PlantController nearestPlant;
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -39,7 +46,7 @@ namespace MagicalGarden.AI
                 case "run":  return RunState();
                 case "watering" : return WateringState ();
                // case "fertilizing" : return FertilizingState ();
-              //  case "collect": return CollectState ();
+                case "collect": return HarvestingState ();
                 default:     return IdleState();
             }
         }
@@ -52,6 +59,7 @@ namespace MagicalGarden.AI
         void Start()
         {
             base.Start();
+            tileTarget = TileManager.Instance.GetTilemap (tileTargetType);
             stateLoopCoroutine = StartCoroutine(StateLoop());
             Patroling ();
             
@@ -82,7 +90,11 @@ namespace MagicalGarden.AI
             List<Vector2Int> path = FindPathNearest(currentTile, destination);
             if (path == null || path.Count < 2)
             {
-                Debug.LogWarning("No valid path found!");
+                isWatering = false;
+                RemovePlantControllerNPCTargeting();
+                Debug.LogError("No valid path found! Posisi terlalu nempel" + destination);
+                isOverridingState = false;
+                stateLoopCoroutine = StartCoroutine(StateLoop());
                 yield break;
             }
 
@@ -144,6 +156,8 @@ namespace MagicalGarden.AI
             SetAnimation("idle");
             if (isWatering) {
                 cnService = StartCoroutine (WateringState ());
+            } else if (isHarvesting) {
+                cnService = StartCoroutine (HarvestingState ());
             } else {
                 isOverridingState = false;
                 stateLoopCoroutine = StartCoroutine(StateLoop());
@@ -196,24 +210,51 @@ namespace MagicalGarden.AI
                 isOverridingState = false;
             }
 
-            if (IsCanWatering())
-            { // Farm Features
+            if (IsCanWatering() || IsCanHarvesting ())
+            {
                 Dictionary<Vector3Int, PlantController> dictionaryWaterAvailables = GetPlantsWatering();
-                Transform origin = transform; // posisi NPC / player
+                Dictionary<Vector3Int, PlantController> dictionaryHarvestAvailables = GetPlantsHarvesting ();
+                Transform origin = transform;
 
                 float nearestDistance = float.MaxValue;
-                PlantController nearestPlant = null;
-                Vector3Int nearestCell = default;
+                nearestPlant = null;
+                nearestCell = default;
+                NearestTargetType nearestTarget = NearestTargetType.None;
 
                 foreach (KeyValuePair<Vector3Int, PlantController> kvp in dictionaryWaterAvailables)
                 {
                     PlantController plant = kvp.Value;
                     if (plant == null) continue;
 
+                    // 🔴 SKIP jika sudah ada di listTargettingPlantControllers
+                    if (plantManager.GetListTargettingPlantControllers ().Contains(plant))
+                        continue;
+
                     float dist = Vector3.Distance(origin.position, plant.transform.position);
 
                     if (dist < nearestDistance)
                     {
+                        nearestTarget = NearestTargetType.Water;
+                        nearestDistance = dist;
+                        nearestPlant = plant;
+                        nearestCell = kvp.Key;
+                    }
+                }
+
+                foreach (KeyValuePair<Vector3Int, PlantController> kvp in dictionaryHarvestAvailables)
+                {
+                    PlantController plant = kvp.Value;
+                    if (plant == null) continue;
+
+                    // 🔴 SKIP jika sudah ada di listTargettingPlantControllers
+                    if (plantManager.GetListTargettingPlantControllers ().Contains(plant))
+                        continue;
+
+                    float dist = Vector3.Distance(origin.position, plant.transform.position);
+
+                    if (dist < nearestDistance)
+                    {
+                        nearestTarget = NearestTargetType.Harvest;
                         nearestDistance = dist;
                         nearestPlant = plant;
                         nearestCell = kvp.Key;
@@ -222,22 +263,61 @@ namespace MagicalGarden.AI
 
                 if (nearestPlant != null)
                 {
-                    // contoh: gerak ke tanaman terdekat
+
                     Debug.Log($"Nearest plant at {nearestCell}, distance {nearestDistance}");
-                    isWatering = true;
-                     StartNewCoroutine (MoveToTarget (DetectTiles (nearestCell)));
+                    if (nearestTarget == NearestTargetType.Water) {
+                        isWatering = true;
+
+                        // simpan agar tidak dipilih NPC lain / loop berikutnya
+                        AddPlantControllerNPCTargeting ();
+
+                        StartNewCoroutine(
+                            MoveToTarget(DetectTiles(nearestCell))
+                        );
+                    } else if (nearestTarget == NearestTargetType.Harvest) {
+                        isHarvesting = true;
+
+                        // simpan agar tidak dipilih NPC lain / loop berikutnya
+                        AddPlantControllerNPCTargeting ();
+
+                        StartNewCoroutine(
+                            MoveToTarget(DetectTiles(nearestCell))
+                        );
+                    }
+                }
+                else
+                {
+                    // 🟡 Tidak ada plant valid selain yang sudah ditarget
+                    Debug.Log("Stay it");
+                  //  isWatering = false;
+                    StartNewCoroutine(
+                    MoveToTarget(
+                        currentNPCAreaPointsSO.areaPositions[
+                            UnityEngine.Random.Range(0, currentNPCAreaPointsSO.areaPositions.Length)
+                        ]
+                    )
+                    );
                 }
             }
-            else {
-                StartNewCoroutine (MoveToTarget (currentNPCAreaPointsSO.areaPositions[UnityEngine.Random.Range (0, currentNPCAreaPointsSO.areaPositions.Length)]));
+            else
+            {
+                StartNewCoroutine(
+                    MoveToTarget(
+                        currentNPCAreaPointsSO.areaPositions[
+                            UnityEngine.Random.Range(0, currentNPCAreaPointsSO.areaPositions.Length)
+                        ]
+                    )
+                );
             }
 
+            yield return new WaitUntil (()=> !isWatering);
             yield return new WaitUntil (() => !isOverridingState);
             yield return new WaitForSeconds (UnityEngine.Random.Range (checkAreaPositionMinSeconds, checkAreaPositionMaxSeconds));
             StartCoroutine (nCheckAreaPosition ());
         }
 
         public virtual IEnumerator nChangeAreaPoints () {
+            yield return new WaitUntil (()=> !isWatering);
              yield return new WaitUntil (() => !isOverridingState);
             yield return new WaitForSeconds (UnityEngine.Random.Range (changeAreaPointsMinSeconds, changeAreaPointsMaxSeconds));
             
@@ -363,39 +443,140 @@ namespace MagicalGarden.AI
         #endregion
         
         #region Farm Features
-        bool IsCanWatering () {
-            return plantManager.GetPlantsAvailableWater ().Count > 0;
-        }
 
-        bool IsCanHarvesting () {
-            return false;
+        // ------------------ Watering
+        bool IsCanWatering () {
+            Debug.Log ("Watering " + plantManager.GetPlantsAvailableWater ().Count);
+            return plantManager.GetPlantsAvailableWater ().Count > 0;
         }
 
         Dictionary<Vector3Int, PlantController> GetPlantsWatering () {
             return plantManager.GetPlantsAvailableWater ();
         }
 
-        IEnumerator WateringState () {
+       IEnumerator WateringState()
+        {
+            lockFlipTarget = true;
+            FlipFarmer ();
+
             SetAnimation("watering");
-             
-            yield return new WaitForSeconds(1.50f);
+
+            yield return new WaitForSeconds(1.5f);
+            lockFlipTarget = false;
+            SetAnimation("idle");
             isWatering = false;
-            stateLoopCoroutine = StartCoroutine(StateLoop());
-          //  giftObject.GetComponent <MagicalGarden.Gift.GiftItem> ().OpenGiftByNPC ();
-          //  giftObject = null;
+            isOverridingState = false;
+            TileManager.Instance.NPCWateringTiles(nearestCell);
+            stateLoopCoroutine = StartCoroutine(StateLoop()); // ini coba dinyalakan dulu
+            RemovePlantControllerNPCTargeting();
+        }
+        
+        
+
+        // ----------------- Harvesting
+        bool IsCanHarvesting () {
+            return plantManager.GetPlants ().Count > 0;
+        }
+
+        Dictionary<Vector3Int, PlantController> GetPlantsHarvesting () {
+            return plantManager.GetPlants ();
+        }
+
+        IEnumerator HarvestingState()
+        {
+            lockFlipTarget = true;
+            FlipFarmer ();
+
+            SetAnimation("collect");
+
+            yield return new WaitForSeconds(1.5f);
+            lockFlipTarget = false;
+            SetAnimation("idle");
+            isHarvesting = false;
+            isOverridingState = false;
+            PlantManager.Instance.HarvestAt(nearestCell);
+            stateLoopCoroutine = StartCoroutine(StateLoop()); // ini coba dinyalakan dulu
+            RemovePlantControllerNPCTargeting();
+        }
+        //-------------------------- Plant Controller
+        void AddPlantControllerNPCTargeting () {
+            plantManager.AddPlantControllerNPCTargeting (nearestPlant);
+        }
+
+        void RemovePlantControllerNPCTargeting () {
+            plantManager.RemovePlantControllerNPCTargeting (nearestPlant);
+        }
+        //---------------------------- Flip Rotation
+        void FlipFarmer () {
+            Vector2Int npcTile = (Vector2Int)terrainTilemap.WorldToCell(transform.position);
+            Vector3Int targetCell = nearestCell;
+            Vector2Int targetTile = new Vector2Int(targetCell.x, targetCell.y);
+
+
+            float faceScaleX;
+            int dir;
+            Debug.Log ($"{npcTile} target {targetTile}");
+            // KASUS 1: X sama → cek Y
+            if (npcTile.x == targetTile.x)
+            {
+                if (npcTile.y > targetTile.y)
+                {
+                    faceScaleX = -1f;   // kanan
+                    dir = 1;
+                    Debug.Log ("Kanan");
+                }
+                else
+                {
+                    faceScaleX = 1f;  // kiri
+                    dir = -1;
+                    Debug.Log ("Kiri");
+                }
+            }
+            // KASUS 2: Y sama → cek X
+            else if (npcTile.y == targetTile.y)
+            {
+                if (npcTile.x < targetTile.x)
+                {
+                    faceScaleX = -1f;   // kanan
+                    dir = 1;
+                    Debug.Log ("Kanan");
+                }
+                else
+                {
+                    faceScaleX = 1f;  // kiri
+                    dir = -1;
+                    Debug.Log ("Kiri");
+                }
+            }
+            // KASUS 3: diagonal → pakai rule OR
+            else if (npcTile.x <= targetTile.x || npcTile.y >= targetTile.y)
+            {
+                faceScaleX = -1f;   // kanan
+                dir = 1;
+                Debug.Log ("Kanan");
+            }
+            else
+            {
+                faceScaleX = 1f;  // kiri
+                dir = -1;
+                Debug.Log ("Kiri");
+            }
+
+            skeleton.skeleton.ScaleX = faceScaleX;
+            lastDirection = dir;
         }
         #endregion
         #region Converter Vector2
         Vector2Int DetectTiles(Vector3Int tilePos)
         {
-            if (terrainTilemap == null)
+            if (tileTarget == null)
             {
                 Debug.LogError("Tilemap belum di-assign!");
                 return Vector2Int.zero;
             }
 
             // Optional: cek apakah tile benar-benar ada
-            if (!terrainTilemap.HasTile(tilePos))
+            if (!tileTarget.HasTile(tilePos))
             {
                 Debug.LogWarning("Tidak ada tile di posisi: " + tilePos);
                 return Vector2Int.zero;
