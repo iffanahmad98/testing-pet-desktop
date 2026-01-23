@@ -53,16 +53,16 @@ namespace MagicalGarden.Farm
 
         public void SaveGame()
         {
-            PlantManager.Instance.SaveToJson();
-            FieldManager.Instance.SaveToJson();
+          //  PlantManager.Instance.SaveToJson();
+          //  FieldManager.Instance.SaveToJson();
           //  HotelManager.Instance.SaveGuestRequests();
             //add other seting
         }
 
         public void LoadGame()
         {
-            PlantManager.Instance.LoadFromJson();
-            FieldManager.Instance.LoadFromJson();
+          //  PlantManager.Instance.LoadFromJson();
+          //  FieldManager.Instance.LoadFromJson();
             //add other seting
         }
 

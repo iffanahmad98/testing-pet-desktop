@@ -31,7 +31,11 @@ namespace MagicalGarden.Farm
         public GameObject monsterEggPrefab;
         public Vector3 offsetEgg;
         public CameraDragMove cameraMove;
+        
+        [Header ("NPC")]
+        public List <PlantController> listTargettingPlantControllers = new List <PlantController> ();
 
+       
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.S))
@@ -83,9 +87,10 @@ namespace MagicalGarden.Farm
             }
 
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
-
-            bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
-            if (!removed) return;
+            InventoryManager.Instance.RemoveAssistant (itemdata);
+            // (Not Used :)
+            // bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
+            // if (!removed) return;
 
             Vector3 worldPos = TileManager.Instance.tilemapSeed.CellToWorld(cellPosition) + new Vector3(0f, 0.5f, 0);
             var plantObj = Instantiate(plantPrefab, worldPos, Quaternion.identity);
@@ -204,9 +209,10 @@ namespace MagicalGarden.Farm
                 return;
             }
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
-            bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
-            if (!removed) return;
-
+           // bool removed = InventoryManager.Instance.RemoveItem(itemdata, 1);
+            //if (!removed) return;
+            InventoryManager.Instance.RemoveAssistant (itemdata);
+            
             TileManager.Instance.tilemapFertilizer.SetTile(cellPosition, TileManager.Instance.tileFertilizer);
             if (!InventoryManager.Instance.HasItem(itemdata, 1))
             {
@@ -482,6 +488,19 @@ namespace MagicalGarden.Farm
 
     }
     */
+#endregion
+#region NPC
+    public void AddPlantControllerNPCTargeting (PlantController plantController) { // NPCFarmer.cs
+        listTargettingPlantControllers.Add (plantController);
+    }
+
+    public void RemovePlantControllerNPCTargeting (PlantController plantController) {// NPCFarmer.cs
+        listTargettingPlantControllers.Remove (plantController);
+    }
+
+    public List <PlantController> GetListTargettingPlantControllers () {
+        return listTargettingPlantControllers;
+    }
 #endregion
     }
 }

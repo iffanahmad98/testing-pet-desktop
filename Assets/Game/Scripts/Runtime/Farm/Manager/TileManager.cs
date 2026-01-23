@@ -14,7 +14,8 @@ namespace MagicalGarden.Manager
     public enum TileAIType {
         None,
         FacilityHotel,
-        FacilityFarm
+        FacilityFarm,
+        FarmPlant,
     }
 
     public enum TileAction
@@ -242,6 +243,7 @@ namespace MagicalGarden.Manager
             dictionaryTilemap.Add (TileAIType.None, null);
             dictionaryTilemap.Add (TileAIType.FacilityHotel, tilemapWalkingAreaHotel);
             dictionaryTilemap.Add (TileAIType.FacilityFarm, tilemapFarmFacilities);
+            dictionaryTilemap.Add (TileAIType.FarmPlant, tilemapSeed);
         }
 
         public Tilemap GetTilemap (TileAIType tileType) { // BaseEntity.AI
@@ -290,6 +292,13 @@ namespace MagicalGarden.Manager
                 worldPos.x -= 3f;
                 Farm.UIManager.Instance.ShowPlantInfo(plant, worldPos);
             }
+        }
+        #endregion
+
+        #region NPC
+        public void NPCWateringTiles (Vector3Int cellPos) { // Npc Watering Tiles
+            PlantManager.Instance.PlantWaterAt(cellPos);
+            tilemapWater.SetTile(cellPos, tileWater);
         }
         #endregion
 

@@ -38,7 +38,7 @@ namespace MagicalGarden.Inventory
         [Header ("Data")]
         public FarmItemDatabaseSO allFarmItemDatabase;
         PlayerConfig playerConfig;
-
+        [SerializeField] List <OwnedItemFarmData> listOwnedItemFarmData = new ();
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -48,6 +48,11 @@ namespace MagicalGarden.Inventory
         void Start () 
         {
             LoadAllItemFarmDatas ();
+        }
+
+        void Update ()
+        {
+            listOwnedItemFarmData= playerConfig.GetOwnedItemFarmDatas ();
         }
 
         public void AddItem(ItemData itemData, int amount)
@@ -75,7 +80,7 @@ namespace MagicalGarden.Inventory
 
         public bool RemoveItem(ItemData itemData, int amount)
         {
-            Debug.Log ("RemoveItem");
+           // Debug.Log ("RemoveItem");
             var item = items.FirstOrDefault(i => i.itemData.itemId == itemData.itemId);
             if (item == null || item.quantity < amount) return false;
 
@@ -205,8 +210,8 @@ namespace MagicalGarden.Inventory
                 playerConfig.AddEventItemFarmData (AddItembyPlayerConfig);
                  playerConfig.AddEventRemoveItemFarmData (RemoveItembyPlayerConfig);
             }
-
-            List <OwnedItemFarmData> listOwnedItemFarmData = playerConfig.GetOwnedItemFarmDatas ();
+            
+             listOwnedItemFarmData = playerConfig.GetOwnedItemFarmDatas ();
             foreach (OwnedItemFarmData owned in listOwnedItemFarmData) {
                 AddItem (allFarmItemDatabase.GetItemData (owned.itemID), owned.amount);
             }
@@ -219,6 +224,17 @@ namespace MagicalGarden.Inventory
 
          void RemoveItembyPlayerConfig (OwnedItemFarmData itemFarmData, int amount) { // PlayerConfig.cs
             RemoveItem (allFarmItemDatabase.GetItemData (itemFarmData.itemID), amount);
+        }
+
+        public void RemoveAssistant (ItemData itemData) { // PlantManager.cs (kalau remove langsung dari situ dia error sendiri.)
+        /*
+            if (playerConfig == null) {
+                playerConfig = SaveSystem.PlayerConfig;
+            }
+            
+            playerConfig.RemoveItemFarm ("banana", 1, true);
+            */
+            playerConfig.RemoveItemFarm (itemData.itemId, 1, true);
         }
         #endregion
     }

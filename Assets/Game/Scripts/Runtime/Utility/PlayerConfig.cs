@@ -449,16 +449,20 @@ public class PlayerConfig
     }
 
     public void RemoveItemFarm(string itemID, int amount, bool refreshEvent = false)
-    {
+    { // EligibleMaterials.cs, PlayerInventory.cs
         if (amount <= 0 || string.IsNullOrEmpty(itemID)) return;
-        
+        Debug.Log ("berkurang : " + itemID);
+
+        foreach (var s in this.ownedItemFarmDatas) {Debug.Log ("berkurang 2 :" + s.itemID);}
         var existing = ownedItemFarmDatas.Find(i => i.itemID == itemID);
-        Debug.Log ($"Item {itemID} {existing.amount} berkurang {amount}");
+        // Debug.Log ($"Item {itemID} {existing.amount} berkurang {amount}");
         if (existing != null)
         {
             existing.amount -= amount;
             if (existing.amount <= 0)
                 ownedItemFarmDatas.Remove(existing);
+        } else {
+            Debug.LogError ("Not Found Owned Item Farm Data : " + itemID);
         }
 
         if (refreshEvent) {
@@ -472,6 +476,7 @@ public class PlayerConfig
     }
 
     public List <OwnedItemFarmData> GetOwnedItemFarmDatas () {
+       // Debug.Log (ownedItemFarmDatas.Count);
         return ownedItemFarmDatas;
     }
 
