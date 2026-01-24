@@ -414,7 +414,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             if (separationForce.magnitude > 0.1f)
             {
                 Vector2 currentPos = _rectTransform.anchoredPosition;
-                Vector2 newPos = currentPos + separationForce * Time.deltaTime * 0.5f; // Reduced force for NPCs
+                // Vector2 newPos = currentPos + separationForce * Time.deltaTime * 0.1f; // Reduced force for NPCs (Latest)
+                Vector2 newPos = currentPos + separationForce * Time.deltaTime * 0.1f; // Reduced force for NPCs
 
                 // Apply basic bounds
                 var gameAreaSize = _monsterManager.gameAreaRT.sizeDelta;

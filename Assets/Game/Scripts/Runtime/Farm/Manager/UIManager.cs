@@ -28,11 +28,11 @@ namespace MagicalGarden.Farm
         private Coroutine hideInfoHotelCoroutine;
         private bool isHotelInfoVisible = false;
         [Header("UI")]
+        public FarmShop farmShopUI;
         public TextMeshProUGUI coinText;
         public TextMeshProUGUI harvestText;
         [Header("Pop Up")]
         public GameObject fertizerUI;
-        public GameObject shopUI;
         public GameObject guestUI;
         public GameObject inventoryUI;
         public GameObject menuBar;
@@ -67,7 +67,7 @@ namespace MagicalGarden.Farm
         }
         public void ShopUIToogle()
         {
-           // ToggleUI(shopUI); old
+            DisableAllUI ();
             FarmShop.instance.OnDisplay ();
         }
         public void GuestUIToogle()
@@ -82,13 +82,9 @@ namespace MagicalGarden.Farm
         {
             // Debug.LogError("dsdsa");
             // bool isActive = targetUI.activeSelf;
-
+            DisableAllUI ();
             // Matikan semua UI
-            fertizerUI.SetActive(false);
-            shopUI.SetActive(false);
-            guestUI.SetActive(false);
-            inventoryUI.SetActive(false);
-
+           
             // Jika sebelumnya tidak aktif, nyalakan yang diklik
             // if (!isActive)
             // {
@@ -140,7 +136,13 @@ namespace MagicalGarden.Farm
                 });
             }
         }
-
+        
+        void DisableAllUI () {
+            fertizerUI.SetActive(false);
+            guestUI.SetActive(false);
+            inventoryUI.SetActive(false);
+            farmShopUI.OffDisplay ();
+        }
         #region ToolTip UI
         // public void ShowMenu()
         // {

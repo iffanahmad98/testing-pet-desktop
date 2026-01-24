@@ -26,6 +26,7 @@ public class FarmShop : MonoBehaviour {
         OffDisplay ();
     }
 
+    // UIManager.cs :
     public void OnDisplay() {
         LoadListener ();
         shopPanel.gameObject.SetActive(true);
@@ -33,6 +34,7 @@ public class FarmShop : MonoBehaviour {
         ShowSpecificPanel (PanelType.Monster);
     }
 
+    // UIManager.cs :
     public void OffDisplay() {
         shopPanel.gameObject.SetActive(false);
        // MagicalGarden.Farm.UIManager.Instance.ShowUIFarmBar ();

@@ -249,7 +249,9 @@ namespace MagicalGarden.Farm
                     // harvesting is at index 25
                     MonsterManager.instance.audio.PlayFarmSFX(25);
                     plant.seed.Harvest();
+                    
                     // plants.Remove(cellPosition);
+                    RemovePlantAt (cellPosition);
                 }
                 else
                 {
