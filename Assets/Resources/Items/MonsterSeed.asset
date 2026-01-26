@@ -19,6 +19,7 @@ MonoBehaviour:
   itemType: 4
   rarity: 0
   isStackable: 1
+  price: 0
   description: 
   stageTiles:
   - {fileID: 11400000, guid: 055df14576c0c6246b7077ba78c7132c, type: 2}
@@ -35,3 +36,8 @@ MonoBehaviour:
   recipeCountPopRare: 0
   needHourWatering: 0
   needHourGrow: 0
+  harvestConfig:
+    itemDataSO: {fileID: 0}
+    amount: 1
+  rewardScale: {x: 1, y: 1, z: 1}
+  rules: []

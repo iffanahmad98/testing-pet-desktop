@@ -37,6 +37,10 @@ namespace MagicalGarden.Farm
         public ItemData itemData;
         public Image markHarvest;
         private Tween currentTween;
+
+        [Header ("Debug")]
+        public bool debugWatered = false;
+
         public abstract List<GrowthStage> GetGrowthRequirements();
         public abstract Monster GetMonster();
 
@@ -61,12 +65,14 @@ namespace MagicalGarden.Farm
             }
 
             bool isWatered = lastWateredTime > DateTime.MinValue;
-
-            if (!isWatered || hoursSinceWatered < 1)
-            {
-                Debug.LogWarning($"⏱️ Tidak bisa tumbuh. Disiram: {isWatered}, Selisih jam: {hoursSinceWatered:F2}");
-                CheckHealth();
-                return;
+            
+            if (!debugWatered) {
+                if (!isWatered || hoursSinceWatered < 1)
+                {
+                    Debug.LogWarning($"⏱️ Tidak bisa tumbuh. Disiram: {isWatered}, Selisih jam: {hoursSinceWatered:F2}");
+                    CheckHealth();
+                    return;
+                }
             }
             float boostedHours = deltaHours * (1f + fertilizerBoost / 100f);
             timeInStage += boostedHours;
@@ -150,22 +156,25 @@ namespace MagicalGarden.Farm
             DateTime checkFrom = lastWateredTime == default(DateTime) ? plantedTime : lastWateredTime;
 
             double hoursSince = (now - checkFrom).TotalHours;
+            if (!debugWatered) {
+                if (hoursSince > 48)
+                {
+                    status = PlantStatus.Mati;
+                    TileManager.Instance.tilemapSeed.SetTile(cellPosition, PlantManager.Instance.stageWilted);
+                }
+                else if (hoursSince > 24)
+                {
+                    // notification for farm quest is at index 28
+                    MonsterManager.instance.audio.PlayFarmSFX(28);
 
-            if (hoursSince > 48)
-            {
-                status = PlantStatus.Mati;
-                TileManager.Instance.tilemapSeed.SetTile(cellPosition, PlantManager.Instance.stageWilted);
-            }
-            else if (hoursSince > 24)
-            {
-                // notification for farm quest is at index 28
-                MonsterManager.instance.audio.PlayFarmSFX(28);
-
-                status = PlantStatus.Layu;
-                TileManager.Instance.tilemapSeed.SetTile(cellPosition, PlantManager.Instance.stageWilted);
-            }
-            else
-            { 
+                    status = PlantStatus.Layu;
+                    TileManager.Instance.tilemapSeed.SetTile(cellPosition, PlantManager.Instance.stageWilted);
+                }
+                else
+                { 
+                    status = PlantStatus.Normal;
+                }
+            } else {
                 status = PlantStatus.Normal;
             }
         }
@@ -226,7 +235,7 @@ namespace MagicalGarden.Farm
             {
                 GatchaMonsterEgg(TileManager.Instance.tilemapSeed.CellToWorld(cellPosition));
                 markHarvest.gameObject.SetActive(false);
-
+                PlayerHistoryManager.instance.SetHarvestEggMonsters (1);
             }
             else
             {
@@ -265,6 +274,7 @@ namespace MagicalGarden.Farm
 
         IEnumerator WaitAndZoomOut(Vector3 _cellPosition)
         {
+           // Debug.Log ("Particle 1");
             yield return new WaitForSeconds(2f);
             TileManager.Instance.tilemapSeed.SetTile(cellPosition, null);
             TileManager.Instance.tilemapWater.SetTile(cellPosition, null);
@@ -280,6 +290,7 @@ namespace MagicalGarden.Farm
             meshRenderer.sortingLayerName = "Particle Effect"; // Ganti dengan nama layer kamu
             monsterEggPrefab.GetComponent<EggMonsterController>().menu.SetActive(true);
             monsterEggPrefab.GetComponent<EggMonsterController>().monsterGatcha = monsterPrefab;
+           // Debug.Log ("Particle 2");
             // yield return new WaitForSeconds(5f);
             // PlantManager.Instance.cameraMove.ResetZoom(0.5f);
         }
@@ -299,6 +310,7 @@ namespace MagicalGarden.Farm
 
         public virtual void Clear()
         {
+          //  Debug.Log ("Particle Clear");
             TileManager.Instance.tilemapSeed.SetTile(cellPosition, null);
             TileManager.Instance.tilemapWater.SetTile(cellPosition, null);
             Destroy(this.gameObject);

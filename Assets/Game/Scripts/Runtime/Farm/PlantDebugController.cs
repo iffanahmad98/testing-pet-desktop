@@ -41,17 +41,33 @@ namespace MagicalGarden.Farm
         {
             if (PlantManager.Instance == null) return;
 
+            var oldTime = PlantManager.Instance.simulatedNow;
+            PlantManager.Instance.simulatedNow = oldTime.AddHours(hours);
 
+            // NPC Farmer (Offline)
+            int npcCount = PlantManager.Instance.GetNumberOfNpcFarmer();
+            // rate per menit
+            float wateredTilePerMinutePerNpc = 55f / 60f;
+            // total per menit semua NPC
+            float totalPerMinute = wateredTilePerMinutePerNpc * npcCount;
+            // selisih waktu (menit)
+            float minutesPassed = (float)(PlantManager.Instance.simulatedNow - TimeManager.Instance.lastLoginTime).TotalMinutes;
+            // total tile yang disiram selama offline
+            int totalWateredTile = Mathf.FloorToInt(totalPerMinute * minutesPassed);
+            Debug.Log ("Minutes Passed :" +minutesPassed);
 
-            foreach (var plant in PlantManager.Instance.GetAllSeeds())
+             foreach (var plant in PlantManager.Instance.GetAllSeeds())
             {
+                
+                if (totalWateredTile > 0) {
+                    totalWateredTile --;
+                    plant.seed.debugWatered = true;
+                    Debug.Log ("Watered true");
+                } 
                 float boost = plant.Fertilize?.boost ?? 0;
                 plant.seed.UpdateGrowth(hours, boost);
                 // plant.seed.lastUpdateTime = PlantManager.Instance.simulatedNow;
             }
-
-            var oldTime = PlantManager.Instance.simulatedNow;
-            PlantManager.Instance.simulatedNow = oldTime.AddHours(hours);
         }
         void Start()
         {

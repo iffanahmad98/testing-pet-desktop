@@ -242,7 +242,10 @@ namespace MagicalGarden.Inventory
             Debug.Log ("Add Assistant : " + itemData.name + itemData.harvestConfig.itemDataSO.ItemId);
             ItemDataSO itemDataSO = itemData.harvestConfig.itemDataSO;
             playerConfig.AddItem (itemDataSO.ItemId, itemDataSO.category, itemData.harvestConfig.amount);
+            PlayerHistoryManager.instance.SetHarvestFruit (1);
+            
         }
+
         #endregion
     }
     public enum ItemType

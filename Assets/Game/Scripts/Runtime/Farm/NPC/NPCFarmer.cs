@@ -83,7 +83,7 @@ namespace MagicalGarden.AI
             
             if (!IsWalkableTile(destination))
             {
-                Debug.LogError("Destination is not walkable!");
+              //  Debug.LogError("Destination is not walkable!");
                // yield break;
             }
 

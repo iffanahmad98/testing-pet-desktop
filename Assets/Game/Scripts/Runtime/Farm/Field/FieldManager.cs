@@ -12,6 +12,7 @@ namespace MagicalGarden.Farm
         public GameObject bubbleLockUI;
         public GameObject unlockVFX;
         [HideInInspector] public List<FieldBlock> blocks = new List<FieldBlock>();
+        public List <FarmAreaEligibleDataSO> listFarmAreaEligibleDataSO = new ();
         private string SaveFilePath => Application.persistentDataPath + "/field_save.json";
 
         [Header("Config (JSON)")]
@@ -25,6 +26,7 @@ namespace MagicalGarden.Farm
         }
         void Start()
         {
+            /*
             // 1) Jika diinginkan, load config JSON (requirement, default unlock)
             if (loadConfigOnStart && fieldConfigJson != null && blocks.Count == 0)
             {
@@ -35,12 +37,30 @@ namespace MagicalGarden.Farm
             {
                 UpdateOverlayVisual(item.blockId, false);
                 var bubble = Instantiate(bubbleLockUI, gameObject.transform);
-                bubble.GetComponent<UnlockBubbleUI>().Setup(item, new Vector3Int(item.blockId.x, item.blockId.y, 0));
+                bubble.GetComponent<UnlockBubbleUI>().Setup(item, new Vector3Int(item.blockId.x, item.blockId.y, 0), item.farmAreaEligibleDataSO);
                 item.bubbleUI = bubble;
             }
+            */
             // 3) Overlay save pemain (jika ada), akan auto-destroy bubble yang sudah unlock
             // LoadFromJson();
         }
+
+        public void LoadFromConfig () { // PLant
+            // LoadConfigFromText(fieldConfigJson.text, clearExisting: true);
+            if (loadConfigOnStart && fieldConfigJson != null && blocks.Count == 0)
+            {
+                LoadConfigFromText(fieldConfigJson.text, clearExisting: true);
+            }
+            // 2) Buat overlay & bubble untuk semua block yang terkunci
+            foreach (var item in blocks)
+            {
+                UpdateOverlayVisual(item.blockId, false);
+                var bubble = Instantiate(bubbleLockUI, gameObject.transform);
+                bubble.GetComponent<UnlockBubbleUI>().Setup(item, new Vector3Int(item.blockId.x, item.blockId.y, 0), item.farmAreaEligibleDataSO);
+                item.bubbleUI = bubble;
+            }
+        }
+
         public FieldBlock GetBlockById(Vector2Int id)
         {
             return blocks.FirstOrDefault(b => b.blockId == id);
@@ -133,6 +153,7 @@ namespace MagicalGarden.Farm
 
         public void LoadConfigFromText(string json, bool clearExisting = true)
         {
+            
             if (string.IsNullOrWhiteSpace(json))
             {
                 Debug.LogWarning("[FieldManager] fieldConfigJson kosong.");
@@ -159,10 +180,18 @@ namespace MagicalGarden.Farm
                 }
                 blocks.Clear();
             }
-
+            
+            int farmId = 2;
             // apply semua dari config
+           // Debug.Log ("Load 2");
             foreach (var c in cfg.blocks)
             {
+                if (PlantManager.Instance.IsFarmAreaUnlocked (farmId)) {
+                    Debug.Log ("Farm id ini " + farmId);
+                    farmId++;
+                    continue;
+                }
+
                 var id = new Vector2Int(c.x, c.y);
                 SetBlockConfig(
                     id,
@@ -173,8 +202,11 @@ namespace MagicalGarden.Farm
                     unlocked: c.defaultUnlocked,
                     refreshVisual: false,
                     spawnBubbleIfLocked: false,   // bubble dibuat setelah ini
-                    autoSave: false
+                    autoSave: false,
+                    listFarmAreaEligibleDataSO[farmId-2],
+                    farmId // +1 karena element 0, idnya 1)
                 );
+                farmId++;
             }
 
             // refresh visual sekali
@@ -232,6 +264,7 @@ namespace MagicalGarden.Farm
         }
         #region Testing
         public FieldBlock SetBlockConfig(
+            
             Vector2Int blockId,
             int? requiredCoins = null,
             int? requiredHarvest = null,
@@ -240,7 +273,9 @@ namespace MagicalGarden.Farm
             bool? unlocked = null,
             bool refreshVisual = true,
             bool spawnBubbleIfLocked = true,
-            bool autoSave = false)
+            bool autoSave = false,
+            FarmAreaEligibleDataSO farmAreaEligbleDataSOValue = null,
+            int numberId = 0 )
         {
             // Cari block
             var block = GetBlockById(blockId);
@@ -275,13 +310,15 @@ namespace MagicalGarden.Farm
                 var bubble = Instantiate(bubbleLockUI, transform);
                 var ui = bubble.GetComponent<UnlockBubbleUI>();
                 if (ui != null)
-                    ui.Setup(block, new Vector3Int(block.blockId.x, block.blockId.y, 0));
+                    ui.Setup(block, new Vector3Int(block.blockId.x, block.blockId.y, 0),farmAreaEligbleDataSOValue);
                 block.bubbleUI = bubble;
             }
 
             if (autoSave)
                 SaveToJson();
-
+            
+            block.farmAreaEligibleDataSO = farmAreaEligbleDataSOValue;
+            block.numberId = numberId;
             return block;
         }
         #endregion

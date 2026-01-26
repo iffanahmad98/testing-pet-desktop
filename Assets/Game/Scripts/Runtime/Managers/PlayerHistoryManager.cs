@@ -44,14 +44,14 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
         Debug.Log ("Hotel Room Completed " + playerConfig.hotelRoomCompleted);
         SaveSystem.SaveAll ();
     }
-    public void SetHarvestFruit (int value) {
+    public void SetHarvestFruit (int value) { // InventoryManager.cs
         harvestFruit += value;
         playerConfig.harvestFruit = harvestFruit;
         Debug.Log ("Hotel Room Completed " + playerConfig.harvestFruit);
         SaveSystem.SaveAll ();
     }
 
-    public void SetHarvestEggMonsters (int value) {
+    public void SetHarvestEggMonsters (int value) { // InventoryManager.cs
         harvestEggMonsters += value;
         playerConfig.harvestEggMonsters = harvestEggMonsters;
         Debug.Log ("Hotel Room Completed " + playerConfig.harvestEggMonsters);

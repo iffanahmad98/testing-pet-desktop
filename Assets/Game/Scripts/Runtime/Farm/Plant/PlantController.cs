@@ -16,7 +16,7 @@ namespace MagicalGarden.Farm
         public SeedBase seed;
         private float updateTimer = 0f;
         public ItemData fertilizer;
-
+        
         void Start()
         {
             if (seed == null)

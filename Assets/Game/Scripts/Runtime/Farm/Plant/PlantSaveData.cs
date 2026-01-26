@@ -23,6 +23,7 @@ namespace MagicalGarden.Manager
     [Serializable]
     public class PlantSaveWrapper
     {
+        public List<int> farmAreaIds = new ();
         public List<PlantSaveData> data;
     }
 }
