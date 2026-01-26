@@ -10,6 +10,7 @@ public class PomodoroUI : MonoBehaviour
     [SerializeField] private GameObject pomodoroPanel;
     [SerializeField] private PomodoroPhaseManager phaseManager;
     [SerializeField] private PomodoroMiniUI miniUI;
+    [SerializeField] private PumpkinCarUIAnimator pumpkinAnim;
 
     [Header("Display Elements")]
     [SerializeField] private TextMeshProUGUI phaseNameText;
@@ -155,7 +156,7 @@ public class PomodoroUI : MonoBehaviour
         // Hide mini UI when main panel opens
         if (miniUI != null)
         {
-            miniUI.Hide();
+            // miniUI.Hide();
         }
 
         Debug.Log("Pumpkin button clicked - Opening Pomodoro Panel");
@@ -172,11 +173,17 @@ public class PomodoroUI : MonoBehaviour
         {
             phaseManager.StartTimer();
             Debug.Log("Timer started");
+
+            // start pumpkin car animation
+            pumpkinAnim.Play();
         }
         else
         {
             phaseManager.PauseTimer();
             Debug.Log("Timer paused");
+
+            // stop pumpkin car animation
+            pumpkinAnim.Pause();
         }
 
         UpdatePlayButtonSprite();
@@ -218,6 +225,7 @@ public class PomodoroUI : MonoBehaviour
             isPlaying = false;
             UpdatePlayButtonSprite();
             UpdateDisplay();
+            pumpkinAnim.ResetAnim();
         }
 
         Debug.Log("Restart button clicked - Reset to start");

@@ -61,7 +61,7 @@ public class CoinDisplayUI : MonoBehaviour
         int coins = CoinManager.Coins;
         Debug.Log($"Update Coin = {coins}");
         
-        string displayText = coins >= 10000 ? "9999+" : coins.ToString();
+        string displayText = coins >= 1000000 ? "999999+" : coins.ToString();
 
         if (mainCoinText != null)
             mainCoinText.text = displayText;

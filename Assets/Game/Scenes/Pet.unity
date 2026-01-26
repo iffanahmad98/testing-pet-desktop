@@ -12376,7 +12376,7 @@ GameObject:
   - component: {fileID: 222343068}
   - component: {fileID: 222343067}
   - component: {fileID: 222343071}
-  - component: {fileID: 222343070}
+  - component: {fileID: 222343072}
   m_Layer: 5
   m_Name: Pumpkin Car
   m_TagString: Untagged
@@ -12487,28 +12487,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 222343065}
   m_CullTransparentMesh: 1
---- !u!95 &222343070
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 222343065}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0267ff6a8fa8fbf45bec4de9385041b1, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &222343071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12531,7 +12509,34 @@ MonoBehaviour:
   focusTypeImage: {fileID: 1276466391987890526, guid: c3345964b850d96448582d5fae792e7d, type: 3}
   breakTypeImage: {fileID: 9019014939055560161, guid: 1d5f5a537a2e8b148afcdf2da0f2e7a5, type: 3}
   showOnStart: 1
-  miniUIAnimator: {fileID: 222343070}
+  miniUIAnimator: {fileID: 0}
+--- !u!114 &222343072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222343065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fef0a356669e164db2597f73a76c2a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  img: {fileID: 0}
+  frames:
+  - {fileID: 3601917648352172991, guid: 683c31b611c7ef849a28530f1f44a348, type: 3}
+  - {fileID: -6201324958730470046, guid: 85df362f2bcf2db418a9e90a4c21a85d, type: 3}
+  - {fileID: 6762678232676989876, guid: 9d709d1ba41b0694f942f72113c1b848, type: 3}
+  - {fileID: -4479095594490860534, guid: 6557a2c9a0248e94e9e56cc4565e12dc, type: 3}
+  - {fileID: -7374397410725124541, guid: ed5ee893cb1376e45af57047843a1d5a, type: 3}
+  - {fileID: 7829128182187460038, guid: 7afede4f16a31924f80891fa91e337f3, type: 3}
+  - {fileID: 8274460627307897557, guid: 9e644a21a2c29e04699bae5f0d298648, type: 3}
+  - {fileID: -1583694408776235986, guid: a2f9738f3abb5d0449282be3968eec78, type: 3}
+  - {fileID: -4395120363194735792, guid: 51bdeb144fd391c409ae3b57e877c524, type: 3}
+  - {fileID: 4745025047121555689, guid: 3965aad0b0861d34c9ed863867ff3a87, type: 3}
+  - {fileID: 6372192251457994672, guid: d773909f65dd3db4ab41cdc06a3c0f10, type: 3}
+  - {fileID: -1232114896273882482, guid: 85db13ff3d50dea4dac3cf3fb9b12045, type: 3}
+  fps: 12
 --- !u!1 &227051101
 GameObject:
   m_ObjectHideFlags: 0
@@ -19131,6 +19136,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &402775745
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 402775746}
+  - component: {fileID: 402775747}
+  m_Layer: 5
+  m_Name: rainbowPot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &402775746
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402775745}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1985404013}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &402775747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402775745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e57a1e21afbdb4e9a26c04474abd8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  potButton: {fileID: 1279878655}
+  potImage: {fileID: 1279878656}
+  isActive: 0
+  onImage: {fileID: -5696018078766451182, guid: a810a12bc2db10344a2e82b48b6cbc6d, type: 3}
+  offImage: {fileID: -2109982644447097555, guid: f9c7124fc47e55543b632e3731f713e0, type: 3}
 --- !u!1 &406312718
 GameObject:
   m_ObjectHideFlags: 0
@@ -49446,6 +49504,10 @@ PrefabInstance:
       value: Decoration
       objectReference: {fileID: 0}
     - target: {fileID: 7687023916542001300, guid: db89e1e920d6338448379605b1486db5, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7687023916542001300, guid: db89e1e920d6338448379605b1486db5, type: 3}
       propertyPath: m_AspectRatio
       value: 1.7
       objectReference: {fileID: 0}
@@ -55593,6 +55655,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d6151456d39c782489aec08d85f79fc3, type: 3}
+--- !u!114 &1279878655 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4120498684385109254, guid: db89e1e920d6338448379605b1486db5, type: 3}
+  m_PrefabInstance: {fileID: 1214077974}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1279878656 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7733204682204183545, guid: db89e1e920d6338448379605b1486db5, type: 3}
+  m_PrefabInstance: {fileID: 1214077974}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1296946414
 GameObject:
   m_ObjectHideFlags: 0
@@ -81017,6 +81101,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1991142893}
+  - {fileID: 402775746}
   m_Father: {fileID: 17609072}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -100464,6 +100549,10 @@ PrefabInstance:
       propertyPath: pauseSprite
       value: 
       objectReference: {fileID: 21300000, guid: a96bad906b4a7fa499c64143ebc98a9a, type: 3}
+    - target: {fileID: 264941033447400992, guid: f1cf3e4410b33db4b816084c7d7aefac, type: 3}
+      propertyPath: pumpkinAnim
+      value: 
+      objectReference: {fileID: 222343072}
     - target: {fileID: 264941033447400992, guid: f1cf3e4410b33db4b816084c7d7aefac, type: 3}
       propertyPath: phaseManager
       value: 
