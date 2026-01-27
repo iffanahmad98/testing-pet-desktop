@@ -1,8 +1,8 @@
-using DG.Tweening;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class UIManager : MonoBehaviour
 {
@@ -40,16 +40,14 @@ public class UIManager : MonoBehaviour
 
     public TextMeshProUGUI messageText;
 
-    [Header("Animation Settings")]
-    [SerializeField]
+    [Header("Animation Settings")] [SerializeField]
     private float animationDuration = 0.4f;
 
     [SerializeField] private float buttonSlideDistance = 100f;
     [SerializeField] private AnimationCurve easeOutCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private AnimationCurve easeInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-    [Header("Mini Window Mode")]
-    [SerializeField]
+    [Header("Mini Window Mode")] [SerializeField]
     private GameObject gameContentParent;
 
     [SerializeField] private float miniWindowScale = 3f;
