@@ -139,9 +139,15 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                     }
 
                     listPodiumCard[index].hiredText.text = "Hired: " + hiredData.hired;
-
+                    if (hiredData.hired < listPodiumCard[i].facilityData.maxHired) {
+                        listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.GetHiredPrice (hiredData.hired).ToString ();
+                    } else {
+                        listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.GetHiredPrice (hiredData.hired-1).ToString ();
+                    }
+                    
                 } else {
                     listPodiumCard[index].hiredText.text = "Hired: " + 0;
+                    listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.GetHiredPrice (0).ToString ();
                 }
 
                 if (isMaximum)
@@ -166,9 +172,10 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                         HireFacilities(card, card.facilityData)
                     );
                 }
+                
                 listPodiumCard[index].hiredText.gameObject.SetActive (true);
                 
-             } else {
+            } else {
                 if (SaveSystem.PlayerConfig.HasHotelFacility (listPodiumCard[index].facilityData.id)) {
                     listPodiumCard[index].hireButtonOnce.gameObject.SetActive (false);
                     listPodiumCard[index].priceText.gameObject.SetActive (false);
@@ -181,6 +188,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                     );
                     listPodiumCard[index].appliedButton.gameObject.SetActive (false);
                 }
+                listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.GetPrice ().ToString ();
                 listPodiumCard[index].hiredText.gameObject.SetActive (false);
              }
             
@@ -192,7 +200,8 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
             );
 
             listPodiumCard[i].nameText.text = listPodiumCard[i].facilityData.facilityName;
-            listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.price.ToString ();
+            // listPodiumCard[i].priceText.text = listPodiumCard[i].facilityData.price.ToString ();
+           
             listPodiumCard[i].detailText.text = listPodiumCard[i].facilityData.detailText;
             
             GameObject facilityClone = GameObject.Instantiate (listPodiumCard[i].facilityData.facilityUIPrefab);
@@ -370,6 +379,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                         newPodiumCard.hireButton.image.color = onHireColor;
                         newPodiumCard.hireButton.interactable = true;
                         newPodiumCard.priceText.gameObject.SetActive (true);
+                        newPodiumCard.priceText.text = newPodiumCard.facilityData.GetHiredPrice (curHired).ToString ();
                         newPodiumCard.coinTypeImage.gameObject.SetActive (true);
                     } else {
                         newPodiumCard.hireButton.image.color = offHireColor;
