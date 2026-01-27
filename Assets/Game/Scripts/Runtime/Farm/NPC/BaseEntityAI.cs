@@ -22,6 +22,7 @@ namespace MagicalGarden.AI
         protected Coroutine stateLoopCoroutine;
         public bool isOverridingState = false;
         public bool lockFlipTarget = false;
+        public GameObject spawnEffectPrefab = null;
         protected string lastChosenState = "";
         protected Dictionary<string, string> animationFallbacks = new Dictionary<string, string>
         {
@@ -44,6 +45,7 @@ namespace MagicalGarden.AI
             }
             currentCoroutine = StartCoroutine(routine);
         }
+
         protected virtual void Start()
         {
             Vector3 worldPos = transform.position;
@@ -55,7 +57,19 @@ namespace MagicalGarden.AI
             }
             Vector3Int cellPos = terrainTilemap.WorldToCell(worldPos);
             currentTile = new Vector2Int(cellPos.x, cellPos.y);
+
+            
         }
+
+        private void OnEnable()
+        {
+            if (spawnEffectPrefab != null)
+            {
+                GameObject fxObj = Instantiate(spawnEffectPrefab, transform);
+                Destroy(fxObj, 2f);
+            }
+        }
+
         protected IEnumerator StateLoop()
         {
             while (true)

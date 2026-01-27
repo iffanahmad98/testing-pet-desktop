@@ -88,6 +88,7 @@ namespace MagicalGarden.Hotel
         GameObject hotelPurchase;
         [Header ("Vfx")]
         public GameObject buyHotelRay;
+        [SerializeField] ParticleSystem bubbleVfx;
         GameObject vfxRay;
         
         [Header ("Data")]
@@ -680,6 +681,7 @@ namespace MagicalGarden.Hotel
             Down
         }
         #endregion
+
         #region Vfx
         public void InstantiateVfxDust () { // NPCHotel.cs
             if (currentGuestRequestType == GuestRequestType.RoomService) {
@@ -713,7 +715,22 @@ namespace MagicalGarden.Hotel
         void DestroyVfxClean () {
             Destroy (vfxRay);
         }
+
+        private void SetBubbleVfxState(bool state)
+        {
+            if (state)
+            {
+                bubbleVfx.gameObject.SetActive(true);
+                bubbleVfx.Play();
+            }
+            else
+            {
+                bubbleVfx.Stop();
+                bubbleVfx.gameObject.SetActive(false);
+            }
+        }
         #endregion
+
         #region NPCAutoService
         public enum NPCService {
             NPCHotel,
