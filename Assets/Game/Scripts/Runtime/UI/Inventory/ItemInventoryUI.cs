@@ -179,15 +179,12 @@ public class ItemInventoryUI : MonoBehaviour
             ExitDeleteMode();
         });
 <<<<<<< HEAD
-<<<<<<< HEAD
 
         if (!oncePopulate) {
             oncePopulate = true;
             StartPopulateAllInventories();
         }
 =======
-=======
->>>>>>> parent of b11039a7 (Merge pull request #13 from scriptsmelter/dev/hanif)
         
         StartPopulateAllInventories();
 >>>>>>> parent of b11039a7 (Merge pull request #13 from scriptsmelter/dev/hanif)
