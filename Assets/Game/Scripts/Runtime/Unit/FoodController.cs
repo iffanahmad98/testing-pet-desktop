@@ -143,6 +143,7 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
         if (GetWorldRect(rectTransform).Overlaps(GetWorldRect(groundRect)))
         {
             Vector2 defaultPos = rectTransform.anchoredPosition;
+            MonsterManager.instance.audio.PlaySFX("placing_facility");
 
             rectTransform.DOLocalMoveY(defaultPos.y - 25f, 1f);
             yield break; // ends coroutine, so it stays there
@@ -162,6 +163,7 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
                 // Snap exactly to the random Y (optional but recommended)
                 float delta = targetBottomY - f.yMin;
                 rectTransform.position += new Vector3(0f, delta, 0f);
+                MonsterManager.instance.audio.PlaySFX("placing_facility");
                 yield break;
             }
 
