@@ -249,6 +249,7 @@ public class UIManager : MonoBehaviour
             canvasGroup.blocksRaycasts = false;
             canvasGroup.alpha = 0f;
             rect.localScale = Vector3.one;
+            panel.transform.SetAsLastSibling();
 
             MonsterManager.instance.audio.PlaySFX("button_click");
 
