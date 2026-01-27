@@ -52,8 +52,8 @@ public class ItemInventoryUI : MonoBehaviour
 
 
     // Object Pool for ItemSlotUI
-    public Queue<ItemSlotUI> slotPool = new Queue<ItemSlotUI>();
-    public List<ItemSlotUI> activeSlots = new List<ItemSlotUI>();
+    private Queue<ItemSlotUI> slotPool = new Queue<ItemSlotUI>();
+    private List<ItemSlotUI> activeSlots = new List<ItemSlotUI>();
     private int initialPoolSize = 50;
 
     private bool isDeleteMode = false;
@@ -168,7 +168,6 @@ public class ItemInventoryUI : MonoBehaviour
 
     }
 
-    bool oncePopulate = false;
     private void OnEnable()
     {
         closeButton.onClick.RemoveAllListeners();
@@ -179,22 +178,12 @@ public class ItemInventoryUI : MonoBehaviour
             ExitDeleteMode();
         });
 
-        if (!oncePopulate) {
-            oncePopulate = true;
-            StartPopulateAllInventories();
-        }
+        StartPopulateAllInventories();
     }
 
     private void OnDisable()
     {
-        /*
-       foreach (var slot in activeSlots) {
-        Debug.Log ("Destroy Active Slots");
-            Destroy (slot.gameObject);
-        }
-        */
-        activeSlots.Clear ();
-
+        // ✅ Kill all active tweens when inventory is disabled
         foreach (var slot in activeSlots)
         {
             if (slot != null)
@@ -205,12 +194,8 @@ public class ItemInventoryUI : MonoBehaviour
             }
         }
         quickViewGameObject.SetActive(true);
-    //    horizontalBarGameObject.SetActive(false); (Non Used ini bikin bug)
-        SetCanvasGroupVisibility (horizontalBarGameObject, false);
-         HideInventory();
-        ResetInventoryGroupvisibility();
-
-      //  ReturnAllSlotsToPool();
+        horizontalBarGameObject.SetActive(false);
+        ReturnAllSlotsToPool();
     }
     private void SetCanvasGroupVisibility(GameObject target, bool show)
     {
@@ -265,12 +250,6 @@ public class ItemInventoryUI : MonoBehaviour
 
     private IEnumerator PopulateAllInventoriesCoroutine()
     {
-        
-
-      //  Debug.Log ("Start Populate");
-      // ✅ Kill all active tweens when inventory is disabled
-        
-
         yield return new WaitForEndOfFrame(); // Ensure UI is ready
         ClearAllUnusedDatas();
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
