@@ -89,9 +89,6 @@ public class EggCrackAnimator : MonoBehaviour
         return candidates.Count > 0 ? candidates[UnityEngine.Random.Range(0, candidates.Count)] : null;
     }
 
-    
-    
-
     private void SpawnMonster(MonsterDataSO monsterData)
     {
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);

@@ -18,6 +18,7 @@ public class MonsterUIHandler
     public UIParticle[] evolutionVFX;
     public Material evolutionMaterial;
     public UIParticle healingVFX;
+    public UIParticle fallingStarsVfx;
     // public UIParticle sickVFX;
 
     [Header("Emoji Expression")]
