@@ -1,10 +1,10 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
-using DG.Tweening;
-using TMPro;
 
 public class ItemInventoryUI : MonoBehaviour
 {
@@ -177,7 +177,7 @@ public class ItemInventoryUI : MonoBehaviour
             ResetInventoryGroupvisibility();
             ExitDeleteMode();
         });
-        
+
         StartPopulateAllInventories();
     }
 
@@ -251,7 +251,7 @@ public class ItemInventoryUI : MonoBehaviour
     private IEnumerator PopulateAllInventoriesCoroutine()
     {
         yield return new WaitForEndOfFrame(); // Ensure UI is ready
-        ClearAllUnusedDatas ();
+        ClearAllUnusedDatas();
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
 
         if (ownedItems == null)
@@ -274,7 +274,7 @@ public class ItemInventoryUI : MonoBehaviour
 
         // Horizontal Bar: 7 Food, 2 Medicine, 1 Poop
         yield return PopulateInventoryByType(horizontalContentParent, horizontalContentRect, sortedItems,
-            foodMax: 7, medicineMax: 2, poopMax: 1, rows: 1);
+            foodMax: 9, medicineMax: 2, poopMax: 1, rows: 1);
 
         // Full Inventory: show all
         yield return PopulateInventory(verticalContentParent, verticalContentRect, sortedItems,
@@ -589,9 +589,8 @@ public class ItemInventoryUI : MonoBehaviour
 
     private void OnStoreButtonClicked()
     {
-        HideInventory();
-        ResetInventoryGroupvisibility();
-        ExitDeleteMode();
+        SidebarManager sidebarManager = ServiceLocator.Get<SidebarManager>();
+        sidebarManager.ShowPanel(sidebarManager.sidebarLinks[2]);
         ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
     }
 
@@ -745,7 +744,7 @@ public class ItemInventoryUI : MonoBehaviour
     }
 
     #region UnusedData
-    void ClearAllUnusedDatas ()
+    void ClearAllUnusedDatas()
     {
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
         for (int i = ownedItems.Count - 1; i >= 0; i--)
