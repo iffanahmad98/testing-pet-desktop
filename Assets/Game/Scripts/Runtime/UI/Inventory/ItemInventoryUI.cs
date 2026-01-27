@@ -351,6 +351,7 @@ public class ItemInventoryUI : MonoBehaviour
         {
             var data = itemDatabase.GetItem(item.itemID);
             if (data == null) continue;
+            if (item.amount == 0) continue;
 
             switch (data.category)
             {
@@ -432,6 +433,7 @@ public class ItemInventoryUI : MonoBehaviour
             var item = displayItems[i];
             var itemData = itemDatabase.GetItem(item.itemID);
             if (itemData == null) continue;
+            if (item.amount == 0) continue;
 
             var slot = GetSlotFromPool();
             slot.transform.SetParent(shopInventoryContentParent, false);
