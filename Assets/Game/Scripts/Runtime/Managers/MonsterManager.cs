@@ -434,8 +434,16 @@ public class MonsterManager : MonoBehaviour
             SetupPooledObject(pooled, gameAreaRT, pos);
 
             var poolPos = pooled.transform.position;
-            pooled.transform.DOMoveY(poolPos.y + 15f, 0.5f).SetEase(Ease.OutBack);
+            pooled.transform.DOMoveY(poolPos.y + 25f, 0.5f).SetEase(Ease.OutBack);
             pooled.transform.position = poolPos;
+
+            pooled.transform.DOKill(); // stop tween lama kalau ada
+            pooled.transform.DOPunchScale(
+                punch: new Vector3(0.75f, 0.75f, 0f), // seberapa besar “pantulnya”
+                duration: 0.5f,
+                vibrato: 2,        // 1 = sekali pantul (lebih besar = lebih bergetar)
+                elasticity: 0.8f   // 0-1, makin besar makin “springy”
+            );
 
             //pooled.transform.DOLocalMoveY(pos.y, 0.5f);
 
