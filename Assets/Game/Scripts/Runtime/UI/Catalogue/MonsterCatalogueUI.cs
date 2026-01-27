@@ -1,7 +1,6 @@
-using System;
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +12,7 @@ public class MonsterCatalogueUI : MonoBehaviour
     public Button TypeBtn;
     public Button RenameGameAreaBtn;
     public Button SwitchGameAreaBtn;
+    public Button DeleteGameAreaBtn;
     public Button CloseMonsterDetailsBtn;
     public CanvasGroup MonsterDetailsCanvasGroup;
     public Button CloseMonsterListBtn;
@@ -20,18 +20,22 @@ public class MonsterCatalogueUI : MonoBehaviour
     public Button monsterCollectionBtn;
     public CanvasGroup monsterCollectionCanvasGroup;
     public UISmoothFitter smoothFitter;
-    
+    public ScrollRect scrollRect;
+
 
     [Header("Game Area Components")]
     public Button[] gameAreaButtons;
     public Button AddGameAreaBtn;
     public GameObject gameAreaButtonPrefab;
     private Button seletectedGameAreaButton;
-    
+    private int maxAreaVisible = 5;
+    private float gameAreaHeight = 100;
+    public RectTransform scrollViewContent;
+
     [Header("Game Area Button Highlighting")]
     public Color normalButtonColor = Color.white;
     public Color selectedButtonColor = Color.gray;
-    
+
     [Header("Object Pool")]
     private Queue<GameObject> gameAreaButtonPool = new Queue<GameObject>();
     private List<GameObject> activeGameAreaButtons = new List<GameObject>();
@@ -40,6 +44,7 @@ public class MonsterCatalogueUI : MonoBehaviour
     // Global player config variable
     private PlayerConfig playerConfig;
     private bool isPlayerConfigLoaded = false;
+
 
     private void Awake()
     {
@@ -60,7 +65,7 @@ public class MonsterCatalogueUI : MonoBehaviour
     {
         // Load player config asynchronously first
         yield return StartCoroutine(LoadPlayerConfigAsync());
-        
+
         // Initialize components after player config is loaded
         InitializeGameAreaButtonPool();
         Init();
@@ -70,23 +75,23 @@ public class MonsterCatalogueUI : MonoBehaviour
     private IEnumerator LoadPlayerConfigAsync()
     {
         Debug.Log("Starting to load player config asynchronously...");
-        
+
         // Yield for a frame to allow UI updates
         yield return null;
-        
+
         // Simulate async loading time if needed
         yield return new WaitForSeconds(0.1f);
-        
+
         // Load the player config and store it globally
         playerConfig = SaveSystem.GetPlayerConfig();
-        
+
         if (playerConfig == null)
         {
             Debug.LogError("Failed to load player config!");
             isPlayerConfigLoaded = false;
             yield break;
         }
-        
+
         isPlayerConfigLoaded = true;
         Debug.Log("Player config loaded successfully!");
     }
@@ -104,6 +109,7 @@ public class MonsterCatalogueUI : MonoBehaviour
         TypeBtn.onClick.RemoveAllListeners();
         RenameGameAreaBtn.onClick.RemoveAllListeners();
         SwitchGameAreaBtn.onClick.RemoveAllListeners();
+        DeleteGameAreaBtn.onClick.RemoveAllListeners();
         CloseMonsterDetailsBtn.onClick.RemoveAllListeners();
         CloseMonsterListBtn.onClick.RemoveAllListeners();
         monsterCollectionBtn.onClick.RemoveAllListeners();
@@ -112,6 +118,7 @@ public class MonsterCatalogueUI : MonoBehaviour
         TypeBtn.onClick.AddListener(OnTypeButtonClicked);
         RenameGameAreaBtn.onClick.AddListener(OnRenameGameAreaButtonClicked);
         SwitchGameAreaBtn.onClick.AddListener(OnSwitchGameAreaButtonClicked);
+        DeleteGameAreaBtn.onClick.AddListener(OnDeleteGameAreaButtonClicked);
         CloseMonsterDetailsBtn.onClick.AddListener(() =>
         {
             MonsterDetailsCanvasGroup.DOFade(0f, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
@@ -157,10 +164,29 @@ public class MonsterCatalogueUI : MonoBehaviour
         // Create initial pool of buttons
         for (int i = 0; i < INITIAL_POOL_SIZE; i++)
         {
-            GameObject pooledButton = Instantiate(gameAreaButtonPrefab, AddGameAreaBtn.transform.parent);
+            GameObject pooledButton = Instantiate(gameAreaButtonPrefab, scrollViewContent);
             pooledButton.SetActive(false);
             gameAreaButtonPool.Enqueue(pooledButton);
         }
+        UpdateGameAreaUI();
+    }
+
+    private void UpdateGameAreaUI()
+    {
+        int count = gameAreaButtons.Length;
+
+        scrollRect.enabled = count > maxAreaVisible;
+
+        int visibleCount = Mathf.Min(count, maxAreaVisible);
+        float height = visibleCount * gameAreaHeight;
+        // Posisi tombol +
+        RectTransform addButtonRect = AddGameAreaBtn.gameObject.GetComponent<RectTransform>();
+        Vector2 pos = addButtonRect.anchoredPosition;
+        pos.y = -(height - 30 * (visibleCount - 1));
+        if (count == 1) pos.y = -(height);
+        addButtonRect.anchoredPosition = pos;
+
+
     }
 
     private GameObject GetPooledGameAreaButton()
@@ -171,8 +197,10 @@ public class MonsterCatalogueUI : MonoBehaviour
         }
         else
         {
+
             // Pool is empty, create a new button
-            return Instantiate(gameAreaButtonPrefab, AddGameAreaBtn.transform.parent);
+            return Instantiate(gameAreaButtonPrefab, scrollViewContent);
+
         }
     }
 
@@ -197,7 +225,7 @@ public class MonsterCatalogueUI : MonoBehaviour
             ReturnButtonToPool(button);
         }
         activeGameAreaButtons.Clear();
-        
+
         // Clear the gameAreaButtons array
         if (gameAreaButtons != null)
         {
@@ -232,16 +260,16 @@ public class MonsterCatalogueUI : MonoBehaviour
             GameObject buttonObj = GetPooledGameAreaButton();
             buttonObj.SetActive(true);
             buttonObj.name = $"GameAreaButton_{i + 1}";
-            
+
             // Get the saved name or use default
             string gameAreaName = GetSavedGameAreaName(i);
             if (string.IsNullOrEmpty(gameAreaName))
             {
                 gameAreaName = $"Game Area {i + 1}";
             }
-            
+
             buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = gameAreaName;
-            
+
             // Ensure the input field is hidden initially
             TMP_InputField inputField = buttonObj.GetComponentInChildren<TMP_InputField>(true);
             if (inputField != null)
@@ -258,9 +286,11 @@ public class MonsterCatalogueUI : MonoBehaviour
             buttonObj.transform.SetSiblingIndex(targetIndex);
         }
 
+
         // Force layout rebuild after all buttons are positioned
         yield return null;
         SetupGameAreaButtonListeners();
+        UpdateGameAreaUI(); // Update UI setelah buttons berhasil di-populate
     }
 
     private string GetSavedGameAreaName(int index)
@@ -326,9 +356,10 @@ public class MonsterCatalogueUI : MonoBehaviour
             index = newIndex - 1 // Index is zero-based
         });
         SaveSystem.SaveAll();
-
+        UpdateGameAreaUI();
         // Refresh all buttons to update the array and listeners
         InitGameAreaButtons();
+
     }
 
     private void OnTypeButtonClicked()
@@ -364,36 +395,36 @@ public class MonsterCatalogueUI : MonoBehaviour
         // Find the TMP InputField as a child of the button
         TMP_InputField inputField = gameAreaButton.GetComponentInChildren<TMP_InputField>(true);
         TextMeshProUGUI buttonText = gameAreaButton.GetComponentInChildren<TextMeshProUGUI>();
-        
+
         if (inputField == null)
         {
             Debug.LogError("TMP_InputField not found as child of game area button.");
             return;
         }
-        
+
         if (buttonText == null)
         {
             Debug.LogError("TextMeshProUGUI not found as child of game area button.");
             return;
         }
-        
+
         // Hide the button text and show the input field
         buttonText.gameObject.SetActive(false);
         inputField.gameObject.SetActive(true);
-        
+
         // Set the current text as the input field value
         inputField.text = buttonText.text;
-        
+
         // Focus the input field and select all text
         inputField.Select();
         inputField.ActivateInputField();
-        
+
         // Remove any existing listeners to prevent duplicates
         inputField.onEndEdit.RemoveAllListeners();
-        
+
         // Add listener for when editing is finished
         inputField.onEndEdit.AddListener((newName) => OnRenameComplete(gameAreaButton, index, newName, inputField, buttonText));
-        
+
         // Add listener for when input field loses focus
         inputField.onDeselect.AddListener((value) => OnRenameComplete(gameAreaButton, index, value, inputField, buttonText));
     }
@@ -405,28 +436,28 @@ public class MonsterCatalogueUI : MonoBehaviour
         {
             newName = $"Game Area {index + 1}"; // Default name if empty
         }
-        
+
         // Trim whitespace and limit length if needed
         newName = newName.Trim();
         if (newName.Length > 10) // Adjust max length as needed
         {
             newName = newName.Substring(0, 10);
         }
-        
+
         // Update the button text
         buttonText.text = newName;
-        
+
         // Hide input field and show button text
         inputField.gameObject.SetActive(false);
         buttonText.gameObject.SetActive(true);
-        
+
         // Save the new name to your save system
         SaveGameAreaName(index, newName);
-        
+
         // Remove listeners to prevent memory leaks
         inputField.onEndEdit.RemoveAllListeners();
         inputField.onDeselect.RemoveAllListeners();
-        
+
         Debug.Log($"Game Area {index + 1} renamed to: {newName}");
     }
 
@@ -469,14 +500,82 @@ public class MonsterCatalogueUI : MonoBehaviour
         }
     }
 
+    private void OnDeleteGameAreaButtonClicked()
+    {
+        Debug.Log("Delete Game Area button clicked.");
+
+        if (seletectedGameAreaButton != null)
+        {
+            int index = System.Array.IndexOf(gameAreaButtons, seletectedGameAreaButton);
+            if (index >= 0 && index < gameAreaButtons.Length)
+            {
+                DeleteGameArea(index);
+            }
+            else
+            {
+                Debug.LogWarning("Selected game area button index is out of range.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No game area button is selected.");
+        }
+    }
+
+    private void DeleteGameArea(int index)
+    {
+        if (!isPlayerConfigLoaded || playerConfig == null)
+        {
+            Debug.LogError("Player config is not loaded!");
+            return;
+        }
+
+        // Prevent deleting if only one area remains
+        if (playerConfig.maxGameArea <= 1)
+        {
+            Debug.LogWarning("Cannot delete the last game area! At least one area must exist.");
+            return;
+        }
+
+        // Validate index
+        if (index < 0 || index >= playerConfig.gameAreas.Count)
+        {
+            Debug.LogError($"Invalid game area index: {index}");
+            return;
+        }
+
+        Debug.Log($"Deleting Game Area at index {index}: {playerConfig.gameAreas[index].name}");
+
+        // Remove from player config
+        playerConfig.gameAreas.RemoveAt(index);
+        playerConfig.maxGameArea--;
+
+        // Update indices for remaining areas
+        for (int i = index; i < playerConfig.gameAreas.Count; i++)
+        {
+            playerConfig.gameAreas[i].index = i;
+        }
+
+        // Save changes
+        SaveSystem.SaveAll();
+
+        // Clear selection
+        seletectedGameAreaButton = null;
+
+        // Refresh UI
+        InitGameAreaButtons();
+
+        Debug.Log($"Game Area deleted successfully. Remaining areas: {playerConfig.maxGameArea}");
+    }
+
     private void OnGameAreaButtonClicked(int index)
     {
         // Logic for when a game area button is clicked
         Debug.Log($"selected Game Area button at index {index} clicked.");
-        
+
         // Clear previous selection
         ClearGameAreaButtonSelection();
-        
+
         // Set new selection
         seletectedGameAreaButton = gameAreaButtons[index];
         HighlightSelectedGameAreaButton(gameAreaButtons[index]);
@@ -510,7 +609,7 @@ public class MonsterCatalogueUI : MonoBehaviour
         if (button != null)
         {
             SetButtonColor(button, selectedButtonColor);
-            
+
             // Optional: Add a subtle scale animation
             button.transform.DOScale(1.05f, 0.1f).SetEase(Ease.OutQuad)
                 .OnComplete(() => button.transform.DOScale(1f, 0.1f).SetEase(Ease.OutQuad));
@@ -525,6 +624,9 @@ public class MonsterCatalogueUI : MonoBehaviour
             buttonImage.color = color;
         }
     }
+
+
+
 }
 
 [System.Serializable]
@@ -538,7 +640,7 @@ public class CatalogueMonsterData
     public float currentHealth;
     public int gameAreaId;
     public bool isNPC;
-    
+
     // For save data
     public CatalogueMonsterData(MonsterSaveData saveData, MonsterDataSO data)
     {
@@ -551,7 +653,7 @@ public class CatalogueMonsterData
         gameAreaId = saveData.gameAreaId;
         isNPC = false;
     }
-    
+
     // For active monsters
     public CatalogueMonsterData(MonsterController controller)
     {
@@ -564,23 +666,23 @@ public class CatalogueMonsterData
         gameAreaId = ServiceLocator.Get<MonsterManager>().currentGameAreaIndex;
         isNPC = controller.isNPC;
     }
-    
+
     // Utility methods
     public Sprite GetMonsterIcon(MonsterIconType iconType)
     {
         return monsterData.GetEvolutionIcon(evolutionLevel, iconType);
     }
-    
+
     public int GetSellPrice()
     {
         return monsterData.GetSellPrice(evolutionLevel);
     }
-    
+
     public float GetGoldCoinDropRate()
     {
         return monsterData.GetGoldCoinDropRate(evolutionLevel);
     }
-    
+
     public string GetEvolutionStageName()
     {
         return monsterData.GetEvolutionStageName(evolutionLevel);

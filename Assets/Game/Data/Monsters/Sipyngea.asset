@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Bissthorn_Data
+  m_Name: Sipyngea
   m_EditorClassIdentifier: 
-  monsterName: Bissthorn
-  id: bissthorn
+  monsterName: Sipyngea
+  id: sipyngea
   description: 
-  tooltipData: {fileID: 11400000, guid: fc74e565c8c01c9409108688ba8ad366, type: 2}
+  tooltipData: {fileID: 11400000, guid: f3d89221d225b09408ce9cf321e2c8b2, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
-    minimumRequirements: 5
+    minimumRequirements: 3
   eatingOffset:
-  - {x: -25.8, y: 18.7}
-  - {x: -25.8, y: 18.7}
+  - {x: -33, y: 34.2}
+  - {x: -44.2, y: 29.5}
   monType: 0
   poopType: 1
   moveSpd: 120
@@ -34,9 +34,9 @@ MonoBehaviour:
   maxHealthStage1: 25
   maxHealthStage2: 50
   maxHealthStage3: 70
-  maxNutritionStage1: 26
-  maxNutritionStage2: 78
-  maxNutritionStage3: 93.600006
+  maxNutritionStage1: 20
+  maxNutritionStage2: 60
+  maxNutritionStage3: 72
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 3
@@ -44,8 +44,8 @@ MonoBehaviour:
   platCoinDropRateStage2: 9
   goldCoinDropRateStage3: 120
   platCoinDropRateStage3: 9
-  gachaChancePercent: 0.07
-  gachaChanceDisplay: 7.00%
+  gachaChancePercent: 0.08
+  gachaChanceDisplay: 8.00%
   isGachaOnly: 0
   areaHappinessRate: 0.2
   pokeHappinessValue: 2
@@ -61,8 +61,8 @@ MonoBehaviour:
     minCurrentHunger: 70
     minFoodConsumed: 15
     minInteractions: 25
-    evolutionName: Bissthorn Stage 2
-    description: Evolve to Bissthorn Stage 2
+    evolutionName: Sipyngea Stage 2
+    description: Evolve to Sipyngea Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 604800
@@ -70,35 +70,43 @@ MonoBehaviour:
     minCurrentHunger: 75
     minFoodConsumed: 30
     minInteractions: 50
-    evolutionName: Bissthorn Stage 3
-    description: Evolve to Bissthorn Stage 3
+    evolutionName: Sipyngea Stage 3
+    description: Evolve to Sipyngea Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 1665e66d46495b1458502be365ea5dbc, type: 2}
-  - {fileID: 11400000, guid: 4200f3e3e39cd1541a5c9167e571dec8, type: 2}
+  - {fileID: 11400000, guid: 0e80b905431cc144b943e2248c0c03da, type: 2}
+  - {fileID: 11400000, guid: d3925711251202a408adfc9199587c4a, type: 2}
   CardIcon:
-  - {fileID: 6218702973224051704, guid: aba556ac0becd244fb5d3d4f97e6ba21, type: 3}
-  - {fileID: 170031550991606613, guid: 72c15b6505af6a44eb50f49d1b6434e4, type: 3}
+  - {fileID: 8255957738299687659, guid: 6bb0a87179902fb45b1b4872d856cc78, type: 3}
+  - {fileID: -3138044776463176782, guid: e22910eba1af7bb47b1a4989e9bc5d9e, type: 3}
   DetailsIcon:
-  - {fileID: 6218702973224051704, guid: aba556ac0becd244fb5d3d4f97e6ba21, type: 3}
-  - {fileID: 170031550991606613, guid: 72c15b6505af6a44eb50f49d1b6434e4, type: 3}
+  - {fileID: 8255957738299687659, guid: 5c0e73c6fb55d8e42a0c8776d36c9071, type: 3}
+  - {fileID: -3138044776463176782, guid: df09c44623836814090aead87fafc426, type: 3}
   CatalogueIcon:
-  - {fileID: 6218702973224051704, guid: 5f8a2fa1766b85443a1ff92a18879eb0, type: 3}
-  - {fileID: 170031550991606613, guid: de7d4dca5f9b7f44992b7c417803946f, type: 3}
+  - {fileID: 8255957738299687659, guid: 190af906d8b942f42852ed4846cfddaa, type: 3}
+  - {fileID: -3138044776463176782, guid: d405efe924aaf684e96e6e0963a33cc7, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
     - eating
     - idle
+    - itching
     - jumping
+    - running
     - walking
   - evolutionLevel: 2
     availableAnimations:
     - eating
     - idle
+    - itching
     - jumping
+    - running
     - walking
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: a019b3c476907e94490b320493452e80, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: d7e9ecb9b63a1ff4db92cf5162186dac, type: 2}
   monsterPrice: 360
   sellPriceStage1: 240
   sellPriceStage2: 480

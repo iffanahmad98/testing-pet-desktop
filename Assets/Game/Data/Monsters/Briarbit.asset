@@ -10,19 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Llasalix_Data
+  m_Name: Briarbit
   m_EditorClassIdentifier: 
-  monsterName: Llasalix
-  id: llasalix
+  monsterName: Briarbit
+  id: briarbit
   description: 
-  tooltipData: {fileID: 0}
+  tooltipData: {fileID: 11400000, guid: 9699dcdbf389e524589e28bccceb4fec, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
-    minimumRequirements: 2
-  eatingOffset:
-  - {x: -36.3, y: 36.3}
-  - {x: -47.7, y: 66.3}
+    minimumRequirements: 0
   monType: 0
   poopType: 1
   moveSpd: 120
@@ -34,10 +31,10 @@ MonoBehaviour:
   maxHealthStage1: 25
   maxHealthStage2: 50
   maxHealthStage3: 70
-  maxNutritionStage1: 16
-  maxNutritionStage2: 48
-  maxNutritionStage3: 57.600002
-  poopRate: 20
+  maxNutritionStage1: 12
+  maxNutritionStage2: 36
+  maxNutritionStage3: 43.2
+  poopRate: 2
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 2
   goldCoinDropRateStage2: 60
@@ -61,8 +58,8 @@ MonoBehaviour:
     minCurrentHunger: 70
     minFoodConsumed: 15
     minInteractions: 25
-    evolutionName: Llasalix Stage 2
-    description: Evolve to Llasalix Stage 2
+    evolutionName: Briarbit Stage 2
+    description: Evolve to Briarbit Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 604800
@@ -70,35 +67,43 @@ MonoBehaviour:
     minCurrentHunger: 75
     minFoodConsumed: 30
     minInteractions: 50
-    evolutionName: Llasalix Stage 3
-    description: Evolve to Llasalix Stage 3
+    evolutionName: Briarbit Stage 3
+    description: Evolve to Briarbit Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 0acf7e148c97a87428e43798c9f6901c, type: 2}
-  - {fileID: 11400000, guid: bc56968ee0c227c47b25a346975a6b82, type: 2}
+  - {fileID: 11400000, guid: 40204d5f924819744b182f7945b5fa64, type: 2}
+  - {fileID: 11400000, guid: 9b1d37462fd210f468969d0747f6b097, type: 2}
   CardIcon:
-  - {fileID: 6570986661536225222, guid: afbe5e9f36c3b464ba88e011a1bad6cb, type: 3}
-  - {fileID: 1795237804919328566, guid: e204fb43cc730e84dae2be8cede5e6d2, type: 3}
+  - {fileID: -4078501215650015726, guid: 3301e2a9eb21d57498f625f7755f1082, type: 3}
+  - {fileID: -7243669765313445238, guid: 7606a830ac3f2c84b9ef240ba27c67c8, type: 3}
   DetailsIcon:
-  - {fileID: 6570986661536225222, guid: afbe5e9f36c3b464ba88e011a1bad6cb, type: 3}
-  - {fileID: 1795237804919328566, guid: e204fb43cc730e84dae2be8cede5e6d2, type: 3}
+  - {fileID: -4078501215650015726, guid: d08f5fe168509314f9ce4b1b1d8ed42c, type: 3}
+  - {fileID: -7243669765313445238, guid: b503b37d3ce1c324e8563745ddd2ad49, type: 3}
   CatalogueIcon:
-  - {fileID: 6570986661536225222, guid: afbe5e9f36c3b464ba88e011a1bad6cb, type: 3}
-  - {fileID: 1795237804919328566, guid: e204fb43cc730e84dae2be8cede5e6d2, type: 3}
+  - {fileID: -4078501215650015726, guid: b6a615c8f6ecdcc45b9fd500b8194682, type: 3}
+  - {fileID: -7243669765313445238, guid: a886f843ac9ea224fbc40cc214382215, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
     - eating
     - idle
+    - itching
     - jumping
+    - running
     - walking
   - evolutionLevel: 2
     availableAnimations:
     - eating
-    - idle
+    - idle2
+    - itching
     - jumping
+    - running
     - walking
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: c77c1fbc5383c234d8506ff1c7dd88f5, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: 62c13e3a2bd09c14db0d9b3ab3bcdd8d, type: 2}
   monsterPrice: 320
   sellPriceStage1: 200
   sellPriceStage2: 400

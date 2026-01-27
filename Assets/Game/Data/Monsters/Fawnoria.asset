@@ -10,19 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Peacendra_Data
+  m_Name: Fawnoria
   m_EditorClassIdentifier: 
-  monsterName: Peacendra
-  id: peacendra
+  monsterName: Fawnoria
+  id: fawnoria
   description: 
-  tooltipData: {fileID: 11400000, guid: e5e583a3652947b45a2754b9e82ae014, type: 2}
+  tooltipData: {fileID: 11400000, guid: 4328ca245af4d164fbbee1697232f2df, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
-    minimumRequirements: 9
+    minimumRequirements: 7
   eatingOffset:
-  - {x: -42.6, y: 39.6}
-  - {x: -43.3, y: 48.2}
+  - {x: -41.4, y: 39.3}
   monType: 1
   poopType: 1
   moveSpd: 110
@@ -34,9 +33,9 @@ MonoBehaviour:
   maxHealthStage1: 35
   maxHealthStage2: 70
   maxHealthStage3: 98
-  maxNutritionStage1: 42
-  maxNutritionStage2: 126
-  maxNutritionStage3: 151.20001
+  maxNutritionStage1: 34
+  maxNutritionStage2: 102
+  maxNutritionStage3: 122.4
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 4
@@ -44,8 +43,8 @@ MonoBehaviour:
   platCoinDropRateStage2: 12
   goldCoinDropRateStage3: 120
   platCoinDropRateStage3: 12
-  gachaChancePercent: 0.03
-  gachaChanceDisplay: 3.00%
+  gachaChancePercent: 0.04
+  gachaChanceDisplay: 4.00%
   isGachaOnly: 0
   areaHappinessRate: 0.2
   pokeHappinessValue: 2.5
@@ -61,8 +60,8 @@ MonoBehaviour:
     minCurrentHunger: 70
     minFoodConsumed: 15
     minInteractions: 25
-    evolutionName: Peacendra Stage 2
-    description: Evolve to Peacendra Stage 2
+    evolutionName: Fawnoria Stage 2
+    description: Evolve to Fawnoria Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 864000
@@ -70,21 +69,20 @@ MonoBehaviour:
     minCurrentHunger: 75
     minFoodConsumed: 30
     minInteractions: 50
-    evolutionName: Peacendra Stage 3
-    description: Evolve to Peacendra Stage 3
+    evolutionName: Fawnoria Stage 3
+    description: Evolve to Fawnoria Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 7cab28211bceb4c45b6706aa30bb6e2d, type: 2}
-  - {fileID: 11400000, guid: dadf7de8a0f17084893ccaf9246792a5, type: 2}
+  - {fileID: 11400000, guid: 8ad1849d37b3494409db609089e26aa8, type: 2}
   CardIcon:
-  - {fileID: -4619715049958479734, guid: 9dac95ae2579b58409e30bb821fd7538, type: 3}
-  - {fileID: 539475682486072095, guid: ef16e5c196fdda54c8ee4114af9a4114, type: 3}
+  - {fileID: 5514561082981320056, guid: e7c6e3f713ad25d46876d5722f0a63f6, type: 3}
+  - {fileID: 4583121120032746132, guid: d7a7a45c7b257bb4ba6b7c7ea5a2b422, type: 3}
   DetailsIcon:
-  - {fileID: -4619715049958479734, guid: 9dac95ae2579b58409e30bb821fd7538, type: 3}
-  - {fileID: 539475682486072095, guid: ef16e5c196fdda54c8ee4114af9a4114, type: 3}
+  - {fileID: 5514561082981320056, guid: e7c6e3f713ad25d46876d5722f0a63f6, type: 3}
+  - {fileID: 4583121120032746132, guid: d7a7a45c7b257bb4ba6b7c7ea5a2b422, type: 3}
   CatalogueIcon:
-  - {fileID: -4619715049958479734, guid: df5430f0357b75d41b75966053983ebe, type: 3}
-  - {fileID: 539475682486072095, guid: 3d057780003b70747924ba64d1adb687, type: 3}
+  - {fileID: 5514561082981320056, guid: 29ff5386a82f0e74e81d766023a79284, type: 3}
+  - {fileID: 4583121120032746132, guid: 52eeca7d2d0d29647b3270815e2430db, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
