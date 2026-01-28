@@ -15,7 +15,7 @@ public class HotelFacilitiesDataSO : ScriptableObject {
     public string facilityName = "";
     public int price = 0;
     public string detailText = "";
-
+    public int maxHired;
     [Header ("Facilities Motion Config")]
     public GameObject facilityPrefab;
     public Vector3 facilityLocalPosition;
@@ -33,7 +33,7 @@ public class HotelFacilitiesDataSO : ScriptableObject {
     [Header ("Eligibility (Hotel Facilities Menu)")]
     public List<EligibilityRuleSO> rules = new();
     public List <HiredEligibility> rulesHiredEligibility = new List <HiredEligibility> ();
-
+    
     #region Eligibility
     public bool IsEligible() // untuk yang tidak ada tingkat
     { // HotelFacilitiesMenu.cs
@@ -43,6 +43,15 @@ public class HotelFacilitiesDataSO : ScriptableObject {
                 return false;
         }
         return true;
+    }
+
+    public int GetPrice () {
+        foreach (var rule in rules)
+        {
+            if (rule is EligibleCoin targetRule)
+                return targetRule.minCoin;
+        }
+        return 0;
     }
 
     public bool IsHiredEligible (int target) // untuk yang ada tingkat (HiredEligibility)
@@ -55,6 +64,14 @@ public class HotelFacilitiesDataSO : ScriptableObject {
         return true;
     }
 
+    public int GetHiredPrice (int target) {
+        foreach (var rule in rulesHiredEligibility[target].rules)
+        {
+            if (rule is EligibleCoin targetRule)
+                return targetRule.minCoin;
+        }
+        return 0;
+    }
     #endregion
     
 }

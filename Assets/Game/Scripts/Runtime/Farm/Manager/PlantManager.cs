@@ -34,7 +34,8 @@ namespace MagicalGarden.Farm
         
         [Header ("NPC")]
         public List <PlantController> listTargettingPlantControllers = new List <PlantController> ();
-
+        [Header ("Farm Area")]
+        public List <int> farmAreaIdsPurchased = new ();
        
         private void Update()
         {
@@ -178,6 +179,13 @@ namespace MagicalGarden.Farm
             }
              SaveToJson ();
         }
+
+        void PlantWaterDirectlyAt (Vector3Int cellPosition, PlantController plant)
+        {
+            plant.seed.Water();
+            SaveToJson ();
+        }
+
         public void RemovePlantAt(Vector3Int cellPosition)
         {
             if (plants.TryGetValue(cellPosition, out var plant))
@@ -190,7 +198,9 @@ namespace MagicalGarden.Farm
                 // Hancurkan GameObject tanaman
                 if (plant != null)
                 {
-                    Destroy(plant.gameObject);
+                    if (!plant.seed.typeMonster) {
+                        Destroy(plant.gameObject);
+                    }
                 }
 
                 // Hapus dari dictionary
@@ -391,13 +401,32 @@ namespace MagicalGarden.Farm
             return saveList;
         }
 
-        public void LoadFromSaveData(List<Manager.PlantSaveData> saveDataList)
+        public void LoadFromSaveData(List<Manager.PlantSaveData> saveDataList, List <int> farmAreaIdsVal)
         {
+            farmAreaIdsPurchased = farmAreaIdsVal;
+          //  Debug.Log ("Load 1");
+          /*
+            if (farmAreaIdsPurchased.Count == 0) { // Starter
+                PurchaseFarmArea (1);
+            }
+            */
             // 🔁 Kosongkan poolPlant terlebih dahulu
             foreach (Transform child in poolPlant)
             {
                 Destroy(child.gameObject);
             }
+
+            // NPC Farmer (Offline)
+            int npcCount = GetNumberOfNpcFarmer();
+            // rate per menit
+            float wateredTilePerMinutePerNpc = 55f / 60f;
+            // total per menit semua NPC
+            float totalPerMinute = wateredTilePerMinutePerNpc * npcCount;
+            // selisih waktu (menit)
+            float minutesPassed = (float)(TimeManager.Instance.currentTime - TimeManager.Instance.lastLoginTime).TotalMinutes;
+            // total tile yang disiram selama offline
+            int totalWateredTile = Mathf.FloorToInt(totalPerMinute * minutesPassed);
+            // ========================= END
 
             plants.Clear(); // Juga kosongkan dictionary plants jika itu menyimpan data aktif tanaman
             foreach (var data in saveDataList)
@@ -424,9 +453,23 @@ namespace MagicalGarden.Farm
 
                 TileManager.Instance.tilemapSeed.SetTile(data.cellPosition, item.stageTiles[data.currentStage]);
 
-                if ((simulatedNow - seed.lastWateredTime).TotalHours <= 1)
-                {
-                    TileManager.Instance.tilemapWater.SetTile(data.cellPosition, TileManager.Instance.tileWater);
+                if ( seed.lastWateredTime != DateTime.MinValue) {
+                    if ((simulatedNow - seed.lastWateredTime).TotalHours <= 1)
+                    {
+                        TileManager.Instance.tilemapWater.SetTile(data.cellPosition, TileManager.Instance.tileWater);
+                    } else {
+                        if (totalWateredTile > 0) {
+                            totalWateredTile --;
+                            PlantWaterDirectlyAt(data.cellPosition, plant);
+                            TileManager.Instance.tilemapWater.SetTile(data.cellPosition, TileManager.Instance.tileWater);
+                        }
+                    }
+                } else {
+                    if (totalWateredTile > 0) {
+                        totalWateredTile --;
+                        PlantWaterDirectlyAt(data.cellPosition, plant);
+                        TileManager.Instance.tilemapWater.SetTile(data.cellPosition, TileManager.Instance.tileWater);
+                    }
                 }
 
                 if (data.isFertilized)
@@ -446,6 +489,7 @@ namespace MagicalGarden.Farm
                 }
 
                 plants[data.cellPosition] = plant;
+                
                 //update stage
                 float deltaHours = (float)(simulatedNow - seed.lastUpdateTime).TotalHours;
                 if (deltaHours > 0f)
@@ -466,11 +510,12 @@ namespace MagicalGarden.Farm
                     seed.lastUpdateTime = simulatedNow;
                 }
             }
+            FieldManager.Instance.LoadFromConfig ();
         }
         public void SaveToJson()
         { 
             var dataList = GetSaveDataList();
-            var wrapper = new PlantSaveWrapper { data = dataList };
+            var wrapper = new PlantSaveWrapper { data = dataList, farmAreaIds = farmAreaIdsPurchased };
             string json = JsonUtility.ToJson(wrapper, true);
             System.IO.File.WriteAllText(Application.persistentDataPath + "/plants.json", json);
             Debug.Log("Tanaman disimpan ke file.");
@@ -478,12 +523,13 @@ namespace MagicalGarden.Farm
 
         public void LoadFromJson()
         {
+             
             string path = Application.persistentDataPath + "/plants.json";
             if (!System.IO.File.Exists(path)) return;
 
             string json = System.IO.File.ReadAllText(path);
             var wrapper = JsonUtility.FromJson<PlantSaveWrapper>(json);
-            LoadFromSaveData(wrapper.data);
+            LoadFromSaveData(wrapper.data, wrapper.farmAreaIds);
             Debug.Log("Tanaman berhasil dimuat dari file.");
         }
 #endregion
@@ -561,6 +607,31 @@ namespace MagicalGarden.Farm
 
     public bool IsCanHarvest (Vector3Int target) {
         return GetPlantsAvailableHarvest ().ContainsKey (target);
+    }
+
+    public int GetNumberOfNpcFarmer () {
+        HiredFarmFacilityData hiredData = SaveSystem.PlayerConfig.GetHiredFarmFacilityData ("npc_farmer");
+        if (hiredData != null)
+        return hiredData.hired;
+        else
+        return 0;
+    }
+#endregion
+
+#region Purchase Farm Area
+    public void PurchaseFarmArea (int id) { // Starter (this), Purchased ()
+        if (!farmAreaIdsPurchased.Contains (id)) {
+            farmAreaIdsPurchased.Add (id);
+            SaveToJson ();
+        }
+    }
+
+    public bool IsFarmAreaUnlocked (int id) { // FieldManager.cs
+        return farmAreaIdsPurchased.Any (idFarm => idFarm == id);
+    }
+
+    public int GetTotalFarmArea () { // EligibleFarmArea.cs
+        return farmAreaIdsPurchased.Count +1; // +1 karena starter gak dihitung total.
     }
 #endregion
     }
