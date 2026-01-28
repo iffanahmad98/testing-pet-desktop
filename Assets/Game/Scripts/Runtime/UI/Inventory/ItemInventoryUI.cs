@@ -339,11 +339,12 @@ public class ItemInventoryUI : MonoBehaviour
             float height = maxRows * (slotHeight + rowSpacing);
             rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         }
-
+        
         foreach (ItemSlotUI itemSlot in fullActiveSlots) {
             Destroy (itemSlot.gameObject);
             Debug.Log ("Destroy Slot");
         }
+        
         fullActiveSlots.Clear ();
 
         // Add smooth population with slight delay for better UX

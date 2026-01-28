@@ -254,7 +254,8 @@ namespace MagicalGarden.Farm
                     }
                 }
                 */
-                InventoryManager.Instance.AddAssistant (itemData);
+                InventoryManager.Instance.AddItemToHarvestTab(itemData, 1);
+               // InventoryManager.Instance.AddAssistant (itemData);
                 InventoryManager.Instance.RefreshAllInventoryUI();
                 markHarvest.gameObject.SetActive(false);
                 Clear();

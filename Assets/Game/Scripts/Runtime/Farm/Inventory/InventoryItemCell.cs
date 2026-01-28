@@ -16,7 +16,9 @@ namespace MagicalGarden.Inventory
         public Button button;
 
         private InventoryItem currentItem;
-
+        [Header ("Crop")]
+        private OwnedItemData ownedItemData;
+        private ItemDataSO itemDataSO;
         public void SetSlot(InventoryItem item)
         {
             currentItem = item;
@@ -43,41 +45,48 @@ namespace MagicalGarden.Inventory
 
         public void OnClick()
         {
-            if (currentItem == null) return;
-            transform.DOKill();
-            transform.localScale = Vector3.one;
-            transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 10, 1);
-            switch (currentItem.itemData.itemType)
-            {
-                case ItemType.Seed:
-                    TileManager.Instance.SetActionSeed(currentItem.itemData);
-                    CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
-                    
-                    break;
-                case ItemType.MonsterSeed:
-                    TileManager.Instance.SetActionSeed(currentItem.itemData);
-                    CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
-                    break;
-                case ItemType.Fertilizer:
-                    TileManager.Instance.SetActionFertilizer(currentItem.itemData);
-                    CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
-                    break;
-                case ItemType.Tool:
-                    InventoryManager.Instance.SetInformationItem(currentItem.itemData.description, currentItem.itemData.icon, ItemType.Fertilizer);
-                    break;
-                case ItemType.Crop:
-                    TileManager.Instance.SetAction("None");
-                    CursorIconManager.Instance.HideSeedIcon();
-                    break;
-                default:
-                    break;
-            }
+            
+                if (currentItem == null) return;
+                transform.DOKill();
+                transform.localScale = Vector3.one;
+                transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 10, 1);
+                switch (currentItem.itemData.itemType)
+                {
+                    case ItemType.Seed:
+                        TileManager.Instance.SetActionSeed(currentItem.itemData);
+                        CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                        
+                        break;
+                    case ItemType.MonsterSeed:
+                        TileManager.Instance.SetActionSeed(currentItem.itemData);
+                        CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                        break;
+                    case ItemType.Fertilizer:
+                        TileManager.Instance.SetActionFertilizer(currentItem.itemData);
+                        CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                        break;
+                    case ItemType.Tool:
+                        InventoryManager.Instance.SetInformationItem(currentItem.itemData.description, currentItem.itemData.icon, ItemType.Fertilizer);
+                        break;
+                    case ItemType.Crop:
+                        TileManager.Instance.SetAction("None");
+                        CursorIconManager.Instance.HideSeedIcon();
+                        break;
+                    default:
+                        break;
+                }
+            
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (currentItem == null || InventoryManager.Instance == null) return;
-            UpdateInformationPanel(currentItem);
+            // if (currentItem == null || InventoryManager.Instance == null) return;
+            if (itemDataSO != null) {
+                UpdateInformationItemData ();
+            } else {
+                if (currentItem == null || InventoryManager.Instance == null) return;
+                UpdateInformationPanel(currentItem);
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -131,5 +140,30 @@ namespace MagicalGarden.Inventory
                     break;
             }
         }
+
+        #region Crop
+        public void SetItemData (OwnedItemData ownedItemDataVal) {
+            ownedItemData = ownedItemDataVal;
+            itemDataSO = MagicalGarden.Inventory.InventoryManager.Instance.itemDatabaseSO.GetItem (ownedItemData.itemID);
+            icon.sprite = itemDataSO.RewardSprite;
+            quantityText.text = ownedItemData.amount.ToString ();
+            nameText.text = itemDataSO.ItemName;
+
+            gameObject.SetActive(true);
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(OnClick);
+        }
+
+        public void UpdateInformationItemData () {
+            var inv = InventoryManager.Instance;
+            inv.SetInformationItem(itemDataSO.description, itemDataSO.RewardSprite, ItemType.Crop);
+        }
+
+        #endregion
+        #region InventoryUISendToPlains
+        public ItemDataSO GetItemDataSO () {
+            return itemDataSO;
+        }
+        #endregion
     }
 }

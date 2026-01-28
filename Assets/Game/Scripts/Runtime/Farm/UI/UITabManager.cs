@@ -8,6 +8,8 @@ public class UITabManager : MonoBehaviour
     [Header("Buttons (Optional)")]
     public Button[] tabButtons;
     private int currentIndex = 0;
+    [SerializeField] MagicalGarden.Inventory.InventoryUISendToPlains inventoryUISendToPlains;
+    public event System.Action <int> clickEvent;
     void Start()
     {
         for (int i = 0; i < tabs.Length; i++)
@@ -15,7 +17,7 @@ public class UITabManager : MonoBehaviour
             int index = i; // capture index for lambda
             tabs[i].button.onClick.AddListener(() => OnTabClicked(index));
         }
-
+        inventoryUISendToPlains.StartPlains (this);
         OnTabClicked(0); // buka tab pertama secara default
     }
 
@@ -33,6 +35,11 @@ public class UITabManager : MonoBehaviour
         }
 
         currentIndex = index;
+        clickEvent?.Invoke (currentIndex);
+    }
+
+    public void AddEventClick (System.Action <int> eventValue) {
+        clickEvent += eventValue;
     }
 }
 
