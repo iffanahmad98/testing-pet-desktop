@@ -10,44 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Fawnoria_Data
+  m_Name: Bissthorn
   m_EditorClassIdentifier: 
-  monsterName: Fawnoria
-  id: fawnoria
+  monsterName: Bissthorn
+  id: bissthorn
   description: 
-  tooltipData: {fileID: 11400000, guid: 4328ca245af4d164fbbee1697232f2df, type: 2}
+  tooltipData: {fileID: 11400000, guid: fc74e565c8c01c9409108688ba8ad366, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
-    minimumRequirements: 7
+    minimumRequirements: 5
   eatingOffset:
-  - {x: -41.4, y: 39.3}
-  monType: 1
+  - {x: -25.8, y: 18.7}
+  - {x: -25.8, y: 18.7}
+  monType: 0
   poopType: 1
-  moveSpd: 110
+  moveSpd: 120
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 100
   baseHunger: 50
   hungerDepleteRate: 0.05
-  maxHealthStage1: 35
-  maxHealthStage2: 70
-  maxHealthStage3: 98
-  maxNutritionStage1: 34
-  maxNutritionStage2: 102
-  maxNutritionStage3: 122.4
+  maxHealthStage1: 25
+  maxHealthStage2: 50
+  maxHealthStage3: 70
+  maxNutritionStage1: 26
+  maxNutritionStage2: 78
+  maxNutritionStage3: 93.600006
   poopRate: 20
   goldCoinDropRateStage1: 60
-  platCoinDropRateStage1: 4
+  platCoinDropRateStage1: 3
   goldCoinDropRateStage2: 60
-  platCoinDropRateStage2: 12
+  platCoinDropRateStage2: 9
   goldCoinDropRateStage3: 120
-  platCoinDropRateStage3: 12
-  gachaChancePercent: 0.04
-  gachaChanceDisplay: 4.00%
+  platCoinDropRateStage3: 9
+  gachaChancePercent: 0.07
+  gachaChanceDisplay: 7.00%
   isGachaOnly: 0
   areaHappinessRate: 0.2
-  pokeHappinessValue: 2.5
+  pokeHappinessValue: 2
   hungerHappinessThreshold: 20
   hungerHappinessDrainRate: 2
   canEvolve: 1
@@ -55,34 +56,35 @@ MonoBehaviour:
   evolutionLevel: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
-    minTimeAlive: 864000
+    minTimeAlive: 604800
     minCurrentHappiness: 80
     minCurrentHunger: 70
     minFoodConsumed: 15
     minInteractions: 25
-    evolutionName: Fawnoria Stage 2
-    description: Evolve to Fawnoria Stage 2
+    evolutionName: Bissthorn Stage 2
+    description: Evolve to Bissthorn Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
-    minTimeAlive: 864000
+    minTimeAlive: 604800
     minCurrentHappiness: 85
     minCurrentHunger: 75
     minFoodConsumed: 30
     minInteractions: 50
-    evolutionName: Fawnoria Stage 3
-    description: Evolve to Fawnoria Stage 3
+    evolutionName: Bissthorn Stage 3
+    description: Evolve to Bissthorn Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 8ad1849d37b3494409db609089e26aa8, type: 2}
+  - {fileID: 11400000, guid: 1665e66d46495b1458502be365ea5dbc, type: 2}
+  - {fileID: 11400000, guid: 4200f3e3e39cd1541a5c9167e571dec8, type: 2}
   CardIcon:
-  - {fileID: 5514561082981320056, guid: e7c6e3f713ad25d46876d5722f0a63f6, type: 3}
-  - {fileID: 4583121120032746132, guid: d7a7a45c7b257bb4ba6b7c7ea5a2b422, type: 3}
+  - {fileID: 6218702973224051704, guid: aba556ac0becd244fb5d3d4f97e6ba21, type: 3}
+  - {fileID: 170031550991606613, guid: 72c15b6505af6a44eb50f49d1b6434e4, type: 3}
   DetailsIcon:
-  - {fileID: 5514561082981320056, guid: e7c6e3f713ad25d46876d5722f0a63f6, type: 3}
-  - {fileID: 4583121120032746132, guid: d7a7a45c7b257bb4ba6b7c7ea5a2b422, type: 3}
+  - {fileID: 6218702973224051704, guid: aba556ac0becd244fb5d3d4f97e6ba21, type: 3}
+  - {fileID: 170031550991606613, guid: 72c15b6505af6a44eb50f49d1b6434e4, type: 3}
   CatalogueIcon:
-  - {fileID: 5514561082981320056, guid: 29ff5386a82f0e74e81d766023a79284, type: 3}
-  - {fileID: 4583121120032746132, guid: 52eeca7d2d0d29647b3270815e2430db, type: 3}
+  - {fileID: 6218702973224051704, guid: 5f8a2fa1766b85443a1ff92a18879eb0, type: 3}
+  - {fileID: 170031550991606613, guid: de7d4dca5f9b7f44992b7c417803946f, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -97,10 +99,10 @@ MonoBehaviour:
     - jumping
     - walking
   evolutionBehaviors: []
-  monsterPrice: 400
-  sellPriceStage1: 260
-  sellPriceStage2: 520
-  sellPriceStage3: 1040
+  monsterPrice: 360
+  sellPriceStage1: 240
+  sellPriceStage2: 480
+  sellPriceStage3: 960
   prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}

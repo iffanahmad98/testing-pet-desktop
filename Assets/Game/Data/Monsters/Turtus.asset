@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Valilith_Data
+  m_Name: Turtus
   m_EditorClassIdentifier: 
-  monsterName: Valilith
-  id: valilith
+  monsterName: Turtus
+  id: turtus
   description: 
-  tooltipData: {fileID: 11400000, guid: 91f1a5a988523b74199f3320c537320a, type: 2}
+  tooltipData: {fileID: 11400000, guid: 3e79830e52dd2ef4fab9308f56fe4bf8, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
-    minimumRequirements: 3
+    minimumRequirements: 2
   eatingOffset:
-  - {x: -8.5, y: 17}
-  - {x: -8.5, y: 66.7}
+  - {x: -46.5, y: 32.8}
+  - {x: -46.5, y: 23}
   monType: 0
   poopType: 1
   moveSpd: 120
@@ -34,9 +34,9 @@ MonoBehaviour:
   maxHealthStage1: 25
   maxHealthStage2: 50
   maxHealthStage3: 70
-  maxNutritionStage1: 18
-  maxNutritionStage2: 54
-  maxNutritionStage3: 64.8
+  maxNutritionStage1: 14
+  maxNutritionStage2: 42
+  maxNutritionStage3: 50.4
   poopRate: 20
   goldCoinDropRateStage1: 60
   platCoinDropRateStage1: 2
@@ -61,8 +61,8 @@ MonoBehaviour:
     minCurrentHunger: 70
     minFoodConsumed: 15
     minInteractions: 25
-    evolutionName: Valilith Stage 2
-    description: Evolve to Valilith Stage 2
+    evolutionName: Turtus Stage 2
+    description: Evolve to Turtus Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
     minTimeAlive: 604800
@@ -70,41 +70,35 @@ MonoBehaviour:
     minCurrentHunger: 75
     minFoodConsumed: 30
     minInteractions: 50
-    evolutionName: Valilith Stage 3
-    description: Evolve to Valilith Stage 3
+    evolutionName: Turtus Stage 3
+    description: Evolve to Turtus Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 7f020e0b978c0344ca2b540dffc3956a, type: 2}
-  - {fileID: 11400000, guid: 993477a849bcbd347a4bb389a2381cbe, type: 2}
+  - {fileID: 11400000, guid: 6ce651ee06f63af469274d9ed5ab2027, type: 2}
+  - {fileID: 11400000, guid: 021588076dc66684790a1a8948895304, type: 2}
   CardIcon:
-  - {fileID: -2148649362934530082, guid: 0a53155eaac695c4c9ee90ef4f7a37d9, type: 3}
-  - {fileID: -8720360651694892489, guid: 0dc34ff05a176e943a6a27a2a54d660f, type: 3}
+  - {fileID: 5521529974716403671, guid: 703159b5ededa8442958eab2a2e57994, type: 3}
+  - {fileID: -4936267769707997585, guid: 1cf85620b5b039c4a8f199e148d9aa48, type: 3}
   DetailsIcon:
-  - {fileID: -2148649362934530082, guid: ba6c791f66819f144b140c076557e118, type: 3}
-  - {fileID: -8720360651694892489, guid: 1772b20fc66842640aa6861936e10043, type: 3}
+  - {fileID: 5521529974716403671, guid: 703159b5ededa8442958eab2a2e57994, type: 3}
+  - {fileID: -4936267769707997585, guid: 1cf85620b5b039c4a8f199e148d9aa48, type: 3}
   CatalogueIcon:
-  - {fileID: -2148649362934530082, guid: 57567b1ed57efb8468c0b7f3bd2547a8, type: 3}
-  - {fileID: -8720360651694892489, guid: e4fa1088ff4393643b31890e2a4d039f, type: 3}
+  - {fileID: 5521529974716403671, guid: f90897505d3eebe4b81f3b8bcb436779, type: 3}
+  - {fileID: -4936267769707997585, guid: 5a678e249d964cb4bb507a644d985e7b, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
     - eating
     - idle
     - jumping
-    - running
     - walking
   - evolutionLevel: 2
     availableAnimations:
     - eating
     - idle
     - jumping
-    - running
     - walking
-  evolutionBehaviors:
-  - evolutionLevel: 1
-    behaviorConfig: {fileID: 11400000, guid: 58177c3580604f741b08b43c296f186c, type: 2}
-  - evolutionLevel: 2
-    behaviorConfig: {fileID: 11400000, guid: c8ca12afb837ce449828d85f88d36290, type: 2}
+  evolutionBehaviors: []
   monsterPrice: 320
   sellPriceStage1: 200
   sellPriceStage2: 400

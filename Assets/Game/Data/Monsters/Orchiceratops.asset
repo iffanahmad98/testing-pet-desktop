@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Zankylous_Data
+  m_Name: Orchiceratops
   m_EditorClassIdentifier: 
-  monsterName: Zankylous
-  id: zankylous
+  monsterName: Orchiceratops
+  id: orchiceratops
   description: 
-  tooltipData: {fileID: 11400000, guid: 95935a7be9509e848be694334ce53778, type: 2}
+  tooltipData: {fileID: 11400000, guid: a565d9d046338f54286aa189f6dec408, type: 2}
   monsterRequirements: []
   eatingOffset:
-  - {x: -53.5, y: 17.1}
-  - {x: -53.5, y: 17.1}
+  - {x: -43.3, y: 33.9}
+  - {x: -43.3, y: 33.9}
   monType: 2
   poopType: 10
   moveSpd: 100
@@ -31,9 +31,9 @@ MonoBehaviour:
   maxHealthStage1: 50
   maxHealthStage2: 100
   maxHealthStage3: 140
-  maxNutritionStage1: 80
-  maxNutritionStage2: 240
-  maxNutritionStage3: 288
+  maxNutritionStage1: 90
+  maxNutritionStage2: 270
+  maxNutritionStage3: 324
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 6
@@ -53,49 +53,57 @@ MonoBehaviour:
   evolutionLevel: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
-    minTimeAlive: 1555200
+    minTimeAlive: 1728000
     minCurrentHappiness: 85
     minCurrentHunger: 75
     minFoodConsumed: 20
     minInteractions: 40
-    evolutionName: Zankylous Stage 2
-    description: Evolve to Zankylous Stage 2
+    evolutionName: Orchiceratops Stage 2
+    description: Evolve to Orchiceratops Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
-    minTimeAlive: 1555200
+    minTimeAlive: 1728000
     minCurrentHappiness: 90
     minCurrentHunger: 80
     minFoodConsumed: 40
     minInteractions: 80
-    evolutionName: Zankylous Stage 3
-    description: Evolve to Zankylous Stage 3
+    evolutionName: Orchiceratops Stage 3
+    description: Evolve to Orchiceratops Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 326e998babf58654d8fdb5d8a9cc6754, type: 2}
-  - {fileID: 11400000, guid: bb4878a69a9660c4c80b6ca0e2fd8f59, type: 2}
+  - {fileID: 11400000, guid: cccd47c493a414a4db200f9dd02b2520, type: 2}
+  - {fileID: 11400000, guid: 4c24d424f5cd4424888ca3c2e11a6426, type: 2}
   CardIcon:
-  - {fileID: 2337847524192902854, guid: 7ae70a60ab847914296336e0bcf7eb07, type: 3}
-  - {fileID: -178674000502127665, guid: 2baa0c2dc7ffc0d4090237ce849d8179, type: 3}
+  - {fileID: 5538415727750192583, guid: d6f4c10b9849b8e41a12e1946051a2c5, type: 3}
+  - {fileID: 7587750047240296148, guid: fa759d3f8ad728a4b8c988ab98ec3ce7, type: 3}
   DetailsIcon:
-  - {fileID: 2337847524192902854, guid: 75c00551c3ebf31429e82f8c0e972961, type: 3}
-  - {fileID: -178674000502127665, guid: 773cb23f8d6ae68429a5243ea1572549, type: 3}
+  - {fileID: 5538415727750192583, guid: d7e72b2ed44e677498609af85244879b, type: 3}
+  - {fileID: 7587750047240296148, guid: 15ce9d2d540210140844d62e4b4c6ec9, type: 3}
   CatalogueIcon:
-  - {fileID: 2337847524192902854, guid: 8e73599fbf326294e963c35856fc293d, type: 3}
-  - {fileID: -178674000502127665, guid: fa3e7236eaaf766408fd3655e8ed2381, type: 3}
+  - {fileID: 5538415727750192583, guid: 39b9dbd3cf235274a9b0990fa7c7bf45, type: 3}
+  - {fileID: 7587750047240296148, guid: 75ecf999dd882614585f3e7d321a282c, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
     - eating
     - idle
+    - itching
     - jumping
+    - running
     - walking
   - evolutionLevel: 2
     availableAnimations:
     - eating
     - idle
+    - itching
     - jumping
+    - running
     - walking
-  evolutionBehaviors: []
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: e2675bbee47eedf4d91766df6c489d6f, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: fa3ca8625ce63a1489ad3a0a90e6e6ae, type: 2}
   monsterPrice: 0
   sellPriceStage1: 720
   sellPriceStage2: 1440

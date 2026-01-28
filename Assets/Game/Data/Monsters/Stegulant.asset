@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Hibikitsu_Data
+  m_Name: Stegulant
   m_EditorClassIdentifier: 
-  monsterName: Hibikitsu
-  id: hibikitsu
+  monsterName: Stegulant
+  id: stegulant
   description: 
-  tooltipData: {fileID: 11400000, guid: 28d2c7bb97ac7c444bbe406dd5b30bbc, type: 2}
+  tooltipData: {fileID: 11400000, guid: eee9df87db8733843950164a9412d65c, type: 2}
   monsterRequirements: []
   eatingOffset:
-  - {x: -23.7, y: 33.8}
-  - {x: -29.6, y: 33.8}
+  - {x: -56.3, y: 18.2}
+  - {x: -56.3, y: 40.6}
   monType: 2
   poopType: 10
   moveSpd: 100
@@ -31,9 +31,9 @@ MonoBehaviour:
   maxHealthStage1: 50
   maxHealthStage2: 100
   maxHealthStage3: 140
-  maxNutritionStage1: 70
-  maxNutritionStage2: 210
-  maxNutritionStage3: 252.00002
+  maxNutritionStage1: 60
+  maxNutritionStage2: 180
+  maxNutritionStage3: 216.00002
   poopRate: 20
   goldCoinDropRateStage1: 120
   platCoinDropRateStage1: 6
@@ -53,35 +53,33 @@ MonoBehaviour:
   evolutionLevel: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
-    minTimeAlive: 1382400
+    minTimeAlive: 1209600
     minCurrentHappiness: 85
     minCurrentHunger: 75
     minFoodConsumed: 20
     minInteractions: 40
-    evolutionName: Hibikitsu Stage 2
-    description: Evolve to Hibikitsu Stage 2
+    evolutionName: Stegulant Stage 2
+    description: Evolve to Stegulant Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
-    minTimeAlive: 1382400
+    minTimeAlive: 1209600
     minCurrentHappiness: 90
     minCurrentHunger: 80
     minFoodConsumed: 40
     minInteractions: 80
-    evolutionName: Hibikitsu Stage 3
-    description: Evolve to Hibikitsu Stage 3
+    evolutionName: Stegulant Stage 3
+    description: Evolve to Stegulant Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: 4843028bb72e44a4aad8b0ddf32b8229, type: 2}
-  - {fileID: 11400000, guid: ff2117af32eaa214da894b0b23dba2b8, type: 2}
-  CardIcon:
-  - {fileID: 4510347156139968712, guid: 1df3b77d5bfe3494298af64fb64e3b65, type: 3}
-  - {fileID: -4022421966068754255, guid: 0ca154f95634ffd4b9206bc2520454fb, type: 3}
+  - {fileID: 11400000, guid: bb932aa5eb04f474b8a5bf06ff556775, type: 2}
+  - {fileID: 11400000, guid: 487ede77114ea5941b64ed8f92278bc2, type: 2}
+  CardIcon: []
   DetailsIcon:
-  - {fileID: 4510347156139968712, guid: 0781b70990d11344a8fa1fcfeef0180f, type: 3}
-  - {fileID: -4022421966068754255, guid: 576860adf06720a41a13e21ea5d4300a, type: 3}
+  - {fileID: -6838670603892612321, guid: f0f1e21bb24df294abfcf6e15a3048ed, type: 3}
+  - {fileID: -5602263641060535954, guid: e586248c92dd3dd45b5ac032d9686e3c, type: 3}
   CatalogueIcon:
-  - {fileID: 4510347156139968712, guid: e3f94e1ee3a71a540a26a61f67b7065e, type: 3}
-  - {fileID: -4022421966068754255, guid: 3d3f20d4384d43e47874aa7feda02a59, type: 3}
+  - {fileID: 6626432579611445810, guid: 671951980bb32224d944973ed054266f, type: 3}
+  - {fileID: -2388440084889650521, guid: 145316cd78bb7344d840f17fedc5404b, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -95,11 +93,7 @@ MonoBehaviour:
     - idle
     - jumping
     - walking
-  evolutionBehaviors:
-  - evolutionLevel: 1
-    behaviorConfig: {fileID: 11400000, guid: 5a1432f22fe79fb49ac86a074c418dee, type: 2}
-  - evolutionLevel: 2
-    behaviorConfig: {fileID: 11400000, guid: 8598b3762cb750f47bf470b45d725efc, type: 2}
+  evolutionBehaviors: []
   monsterPrice: 0
   sellPriceStage1: 720
   sellPriceStage2: 1440

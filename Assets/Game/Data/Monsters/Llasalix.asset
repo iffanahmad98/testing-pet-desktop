@@ -10,45 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
-  m_Name: Squillac_Data
+  m_Name: Llasalix
   m_EditorClassIdentifier: 
-  monsterName: Squillac
-  id: squillac
+  monsterName: Llasalix
+  id: llasalix
   description: 
-  tooltipData: {fileID: 11400000, guid: 5fd5065cbaf2bb6428247bea4fb3b48c, type: 2}
+  tooltipData: {fileID: 0}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
-    minimumRequirements: 8
+    minimumRequirements: 2
   eatingOffset:
-  - {x: -32, y: 65}
-  - {x: -32, y: 65}
-  monType: 1
+  - {x: -36.3, y: 36.3}
+  - {x: -47.7, y: 66.3}
+  monType: 0
   poopType: 1
-  moveSpd: 110
+  moveSpd: 120
   foodDetectionRange: 200
   eatDistance: 5
   baseHappiness: 100
   baseHunger: 50
   hungerDepleteRate: 0.05
-  maxHealthStage1: 35
-  maxHealthStage2: 70
-  maxHealthStage3: 98
-  maxNutritionStage1: 38
-  maxNutritionStage2: 114
-  maxNutritionStage3: 136.8
+  maxHealthStage1: 25
+  maxHealthStage2: 50
+  maxHealthStage3: 70
+  maxNutritionStage1: 16
+  maxNutritionStage2: 48
+  maxNutritionStage3: 57.600002
   poopRate: 20
   goldCoinDropRateStage1: 60
-  platCoinDropRateStage1: 4
+  platCoinDropRateStage1: 2
   goldCoinDropRateStage2: 60
-  platCoinDropRateStage2: 12
+  platCoinDropRateStage2: 6
   goldCoinDropRateStage3: 120
-  platCoinDropRateStage3: 12
-  gachaChancePercent: 0.04
-  gachaChanceDisplay: 4.00%
+  platCoinDropRateStage3: 6
+  gachaChancePercent: 0.08
+  gachaChanceDisplay: 8.00%
   isGachaOnly: 0
   areaHappinessRate: 0.2
-  pokeHappinessValue: 2.5
+  pokeHappinessValue: 2
   hungerHappinessThreshold: 20
   hungerHappinessDrainRate: 2
   canEvolve: 1
@@ -56,35 +56,35 @@ MonoBehaviour:
   evolutionLevel: 0
   evolutionRequirements:
   - targetEvolutionLevel: 2
-    minTimeAlive: 864000
+    minTimeAlive: 604800
     minCurrentHappiness: 80
     minCurrentHunger: 70
     minFoodConsumed: 15
     minInteractions: 25
-    evolutionName: Squillac Stage 2
-    description: Evolve to Squillac Stage 2
+    evolutionName: Llasalix Stage 2
+    description: Evolve to Llasalix Stage 2
     progressRetentionPercentage: 0
   - targetEvolutionLevel: 3
-    minTimeAlive: 864000
+    minTimeAlive: 604800
     minCurrentHappiness: 85
     minCurrentHunger: 75
     minFoodConsumed: 30
     minInteractions: 50
-    evolutionName: Squillac Stage 3
-    description: Evolve to Squillac Stage 3
+    evolutionName: Llasalix Stage 3
+    description: Evolve to Llasalix Stage 3
     progressRetentionPercentage: 0
   monsterSpine:
-  - {fileID: 11400000, guid: a960dbe454c1a6048a1e17035512058c, type: 2}
-  - {fileID: 11400000, guid: a0019c1a08b82364a8b27c396a81042b, type: 2}
+  - {fileID: 11400000, guid: 0acf7e148c97a87428e43798c9f6901c, type: 2}
+  - {fileID: 11400000, guid: bc56968ee0c227c47b25a346975a6b82, type: 2}
   CardIcon:
-  - {fileID: -8466416576022706751, guid: c0487be04ff2d144abaed99c32482bef, type: 3}
-  - {fileID: -1016800415443825875, guid: a01950fb8a1f88542a2064c55bbe03d8, type: 3}
+  - {fileID: 6570986661536225222, guid: afbe5e9f36c3b464ba88e011a1bad6cb, type: 3}
+  - {fileID: 1795237804919328566, guid: e204fb43cc730e84dae2be8cede5e6d2, type: 3}
   DetailsIcon:
-  - {fileID: -8466416576022706751, guid: 7fbba83e1dd7aad4cb406cfc91a360b5, type: 3}
-  - {fileID: -1016800415443825875, guid: d84c986ade3b79042a2ae413ba24fd2d, type: 3}
+  - {fileID: 6570986661536225222, guid: afbe5e9f36c3b464ba88e011a1bad6cb, type: 3}
+  - {fileID: 1795237804919328566, guid: e204fb43cc730e84dae2be8cede5e6d2, type: 3}
   CatalogueIcon:
-  - {fileID: -8466416576022706751, guid: c64c21796e7cc7c4fb2285d769aa1731, type: 3}
-  - {fileID: -1016800415443825875, guid: e6187572e4fccb64fa82fb08c6e64a3a, type: 3}
+  - {fileID: 6570986661536225222, guid: afbe5e9f36c3b464ba88e011a1bad6cb, type: 3}
+  - {fileID: 1795237804919328566, guid: e204fb43cc730e84dae2be8cede5e6d2, type: 3}
   evolutionAnimationSets:
   - evolutionLevel: 1
     availableAnimations:
@@ -99,10 +99,10 @@ MonoBehaviour:
     - jumping
     - walking
   evolutionBehaviors: []
-  monsterPrice: 400
-  sellPriceStage1: 260
-  sellPriceStage2: 520
-  sellPriceStage3: 1040
+  monsterPrice: 320
+  sellPriceStage1: 200
+  sellPriceStage2: 400
+  sellPriceStage3: 800
   prerequisiteNPCId: 
   idleSounds: []
   happySound: {fileID: 0}
