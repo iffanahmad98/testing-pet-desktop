@@ -18,9 +18,7 @@ public class EggCrackAnimator : MonoBehaviour
 {
     [Header ("Egg Crack Reference")]
     Animator eggAnimator;
-    ParticleSystem openEggEffect;
     [SerializeField] CanvasGroup eggMonsterCanvasGroup;
-    [SerializeField] GameObject openEggEffectPrefab;
     [Header("Gacha Configuration")]
     public MonsterDatabaseSO monsterDatabase;
     public List<RarityWeight> rarityWeights;
@@ -116,11 +114,6 @@ public class EggCrackAnimator : MonoBehaviour
         // Pastikan tidak ada sequence lama yang masih jalan
         hideEggSequence?.Kill();
 
-        if(openEggEffect == null)
-        {
-            openEggEffect = Instantiate(openEggEffectPrefab, transform).GetComponent<ParticleSystem>();
-        }
-
         eggMonsterCanvasGroup.alpha = 0f;
         eggAnimator.gameObject.SetActive(true);
 
@@ -137,7 +130,6 @@ public class EggCrackAnimator : MonoBehaviour
     private void OnHideEggSequenceComplete()
     {
         eggAnimator.gameObject.SetActive(false);
-        Destroy(openEggEffect);
     }
 
     #region HotelEggsCollectionMenu

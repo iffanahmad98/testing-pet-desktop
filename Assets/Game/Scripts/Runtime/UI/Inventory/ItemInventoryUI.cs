@@ -52,8 +52,9 @@ public class ItemInventoryUI : MonoBehaviour
 
 
     // Object Pool for ItemSlotUI
-    private Queue<ItemSlotUI> slotPool = new Queue<ItemSlotUI>();
-    private List<ItemSlotUI> activeSlots = new List<ItemSlotUI>();
+    public Queue<ItemSlotUI> slotPool = new Queue<ItemSlotUI>();
+    public List<ItemSlotUI> activeSlots = new List<ItemSlotUI>();
+    public List<ItemSlotUI> fullActiveSlots = new ();
     private int initialPoolSize = 50;
 
     private bool isDeleteMode = false;
@@ -66,7 +67,7 @@ public class ItemInventoryUI : MonoBehaviour
     private bool isReordering = false;
 
     public List<ItemSlotUI> ActiveSlots => activeSlots;
-
+    
     private void Awake()
     {
         InitializeSlotPool();
@@ -168,6 +169,7 @@ public class ItemInventoryUI : MonoBehaviour
 
     }
 
+    bool oncePopulate = false;
     private void OnEnable()
     {
         closeButton.onClick.RemoveAllListeners();
@@ -178,12 +180,22 @@ public class ItemInventoryUI : MonoBehaviour
             ExitDeleteMode();
         });
 
-        StartPopulateAllInventories();
+        if (!oncePopulate) {
+            oncePopulate = true;
+            StartPopulateAllInventories();
+        }
     }
 
     private void OnDisable()
     {
-        // ✅ Kill all active tweens when inventory is disabled
+        /*
+       foreach (var slot in activeSlots) {
+        Debug.Log ("Destroy Active Slots");
+            Destroy (slot.gameObject);
+        }
+        */
+        activeSlots.Clear ();
+
         foreach (var slot in activeSlots)
         {
             if (slot != null)
@@ -194,8 +206,12 @@ public class ItemInventoryUI : MonoBehaviour
             }
         }
         quickViewGameObject.SetActive(true);
-        horizontalBarGameObject.SetActive(false);
-        ReturnAllSlotsToPool();
+    //    horizontalBarGameObject.SetActive(false); (Non Used ini bikin bug)
+        SetCanvasGroupVisibility (horizontalBarGameObject, false);
+         HideInventory();
+        ResetInventoryGroupvisibility();
+
+      //  ReturnAllSlotsToPool();
     }
     private void SetCanvasGroupVisibility(GameObject target, bool show)
     {
@@ -245,11 +261,18 @@ public class ItemInventoryUI : MonoBehaviour
     public void StartPopulateAllInventories()
     {
         StartCoroutine(PopulateAllInventoriesCoroutine());
+      //  Debug.Log ("Destroy Slot 0.3x ");
         StartCoroutine(PopulateShopInventoryCoroutine());
     }
 
     private IEnumerator PopulateAllInventoriesCoroutine()
     {
+        
+
+      //  Debug.Log ("Start Populate");
+      // ✅ Kill all active tweens when inventory is disabled
+        
+
         yield return new WaitForEndOfFrame(); // Ensure UI is ready
         ClearAllUnusedDatas();
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
@@ -301,6 +324,8 @@ public class ItemInventoryUI : MonoBehaviour
 
     private IEnumerator PopulateInventory(Transform parent, RectTransform rect, List<OwnedItemData> allItems, int maxSlots, int maxRows)
     {
+        // ELVAN : Masalahnya ada disini !
+        
         // Store the items for this parent
         var displayItems = allItems.GetRange(0, Mathf.Min(maxSlots, allItems.Count));
         parentToItemsMap[parent] = displayItems;
@@ -315,6 +340,12 @@ public class ItemInventoryUI : MonoBehaviour
             rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         }
 
+        foreach (ItemSlotUI itemSlot in fullActiveSlots) {
+            Destroy (itemSlot.gameObject);
+            Debug.Log ("Destroy Slot");
+        }
+        fullActiveSlots.Clear ();
+
         // Add smooth population with slight delay for better UX
         for (int i = 0; i < displayItems.Count; i++)
         {
@@ -325,11 +356,12 @@ public class ItemInventoryUI : MonoBehaviour
             var slot = GetSlotFromPool();
             slot.transform.SetParent(parent, false);
             slot.Initialize(itemData, item.type, item.amount);
-
+            fullActiveSlots.Add (slot);
             // Small delay for smooth population
             if (i % 5 == 0) // Every 5 items
                 yield return new WaitForSeconds(0.01f);
         }
+        
     }
     public void StartPopulateShopInventory()
     {
@@ -394,8 +426,9 @@ public class ItemInventoryUI : MonoBehaviour
 
     private IEnumerator PopulateShopInventoryCoroutine()
     {
+       // Debug.Log ("Destroy Slot 0.6x ");
         yield return new WaitForEndOfFrame();
-
+        
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
 
         if (ownedItems == null || ownedItems.Count == 0)
@@ -443,6 +476,8 @@ public class ItemInventoryUI : MonoBehaviour
             if (i % 5 == 0) // Every 5 items
                 yield return new WaitForSeconds(0.01f);
         }
+       // Debug.Log ("Destroy Slot 1.0x ");
+        
     }
 
     public void HideInventory()
@@ -603,7 +638,6 @@ public class ItemInventoryUI : MonoBehaviour
     private IEnumerator MoveItemBackCoroutine(ItemSlotUI draggedSlot, ItemSlotUI targetSlot)
     {
         isReordering = true;
-
         // Find the items in the saved data
         var ownedItems = SaveSystem.PlayerConfig?.ownedItems;
         if (ownedItems == null)
@@ -670,7 +704,6 @@ public class ItemInventoryUI : MonoBehaviour
 
         // Wait a frame before repopulating
         yield return new WaitForEndOfFrame();
-
         // Repopulate all inventories with new order
         StartPopulateAllInventories();
 

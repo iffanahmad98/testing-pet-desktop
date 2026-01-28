@@ -52,6 +52,15 @@ public class FarmFacilitiesDataSO : ScriptableObject {
         return true;
     }
 
+    public int GetHiredPrice (int target) {
+        foreach (var rule in rulesHiredEligibility[target].rules)
+        {
+            if (rule is EligibleCoin targetRule)
+                return targetRule.minCoin;
+        }
+        return 0;
+    }
+
     #endregion
     
 }
