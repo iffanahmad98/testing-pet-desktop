@@ -121,6 +121,15 @@ public class PlacementManager : MonoBehaviour
         }
     }
 
+    public void GetMonsterForMedicine()
+    {
+        if (isPlacingMedicine)
+        {
+            Debug.Log("Placing medicine. Getting a monster under the cursor");
+            MonsterManager.instance.sickMonster = TryGetMonsterUnderCursor();
+        }
+    }
+
     public void CancelPlacement()
     {
         ResetPlacement();

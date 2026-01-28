@@ -69,6 +69,8 @@ public class MonsterManager : MonoBehaviour
     
     public static MonsterManager instance; // MonsterController.cs
 
+    public MonsterController sickMonster;
+
     private void Awake()
     {
         instance = this;
@@ -450,6 +452,15 @@ public class MonsterManager : MonoBehaviour
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {
                 consumable.Initialize(data, groundRT);
+
+                if (data.category == ItemType.Medicine)
+                {
+                    if (pooled.TryGetComponent<MedicineController>(out var medCtrl))
+                    {
+                        Debug.Log("Placing medicine. Try to claim the med.");
+                        medCtrl.TryClaim(sickMonster);
+                    }
+                }
             }
 
             // Register into the correct active list
