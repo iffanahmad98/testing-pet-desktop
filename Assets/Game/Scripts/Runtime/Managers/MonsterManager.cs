@@ -1,10 +1,11 @@
-using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using UnityEngine.UI;
-using System;
 using DG.Tweening;
+using MagicalGarden.Farm;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class MonsterManager : MonoBehaviour
 {
@@ -459,6 +460,7 @@ public class MonsterManager : MonoBehaviour
                     {
                         Debug.Log("Placing medicine. Try to claim the med.");
                         medCtrl.TryClaim(sickMonster);
+                        StartCoroutine(UseMedicineRoutine(medCtrl, sickMonster, 0.8f));
                     }
                 }
             }
@@ -481,6 +483,18 @@ public class MonsterManager : MonoBehaviour
                     break;
             }
         }
+    }
+
+    private IEnumerator UseMedicineRoutine(MedicineController medCtrl, MonsterController sickMonster, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (medCtrl == null || sickMonster == null) yield break;
+
+        sickMonster.GiveMedicine(medCtrl.GetItemData().nutritionValue);
+        activeMedicines.Remove(medCtrl);
+        sickMonster.UI.PlayHealingVFX(sickMonster);
+        DespawnToPool(((MonoBehaviour)medCtrl).gameObject);
     }
     #endregion
 
