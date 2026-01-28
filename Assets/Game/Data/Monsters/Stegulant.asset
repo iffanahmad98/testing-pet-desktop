@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Stegulant
+  m_EditorClassIdentifier: 
+  monsterName: Stegulant
+  id: stegulant
+  description: 
+  tooltipData: {fileID: 11400000, guid: eee9df87db8733843950164a9412d65c, type: 2}
+  monsterRequirements: []
+  eatingOffset:
+  - {x: -56.3, y: 18.2}
+  - {x: -56.3, y: 40.6}
+  monType: 2
+  poopType: 10
+  moveSpd: 100
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 50
+  maxHealthStage2: 100
+  maxHealthStage3: 140
+  maxNutritionStage1: 60
+  maxNutritionStage2: 180
+  maxNutritionStage3: 216.00002
+  poopRate: 20
+  goldCoinDropRateStage1: 120
+  platCoinDropRateStage1: 6
+  goldCoinDropRateStage2: 120
+  platCoinDropRateStage2: 18
+  goldCoinDropRateStage3: 240
+  platCoinDropRateStage3: 18
+  gachaChancePercent: 0.015
+  gachaChanceDisplay: 1.50%
+  isGachaOnly: 1
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 3
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 1209600
+    minCurrentHappiness: 85
+    minCurrentHunger: 75
+    minFoodConsumed: 20
+    minInteractions: 40
+    evolutionName: Stegulant Stage 2
+    description: Evolve to Stegulant Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 1209600
+    minCurrentHappiness: 90
+    minCurrentHunger: 80
+    minFoodConsumed: 40
+    minInteractions: 80
+    evolutionName: Stegulant Stage 3
+    description: Evolve to Stegulant Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: bb932aa5eb04f474b8a5bf06ff556775, type: 2}
+  - {fileID: 11400000, guid: 487ede77114ea5941b64ed8f92278bc2, type: 2}
+  CardIcon: []
+  DetailsIcon:
+  - {fileID: -6838670603892612321, guid: f0f1e21bb24df294abfcf6e15a3048ed, type: 3}
+  - {fileID: -5602263641060535954, guid: e586248c92dd3dd45b5ac032d9686e3c, type: 3}
+  CatalogueIcon:
+  - {fileID: 6626432579611445810, guid: 671951980bb32224d944973ed054266f, type: 3}
+  - {fileID: -2388440084889650521, guid: 145316cd78bb7344d840f17fedc5404b, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  evolutionBehaviors: []
+  monsterPrice: 0
+  sellPriceStage1: 720
+  sellPriceStage2: 1440
+  sellPriceStage3: 2880
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

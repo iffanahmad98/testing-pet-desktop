@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Sollion
+  m_EditorClassIdentifier: 
+  monsterName: Sollion
+  id: sollion
+  description: 
+  tooltipData: {fileID: 11400000, guid: 4f649e9e9d2e2f34cbd8f41475bdc224, type: 2}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 12
+  eatingOffset:
+  - {x: -30, y: 36}
+  - {x: -32, y: 30.4}
+  monType: 1
+  poopType: 1
+  moveSpd: 110
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 35
+  maxHealthStage2: 70
+  maxHealthStage3: 98
+  maxNutritionStage1: 54
+  maxNutritionStage2: 162
+  maxNutritionStage3: 194.40001
+  poopRate: 20
+  goldCoinDropRateStage1: 90
+  platCoinDropRateStage1: 5
+  goldCoinDropRateStage2: 90
+  platCoinDropRateStage2: 15
+  goldCoinDropRateStage3: 180
+  platCoinDropRateStage3: 15
+  gachaChancePercent: 0.03
+  gachaChanceDisplay: 3.00%
+  isGachaOnly: 0
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 2.5
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 1036800
+    minCurrentHappiness: 80
+    minCurrentHunger: 70
+    minFoodConsumed: 15
+    minInteractions: 25
+    evolutionName: Sollion Stage 2
+    description: Evolve to Sollion Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 1036800
+    minCurrentHappiness: 85
+    minCurrentHunger: 75
+    minFoodConsumed: 30
+    minInteractions: 50
+    evolutionName: Sollion Stage 3
+    description: Evolve to Sollion Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: f26daceca8dbb71478522fdfea9196f5, type: 2}
+  - {fileID: 11400000, guid: 386995bad8f1f5848bc4abf6f0705b9c, type: 2}
+  CardIcon:
+  - {fileID: -6936286273453244540, guid: f041fb7397bab1548aef735a49b2969d, type: 3}
+  - {fileID: 4277601747462222757, guid: 75de9005d06b71d4486aecce38cae5be, type: 3}
+  DetailsIcon:
+  - {fileID: -6936286273453244540, guid: 3da219105e4b51b40b265bf885feb4fb, type: 3}
+  - {fileID: 4277601747462222757, guid: a9417abb9b0986a4c853b485c3a56b8c, type: 3}
+  CatalogueIcon:
+  - {fileID: -6936286273453244540, guid: e285b1585abae8a4ab296d93634c386f, type: 3}
+  - {fileID: 4277601747462222757, guid: b7f11ed3fcaf72c4d99a27f04df75b08, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - 'eating '
+    - idle
+    - itching
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - 'eating '
+    - idle
+    - itching
+    - jumping
+    - walking
+    - running
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: b2366e4b2e866bc4295521d00087a858, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: 3cc43c55f4d862c4eb5000b4828313c9, type: 2}
+  monsterPrice: 560
+  sellPriceStage1: 375
+  sellPriceStage2: 750
+  sellPriceStage3: 1500
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

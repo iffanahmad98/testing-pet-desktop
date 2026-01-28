@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Koaliarus
+  m_EditorClassIdentifier: 
+  monsterName: Koaliarus
+  id: koaliarus
+  description: 
+  tooltipData: {fileID: 11400000, guid: 61e1de4a4f2fa844282d7d5edb56b896, type: 2}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 4
+  eatingOffset:
+  - {x: -26.6, y: 36.3}
+  - {x: -26.6, y: 36.3}
+  monType: 0
+  poopType: 1
+  moveSpd: 120
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 25
+  maxHealthStage2: 50
+  maxHealthStage3: 70
+  maxNutritionStage1: 24
+  maxNutritionStage2: 72
+  maxNutritionStage3: 86.4
+  poopRate: 20
+  goldCoinDropRateStage1: 60
+  platCoinDropRateStage1: 3
+  goldCoinDropRateStage2: 60
+  platCoinDropRateStage2: 9
+  goldCoinDropRateStage3: 120
+  platCoinDropRateStage3: 9
+  gachaChancePercent: 0.07
+  gachaChanceDisplay: 7.00%
+  isGachaOnly: 0
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 2
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 604800
+    minCurrentHappiness: 80
+    minCurrentHunger: 70
+    minFoodConsumed: 15
+    minInteractions: 25
+    evolutionName: Koaliarus Stage 2
+    description: Evolve to Koaliarus Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 604800
+    minCurrentHappiness: 85
+    minCurrentHunger: 75
+    minFoodConsumed: 30
+    minInteractions: 50
+    evolutionName: Koaliarus Stage 3
+    description: Evolve to Koaliarus Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: 90b2c5849fca81b40ada7d6c93a487e5, type: 2}
+  - {fileID: 11400000, guid: fb5ed2d351339b64392c1d9520632392, type: 2}
+  CardIcon:
+  - {fileID: 1247075157343145607, guid: cb2901eed913c654490c4b6da1cd0349, type: 3}
+  - {fileID: -7452828371271423183, guid: 407702ec13f163047937a5c965b24108, type: 3}
+  DetailsIcon:
+  - {fileID: 1247075157343145607, guid: 944a33d860112334390493cf2e8d460a, type: 3}
+  - {fileID: -7452828371271423183, guid: 42293298b9c1f574a8002c26d8bccad9, type: 3}
+  CatalogueIcon:
+  - {fileID: 1247075157343145607, guid: 58e87b58616f86e4981883a28cce2ad9, type: 3}
+  - {fileID: -7452828371271423183, guid: 7115b8870530aa340bc348cbda0a0683, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - walking
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: f639dfb1130db2e45ae091b41da1c578, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: 3f0c959d8f6e5f343b562cf515d0544b, type: 2}
+  monsterPrice: 360
+  sellPriceStage1: 240
+  sellPriceStage2: 480
+  sellPriceStage3: 960
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

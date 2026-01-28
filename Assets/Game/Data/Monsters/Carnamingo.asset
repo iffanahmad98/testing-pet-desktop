@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Carnamingo
+  m_EditorClassIdentifier: 
+  monsterName: Carnamingo
+  id: carnamingo
+  description: 
+  tooltipData: {fileID: 11400000, guid: 118f6942842a7c44aae9293590eb2981, type: 2}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 6
+  eatingOffset:
+  - {x: -64, y: 28.6}
+  - {x: -64, y: 28.6}
+  monType: 1
+  poopType: 1
+  moveSpd: 110
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 35
+  maxHealthStage2: 70
+  maxHealthStage3: 98
+  maxNutritionStage1: 30
+  maxNutritionStage2: 90
+  maxNutritionStage3: 108.00001
+  poopRate: 20
+  goldCoinDropRateStage1: 60
+  platCoinDropRateStage1: 4
+  goldCoinDropRateStage2: 60
+  platCoinDropRateStage2: 12
+  goldCoinDropRateStage3: 120
+  platCoinDropRateStage3: 12
+  gachaChancePercent: 0.04
+  gachaChanceDisplay: 4.00%
+  isGachaOnly: 0
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 2.5
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 864000
+    minCurrentHappiness: 80
+    minCurrentHunger: 70
+    minFoodConsumed: 15
+    minInteractions: 25
+    evolutionName: Carnamingo Stage 2
+    description: Evolve to Carnamingo Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 864000
+    minCurrentHappiness: 85
+    minCurrentHunger: 75
+    minFoodConsumed: 30
+    minInteractions: 50
+    evolutionName: Carnamingo Stage 3
+    description: Evolve to Carnamingo Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: cf718745bfaa80f41acf58f8849869ea, type: 2}
+  - {fileID: 11400000, guid: 4f6553774da6d7947af683d0a1976f6a, type: 2}
+  CardIcon:
+  - {fileID: 1866688679343989286, guid: 54a714134ed25bf429c3b89d6d457cc0, type: 3}
+  - {fileID: -7873579051141771938, guid: eb5c60fce2ab1ea42a18ed262dd67689, type: 3}
+  DetailsIcon:
+  - {fileID: 1866688679343989286, guid: 0d5b54c97bb66c045bad50b1dbd19ce8, type: 3}
+  - {fileID: -7873579051141771938, guid: f8bb7412350c86b4cbb1fb20f858abb0, type: 3}
+  CatalogueIcon:
+  - {fileID: 1866688679343989286, guid: 9b5b496f5c0a7a447bfea42e8d8d7c8e, type: 3}
+  - {fileID: -7873579051141771938, guid: 856052fd0772514409b2466fb3467b44, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: 20e4f743d63960343bd2be241d9ebcd7, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: 6c2fbc799e7c8a7418cebabaa2d7a20a, type: 2}
+  monsterPrice: 400
+  sellPriceStage1: 260
+  sellPriceStage2: 520
+  sellPriceStage3: 1040
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

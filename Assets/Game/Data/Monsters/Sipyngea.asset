@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Sipyngea
+  m_EditorClassIdentifier: 
+  monsterName: Sipyngea
+  id: sipyngea
+  description: 
+  tooltipData: {fileID: 11400000, guid: f3d89221d225b09408ce9cf321e2c8b2, type: 2}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 3
+  eatingOffset:
+  - {x: -33, y: 34.2}
+  - {x: -44.2, y: 29.5}
+  monType: 0
+  poopType: 1
+  moveSpd: 120
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 25
+  maxHealthStage2: 50
+  maxHealthStage3: 70
+  maxNutritionStage1: 20
+  maxNutritionStage2: 60
+  maxNutritionStage3: 72
+  poopRate: 20
+  goldCoinDropRateStage1: 60
+  platCoinDropRateStage1: 3
+  goldCoinDropRateStage2: 60
+  platCoinDropRateStage2: 9
+  goldCoinDropRateStage3: 120
+  platCoinDropRateStage3: 9
+  gachaChancePercent: 0.08
+  gachaChanceDisplay: 8.00%
+  isGachaOnly: 0
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 2
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 604800
+    minCurrentHappiness: 80
+    minCurrentHunger: 70
+    minFoodConsumed: 15
+    minInteractions: 25
+    evolutionName: Sipyngea Stage 2
+    description: Evolve to Sipyngea Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 604800
+    minCurrentHappiness: 85
+    minCurrentHunger: 75
+    minFoodConsumed: 30
+    minInteractions: 50
+    evolutionName: Sipyngea Stage 3
+    description: Evolve to Sipyngea Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: 0e80b905431cc144b943e2248c0c03da, type: 2}
+  - {fileID: 11400000, guid: d3925711251202a408adfc9199587c4a, type: 2}
+  CardIcon:
+  - {fileID: 8255957738299687659, guid: 6bb0a87179902fb45b1b4872d856cc78, type: 3}
+  - {fileID: -3138044776463176782, guid: e22910eba1af7bb47b1a4989e9bc5d9e, type: 3}
+  DetailsIcon:
+  - {fileID: 8255957738299687659, guid: 5c0e73c6fb55d8e42a0c8776d36c9071, type: 3}
+  - {fileID: -3138044776463176782, guid: df09c44623836814090aead87fafc426, type: 3}
+  CatalogueIcon:
+  - {fileID: 8255957738299687659, guid: 190af906d8b942f42852ed4846cfddaa, type: 3}
+  - {fileID: -3138044776463176782, guid: d405efe924aaf684e96e6e0963a33cc7, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - running
+    - walking
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: a019b3c476907e94490b320493452e80, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: d7e9ecb9b63a1ff4db92cf5162186dac, type: 2}
+  monsterPrice: 360
+  sellPriceStage1: 240
+  sellPriceStage2: 480
+  sellPriceStage3: 960
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

@@ -1,0 +1,135 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Aceragon
+  m_EditorClassIdentifier: 
+  monsterName: Aceragon
+  id: aceragon
+  description: 
+  tooltipData: {fileID: 11400000, guid: 3c4a4e120c1c5eb4b8e0e3905fbf64cb, type: 2}
+  monsterRequirements:
+  - anyTypeMonster: 1
+    monsterType: 0
+    minimumRequirements: 7
+  eatingOffset:
+  - {x: -22, y: 57}
+  - {x: -69, y: 16}
+  - {x: -69, y: 16}
+  monType: 3
+  poopType: 10
+  moveSpd: 90
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 150
+  maxHealthStage2: 300
+  maxHealthStage3: 500
+  maxNutritionStage1: 300
+  maxNutritionStage2: 900
+  maxNutritionStage3: 2250
+  poopRate: 20
+  goldCoinDropRateStage1: 120
+  platCoinDropRateStage1: 12
+  goldCoinDropRateStage2: 120
+  platCoinDropRateStage2: 36
+  goldCoinDropRateStage3: 120
+  platCoinDropRateStage3: 60
+  gachaChancePercent: 0.003
+  gachaChanceDisplay: 0.30%
+  isGachaOnly: 1
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 4
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 2419200
+    minCurrentHappiness: 90
+    minCurrentHunger: 80
+    minFoodConsumed: 30
+    minInteractions: 60
+    evolutionName: Aceragon Stage 2
+    description: Evolve to Aceragon Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 2419200
+    minCurrentHappiness: 95
+    minCurrentHunger: 85
+    minFoodConsumed: 60
+    minInteractions: 120
+    evolutionName: Aceragon Stage 3
+    description: Evolve to Aceragon Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: 844e7ddc6f21e0a408193025ff42062a, type: 2}
+  - {fileID: 11400000, guid: f3e97bc450fb3e348a29276e071b4eaf, type: 2}
+  - {fileID: 11400000, guid: 3e5da015d7c18894390480d4a63202c1, type: 2}
+  CardIcon:
+  - {fileID: -358280743505770438, guid: 17065b728bcd37843b01be7c7b5545a7, type: 3}
+  - {fileID: -1021857481065555673, guid: 23011eb2437fbdc4692b232362190bad, type: 3}
+  - {fileID: 7508866945510553269, guid: 68288ec8d8a66ca45b3cd75260f28357, type: 3}
+  DetailsIcon:
+  - {fileID: -358280743505770438, guid: ba27653dfdbe3b940a166f6ce0b6888f, type: 3}
+  - {fileID: -1021857481065555673, guid: 4eabf5ef60e52ad4a9c31a7c1a261c37, type: 3}
+  - {fileID: 7508866945510553269, guid: 11828733a18941c4d80ea08bd50925be, type: 3}
+  CatalogueIcon:
+  - {fileID: -358280743505770438, guid: 1206dd07a433f7b4b8f620e9e54fc256, type: 3}
+  - {fileID: -1021857481065555673, guid: e637c32d7698f334785328b830869e16, type: 3}
+  - {fileID: 7508866945510553269, guid: 52023d3539576ab4191b6901161fae23, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - itching
+    - jumping
+    - running
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - flapping
+    - idle
+    - itching
+    - walking
+  - evolutionLevel: 3
+    availableAnimations:
+    - eating
+    - flying
+    - idle
+    - itching
+    - jumping
+    - walking
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: 6599e5efe0a16a340a1a2bb4442c12f3, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: e07fe674522962847936b017f2f366c7, type: 2}
+  - evolutionLevel: 3
+    behaviorConfig: {fileID: 11400000, guid: f14374db302b5614f9e1924f9dcc1338, type: 2}
+  monsterPrice: 0
+  sellPriceStage1: 960
+  sellPriceStage2: 1920
+  sellPriceStage3: 3840
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

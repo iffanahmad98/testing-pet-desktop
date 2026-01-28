@@ -163,6 +163,7 @@ MonoBehaviour:
   currentTile: {x: 0, y: 0}
   isOverridingState: 0
   lockFlipTarget: 0
+  spawnEffectPrefab: {fileID: 100000, guid: c1815d8358f3a134e9fa1b3c325a7884, type: 3}
   destinationTile: {x: 0, y: 0}
   npcAreaPointsDatabase: {fileID: 11400000, guid: 492ec8fd45db65f4ca0892181e2bb947, type: 2}
   codeNpcAreaPoints: 
@@ -172,6 +173,7 @@ MonoBehaviour:
   changeAreaPointsMaxSeconds: 90
   currentNPCAreaPointsSO: {fileID: 0}
   plantManager: {fileID: 0}
+  isWatering: 0
   tileTargetType: 3
   tileTarget: {fileID: 0}
 --- !u!114 &6635325384562986241

@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Fairy
+  m_EditorClassIdentifier: 
+  monsterName: Fairy
+  id: fairy
+  description: 
+  tooltipData: {fileID: 11400000, guid: 7dc9de7edb00b954c8a4df2e4cc5540c, type: 2}
+  monsterRequirements: []
+  eatingOffset:
+  - {x: -7.6, y: 73.8}
+  - {x: -7.6, y: 73.8}
+  - {x: -7.6, y: 73.8}
+  monType: 4
+  poopType: 10
+  moveSpd: 80
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 250
+  maxHealthStage2: 500
+  maxHealthStage3: 700
+  maxNutritionStage1: 600
+  maxNutritionStage2: 1800
+  maxNutritionStage3: 4500
+  poopRate: 20
+  goldCoinDropRateStage1: 120
+  platCoinDropRateStage1: 24
+  goldCoinDropRateStage2: 120
+  platCoinDropRateStage2: 72
+  goldCoinDropRateStage3: 120
+  platCoinDropRateStage3: 120
+  gachaChancePercent: 0.001
+  gachaChanceDisplay: 0.10%
+  isGachaOnly: 1
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 5
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 2592000
+    minCurrentHappiness: 95
+    minCurrentHunger: 85
+    minFoodConsumed: 50
+    minInteractions: 100
+    evolutionName: Fairy Stage 2
+    description: Evolve to Fairy Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 2592000
+    minCurrentHappiness: 100
+    minCurrentHunger: 90
+    minFoodConsumed: 100
+    minInteractions: 200
+    evolutionName: Fairy Stage 3
+    description: Evolve to Fairy Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: 7286de5262d48914687fa0a4decc5edd, type: 2}
+  - {fileID: 11400000, guid: 6d2e3cf73b7fffa409430f1d6e088460, type: 2}
+  - {fileID: 11400000, guid: 5247a0be5547b27439feaf18d0dac589, type: 2}
+  CardIcon:
+  - {fileID: 5544922074716758884, guid: e1cc696b01fdadb4a95535acd033dd1f, type: 3}
+  - {fileID: 5503059418750273520, guid: 45c4c7313cc4afd42b84699d9109b03f, type: 3}
+  - {fileID: -5850483297479325703, guid: 512565b73c5c3e94daaa29d8fd345632, type: 3}
+  DetailsIcon:
+  - {fileID: 5544922074716758884, guid: 2587d5315c255544ab644e5ebcf46c34, type: 3}
+  - {fileID: 5503059418750273520, guid: 716958ac389d29e4a8a5fd64c913234a, type: 3}
+  - {fileID: -5850483297479325703, guid: 4765468c6de04fa42bb0ea32e4280e08, type: 3}
+  CatalogueIcon:
+  - {fileID: 5544922074716758884, guid: 6d889adaf9db1f14e8d2563716711fec, type: 3}
+  - {fileID: 5503059418750273520, guid: d152ccd54e271e84e9f328c18748ce00, type: 3}
+  - {fileID: -5850483297479325703, guid: 96db2ac07eca1904d9849f662d90f660, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+  - evolutionLevel: 2
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+    - flying
+  - evolutionLevel: 3
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - walking
+    - flying
+  evolutionBehaviors:
+  - evolutionLevel: 1
+    behaviorConfig: {fileID: 11400000, guid: c64755298c6859f4b9c240dcad9f93dc, type: 2}
+  - evolutionLevel: 2
+    behaviorConfig: {fileID: 11400000, guid: 6b4d92081bda3a141919d9dc81b07a72, type: 2}
+  - evolutionLevel: 3
+    behaviorConfig: {fileID: 11400000, guid: 163ce2cef9c120f4993aa66f9b7d6b79, type: 2}
+  monsterPrice: 0
+  sellPriceStage1: 1440
+  sellPriceStage2: 2880
+  sellPriceStage3: 5760
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

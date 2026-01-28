@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fe17d270458e3458d497300221f78c, type: 3}
+  m_Name: Mochichu
+  m_EditorClassIdentifier: 
+  monsterName: Mochichu
+  id: mochichu
+  description: 
+  tooltipData: {fileID: 11400000, guid: cf6c5846814f9bf438a0729018a8ed6c, type: 2}
+  monsterRequirements: []
+  eatingOffset:
+  - {x: -14.3, y: 57.4}
+  monType: 3
+  poopType: 10
+  moveSpd: 90
+  foodDetectionRange: 200
+  eatDistance: 5
+  baseHappiness: 100
+  baseHunger: 50
+  hungerDepleteRate: 0.05
+  maxHealthStage1: 100
+  maxHealthStage2: 200
+  maxHealthStage3: 250
+  maxNutritionStage1: 100
+  maxNutritionStage2: 300
+  maxNutritionStage3: 750
+  poopRate: 20
+  goldCoinDropRateStage1: 120
+  platCoinDropRateStage1: 12
+  goldCoinDropRateStage2: 120
+  platCoinDropRateStage2: 36
+  goldCoinDropRateStage3: 120
+  platCoinDropRateStage3: 60
+  gachaChancePercent: 0.003
+  gachaChanceDisplay: 0.30%
+  isGachaOnly: 1
+  areaHappinessRate: 0.2
+  pokeHappinessValue: 4
+  hungerHappinessThreshold: 20
+  hungerHappinessDrainRate: 2
+  canEvolve: 1
+  isEvolved: 0
+  evolutionLevel: 0
+  evolutionRequirements:
+  - targetEvolutionLevel: 2
+    minTimeAlive: 2073600
+    minCurrentHappiness: 90
+    minCurrentHunger: 80
+    minFoodConsumed: 30
+    minInteractions: 60
+    evolutionName: Mochichu Stage 2
+    description: Evolve to Mochichu Stage 2
+    progressRetentionPercentage: 0
+  - targetEvolutionLevel: 3
+    minTimeAlive: 2073600
+    minCurrentHappiness: 95
+    minCurrentHunger: 85
+    minFoodConsumed: 60
+    minInteractions: 120
+    evolutionName: Mochichu Stage 3
+    description: Evolve to Mochichu Stage 3
+    progressRetentionPercentage: 0
+  monsterSpine:
+  - {fileID: 11400000, guid: 264dd28ce6c4ff0499cc5696e886e2fb, type: 2}
+  CardIcon:
+  - {fileID: 8369779628365965465, guid: c24cf9813984ffc4286f556f6d619c4f, type: 3}
+  - {fileID: -142927250687097264, guid: 763a6f43fdb1fa843abc3d8067416c61, type: 3}
+  - {fileID: 530860360001484945, guid: e07714a9cc5d22346943bf6318172d69, type: 3}
+  DetailsIcon:
+  - {fileID: 8369779628365965465, guid: 95e4a463ece815945ae59b82e97ce5b5, type: 3}
+  - {fileID: -142927250687097264, guid: 78386bf37f17cf149a9a8874b3c5c53c, type: 3}
+  - {fileID: 530860360001484945, guid: a454be16a265f5544a367062347a05d6, type: 3}
+  CatalogueIcon:
+  - {fileID: 8369779628365965465, guid: a28a3a4ce6b265442bd771d26e43f2ba, type: 3}
+  - {fileID: -142927250687097264, guid: c3633d4c88ca6f147869833b39abe987, type: 3}
+  - {fileID: 530860360001484945, guid: 6a1e476a7ccb8af4a9e07d851b9c5448, type: 3}
+  evolutionAnimationSets:
+  - evolutionLevel: 1
+    availableAnimations:
+    - eating
+    - idle
+    - jumping
+    - running
+    - walking
+  evolutionBehaviors: []
+  monsterPrice: 0
+  sellPriceStage1: 960
+  sellPriceStage2: 1920
+  sellPriceStage3: 3840
+  prerequisiteNPCId: 
+  idleSounds: []
+  happySound: {fileID: 0}
+  eatSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  evolveSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  interactionSound: {fileID: 0}

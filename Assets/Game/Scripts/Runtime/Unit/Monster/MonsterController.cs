@@ -373,6 +373,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
                                _stateMachine?.CurrentState == MonsterState.Running ||
                                _stateMachine?.CurrentState == MonsterState.Flying;
 
+        SetFallingStarsState(isMovementState);
+
         if (!isMovementState) return;
 
         // Bounds and separation logic
@@ -829,6 +831,22 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     public void DropPoop(PoopType type = PoopType.Normal) => _visualHandler?.SpawnPoopWithAnimation(type);
     public void DropCoin(CoinType type) => _visualHandler?.SpawnCoinWithAnimation(type);
     public Sprite GetMonsterIcon() => _visualHandler?.GetMonsterIcon();
+
+    public void SetFallingStarsState(bool state)
+    {
+        if(monsterData == null) return;
+
+        if (monsterData.monType != MonsterType.Legend)
+        {
+            UI.fallingStarsVfx.StopEmission();
+            return;
+        }
+
+        if(state)
+            UI.fallingStarsVfx.StartEmission();
+        else
+            UI.fallingStarsVfx.StopEmission();
+    }
 
     #endregion
 
