@@ -397,7 +397,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     private void UpdateValueInventory(ItemDataSO itemData)
     {
         var inventories = inventoryUI.ActiveSlots;
-
+        ItemSlotUI curSlot = null;
+        int amount = 0;
         for (int i = inventories.Count - 1; i >= 0; i--)
         {
             var slot = inventories[i];
@@ -405,7 +406,47 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             if (slot.itemData == itemData)
             {
                 slot.itemAmount--;
-                slot.amountText.text = $"{itemAmount} pcs";
+                slot.amountText.text = $"{slot.itemAmount} pcs";
+                
+                if (slot.itemAmount <= 0)
+                {
+                    ServiceLocator.Get<PlacementManager>().CancelPlacement();
+                    inventoryUI.HandleItemDepletion(slot);
+                    
+                    //inventoryUI.StartPopulateAllInventories();
+                }
+                amount =slot.itemAmount;
+                curSlot = slot;
+            }
+        }
+
+        
+
+        if (itemAmount <= 0)
+        {
+            ServiceLocator.Get<PlacementManager>().CancelPlacement();
+           inventoryUI.StartPopulateAllInventories();
+        }
+
+       inventoryUI.RefreshInventoryMaximizeSlot (itemData.itemID, amount, curSlot);
+       // inventoryUI.StartPopulateAllInventories();
+       // Debug.Log ("Destroy 0.1 x");
+        SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
+    }
+    
+    public void UpdateValueInventoryOnly(ItemDataSO itemData, int targetAmount, ItemSlotUI itemSlotUI)
+    {
+        
+        var inventories = inventoryUI.fullActiveSlots;
+
+        for (int i = inventories.Count - 1; i >= 0; i--)
+        {
+            var slot = inventories[i];
+
+            if (slot.itemData == itemData)
+            {
+                slot.itemAmount = targetAmount;
+                slot.amountText.text = $"{targetAmount} pcs";
                 
                 if (slot.itemAmount <= 0)
                 {
@@ -415,15 +456,29 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
                 }
             }
         }
+        
+        var inventories2 = inventoryUI.ActiveSlots;
 
-        if (itemAmount <= 0)
+        for (int i = inventories2.Count - 1; i >= 0; i--)
         {
-            ServiceLocator.Get<PlacementManager>().CancelPlacement();
-           inventoryUI.StartPopulateAllInventories();
+            var slot = inventories2[i];
+
+            if (slot.itemData == itemData)
+            {
+                if (slot != itemSlotUI) {
+                    slot.itemAmount = targetAmount;
+                    slot.amountText.text = $"{targetAmount} pcs";
+                    
+                    if (slot.itemAmount <= 0)
+                    {
+                        ServiceLocator.Get<PlacementManager>().CancelPlacement();
+                        inventoryUI.HandleItemDepletion(slot);
+                        //inventoryUI.StartPopulateAllInventories();
+                    }
+                }
+           }
         }
-        inventoryUI.StartPopulateAllInventories();
-       // Debug.Log ("Destroy 0.1 x");
-        SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
+        
     }
 
     private void OnCancelPlacement()

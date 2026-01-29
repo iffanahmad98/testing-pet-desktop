@@ -334,7 +334,6 @@ public class ItemInventoryUI : MonoBehaviour
 
     private IEnumerator PopulateInventory(Transform parent, RectTransform rect, List<OwnedItemData> allItems, int maxSlots, int maxRows)
     {
-        // ELVAN : Masalahnya ada disini !
         
         // Store the items for this parent
         var displayItems = allItems.GetRange(0, Mathf.Min(maxSlots, allItems.Count));
@@ -790,6 +789,12 @@ public class ItemInventoryUI : MonoBehaviour
         }
     }
 
+    #region ItemSlotUI
+    public void RefreshInventoryMaximizeSlot (string id, int amount, ItemSlotUI itemSlotUI) { // ItemSlotUI
+        ItemSlotUI slot = fullActiveSlots.Find(slot => slot.ItemDataSO.itemID == id);
+        slot.UpdateValueInventoryOnly (slot.ItemDataSO, amount, itemSlotUI); 
+    }
+    #endregion
     #region ServiceLocator
     public void StartPopulateAllInventoriesWhenOpen () { // InventoryUISendToPlains.cs
         refreshWhenOpen = true;
