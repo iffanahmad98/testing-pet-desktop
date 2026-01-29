@@ -1,7 +1,7 @@
+using Spine.Unity;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using Spine.Unity;
 
 public class MonsterCardUI : MonoBehaviour
 {
@@ -112,7 +112,7 @@ public class MonsterCardUI : MonoBehaviour
 
         if (grayscale)
         {
-            foreach(var img in grayscaleImage)
+            foreach (var img in grayscaleImage)
             {
                 img.material = grayscaleMat;
             }
@@ -120,7 +120,7 @@ public class MonsterCardUI : MonoBehaviour
         }
         else
         {
-            foreach(var img in grayscaleImage)
+            foreach (var img in grayscaleImage)
             {
                 img.material = null;
             }

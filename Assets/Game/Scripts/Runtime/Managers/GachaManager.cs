@@ -1,9 +1,9 @@
-using UnityEngine;
+using MagicalGarden.Manager;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.UI;
 using TMPro;
-using MagicalGarden.Manager;
+using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class RarityWeight
@@ -369,7 +369,7 @@ public class GachaManager : MonoBehaviour
         else if (currentTotalPulls >= 7)
         {
             PlayerPrefs.SetInt("gachaPrice", 0);
-            
+
             if (totalPullCount == 0)
             {
                 gachaPriceText.text = "Free";
