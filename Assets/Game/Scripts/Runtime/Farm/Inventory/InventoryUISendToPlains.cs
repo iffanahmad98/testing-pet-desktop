@@ -29,7 +29,7 @@ namespace MagicalGarden.Inventory
             }
             SaveSystem.SaveAll ();
             inventoryUI.RefreshUI ();
-
+            ServiceLocator.Get<ItemInventoryUI> ().StartPopulateAllInventoriesWhenOpen();
         }
 
         public void OnSendPlainsImage (int value) {
