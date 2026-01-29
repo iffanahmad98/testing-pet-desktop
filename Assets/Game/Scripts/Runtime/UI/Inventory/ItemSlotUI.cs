@@ -388,6 +388,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             return;
         }
 
+        ServiceLocator.Get<PlacementManager>().GetMonsterForMedicine();
         ServiceLocator.Get<MonsterManager>().SpawnItem(itemData, position);
 
         UpdateValueInventory(itemData);

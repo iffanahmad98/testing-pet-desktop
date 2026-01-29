@@ -1,10 +1,11 @@
-using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using UnityEngine.UI;
-using System;
 using DG.Tweening;
+using MagicalGarden.Farm;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class MonsterManager : MonoBehaviour
 {
@@ -68,6 +69,8 @@ public class MonsterManager : MonoBehaviour
     private static MonsterManager _instance;
     
     public static MonsterManager instance; // MonsterController.cs
+
+    public MonsterController sickMonster;
 
     private void Awake()
     {
@@ -450,6 +453,16 @@ public class MonsterManager : MonoBehaviour
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {
                 consumable.Initialize(data, groundRT);
+
+                if (data.category == ItemType.Medicine)
+                {
+                    if (pooled.TryGetComponent<MedicineController>(out var medCtrl))
+                    {
+                        Debug.Log("Placing medicine. Try to claim the med.");
+                        medCtrl.TryClaim(sickMonster);
+                        StartCoroutine(UseMedicineRoutine(medCtrl, sickMonster, 0.8f));
+                    }
+                }
             }
 
             // Register into the correct active list
@@ -470,6 +483,18 @@ public class MonsterManager : MonoBehaviour
                     break;
             }
         }
+    }
+
+    private IEnumerator UseMedicineRoutine(MedicineController medCtrl, MonsterController sickMonster, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (medCtrl == null || sickMonster == null) yield break;
+
+        sickMonster.GiveMedicine(medCtrl.GetItemData().nutritionValue);
+        activeMedicines.Remove(medCtrl);
+        sickMonster.UI.PlayHealingVFX(sickMonster);
+        DespawnToPool(((MonoBehaviour)medCtrl).gameObject);
     }
     #endregion
 
