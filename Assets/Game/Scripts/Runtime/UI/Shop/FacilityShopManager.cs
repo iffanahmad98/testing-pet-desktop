@@ -74,10 +74,10 @@ public class FacilityShopManager : MonoBehaviour
 
     public void RefreshItem()
     {
-        RefreshFacilityCards();
+        RefreshFacilityCards(true);
     }
 
-    public void RefreshFacilityCards()
+    private IEnumerator WaitRefreshFacilityCards(bool eligibleBuyVfx = false)
     {
         // Destroy all existing cards
         foreach (Transform child in cardParent)
@@ -127,11 +127,17 @@ public class FacilityShopManager : MonoBehaviour
             }
         }
 
-        SortByBuyRequirement();
+        yield return new WaitForEndOfFrame();
+        SortByBuyRequirement(eligibleBuyVfx);
+    }
+
+    public void RefreshFacilityCards(bool eligibleBuyVfx = false)
+    {
+        StartCoroutine(WaitRefreshFacilityCards(eligibleBuyVfx));
         //ClearInfo();
     }
 
-    private void SortByBuyRequirement()
+    private void SortByBuyRequirement(bool eligibleBuyVfx = false)
     {
         // Check requirement & grayscale
         foreach (var card in activeCards)
@@ -142,6 +148,9 @@ public class FacilityShopManager : MonoBehaviour
                 {
                     bool canBuy = CheckBuyingRequirement(card, false);
                     card.SetGrayscale(!canBuy);
+
+                    if (canBuy && eligibleBuyVfx)
+                        ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
                 }
             }
             else if (card.npc != null)
@@ -150,6 +159,9 @@ public class FacilityShopManager : MonoBehaviour
                 {
                     bool canBuy = CheckBuyingRequirement(card, true);
                     card.SetGrayscale(!canBuy);
+
+                    if (canBuy && eligibleBuyVfx)
+                        ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
                 }
             }
         }
