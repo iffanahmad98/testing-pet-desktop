@@ -842,6 +842,9 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             return;
         }
 
+        if(!UI.fallingStarsVfx.gameObject.activeInHierarchy)
+            UI.fallingStarsVfx.gameObject.SetActive(true);
+        
         if(state)
             UI.fallingStarsVfx.StartEmission();
         else

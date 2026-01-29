@@ -18,6 +18,7 @@ public class EggCrackAnimator : MonoBehaviour
 {
     [Header ("Egg Crack Reference")]
     Animator eggAnimator;
+    [SerializeField] GameObject openEggEffectPrefab;
     [SerializeField] CanvasGroup eggMonsterCanvasGroup;
     [Header("Gacha Configuration")]
     public MonsterDatabaseSO monsterDatabase;
@@ -116,6 +117,8 @@ public class EggCrackAnimator : MonoBehaviour
 
         eggMonsterCanvasGroup.alpha = 0f;
         eggAnimator.gameObject.SetActive(true);
+
+        Instantiate(openEggEffectPrefab, transform).GetComponent<ParticleSystem>();
 
         hideEggSequence = DOTween.Sequence();
 

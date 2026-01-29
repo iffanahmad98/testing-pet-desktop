@@ -26,19 +26,24 @@ public class MonsterMovementHandler
         // Check if diagonal movement is allowed based on game area height
         bool allowDiagonalMovement = ShouldAllowDiagonalMovement();
 
-        Vector2 actualTarget;
-        if (allowDiagonalMovement)
+        Vector2 actualTarget = allowDiagonalMovement
+            ? targetPosition
+            : new Vector2(targetPosition.x, pos.y);
+
+        Vector2 newPos = Vector2.MoveTowards(pos, actualTarget, currentSpeed * Time.deltaTime);
+
+        // Log hanya kalau “harusnya bergerak” tapi posisi tidak berubah (biar ga spam)
+        if (newPos == pos && (actualTarget - pos).sqrMagnitude > 0.001f)
         {
-            // Diagonal movement: move to both X and Y
-            actualTarget = targetPosition;
-        }
-        else
-        {
-            // Horizontal only: keep Y position fixed
-            actualTarget = new Vector2(targetPosition.x, pos.y);
+            Debug.Log(
+                $"STUCK [{data.name}] id:{data.GetInstanceID()} data:{data?.name} " +
+                $"state:{_controller.StateMachine?.CurrentState} allowDiag:{allowDiagonalMovement} " +
+                $"pos:{pos} target:{targetPosition} actual:{actualTarget} speed:{currentSpeed} dt:{Time.deltaTime}",
+                data
+            );
         }
 
-        _transform.anchoredPosition = Vector2.MoveTowards(pos, actualTarget, currentSpeed * Time.deltaTime);
+        _transform.anchoredPosition = newPos;
         HandleStateSpecificBehavior(pos, actualTarget);
     }
 
