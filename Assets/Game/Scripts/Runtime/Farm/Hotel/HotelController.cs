@@ -88,6 +88,7 @@ namespace MagicalGarden.Hotel
         GameObject hotelPurchase;
         [Header ("Vfx")]
         public GameObject buyHotelRay;
+        [SerializeField] ParticleSystem bubbleVfx;
         GameObject vfxRay;
         
         [Header ("Data")]
@@ -424,9 +425,9 @@ namespace MagicalGarden.Hotel
 
         void HandleRequestExpired()
         {
-           // happiness = Mathf.Max(happiness - 15, 0);
-           happiness = Mathf.Max ( happiness + GetGuestRequest (currentGuestRequestType).decreaseHappiness,0);
-           SetHappinessData ();
+            // happiness = Mathf.Max(happiness - 15, 0);
+            happiness = Mathf.Max ( happiness + GetGuestRequest (currentGuestRequestType).decreaseHappiness,0);
+            SetHappinessData ();
             hasRequest = false;
             onProgressingRequest = false;
             HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
@@ -436,6 +437,8 @@ namespace MagicalGarden.Hotel
 
             // Hide semua button
             ResetRequestButtons();
+
+            SetBubbleVfxState(true);
 
             if (happiness == 0) {
                 // Debug.LogError ("Customer langsung keluar !");
@@ -450,22 +453,26 @@ namespace MagicalGarden.Hotel
             if (foodBtn) foodBtn.SetActive(false);
             if (giftBtn) giftBtn.SetActive(false);
             if (fillExpired) fillExpired.transform.parent.gameObject.SetActive(false);
-            if (currentRequestBubble) {
-                
+            if (currentRequestBubble) 
+            {    
                 HotelManager.Instance.RemoveBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
                 Destroy (currentRequestBubble);
             }
+
             playerConfig.HotelControllerDataChangeCodeRequest (idHotel, "");
         }
 
-        void GenerateRequestBubble (GuestRequestType guestRequestType) {
-            if (currentRequestBubble) {
+        void GenerateRequestBubble (GuestRequestType guestRequestType) 
+        {
+            if (currentRequestBubble) 
+            {
                 HotelManager.Instance.RemoveBubbleRequest (currentRequestBubble.GetComponentInChildren <Button> ());
                 Destroy (currentRequestBubble);
             }
 
             GameObject prefabTarget = null;
-            switch (guestRequestType) {
+            switch (guestRequestType) 
+            {
                 case GuestRequestType.RoomService :
                 prefabTarget = roomServiceBubblePrefab;
                     // Hotel service is at index 18
@@ -512,10 +519,13 @@ namespace MagicalGarden.Hotel
         #endif
 
         // CickableObjectHotel
-        public void ClickableFulFillRequest () {
-            if (holdReward) {
+        public void ClickableFulFillRequest () 
+        {
+            if (holdReward) 
+            {
                 ClaimCoin ();
-            } else {
+            } else 
+            {
                 FulfillRequest (currentGuestRequestType, NPCService.NPCHotel);
             }
         }
@@ -526,12 +536,17 @@ namespace MagicalGarden.Hotel
             if (!hasRequest) return;
             if (onProgressingRequest) return;
             if (npcService == NPCService.NPCHotel) {if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;}
+            
             onProgressingRequest = true;
+            
             // Stop countdown coroutine
             INPCHotelService npcHotelService = null;
-            if (npcService == NPCService.NPCHotel) {
+            
+            if (npcService == NPCService.NPCHotel) 
+            {
                 npcHotelService = HotelManager.Instance.npcHotel;
-            } else if (npcService == NPCService.NPCAutoService) {
+            } else if (npcService == NPCService.NPCAutoService) 
+            {
                 npcHotelService = autoNpcHotel;
             }
 
@@ -550,6 +565,7 @@ namespace MagicalGarden.Hotel
 
             // Klik bubble button hotel is at index 20
             MonsterManager.instance.audio.PlayFarmSFX(20);
+            SetBubbleVfxState(false);
 
             if (type == GuestRequestType.RoomService)
             {
@@ -680,6 +696,7 @@ namespace MagicalGarden.Hotel
             Down
         }
         #endregion
+
         #region Vfx
         public void InstantiateVfxDust () { // NPCHotel.cs
             if (currentGuestRequestType == GuestRequestType.RoomService) {
@@ -713,7 +730,22 @@ namespace MagicalGarden.Hotel
         void DestroyVfxClean () {
             Destroy (vfxRay);
         }
+
+        private void SetBubbleVfxState(bool state)
+        {
+            if (state)
+            {
+                bubbleVfx.gameObject.SetActive(true);
+                bubbleVfx.Play();
+            }
+            else
+            {
+                bubbleVfx.Stop();
+                bubbleVfx.gameObject.SetActive(false);
+            }
+        }
         #endregion
+
         #region NPCAutoService
         public enum NPCService {
             NPCHotel,

@@ -1,6 +1,6 @@
 using System.Collections;
 using DG.Tweening;
-using Unity.VisualScripting;
+// using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -130,6 +130,7 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
 
     public bool IsClaimedBy(MonsterController monster) => claimedBy == monster;
     public bool IsClaimed => claimedBy != null;
+    private bool isOnGround = false;
     private IEnumerator DropUntilOnGround(RectTransform groundRect = null)
     {
         yield return null;
@@ -143,12 +144,13 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
         if (GetWorldRect(rectTransform).Overlaps(GetWorldRect(groundRect)))
         {
             Vector2 defaultPos = rectTransform.anchoredPosition;
+            MonsterManager.instance.audio.PlaySFX("placing_facility");
 
             rectTransform.DOLocalMoveY(defaultPos.y - 25f, 1f);
             yield break; // ends coroutine, so it stays there
         }
 
-        while (true)
+        while (isOnGround == false)
         {
             velocity.y -= gravityForce * Time.deltaTime;
 
@@ -162,12 +164,34 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
                 // Snap exactly to the random Y (optional but recommended)
                 float delta = targetBottomY - f.yMin;
                 rectTransform.position += new Vector3(0f, delta, 0f);
-                yield break;
+                MonsterManager.instance.audio.PlaySFX("placing_facility");
+
+                isOnGround = true;
             }
 
             yield return null;
         }
+
+        yield return StartCoroutine(BounceUp(rectTransform));
     }
+
+    private IEnumerator BounceUp(RectTransform rect)
+    {
+        Vector2 defaultPos = rectTransform.anchoredPosition;
+
+        rect.DOKill();
+
+        Sequence seq = DOTween.Sequence()
+            .Append(rect.DOLocalMoveY(defaultPos.y + 15, 0.3f).SetEase(Ease.OutQuad))
+            .Append(rect.DOLocalMoveY(defaultPos.y, 0.3f).SetEase(Ease.InQuad))
+            .OnComplete(() =>
+            {
+                MonsterManager.instance.audio.PlaySFX("placing_facility");
+            });
+
+        yield return seq;
+    }
+
     private bool IsOverlappingGroundWithOffset(RectTransform food, RectTransform ground, float depthOffset)
     {
         Rect foodRect = GetWorldRect(food);

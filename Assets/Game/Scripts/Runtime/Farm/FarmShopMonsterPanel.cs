@@ -115,7 +115,19 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
         itemCard.cloneCard.gameObject.transform.SetParent (cardParent);
        // itemCard.icon.sprite = itemCard.dataSO.RewardSprite;
         itemCard.title.text = itemCard.dataSO.facilityName;
-        itemCard.priceText.text = itemCard.dataSO.price.ToString ();
+        // itemCard.priceText.text = itemCard.dataSO.price.ToString ();
+        HiredFarmFacilityData hiredFarmFacilityData = playerConfig.GetHiredFarmFacilityData (itemCard.dataSO.id);
+        
+        if (hiredFarmFacilityData != null) {
+            if (hiredFarmFacilityData.hired < itemCard.dataSO.maxHired) {
+                itemCard.priceText.text = itemCard.dataSO.GetHiredPrice (hiredFarmFacilityData.hired).ToString ();
+            } else {
+                itemCard.priceText.text = itemCard.dataSO.GetHiredPrice (hiredFarmFacilityData.hired-1).ToString ();
+            }
+        } else {
+            itemCard.priceText.text = itemCard.dataSO.GetHiredPrice (0).ToString ();
+        }
+
         itemCard.cloneCard.gameObject.SetActive (true);
         itemCard.buyButton.onClick.AddListener (() => OnBuyItem (itemCard));
     }
@@ -148,8 +160,17 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
         selectedItemPanel.gameObject.SetActive (true);
         FarmFacilitiesDataSO itemData = selectedItemCard.dataSO;
        // infoIcon.sprite = itemData.RewardSprite;
-
-        infoPriceText.text = itemData.price.ToString ();
+        HiredFarmFacilityData hiredFarmFacilityData = playerConfig.GetHiredFarmFacilityData (itemData.id);
+        if (hiredFarmFacilityData != null) {
+            if (hiredFarmFacilityData.hired < itemData.maxHired) {
+            infoPriceText.text = itemData.GetHiredPrice (hiredFarmFacilityData.hired).ToString ();
+            } else {
+               infoPriceText.text = itemData.GetHiredPrice (hiredFarmFacilityData.hired-1).ToString (); 
+            }
+        } else {
+            infoPriceText.text = itemData.GetHiredPrice (0).ToString ();
+        }
+        
         
         if (playerConfig.GetHiredFarmFacilityData (itemData.id) != null) {
             int hired = playerConfig.GetHiredFarmFacilityData (itemData.id).hired;

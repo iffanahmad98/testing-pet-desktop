@@ -18,6 +18,7 @@ public class EggCrackAnimator : MonoBehaviour
 {
     [Header ("Egg Crack Reference")]
     Animator eggAnimator;
+    [SerializeField] GameObject openEggEffectPrefab;
     [SerializeField] CanvasGroup eggMonsterCanvasGroup;
     [Header("Gacha Configuration")]
     public MonsterDatabaseSO monsterDatabase;
@@ -87,9 +88,6 @@ public class EggCrackAnimator : MonoBehaviour
         return candidates.Count > 0 ? candidates[UnityEngine.Random.Range(0, candidates.Count)] : null;
     }
 
-    
-    
-
     private void SpawnMonster(MonsterDataSO monsterData)
     {
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
@@ -119,6 +117,8 @@ public class EggCrackAnimator : MonoBehaviour
 
         eggMonsterCanvasGroup.alpha = 0f;
         eggAnimator.gameObject.SetActive(true);
+
+        Instantiate(openEggEffectPrefab, transform).GetComponent<ParticleSystem>();
 
         hideEggSequence = DOTween.Sequence();
 

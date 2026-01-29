@@ -611,7 +611,6 @@ namespace MagicalGarden.Farm
 
     public int GetNumberOfNpcFarmer () {
         HiredFarmFacilityData hiredData = SaveSystem.PlayerConfig.GetHiredFarmFacilityData ("npc_farmer");
-        Debug.Log ("hired Data " + hiredData.hired);
         if (hiredData != null)
         return hiredData.hired;
         else
@@ -629,6 +628,10 @@ namespace MagicalGarden.Farm
 
     public bool IsFarmAreaUnlocked (int id) { // FieldManager.cs
         return farmAreaIdsPurchased.Any (idFarm => idFarm == id);
+    }
+
+    public int GetTotalFarmArea () { // EligibleFarmArea.cs
+        return farmAreaIdsPurchased.Count +1; // +1 karena starter gak dihitung total.
     }
 #endregion
     }

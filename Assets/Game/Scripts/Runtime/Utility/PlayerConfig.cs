@@ -29,6 +29,7 @@ public class PlayerConfig
     public List<MonsterSaveData> ownedMonsters = new(); // Now using List for full JsonUtility support
     public List<NPCSaveData> ownedNPCMonsters = new(); // For monsters that are owned but not in the world
     public List<OwnedItemData> ownedItems = new();
+    public List<OwnedItemData> farmHarvestOwnedItems = new ();
     public List<string> ownedBiomes = new();
     public List<OwnedFacilityData> ownedFacilities = new();
     public List<OwnedDecorationData> ownedDecorations = new();
@@ -37,6 +38,7 @@ public class PlayerConfig
     public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
     public List<HiredFarmFacilityData> hiredFarmFacilitiesData = new ();
     public List<OwnedItemFarmData> ownedItemFarmDatas = new ();
+    
     
 
     public string activeBiomeID = "default_biome";
@@ -136,6 +138,55 @@ public class PlayerConfig
         return ownedItems.Find(i => i.itemID == itemID)?.amount ?? 0;
     }
 
+    #region FarmHarvestOwnedItems
+     public void AddItemFarmHarvest(string itemID, ItemType type, int amount)
+    {
+        if (amount == 0 || string.IsNullOrEmpty(itemID)) return;
+
+        var item = farmHarvestOwnedItems.Find(i => i.itemID == itemID);
+        if (item == null)
+        {
+            farmHarvestOwnedItems.Add(new OwnedItemData { itemID = itemID, type = type, amount = Mathf.Max(0, amount) });
+        }
+        else
+        {
+            item.amount = Mathf.Max(0, item.amount + amount);
+            if (item.amount == 0)
+                farmHarvestOwnedItems.Remove(item);
+        }
+    }
+
+    public void RemoveItemFarmHarvest(string itemID, int amount)
+    {
+        if (amount <= 0 || string.IsNullOrEmpty(itemID)) return;
+
+        var existing = farmHarvestOwnedItems.Find(i => i.itemID == itemID);
+        if (existing != null)
+        {
+            existing.amount -= amount;
+            if (existing.amount <= 0)
+                farmHarvestOwnedItems.Remove(existing);
+        }
+    }
+
+    public void ClearItemFarmHarvest (string itemID) // ItemInventoryUI.cs (Clear All Unused Data)
+    {
+        var existing = farmHarvestOwnedItems.Find(i => i.itemID == itemID);
+        if (existing != null)
+        {
+            farmHarvestOwnedItems.Remove(existing);
+        }
+    }
+
+    public int GetItemFarmHarvestAmount(string itemID)
+    {
+        return farmHarvestOwnedItems.Find(i => i.itemID == itemID)?.amount ?? 0;
+    }
+
+    public List <OwnedItemData> GetFarmHarvestOwnedItems () {
+        return farmHarvestOwnedItems;
+    }
+    #endregion
     // Monster Save Logic
     public void SaveMonsterData(MonsterSaveData data)
     {
@@ -425,7 +476,7 @@ public class PlayerConfig
         }
         return null;
     }
-
+    
     #endregion
     #region Item Farm Data Logic
     public void AddItemFarm(string itemID, int amount)

@@ -69,9 +69,16 @@ public class PlacementManager : MonoBehaviour
         this.isPlacingMedicine = isMedicine;
 
         // Set preview sprite if provided
-        if (previewSprite != null && currentPreview.TryGetComponent<Image>(out var image))
+        // if (previewSprite != null && currentPreview.TryGetComponent<Image>(out var image))
+        if (previewSprite != null)
         {
-            image.sprite = previewSprite;
+            Image[] images = currentPreview.GetComponentsInChildren<Image>();
+
+            for (int i = 0; i < images.Length; i++)
+            {
+                if (images[i].name == "Sprite") images[i].sprite = previewSprite;
+            }
+            
         }
     }
 
@@ -111,6 +118,15 @@ public class PlacementManager : MonoBehaviour
         else if (Input.GetMouseButtonDown(1))
         {
             CancelPlacement();
+        }
+    }
+
+    public void GetMonsterForMedicine()
+    {
+        if (isPlacingMedicine)
+        {
+            Debug.Log("Placing medicine. Getting a monster under the cursor");
+            MonsterManager.instance.sickMonster = TryGetMonsterUnderCursor();
         }
     }
 

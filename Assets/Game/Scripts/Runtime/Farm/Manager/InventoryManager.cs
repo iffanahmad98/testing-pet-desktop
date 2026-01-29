@@ -40,6 +40,8 @@ namespace MagicalGarden.Inventory
         PlayerConfig playerConfig;
         public ItemDatabaseSO itemDatabaseSO;
         [SerializeField] List <OwnedItemFarmData> listOwnedItemFarmData = new ();
+        public List <OwnedItemData> farmHarvestOwnedItems = new ();
+        
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -53,15 +55,15 @@ namespace MagicalGarden.Inventory
 
         void Update ()
         {
-            listOwnedItemFarmData= playerConfig.GetOwnedItemFarmDatas ();
+          //  listOwnedItemFarmData= playerConfig.GetOwnedItemFarmDatas ();
         }
 
         public void AddItem(ItemData itemData, int amount)
-        {
+        { // shipping bin (Inventory farm local)
             Debug.Log ("Add Item");
             if (itemData.itemType == ItemType.Crop)
             {
-                PlantManager.Instance.AddAmountHarvest();
+               // (Non Used) PlantManager.Instance.AddAmountHarvest();
             }
             if (itemData.isStackable)
             {
@@ -203,7 +205,6 @@ namespace MagicalGarden.Inventory
             DisableAllDescriptions();
             descAddSeed.SetActive(true);
         }
-
         #region Data
         void LoadAllItemFarmDatas () {
             if (playerConfig == null) {
@@ -213,6 +214,7 @@ namespace MagicalGarden.Inventory
             }
             
              listOwnedItemFarmData = playerConfig.GetOwnedItemFarmDatas ();
+             farmHarvestOwnedItems = playerConfig.GetFarmHarvestOwnedItems ();
             foreach (OwnedItemFarmData owned in listOwnedItemFarmData) {
                 AddItem (allFarmItemDatabase.GetItemData (owned.itemID), owned.amount);
             }
@@ -243,6 +245,12 @@ namespace MagicalGarden.Inventory
             ItemDataSO itemDataSO = itemData.harvestConfig.itemDataSO;
             playerConfig.AddItem (itemDataSO.ItemId, itemDataSO.category, itemData.harvestConfig.amount);
             PlayerHistoryManager.instance.SetHarvestFruit (1);
+            
+        }
+
+        public void AddItemToHarvestTab (ItemData itemData, int amount) {
+            ItemDataSO itemDataSO = itemData.harvestConfig.itemDataSO;
+            playerConfig.AddItemFarmHarvest (itemDataSO.ItemId, itemDataSO.category, itemData.harvestConfig.amount);
             
         }
 

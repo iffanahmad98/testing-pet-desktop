@@ -36,11 +36,15 @@ public class BiomeManager : MonoBehaviour
     [Header("Night Sky Objects")]
     public GameObject shootingStarObj;
     public GameObject starsObj;
+    public GameObject fireflyVfxObj;
 
     [Header("Cloud System")]
     private CloudAmbientSystem cloudSystem;
     public RectTransform skyBG;
     public RectTransform ambientBG;
+
+    [Header("Clear Sky")]
+    public GameObject skyRaysVfxObj;
 
     [Header("Background Positioning")]
     private Vector2 originalSkyBGPosition;
@@ -363,12 +367,22 @@ public class BiomeManager : MonoBehaviour
         {
             starsObj.SetActive(isNightBiome);
         }
+        if (fireflyVfxObj != null) 
+        {
+            fireflyVfxObj.SetActive(isNightBiome);
+        }
 
         // Toggle Rain Object based on biome
         bool isRainBiome = biome.biomeID == "rain" || biome.biomeName.ToLower().Contains("rain");
         if (rainObj != null)
         {
             rainObj.SetActive(isRainBiome);
+        }
+
+        //bool isDefaultBiome = biome.biomeID == "default_biome" || biome.biomeName.ToLower().Contains("default");
+        if(skyRaysVfxObj != null)
+        {
+            skyRaysVfxObj.SetActive(!isRainBiome && !isNightBiome);
         }
 
         // Clear existing sky objects

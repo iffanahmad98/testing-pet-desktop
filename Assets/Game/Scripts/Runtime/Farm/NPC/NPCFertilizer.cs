@@ -10,7 +10,7 @@ namespace MagicalGarden.AI
     {
         public Vector2Int destinationFertiMachine;
         public Vector2Int destinationGetOut;
-        Coroutine currentCoroutine;
+        Coroutine currentCoroutine; 
         void Start()
         {
             base.Start();

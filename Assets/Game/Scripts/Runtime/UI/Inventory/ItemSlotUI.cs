@@ -51,6 +51,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
     public void Initialize(ItemDataSO data, ItemType type, int amount)
     {
+       // Debug.Log ("Initiliza");
         itemData = data;
         itemAmount = amount;
 
@@ -387,6 +388,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
             return;
         }
 
+        ServiceLocator.Get<PlacementManager>().GetMonsterForMedicine();
         ServiceLocator.Get<MonsterManager>().SpawnItem(itemData, position);
 
         UpdateValueInventory(itemData);
@@ -417,9 +419,10 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         if (itemAmount <= 0)
         {
             ServiceLocator.Get<PlacementManager>().CancelPlacement();
-            inventoryUI.StartPopulateAllInventories();
+           inventoryUI.StartPopulateAllInventories();
         }
-
+        inventoryUI.StartPopulateAllInventories();
+       // Debug.Log ("Destroy 0.1 x");
         SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
     }
 

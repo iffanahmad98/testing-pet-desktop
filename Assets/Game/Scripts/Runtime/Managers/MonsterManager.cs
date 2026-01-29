@@ -1,10 +1,11 @@
-using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using UnityEngine.UI;
-using System;
 using DG.Tweening;
+using MagicalGarden.Farm;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class MonsterManager : MonoBehaviour
 {
@@ -68,6 +69,8 @@ public class MonsterManager : MonoBehaviour
     private static MonsterManager _instance;
     
     public static MonsterManager instance; // MonsterController.cs
+
+    public MonsterController sickMonster;
 
     private void Awake()
     {
@@ -434,14 +437,32 @@ public class MonsterManager : MonoBehaviour
             SetupPooledObject(pooled, gameAreaRT, pos);
 
             var poolPos = pooled.transform.position;
-            pooled.transform.DOMoveY(poolPos.y + 15f, 0.5f).SetEase(Ease.OutBack);
+            pooled.transform.DOMoveY(poolPos.y + 25f, 0.5f).SetEase(Ease.OutBack);
             pooled.transform.position = poolPos;
+
+            pooled.transform.DOKill(); // stop tween lama kalau ada
+            pooled.transform.DOPunchScale(
+                punch: new Vector3(0.75f, 0.75f, 0f), // seberapa besar “pantulnya”
+                duration: 0.5f,
+                vibrato: 2,        // 1 = sekali pantul (lebih besar = lebih bergetar)
+                elasticity: 0.8f   // 0-1, makin besar makin “springy”
+            );
 
             //pooled.transform.DOLocalMoveY(pos.y, 0.5f);
 
             if (pooled.TryGetComponent<IConsumable>(out var consumable))
             {
                 consumable.Initialize(data, groundRT);
+
+                if (data.category == ItemType.Medicine)
+                {
+                    if (pooled.TryGetComponent<MedicineController>(out var medCtrl))
+                    {
+                        Debug.Log("Placing medicine. Try to claim the med.");
+                        medCtrl.TryClaim(sickMonster);
+                        StartCoroutine(UseMedicineRoutine(medCtrl, sickMonster, 0.8f));
+                    }
+                }
             }
 
             // Register into the correct active list
@@ -462,6 +483,18 @@ public class MonsterManager : MonoBehaviour
                     break;
             }
         }
+    }
+
+    private IEnumerator UseMedicineRoutine(MedicineController medCtrl, MonsterController sickMonster, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (medCtrl == null || sickMonster == null) yield break;
+
+        sickMonster.GiveMedicine(medCtrl.GetItemData().nutritionValue);
+        activeMedicines.Remove(medCtrl);
+        sickMonster.UI.PlayHealingVFX(sickMonster);
+        DespawnToPool(((MonoBehaviour)medCtrl).gameObject);
     }
     #endregion
 
