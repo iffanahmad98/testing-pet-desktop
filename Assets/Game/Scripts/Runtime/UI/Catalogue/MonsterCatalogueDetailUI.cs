@@ -130,7 +130,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             ServiceLocator.Get<MonsterCatalogueListUI>()?.RefreshCatalogue();
             SetDetails(null);
 
-            Debug.Log($"Monster {currentMonsterData.monsterData.name} sold successfully!");
+
         }
         else
         {
