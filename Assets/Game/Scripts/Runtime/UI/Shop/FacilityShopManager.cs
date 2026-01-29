@@ -206,7 +206,7 @@ public class FacilityShopManager : MonoBehaviour
             selectedCard.SetSelected(false);
 
         MonsterManager.instance.audio.PlaySFX("button_click");
-
+        
         selectedCard = card;
         selectedCard.SetSelected(true);
         ShowFacilityInfo(card.FacilityData);
@@ -444,8 +444,8 @@ public class FacilityShopManager : MonoBehaviour
 
     private void OnNPCSelected(FacilityCardUI card)
     {
-        // if (selectedCard != null)
-        //     selectedCard.SetSelected(false);
+         if (selectedCard != null)
+            selectedCard.SetSelected(false);
 
         selectedCard = card;
         selectedCard.SetSelected(true);

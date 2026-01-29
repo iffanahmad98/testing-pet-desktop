@@ -110,10 +110,8 @@ public class MonsterShopManager : MonoBehaviour
             }
         }
 
-        // Sort: BUYABLE → TOP
-        var filtered = activeCards
-            .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
-            .ToList();
+        // sort by price
+        var filtered = activeCards.OrderBy(c => c.monsterItemData.price).ToList();
 
         // Apply order to activeCards
         activeCards.Clear();
