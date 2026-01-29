@@ -419,10 +419,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         if (itemAmount <= 0)
         {
             ServiceLocator.Get<PlacementManager>().CancelPlacement();
-           // inventoryUI.StartPopulateAllInventories();
+           inventoryUI.StartPopulateAllInventories();
         }
-        inventoryUI.StartPopulateAllInventories();
-        Debug.Log ("Destroy 0.1 x");
         SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
     }
 
