@@ -65,7 +65,7 @@ public class ItemInventoryUI : MonoBehaviour
     // Add these new variables for drag & drop
     private Dictionary<Transform, List<OwnedItemData>> parentToItemsMap = new Dictionary<Transform, List<OwnedItemData>>();
     private bool isReordering = false;
-
+    bool refreshWhenOpen = false;
     public List<ItemSlotUI> ActiveSlots => activeSlots;
     
     private void Awake()
@@ -184,6 +184,11 @@ public class ItemInventoryUI : MonoBehaviour
             oncePopulate = true;
             StartPopulateAllInventories();
         }
+
+        if (refreshWhenOpen) {
+            refreshWhenOpen = false;            
+            StartPopulateAllInventories();
+        }
     }
 
     private void OnDisable()
@@ -194,6 +199,11 @@ public class ItemInventoryUI : MonoBehaviour
             Destroy (slot.gameObject);
         }
         */
+        foreach (ItemSlotUI itemSlot in activeSlots) {
+            ReturnSlotToPool(itemSlot);
+          //  Debug.Log ("Destroy 0.8x");
+        }
+
         activeSlots.Clear ();
 
         foreach (var slot in activeSlots)
@@ -341,8 +351,9 @@ public class ItemInventoryUI : MonoBehaviour
         }
         
         foreach (ItemSlotUI itemSlot in fullActiveSlots) {
-            Destroy (itemSlot.gameObject);
-            Debug.Log ("Destroy Slot");
+          // Destroy (itemSlot.gameObject);
+           ReturnSlotToPool(itemSlot);
+          //  Debug.Log ("Destroy Slot");
         }
         
         fullActiveSlots.Clear ();
@@ -779,6 +790,11 @@ public class ItemInventoryUI : MonoBehaviour
         }
     }
 
+    #region ServiceLocator
+    public void StartPopulateAllInventoriesWhenOpen () { // InventoryUISendToPlains.cs
+        refreshWhenOpen = true;
+    }
+    #endregion
     #region UnusedData
     void ClearAllUnusedDatas()
     {

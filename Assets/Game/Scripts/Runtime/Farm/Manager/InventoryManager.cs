@@ -41,6 +41,7 @@ namespace MagicalGarden.Inventory
         public ItemDatabaseSO itemDatabaseSO;
         [SerializeField] List <OwnedItemFarmData> listOwnedItemFarmData = new ();
         public List <OwnedItemData> farmHarvestOwnedItems = new ();
+        
         private void Awake()
         {
             if (Instance == null) Instance = this;

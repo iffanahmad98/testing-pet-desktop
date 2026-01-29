@@ -421,7 +421,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
            // inventoryUI.StartPopulateAllInventories();
         }
         inventoryUI.StartPopulateAllInventories();
-        Debug.Log ("Destroy 0.1 x");
+       // Debug.Log ("Destroy 0.1 x");
         SaveSystem.UpdateItemData(itemData.itemID, itemData.category, -1);
     }
 
