@@ -844,8 +844,17 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
         if(!UI.fallingStarsVfx.gameObject.activeInHierarchy)
             UI.fallingStarsVfx.gameObject.SetActive(true);
-        
-        if(state)
+
+        Vector3 q = UI.fallingStarsVfx.rectTransform.localEulerAngles;
+
+        if (_monsterSpineGraphic.transform.localScale.x < 0)
+            q.z = 90f;
+        else
+            q.z = -90f;
+
+        UI.fallingStarsVfx.rectTransform.localEulerAngles = q;
+
+        if (state)
             UI.fallingStarsVfx.StartEmission();
         else
             UI.fallingStarsVfx.StopEmission();
