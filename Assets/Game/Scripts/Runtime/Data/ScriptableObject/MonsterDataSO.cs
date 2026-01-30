@@ -1,6 +1,6 @@
+using Spine.Unity;
 using System;
 using UnityEngine;
-using Spine.Unity;
 
 [System.Serializable]
 public class MonsterRequirements

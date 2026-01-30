@@ -1,8 +1,7 @@
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using DG.Tweening;
-using System.Linq;
 
 public class MonsterCatalogueDetailUI : MonoBehaviour
 {
@@ -22,6 +21,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public TextMeshProUGUI monsterEarningText;
     public Button markFavoriteButton;
     public CatalogueMonsterData currentMonsterData;
+    public Button sellMonsterButton;
 
     private void Awake()
     {
@@ -41,7 +41,12 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     {
         MonsterEvolutionHandler.OnMonsterEvolved -= OnMonsterEvolved;
     }
+    private void OnEnable()
+    {
+        sellMonsterButton.onClick.RemoveAllListeners();
+        sellMonsterButton.onClick.AddListener(() => { SellMonster(); });
 
+    }
     public void SetDetails(CatalogueMonsterData catalogueMonsterData = null)
     {
         if (canvasGroup == null || monsterImage == null || monsterNameText == null ||
@@ -60,11 +65,11 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             monsterNameText.text = string.Empty;
             // Hide the detail panel if no monster is provided
             smoothFitter.Kick();
-            canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
+            canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
             {
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
-                layoutElement.ignoreLayout = true; 
+                layoutElement.ignoreLayout = true;
             });
             return;
         }
@@ -74,7 +79,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             // Ensure the detail panel is active before setting details
             canvasGroup.alpha = 0f; // Reset alpha to 0 before fading in
             smoothFitter.Kick();
-            canvasGroup.DOFade(1f, 0.2f).SetEase(Ease.Linear).OnComplete(() => 
+            canvasGroup.DOFade(1f, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
             {
                 canvasGroup.interactable = true;
                 canvasGroup.blocksRaycasts = true;
@@ -103,4 +108,34 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             SetDetails(new CatalogueMonsterData(evolvedMonster));
         }
     }
+
+    private void SellMonster()
+    {
+        if (currentMonsterData == null)
+        {
+            Debug.LogWarning("No monster data to sell!");
+            return;
+        }
+
+        MonsterManager monsterManager = ServiceLocator.Get<MonsterManager>();
+        MonsterController monsterToSell = monsterManager.activeMonsters
+            .Find(m => m.monsterID == currentMonsterData.monsterID);
+
+        if (monsterToSell != null)
+        {
+            monsterManager.SellMonster(currentMonsterData.monsterData);
+            monsterManager.DespawnToPool(monsterToSell.gameObject);
+            monsterManager.RemoveSavedMonsterID(currentMonsterData.monsterID);
+            SaveSystem.DeleteMon(currentMonsterData.monsterID);
+            ServiceLocator.Get<MonsterCatalogueListUI>()?.RefreshCatalogue();
+            SetDetails(null);
+
+
+        }
+        else
+        {
+            Debug.LogWarning($"Monster with ID {currentMonsterData.monsterID} not found in active monsters!");
+        }
+    }
+
 }
