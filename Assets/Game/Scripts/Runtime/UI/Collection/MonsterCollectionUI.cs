@@ -20,6 +20,10 @@ public class MonsterCollectionUI : MonoBehaviour
     private RectTransform monsterCollectionInfoRect;
     private TextMeshProUGUI monsterCollectionInfoText;
 
+    [Header("Scroll Settings")]
+    public ScrollRect scrollRect;
+    public RectTransform content;
+
     public List<MonsterCollection> monsterCollections = new List<MonsterCollection>();
     public List<MonsterSaveData> ownedMonsters = new List<MonsterSaveData>();
     public List<MonsterCollectionItemUI> monsterCollectionItems = new List<MonsterCollectionItemUI>();
@@ -72,7 +76,7 @@ public class MonsterCollectionUI : MonoBehaviour
                 monsterCounts[ownedMonster.monsterId] = 1;
                 monsterHighestEvolution[ownedMonster.monsterId] = 0;
             }
-            
+
             // Update highest evolution level
             if (ownedMonster.currentEvolutionLevel > monsterHighestEvolution[ownedMonster.monsterId])
             {
@@ -84,14 +88,14 @@ public class MonsterCollectionUI : MonoBehaviour
         foreach (var kvp in monsterCounts)
         {
             int highestEvolution = monsterHighestEvolution[kvp.Key];
-            
+
             // Create list of all unlocked evolutions (1 to highest)
             List<int> unlockedEvolutions = new List<int>();
             for (int i = 1; i <= highestEvolution; i++)
             {
                 unlockedEvolutions.Add(i);
             }
-            
+
             MonsterCollection collection = new MonsterCollection
             {
                 monsterId = kvp.Key,
@@ -106,35 +110,69 @@ public class MonsterCollectionUI : MonoBehaviour
 
         // Update UI items after importing
         UpdateMonsterCollectionItemsUI();
+
+        // Resize scroll content after updating UI
+        ResizeScrollContent();
+    }
+
+    private void ResizeScrollContent()
+    {
+        if (scrollRect == null || content == null) return;
+
+        // Get GridLayoutGroup from content
+        GridLayoutGroup gridLayout = content.GetComponent<GridLayoutGroup>();
+        if (gridLayout == null) return;
+
+        int itemCount = monsterCollectionItems.Count;
+        if (itemCount == 0) return;
+
+        int columnCount = gridLayout.constraintCount > 0 ? gridLayout.constraintCount : 4;
+
+        // Calculate rows needed
+        int rowCount = Mathf.CeilToInt((float)itemCount / columnCount);
+
+        // Calculate total height
+        float cellHeight = gridLayout.cellSize.y;
+        float spacingY = gridLayout.spacing.y;
+        float paddingTop = gridLayout.padding.top;
+        float paddingBottom = gridLayout.padding.bottom;
+
+        float totalHeight = (rowCount * cellHeight) +
+                           ((rowCount - 1) * spacingY) +
+                           paddingTop +
+                           paddingBottom;
+
+        // Set content size
+        content.sizeDelta = new Vector2(content.sizeDelta.x, totalHeight);
     }
 
     private void UpdateMonsterCollectionItemsUI()
     {
         // Clear the existing list
         monsterCollectionItems.Clear();
-        
+
         // Get all MonsterCollectionItemUI components from children
         MonsterCollectionItemUI[] childItems = GetComponentsInChildren<MonsterCollectionItemUI>();
-        
+
         // Add them to our list
         monsterCollectionItems.AddRange(childItems);
-        
+
         // Create dictionaries for owned monster data
         Dictionary<string, List<int>> ownedMonsterEvolutions = new Dictionary<string, List<int>>();
         Dictionary<string, int> ownedMonsterCounts = new Dictionary<string, int>();
-        
+
         // Populate dictionaries with owned monster data
         foreach (var collection in monsterCollections)
         {
             ownedMonsterEvolutions[collection.monsterId] = collection.unlockedEvolutions;
             ownedMonsterCounts[collection.monsterId] = int.Parse(collection.monsterCount);
         }
-        
+
         // Update each MonsterCollectionItemUI (all start as locked by default)
         foreach (var itemUI in monsterCollectionItems)
         {
             string monsterId = itemUI.GetMonsterId();
-            
+
             // Check if this monster is owned
             if (ownedMonsterEvolutions.ContainsKey(monsterId) && ownedMonsterCounts[monsterId] > 0)
             {
