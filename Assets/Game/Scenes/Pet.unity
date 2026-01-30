@@ -98612,11 +98612,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -961
+      value: -298
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 502
+      value: 1313
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -98631,16 +98631,68 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: randomSeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: scalingMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: autoRandomSeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: simulationSpeed
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: ShapeModule.m_Scale.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: ShapeModule.m_Rotation.y
+      value: -25
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: InitialModule.startSizeY.scalar
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: InitialModule.startSize.minScalar
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: InitialModule.startSizeY.minScalar
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
       propertyPath: InitialModule.startColor.maxColor.a
-      value: 0.3137255
+      value: 0.27450982
       objectReference: {fileID: 0}
     - target: {fileID: 19900000, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8674253098294085870, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: m_Scale3D.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8674253098294085870, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: m_Scale3D.y
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8674253098294085870, guid: d1912b480b82d6441a8d97bc2836a977, type: 3}
+      propertyPath: m_Scale3D.z
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -106551,11 +106603,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2794633264994966448, guid: b947eaeb3e22eaf4fb426cbbf0bbf3e5, type: 3}
       propertyPath: m_Value
-<<<<<<< HEAD
-      value: 0.65682566
-=======
       value: 1.0000002
->>>>>>> dev/hanif
       objectReference: {fileID: 0}
     - target: {fileID: 2794633264994966448, guid: b947eaeb3e22eaf4fb426cbbf0bbf3e5, type: 3}
       propertyPath: m_NumberOfSteps
