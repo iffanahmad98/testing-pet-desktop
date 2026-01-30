@@ -532,11 +532,11 @@ namespace MagicalGarden.Hotel
 
         private void FulfillRequest(GuestRequestType type, NPCService npcService, INPCHotelService autoNpcHotel = null)
         {
-            Debug.Log($"VALID {hasRequest}");
+            Debug.Log($"VALID {idHotel} {hasRequest}");
             if (!hasRequest) return;
             if (onProgressingRequest) return;
             if (npcService == NPCService.NPCHotel) {if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;}
-            
+            Debug.Log ("VALID 2");
             onProgressingRequest = true;
             
             // Stop countdown coroutine
@@ -569,6 +569,7 @@ namespace MagicalGarden.Hotel
 
             if (type == GuestRequestType.RoomService)
             {
+                Debug.Log ("VALID 3");
                 // Log NPC cleaning dimulai
                 string roomName = gameObject.name;
                 Debug.Log($"🧹 [NPC CLEANING] Mengirim NPC untuk membersihkan kamar {roomName} milik {nameGuest}");
@@ -583,6 +584,7 @@ namespace MagicalGarden.Hotel
                 StartCoroutine (npcHotelService.NPCHotelCleaning());
             } else if (type == GuestRequestType.Food)
             {
+                Debug.Log ("VALID 4");
                 // Log NPC cleaning dimulai
                 string roomName = gameObject.name;
                 Debug.Log($" [NPC Food] Mengirim NPC untuk mengantar makanan kamar {roomName} milik {nameGuest}");
@@ -593,6 +595,7 @@ namespace MagicalGarden.Hotel
             }
             else if (type == GuestRequestType.Gift)
             {
+                Debug.Log ("VALID 5");
                 // Log NPC cleaning dimulai
                 string roomName = gameObject.name;
                 Debug.Log($"[NPC Gift] Mengirim NPC untuk memberikan hadiah ke kamar {roomName} milik {nameGuest}");
@@ -601,7 +604,7 @@ namespace MagicalGarden.Hotel
                 npcHotelService.AddFinishEventHappiness (IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
                 StartCoroutine (npcHotelService.NPCHotelCleaning());
             }
-
+            Debug.Log ("VALID 6");
             // Hide buttons
             ResetRequestButtons();
             
@@ -740,8 +743,10 @@ namespace MagicalGarden.Hotel
             }
             else
             {
-                bubbleVfx.Stop();
-                bubbleVfx.gameObject.SetActive(false);
+                if (bubbleVfx) {
+                    bubbleVfx.Stop();
+                    bubbleVfx.gameObject.SetActive(false);
+                }
             }
         }
         #endregion
