@@ -54,7 +54,8 @@ public class DecorationManager : MonoBehaviour {
     // SaveSystem
     public void LoadDecorations (PlayerConfig playerConfig) {
         foreach (OwnedDecorationData ownedDecorationData in playerConfig.ownedDecorations) {
-            if (ownedDecorationData.isActive) {
+            // if (ownedDecorationData.isActive) {
+            if (ownedDecorationData.areasIsActive[playerConfig.lastGameAreaIndex]) {
                 ApplyDecorationByID (ownedDecorationData.decorationID);
                 DecorationShopManager.instance.SetLastLoadTreeDecoration1 (ownedDecorationData.decorationID);
             }
