@@ -1,11 +1,10 @@
+using DG.Tweening;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using System.Collections.Generic;
-using System.Collections;
-using TMPro;
-using System.Linq;
 
 public class MonsterCollectionUI : MonoBehaviour
 {
@@ -19,10 +18,6 @@ public class MonsterCollectionUI : MonoBehaviour
     public CanvasGroup monsterCollectionInfo;
     private RectTransform monsterCollectionInfoRect;
     private TextMeshProUGUI monsterCollectionInfoText;
-
-    [Header("Scroll Settings")]
-    public ScrollRect scrollRect;
-    public RectTransform content;
 
     public List<MonsterCollection> monsterCollections = new List<MonsterCollection>();
     public List<MonsterSaveData> ownedMonsters = new List<MonsterSaveData>();
@@ -110,40 +105,6 @@ public class MonsterCollectionUI : MonoBehaviour
 
         // Update UI items after importing
         UpdateMonsterCollectionItemsUI();
-
-        // Resize scroll content after updating UI
-        ResizeScrollContent();
-    }
-
-    private void ResizeScrollContent()
-    {
-        if (scrollRect == null || content == null) return;
-
-        // Get GridLayoutGroup from content
-        GridLayoutGroup gridLayout = content.GetComponent<GridLayoutGroup>();
-        if (gridLayout == null) return;
-
-        int itemCount = monsterCollectionItems.Count;
-        if (itemCount == 0) return;
-
-        int columnCount = gridLayout.constraintCount > 0 ? gridLayout.constraintCount : 4;
-
-        // Calculate rows needed
-        int rowCount = Mathf.CeilToInt((float)itemCount / columnCount);
-
-        // Calculate total height
-        float cellHeight = gridLayout.cellSize.y;
-        float spacingY = gridLayout.spacing.y;
-        float paddingTop = gridLayout.padding.top;
-        float paddingBottom = gridLayout.padding.bottom;
-
-        float totalHeight = (rowCount * cellHeight) +
-                           ((rowCount - 1) * spacingY) +
-                           paddingTop +
-                           paddingBottom;
-
-        // Set content size
-        content.sizeDelta = new Vector2(content.sizeDelta.x, totalHeight);
     }
 
     private void UpdateMonsterCollectionItemsUI()
