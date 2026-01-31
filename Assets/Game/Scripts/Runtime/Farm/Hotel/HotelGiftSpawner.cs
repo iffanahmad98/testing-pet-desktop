@@ -17,7 +17,7 @@ public class HotelGiftSpawner : MonoBehaviour
         cloneHotelGift = GameObject.Instantiate (hotelGift2dPrefab);
         cloneHotelGift.transform.SetParent (pet.transform);
         cloneHotelGift.SetActive (true); 
-        cloneHotelGift.transform.localPosition = new Vector3 (0, -0.5f, 1.5f);
+        cloneHotelGift.transform.localPosition = new Vector3 (0, -0.5f, -3.0f);
         cloneHotelGift.transform.SetParent (null);
 
         HotelGiftHandler.instance.AddHotelGift (cloneHotelGift);

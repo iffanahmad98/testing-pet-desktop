@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 public class DecorationShopManager : MonoBehaviour
 {
@@ -81,32 +82,11 @@ public class DecorationShopManager : MonoBehaviour
 
     public void RefreshItem()
     {
-        RefreshDecorationCards();
+        RefreshDecorationCards(true);
     }
 
-    private void RefreshDecorationCards()
+    IEnumerator WaitRefreshDecorationCards(bool eligibleBuyVfx = false)
     {
-        /*
-        foreach (var card in activeCards)
-        {
-            ReturnCardToPool(card);
-        }
-        activeCards.Clear();
-
-        foreach (var deco in decorations.allDecorations)
-        {
-            var card = GetPooledCard();
-            card.Setup(deco);
-            card.OnSelected = OnDecorationSelected;
-            card.OnApplyClicked = OnDecorationApply;
-            card.OnCancelApplied = OnDecorationCancel;
-            card.OnBuyClicked = OnDecorationBuy;
-
-            activeCards.Add(card);
-        }
-        */
-        // Destroy all existing cards
-
         foreach (Transform child in cardParent)
         {
             Destroy(child.gameObject);
@@ -132,6 +112,8 @@ public class DecorationShopManager : MonoBehaviour
             totalCount++;
         }
 
+        yield return new WaitForEndOfFrame();
+
         // Check requirement & grayscale
         foreach (var card in activeCards)
         {
@@ -139,6 +121,14 @@ public class DecorationShopManager : MonoBehaviour
             {
                 bool canBuy = CheckBuyingRequirement(card);
                 card.SetGrayscale(!canBuy);
+
+                if (!canBuy)
+                    continue;
+
+                if (eligibleBuyVfx)
+                {
+                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
+                }
             }
         }
 
@@ -161,6 +151,11 @@ public class DecorationShopManager : MonoBehaviour
         if (!treeDecoration1 && lastLoadTreeDecoration1 != "") { Debug.Log("Decoration Tree : " + lastLoadTreeDecoration1); treeDecoration1 = GetDecorationCardById(lastLoadTreeDecoration1); lastLoadTreeDecoration1 = ""; }
         OnDecorationSelected(activeCards[0]);
         //ClearInfo();
+    }
+
+    private void RefreshDecorationCards(bool eligibleBuyVfx = false)
+    {
+        StartCoroutine(WaitRefreshDecorationCards(eligibleBuyVfx));
     }
 
 

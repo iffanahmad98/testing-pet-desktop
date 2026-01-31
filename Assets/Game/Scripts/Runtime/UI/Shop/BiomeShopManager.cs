@@ -1,8 +1,10 @@
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class BiomeShopManager : MonoBehaviour
 {
@@ -109,10 +111,15 @@ public class BiomeShopManager : MonoBehaviour
 
     public void RefreshItem()
     {
-        RefreshBiomeCards();
+        RefreshBiomeCards(true);
     }
 
-    private void RefreshBiomeCards()
+    private void RefreshBiomeCards(bool eligibleBuyVfx = false)
+    {
+        StartCoroutine(WaitRefreshCards(eligibleBuyVfx));
+    }
+
+    IEnumerator WaitRefreshCards(bool eligibleBuyVfx = false)
     {
         // Return all active cards to pool
         foreach (var card in activeCards)
@@ -134,6 +141,8 @@ public class BiomeShopManager : MonoBehaviour
             activeCards.Add(card);
         }
 
+        yield return new WaitForEndOfFrame();
+
         // Check requirement & grayscale
         foreach (var card in activeCards)
         {
@@ -141,6 +150,12 @@ public class BiomeShopManager : MonoBehaviour
             {
                 bool canBuy = CheckBuyingRequirement(card);
                 card.SetGrayscale(!canBuy);
+
+                if (!canBuy)
+                    continue;
+
+                if(eligibleBuyVfx)
+                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
             }
         }
 
@@ -153,17 +168,19 @@ public class BiomeShopManager : MonoBehaviour
         activeCards.Clear();
         activeCards.AddRange(filtered);
 
+        AdjustBiomeParentHeight(biomes.allBiomes.Count);
+
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
         {
-            activeCards[i].transform.SetSiblingIndex(i);
+            int tmp = i;
+            activeCards[tmp].transform.SetSiblingIndex(tmp);
         }
 
-        AdjustBiomeParentHeight(biomes.allBiomes.Count);
-        
         OnBiomeSelected(activeCards[0]);
         //ClearInfo();
     }
+
     private void AdjustBiomeParentHeight(int biomeCount)
     {
         int rows = Mathf.CeilToInt(biomeCount / 2f);

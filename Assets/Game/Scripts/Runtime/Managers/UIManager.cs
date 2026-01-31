@@ -1,3 +1,4 @@
+using Coffee.UIExtensions;
 using DG.Tweening;
 using System.Collections;
 using TMPro;
@@ -39,6 +40,10 @@ public class UIManager : MonoBehaviour
     public Button helpShopButton;
 
     public TextMeshProUGUI messageText;
+
+    [Header("UI VFX")]
+    public GameObject unlockedBtnVfxPrefab;
+    public RectTransform vfxParent;
 
     [Header("Animation Settings")]
     [SerializeField]
@@ -549,6 +554,17 @@ public class UIManager : MonoBehaviour
         messageText.gameObject.SetActive(false);
     }
 
+    #endregion
+
+    #region UI Vfx
+    public void InitUnlockedMenuVfx(RectTransform pos)
+    {
+        GameObject obj = Instantiate(unlockedBtnVfxPrefab);
+        obj.GetComponent<RectTransform>().position = pos.position;
+        obj.GetComponent<RectTransform>().SetParent(vfxParent.transform);
+        obj.GetComponent<UIParticle>().Play();
+        //obj.GetComponent<ParticleSystem>().Emit(1);
+    }
     #endregion
 
     #region Monster System

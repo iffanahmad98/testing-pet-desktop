@@ -108,6 +108,8 @@ public class SettingsManager : MonoBehaviour
         savableSettingsModules.AddRange(
             FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISettingsSavable>()
         );
+
+        
     }
 
     private void OnDestroy()
