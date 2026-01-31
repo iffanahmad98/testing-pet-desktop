@@ -443,7 +443,10 @@ public static class SaveSystem
 
     public static string GetActiveBiome()
     {
-        return _playerConfig.activeBiomeID;
+        if (_playerConfig.activeBiomesOnAreaID.Count == 0)
+            PlayerConfig.activeBiomesOnAreaID.Add("default_biome");
+
+        return _playerConfig.activeBiomesOnAreaID[_playerConfig.lastGameAreaIndex];
     }
 
     public static void SetActiveBiome(string biomeID)
@@ -451,7 +454,7 @@ public static class SaveSystem
         // If blank or null, clear the active biome
         if (string.IsNullOrEmpty(biomeID))
         {
-            _playerConfig.SetActiveBiome("");
+            _playerConfig.SetActiveBiome("", _playerConfig.lastGameAreaIndex);
             SaveAll();
             return;
         }
@@ -459,7 +462,7 @@ public static class SaveSystem
         // Otherwise, validate ownership before setting
         if (_playerConfig.HasBiome(biomeID))
         {
-            _playerConfig.SetActiveBiome(biomeID);
+            _playerConfig.SetActiveBiome(biomeID, _playerConfig.lastGameAreaIndex);
             SaveAll();
         }
         else
@@ -690,6 +693,15 @@ public static class SaveSystem
         }
 
         decoration.isActive = isActive;
+
+        if (decoration.areasIsActive == null)
+            decoration.areasIsActive = new List<bool>();
+
+        while (decoration.areasIsActive.Count < _playerConfig.lastGameAreaIndex + 1)
+            decoration.areasIsActive.Add(false);
+
+        decoration.areasIsActive[_playerConfig.lastGameAreaIndex] = isActive;
+
         SaveAll();
         Debug.Log($"Set decoration '{decoration.decorationID}' active state to {isActive}.");
     }
