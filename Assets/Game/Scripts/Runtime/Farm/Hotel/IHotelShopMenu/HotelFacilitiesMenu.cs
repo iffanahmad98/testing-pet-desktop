@@ -71,12 +71,25 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 RefreshBuyButton (GetHotelFacilitiesPodiumCard (data.id), "Apply");
             }
         }
+        ShowSmallInformation ();
    }
 
    public override void HideMenu () {
     base.HideMenu ();
+    HideSmallInformation ();
    }
 
+    #region SmallInformationUI
+    void ShowSmallInformation () {
+        SmallInformationUI.instance.AddDescriptionEntry (PlayerInputAction.RightClick, "Auto Pal - More Description");
+        SmallInformationUI.instance.ShowWithAutoHide (4.0f);
+    }
+
+    void HideSmallInformation () {
+        SmallInformationUI.instance.Hide ();
+    }
+
+    #endregion
    void LoadStartDictionary () {
     dictionaryHiredMaxFacility.Add ("robo_shroom", 3);
     dictionaryHiredMaxFacility.Add ("bellboy_shroom", 2);

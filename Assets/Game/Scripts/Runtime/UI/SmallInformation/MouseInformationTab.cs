@@ -7,6 +7,7 @@ public class MouseInformationTab : MonoBehaviour {
 
         public void ChangeText (string value) {
             panelText.text = value;
+            this.gameObject.SetActive (true);
         }
 
         public void HideTab () {

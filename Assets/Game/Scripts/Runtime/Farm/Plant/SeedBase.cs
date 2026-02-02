@@ -36,6 +36,7 @@ namespace MagicalGarden.Farm
         public Vector3Int cellPosition;
         public ItemData itemData;
         public Image markHarvest;
+        public Image markWater;
         private Tween currentTween;
 
         [Header ("Debug")]
@@ -52,6 +53,9 @@ namespace MagicalGarden.Farm
                 return;
             }
 
+            if (IsReadyToHarvest ()) {
+                OffWaterIcon ();
+            }
             if (status == PlantStatus.Mati || IsReadyToHarvest())
                 return;
 
@@ -74,6 +78,8 @@ namespace MagicalGarden.Farm
                     return;
                 }
             }
+
+            
             float boostedHours = deltaHours * (1f + fertilizerBoost / 100f);
             timeInStage += boostedHours;
 
@@ -105,6 +111,12 @@ namespace MagicalGarden.Farm
                 }
                 ResetStageProgress();
             }
+
+            if (IsNeedWater ()) {
+                AnimateWaterIcon ();
+            } else {
+                OffWaterIcon ();
+            }
         }
         public void UpdateStage()
         {
@@ -135,13 +147,15 @@ namespace MagicalGarden.Farm
             {
                 status = PlantStatus.Normal;
             }
+
+            OffWaterIcon (); 
         }
 
         public virtual bool IsNeedWater ()
         {
         
             DateTime now = PlantManager.Instance != null ? PlantManager.Instance.simulatedNow : DateTime.Now;
-
+            
             // Cegah penyiraman ganda dalam 1 jam
             if ((now - lastWateredTime).TotalHours < 1)
                 return false;
@@ -350,6 +364,34 @@ namespace MagicalGarden.Farm
             seq.Join(markHarvest.transform.DOScale(1.2f, 0.15f).SetEase(Ease.OutBack)); // scale lebih besar dulu
             seq.Append(markHarvest.transform.DOScale(1f, 0.1f).SetEase(Ease.OutQuad));  // kembali ke normal
             currentTween = seq;
+        }
+
+        public void AnimateWaterIcon()
+        {
+            if (IsReadyToHarvest())  {
+                OffWaterIcon (); 
+                return;
+            }
+            if (markWater == null) return;
+            markWater.gameObject.SetActive(true);
+            /*
+            currentTween?.Kill();
+
+            markWater.color = new Color(1, 1, 1, 0);
+            markWater.transform.localScale = Vector3.one * 0.8f;
+            markWater.gameObject.SetActive(true);
+
+            // Animasi bounce terasa (scale naik lebih besar lalu balik ke 1)
+            Sequence seq = DOTween.Sequence();
+            seq.Append(markWater.DOFade(1f, 0.2f));
+            seq.Join(markWater.transform.DOScale(1.2f, 0.15f).SetEase(Ease.OutBack)); // scale lebih besar dulu
+            seq.Append(markWater.transform.DOScale(1f, 0.1f).SetEase(Ease.OutQuad));  // kembali ke normal
+            currentTween = seq;
+            */
+        }
+
+        void OffWaterIcon () {
+            markWater.gameObject.SetActive(false);
         }
     }
 }

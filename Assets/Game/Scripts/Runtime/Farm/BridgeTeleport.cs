@@ -76,6 +76,7 @@ public class BridgeTeleport : MonoBehaviour
                     MonsterManager.instance.audio.PlayFarmSFX(0);
 
                     camMove.FocusOnTarget(hotelSpawnPoint.position, targetZoom, transitionDuration, isHotel: true);
+                    FarmMainUI.instance.Hide ();
                     menuBarFarm.SetActive(false);
                     if (CursorIconManager.Instance) {CursorIconManager.Instance.HideSeedIcon ();}
                 }
@@ -90,6 +91,7 @@ public class BridgeTeleport : MonoBehaviour
                     MonsterManager.instance.audio.PlayFarmSFX(0);
 
                     camMove.FocusOnTarget(farmSpawnPoint.position, targetZoom, transitionDuration, isHotel: false);
+                    FarmMainUI.instance.Show ();
                     menuBarFarm.SetActive(true);
                 }
                 break;
