@@ -30,6 +30,8 @@ public class DecorationShopManager : MonoBehaviour
     private Queue<DecorationCardUI> cardPool = new Queue<DecorationCardUI>();
     private List<DecorationCardUI> activeCards = new List<DecorationCardUI>();
 
+    private WaitForEndOfFrame WaitForEndOfFrame = new();
+
     private void Awake()
     {
         instance = this;
@@ -112,8 +114,6 @@ public class DecorationShopManager : MonoBehaviour
             totalCount++;
         }
 
-        yield return new WaitForEndOfFrame();
-
         // Check requirement & grayscale
         foreach (var card in activeCards)
         {
@@ -122,13 +122,7 @@ public class DecorationShopManager : MonoBehaviour
                 bool canBuy = CheckBuyingRequirement(card);
                 card.SetGrayscale(!canBuy);
 
-                if (!canBuy)
-                    continue;
-
-                if (eligibleBuyVfx)
-                {
-                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
-                }
+               
             }
         }
 
@@ -145,6 +139,15 @@ public class DecorationShopManager : MonoBehaviour
         for (int i = 0; i < activeCards.Count; i++)
         {
             activeCards[i].transform.SetSiblingIndex(i);
+
+            yield return WaitForEndOfFrame;
+
+            bool canBuy = CheckBuyingRequirement(activeCards[i]);
+
+            if (canBuy && eligibleBuyVfx)
+            {
+                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(activeCards[i].GetComponent<RectTransform>());
+            }
         }
 
         // memberikan tombol terakhir treeDecoration1 (Pas awal load data + nampilkan menu)
