@@ -162,6 +162,9 @@ namespace MagicalGarden.Farm
                 });
             });
 
+            if (plant.seed.IsNeedWater ()) {
+                plant.seed.AnimateWaterIcon ();
+            }
             SaveToJson ();
         }
 
@@ -186,7 +189,7 @@ namespace MagicalGarden.Farm
             SaveToJson ();
         }
 
-        public void RemovePlantAt(Vector3Int cellPosition)
+        public void RemovePlantAt(Vector3Int cellPosition, bool isMonsterSeedDestroyed)
         {
             if (plants.TryGetValue(cellPosition, out var plant))
             {
@@ -200,6 +203,10 @@ namespace MagicalGarden.Farm
                 {
                     if (!plant.seed.typeMonster) {
                         Destroy(plant.gameObject);
+                    } else {
+                        if (isMonsterSeedDestroyed){
+                            Destroy (plant.gameObject);
+                        } 
                     }
                 }
 
@@ -261,7 +268,7 @@ namespace MagicalGarden.Farm
                     plant.seed.Harvest();
                     
                     // plants.Remove(cellPosition);
-                    RemovePlantAt (cellPosition);
+                    RemovePlantAt (cellPosition, false);
                 }
                 else
                 {
@@ -508,6 +515,10 @@ namespace MagicalGarden.Farm
                         TileManager.Instance.tilemapSeed.SetTile(data.cellPosition, stageWilted);
                     }
                     seed.lastUpdateTime = simulatedNow;
+                }
+
+                if (plant.seed.IsNeedWater ()) {
+                    plant.seed.AnimateWaterIcon ();
                 }
             }
             FieldManager.Instance.LoadFromConfig ();

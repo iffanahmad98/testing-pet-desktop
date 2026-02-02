@@ -193,6 +193,8 @@ public class ItemInventoryUI : MonoBehaviour
 
     private void OnDisable()
     {
+        if (GameManager.instance.isQuitting) {return;}
+        if (!this.gameObject.activeInHierarchy) {return;}
         /*
        foreach (var slot in activeSlots) {
         Debug.Log ("Destroy Active Slots");

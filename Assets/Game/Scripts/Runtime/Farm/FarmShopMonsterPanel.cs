@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Spine.Unity;
+using DG.Tweening;
 public class FarmShopMonsterPanel : FarmShopPanelBase {
     [SerializeField] Transform parentPanel;
     [SerializeField] Image panel;
@@ -221,6 +222,10 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
                 SpawnFarmFacility (dataSO.id, 0);
             }
         }
+
+        itemCard.cloneCard.transform.DOKill();
+        itemCard.cloneCard.transform.localScale = Vector3.one;
+        itemCard.cloneCard.transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 10, 1);
         ShowInformationSelectedItem (true);
     }
 

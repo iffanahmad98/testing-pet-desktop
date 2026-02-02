@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using DG.Tweening;
 public class FarmShopPlantPanel : FarmShopPanelBase
 {
     [SerializeField] Transform parentPanel;
@@ -146,6 +147,11 @@ public class FarmShopPlantPanel : FarmShopPanelBase
             CoinManager.SpendCoins (dataSO.price);
             SaveSystem.SaveAll ();
         }
+
+        itemCard.cloneCard.transform.DOKill();
+        itemCard.cloneCard.transform.localScale = Vector3.one;
+        itemCard.cloneCard.transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 10, 1);
+
         ShowInformationSelectedItem ();
     }
 
