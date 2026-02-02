@@ -16,6 +16,7 @@ public class NormalEgg : LootUseable
     {
         totalValue += value;
         SaveSystem.PlayerConfig.normalEgg = totalValue;
+        Debug.Log ("Normal Egg 1");
         SaveLoot();
     }
 

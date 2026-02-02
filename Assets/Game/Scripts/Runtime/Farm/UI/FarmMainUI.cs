@@ -7,7 +7,7 @@ public class FarmMainUI : MonoBehaviour
     public Canvas mainCanvas;
     public TMP_Text coinText;
     PlayerConfig playerConfig;
-
+    
     void Awake () {
         instance = this;
     }
@@ -19,11 +19,11 @@ public class FarmMainUI : MonoBehaviour
      RefreshCoin ();
     }
 
-    public void Show () { // BridgeTeleport.cs
+    public void Show () { // SceneLoadManager.cs, BridgeTeleport.cs
         mainCanvas.gameObject.SetActive (true);
     }
 
-    public void Hide () { // BridgeTeleport.cs
+    public void Hide () { // SceneLoadManager.cs, BridgeTeleport.cs
         mainCanvas.gameObject.SetActive (false);
     }
     #region Coin

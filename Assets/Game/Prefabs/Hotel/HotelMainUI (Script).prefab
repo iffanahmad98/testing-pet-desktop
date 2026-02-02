@@ -1,5 +1,82 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &228450109015769691
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8449828684890211456}
+  - component: {fileID: 2939872566895727582}
+  - component: {fileID: 7568028042490113356}
+  m_Layer: 5
+  m_Name: eggs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8449828684890211456
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228450109015769691}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3841065700903596748}
+  - {fileID: 8459940573665919405}
+  m_Father: {fileID: 8456237881301766389}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.023540236, y: 0.070448115}
+  m_AnchorMax: {x: 0.35744196, y: 0.91800004}
+  m_AnchoredPosition: {x: 0.035240166, y: 0.27603158}
+  m_SizeDelta: {x: 0.8695142, y: 1.2316359}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2939872566895727582
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228450109015769691}
+  m_CullTransparentMesh: 1
+--- !u!114 &7568028042490113356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228450109015769691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &449204284663934749
 GameObject:
   m_ObjectHideFlags: 0
@@ -12,7 +89,7 @@ GameObject:
   - component: {fileID: 1329724958520997465}
   - component: {fileID: 6366533040330239447}
   m_Layer: 5
-  m_Name: coinTab (4)
+  m_Name: eggTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,8 +107,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3841065700903596748}
-  - {fileID: 8459940573665919405}
+  - {fileID: 8449828684890211456}
   - {fileID: 1556016828947968926}
   m_Father: {fileID: 4103998798869442898}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -90,7 +166,7 @@ GameObject:
   - component: {fileID: 6491226262008169148}
   - component: {fileID: 5620130645102714312}
   m_Layer: 5
-  m_Name: coinLogo
+  m_Name: hotelGift
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -301,7 +377,7 @@ GameObject:
   - component: {fileID: 9035983634617925553}
   - component: {fileID: 3126529145069353262}
   m_Layer: 5
-  m_Name: farmUITab
+  m_Name: hotelUITab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -322,7 +398,9 @@ RectTransform:
   - {fileID: 5810868166729699388}
   - {fileID: 5418522211755040050}
   - {fileID: 5026234665593561001}
+  - {fileID: 2588009021088321834}
   - {fileID: 4990051973488070449}
+  - {fileID: 1106908305729738862}
   - {fileID: 8456237881301766389}
   m_Father: {fileID: 7799797655719775721}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -378,6 +456,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3031659328097112045}
+  - component: {fileID: 3234280515327897610}
   m_Layer: 0
   m_Name: HotelMainUI (Script)
   m_TagString: Untagged
@@ -393,7 +472,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2839249250193408945}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -401,6 +480,24 @@ Transform:
   - {fileID: 7799797655719775721}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3234280515327897610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2839249250193408945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c100acfb5b649334ab6fb719481651a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCanvas: {fileID: 4292992822208930513}
+  coinText: {fileID: 4026168726213682924}
+  goldenTicketText: {fileID: 1615438280800713886}
+  hotelGiftText: {fileID: 8730422072286465938}
+  eggText: {fileID: 328840679695179796}
+  hotelRoomText: {fileID: 8251611566768329335}
 --- !u!1 &3212005065516831934
 GameObject:
   m_ObjectHideFlags: 0
@@ -515,7 +612,7 @@ GameObject:
   - component: {fileID: 5728242544088442797}
   - component: {fileID: 5730288687375390173}
   m_Layer: 5
-  m_Name: coinLogo
+  m_Name: normalEgg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -528,17 +625,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3234373598456007133}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8456237881301766389}
+  m_Father: {fileID: 8449828684890211456}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.058349513, y: 0.136}
-  m_AnchorMax: {x: 0.30600002, y: 0.8774808}
-  m_AnchoredPosition: {x: -9.2523, y: -1.7978}
-  m_SizeDelta: {x: -7.0573, y: -11.77}
+  m_AnchorMin: {x: 0.028, y: 0.1518186}
+  m_AnchorMax: {x: 0.64900005, y: 0.8135452}
+  m_AnchoredPosition: {x: -0.15349197, y: -0.025146484}
+  m_SizeDelta: {x: 0.32010514, y: 0.7887032}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5728242544088442797
 CanvasRenderer:
@@ -578,6 +675,108 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4087304878831857099
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1106908305729738862}
+  - component: {fileID: 4146644826510058928}
+  - component: {fileID: 2187044457776081621}
+  - component: {fileID: 3057359423172081322}
+  m_Layer: 5
+  m_Name: egg (Loot Target)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1106908305729738862
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4087304878831857099}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4103998798869442898}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 565.3849, y: -484.30402}
+  m_SizeDelta: {x: 48.7697, y: 34.5816}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &4146644826510058928
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4087304878831857099}
+  m_CullTransparentMesh: 1
+--- !u!114 &2187044457776081621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4087304878831857099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -6076674112623266933, guid: 7ad40cba67b8aea448fac4274c69c56c, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3057359423172081322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4087304878831857099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86eea1f1587bc7e42b2bae3f47e866bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startScale: 1
+  peakScale: 1.4
+  endScale: 1
+  durationUpScale: 0.25
+  durationDownScale: 0.25
+  timeDuration: 0.5
+  startPosition: {x: 0, y: 0, z: 0}
+  peakPosition: {x: 0, y: 15, z: 0}
+  endPosition: {x: 0, y: 0, z: 0}
+  durationUpMove: 0.25
+  durationDownMove: 0.25
+  playOnStart: 0
+  useStartPosition: 0
+  treatAsUIAnchored: 1
 --- !u!1 &4898944128228784777
 GameObject:
   m_ObjectHideFlags: 0
@@ -725,8 +924,9 @@ GameObject:
   - component: {fileID: 6504998948237591820}
   - component: {fileID: 6793566434714529948}
   - component: {fileID: 6535451123407187412}
+  - component: {fileID: 7237196324050585747}
   m_Layer: 5
-  m_Name: coinLogo
+  m_Name: goldenTicket
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -789,6 +989,32 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7237196324050585747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5620683857279179853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86eea1f1587bc7e42b2bae3f47e866bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startScale: 1
+  peakScale: 1.4
+  endScale: 1
+  durationUpScale: 0.25
+  durationDownScale: 0.25
+  timeDuration: 0.5
+  startPosition: {x: 0, y: 0, z: 0}
+  peakPosition: {x: 0, y: 15, z: 0}
+  endPosition: {x: 0, y: 0, z: 0}
+  durationUpMove: 0.25
+  durationDownMove: 0.25
+  playOnStart: 0
+  useStartPosition: 0
+  treatAsUIAnchored: 1
 --- !u!1 &6226792196971944303
 GameObject:
   m_ObjectHideFlags: 0
@@ -876,7 +1102,7 @@ GameObject:
   - component: {fileID: 9022456519636293867}
   - component: {fileID: 432953281169099059}
   m_Layer: 5
-  m_Name: coinLogo (1)
+  m_Name: rareEgg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -889,17 +1115,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6792879814782434009}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8456237881301766389}
+  m_Father: {fileID: 8449828684890211456}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.119, y: 0.136}
-  m_AnchorMax: {x: 0.33760914, y: 0.75600004}
-  m_AnchoredPosition: {x: 0.5999985, y: -0.6037998}
-  m_SizeDelta: {x: -0.29839993, y: -1.2075996}
+  m_AnchorMin: {x: 0.3347474, y: 0.07453137}
+  m_AnchorMax: {x: 0.93519795, y: 0.78787255}
+  m_AnchoredPosition: {x: 0.46120453, y: -0.048957825}
+  m_SizeDelta: {x: -0.020700455, y: -0.9366}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9022456519636293867
 CanvasRenderer:
@@ -939,6 +1165,108 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7140792234312843386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2588009021088321834}
+  - component: {fileID: 238646942340140578}
+  - component: {fileID: 4671083584994704500}
+  - component: {fileID: 6536753295661889751}
+  m_Layer: 5
+  m_Name: goldenTicket (Loot Target)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2588009021088321834
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7140792234312843386}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4103998798869442898}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 565.3849, y: -484.30402}
+  m_SizeDelta: {x: 48.7697, y: 34.5816}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &238646942340140578
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7140792234312843386}
+  m_CullTransparentMesh: 1
+--- !u!114 &4671083584994704500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7140792234312843386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -6076674112623266933, guid: 7ad40cba67b8aea448fac4274c69c56c, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6536753295661889751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7140792234312843386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86eea1f1587bc7e42b2bae3f47e866bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startScale: 1
+  peakScale: 1.4
+  endScale: 1
+  durationUpScale: 0.25
+  durationDownScale: 0.25
+  timeDuration: 0.5
+  startPosition: {x: 0, y: 0, z: 0}
+  peakPosition: {x: 0, y: 15, z: 0}
+  endPosition: {x: 0, y: 0, z: 0}
+  durationUpMove: 0.25
+  durationDownMove: 0.25
+  playOnStart: 0
+  useStartPosition: 0
+  treatAsUIAnchored: 1
 --- !u!1 &7680314575432254328
 GameObject:
   m_ObjectHideFlags: 0
@@ -1087,7 +1415,7 @@ GameObject:
   - component: {fileID: 4897264612002498062}
   - component: {fileID: 192904195237989052}
   m_Layer: 5
-  m_Name: coinTab (2)
+  m_Name: giftRoomTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1164,7 +1492,7 @@ GameObject:
   - component: {fileID: 7960000721835986969}
   - component: {fileID: 6061879450311546885}
   m_Layer: 5
-  m_Name: coinTab (1)
+  m_Name: hotelRoomTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1454,7 +1782,7 @@ GameObject:
   - component: {fileID: 6704649785950204862}
   - component: {fileID: 7367854550345067676}
   m_Layer: 5
-  m_Name: coinTab (3)
+  m_Name: goldenTicketTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1667,7 +1995,7 @@ GameObject:
   - component: {fileID: 6668249519876247102}
   - component: {fileID: 7053076191457887995}
   m_Layer: 5
-  m_Name: coinLogo
+  m_Name: hotelRoom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

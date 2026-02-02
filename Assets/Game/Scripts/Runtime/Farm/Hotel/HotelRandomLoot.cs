@@ -122,6 +122,7 @@ public class HotelRandomLootObject {
     public DOTweenScaleBounce uiIconTabBounce;
     public TMP_Text currentText;
     public GameObject displayWorldPrefab;
+    public Transform lootTargetUI;
 }
 
 public class HotelRandomLoot : MonoBehaviour 
@@ -142,7 +143,7 @@ public class HotelRandomLoot : MonoBehaviour
     
 
     [Header ("UI")]
-    [SerializeField] GameObject lootTargetUI;
+   // [SerializeField] GameObject lootTargetUI;
     [SerializeField] HotelRandomLootObject [] hotelRandomLootObjects;
     HotelRandomLootObject currentLootObject;
 
@@ -222,8 +223,10 @@ public class HotelRandomLoot : MonoBehaviour
         }
 
         hotelRandomLootObjects[0].currentText.text = SaveSystem.PlayerConfig.goldenTicket.ToString ();
-        hotelRandomLootObjects[1].currentText.text = SaveSystem.PlayerConfig.normalEgg.ToString ();
-        hotelRandomLootObjects[2].currentText.text = SaveSystem.PlayerConfig.rareEgg.ToString ();
+     //   hotelRandomLootObjects[1].currentText.text = SaveSystem.PlayerConfig.normalEgg.ToString ();
+      //  hotelRandomLootObjects[2].currentText.text = SaveSystem.PlayerConfig.rareEgg.ToString ();
+      // 1 & 2 digabung :
+     // hotelRandomLootObjects[1].text = SaveSystem.PlayerConfig.normalEgg.ToString () + " / " + playerConfig.rareEgg.ToString ();
 
         dictionaryHotelRandomLootConfig = new Dictionary <LootType, HotelRandomLootConfig> ();
         dictionaryHotelRandomLootConfig.Add (LootType.GoldenTicket, hotelRandomLootConfigs [0]);
@@ -261,7 +264,7 @@ public class HotelRandomLoot : MonoBehaviour
                         }
                         GetLoot (config, id);
                         SpawnHotelLootDisplay (config);
-                        ShowTabLoot ();
+                       // ShowTabLoot ();
                         return;
                     }
                 }
@@ -321,9 +324,9 @@ public class HotelRandomLoot : MonoBehaviour
     public void SpawnHotelLootDisplay (HotelRandomLootConfig config) {
         GameObject clone = GameObject.Instantiate(currentLootObject.displayPrefab);
         clone.SetActive (true);
-        clone.transform.SetParent (lootTargetUI.transform.parent);
+        clone.transform.SetParent (config.hotelRandomLootObject.lootTargetUI.transform.parent);
         clone.GetComponent<HotelLootDisplay> ().OnTransitionFinished += PlayLootBounce;
-        clone.GetComponent <HotelLootDisplay> ().StartPlay (lootTargetUI.transform, config, GetHotelRandomLootObject (config.lootType)); 
+        clone.GetComponent <HotelLootDisplay> ().StartPlay (config.hotelRandomLootObject.lootTargetUI.transform, config, GetHotelRandomLootObject (config.lootType)); 
     }
     #endregion
     #region Debug
@@ -404,7 +407,11 @@ public class HotelRandomLoot : MonoBehaviour
     #region UI
     void PlayLootBounce (HotelRandomLootConfig config, HotelRandomLootObject configObject) {
         Debug.Log (config.lootUseable.GetCurrency().ToString ());
-        configObject.currentText.text = config.lootUseable.GetCurrency().ToString ();
+        if (config.lootType == LootType.NormalEgg || config.lootType == LootType.RareEgg) {
+            HotelMainUI.instance.RefreshEgg ();
+        } else {
+            configObject.currentText.text = config.lootUseable.GetCurrency().ToString ();
+        }
         configObject.uiIconBounce.Play ();
     }
 
@@ -430,7 +437,7 @@ public class HotelRandomLoot : MonoBehaviour
                             return;
                         }
                         GetLoot (config, id);
-                        ShowTabLoot ();
+                       // ShowTabLoot ();
                         SpawnLootDisplayUpperNPC (config, npcFrom);
                         return;
                     }
