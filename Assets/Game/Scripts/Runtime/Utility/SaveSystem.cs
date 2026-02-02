@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -385,6 +386,15 @@ public static class SaveSystem
         if (!CoinManager.SpendCoins(monsterPrice))
         {
             Debug.Log($"Not enough coins to buy {monsterData.name}. Needed: {monsterPrice}, Owned: {CoinManager.Coins}");
+            return false;
+        }
+
+        Debug.Log($"In area {_playerConfig.lastGameAreaIndex} we have {MonsterManager.instance.activeMonsters.Count} monsters");
+        if (MonsterManager.instance.activeMonsters.Count >= 25)
+        {
+            Debug.Log("We have reached a limit of 25 monsters");
+            TooltipManager.Instance.StartHover("You already have maximum number of monsters in this area.");
+            
             return false;
         }
 
