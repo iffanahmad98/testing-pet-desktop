@@ -707,6 +707,16 @@ namespace MagicalGarden.Manager
             return total;
         }
 
+        public int GetTotalHotelControllerOccupied () { // HotelMainUI.cs
+            int total = 0;
+            foreach (HotelController hotel in hotelControllers) {
+                if (hotel.IsOccupied) {
+                    total++;
+                }
+            }
+            return total;
+        }
+
         public List <HotelController> GetHotelControllers () { // HotelLocker.cs
             return hotelControllers;
         }

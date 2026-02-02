@@ -13,6 +13,7 @@ public class HotelMainUI : MonoBehaviour
     public TMP_Text hotelGiftText;
     public TMP_Text eggText;
     public TMP_Text hotelRoomText;
+
     void Awake () {
         instance = this;
     }
@@ -59,8 +60,10 @@ public class HotelMainUI : MonoBehaviour
     }
     #endregion
     #region HotelRoom
-    void RefreshHotelRoom () {
-        hotelRoomText.text = "0 / 12";
+
+    public void RefreshHotelRoom () { // HotelController.cs
+       hotelRoomText.text = MagicalGarden.Manager.HotelManager.Instance.GetTotalHotelControllerOccupied ().ToString () + " / " + playerConfig.GetTotalIdHotel ().ToString ();
     }
+
     #endregion
 }

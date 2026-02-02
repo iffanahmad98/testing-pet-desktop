@@ -636,6 +636,10 @@ public class PlayerConfig
         HotelControllerData hotel = GetHotelControllerDataByIdHotel (idHotel);
         hotel.holdReward = holdReward;
     }
+
+    public int GetTotalIdHotel () { // HotelMainUI.cs
+        return listHotelControllerData.Count;
+    }
     #endregion
     #region PetMonsterHotelData
    public void SavePetMonsterHotelElement(PetMonsterHotelData data)
