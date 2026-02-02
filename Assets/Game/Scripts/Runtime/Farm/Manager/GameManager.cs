@@ -27,7 +27,7 @@ namespace MagicalGarden.Farm
 
         private List<GameObject> cloudInstances = new List<GameObject>();
         private Dictionary<GameObject, float> cloudSpeeds = new Dictionary<GameObject, float>();
-        
+
         // Daftar untuk melacak posisi awan yang aktif, untuk pengecekan overlap
         private List<Vector2> activeCloudXRanges = new List<Vector2>();
         void Awake()

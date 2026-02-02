@@ -26,7 +26,7 @@ public static class CoinManager
         }
     }
 
-    public static void AddCoinChangedRefreshEvent (Action value) { // HotelController.cs
+    public static void AddCoinChangedRefreshEvent (Action value) { // HotelController.cs, FarmMainUI.cs
         OnCoinChangedRefreshEvent += value;
     }
 

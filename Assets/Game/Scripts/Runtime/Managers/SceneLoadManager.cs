@@ -16,5 +16,10 @@ public class SceneLoadManager : MonoBehaviour {
         yield return new WaitUntil (() => MagicalGarden.Farm.UIManager.Instance);
       //  Debug.Log ("Focus Scene 2 ");
         MagicalGarden.Farm.UIManager.Instance.SetUIEqualsFocus(value);
+        if (value == "Hotel") {
+            FarmMainUI.instance.Hide ();
+        } else if (value == "Farm") {
+            FarmMainUI.instance.Show ();
+        }
     }
 }

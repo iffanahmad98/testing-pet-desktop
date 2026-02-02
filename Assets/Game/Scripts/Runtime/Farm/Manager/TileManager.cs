@@ -217,7 +217,7 @@ namespace MagicalGarden.Manager
                         PlantManager.Instance.PlantFertilizeAt(cellPos, currentItemdata);
                         break;
                     case TileAction.Remove:
-                        PlantManager.Instance.RemovePlantAt(cellPos);
+                        PlantManager.Instance.RemovePlantAt(cellPos, true);
                         break;
                     case TileAction.Harvest:
                         PlantManager.Instance.HarvestAt(cellPos);
