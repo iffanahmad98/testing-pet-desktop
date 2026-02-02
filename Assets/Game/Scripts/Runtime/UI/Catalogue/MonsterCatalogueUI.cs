@@ -45,12 +45,6 @@ public class MonsterCatalogueUI : MonoBehaviour
     private PlayerConfig playerConfig;
     private bool isPlayerConfigLoaded = false;
 
-    private BiomeManager biomeManager;
-
-    private void Start()
-    {
-        biomeManager = ServiceLocator.Get<BiomeManager>();
-    }
 
     private void Awake()
     {
@@ -494,25 +488,6 @@ public class MonsterCatalogueUI : MonoBehaviour
                 // Here you would typically call a method to switch the game area
                 // GameAreaManager.SetActiveGameArea(index);
                 ServiceLocator.Get<MonsterManager>().SwitchToGameArea(index);
-
-                biomeManager.ChangeBiomeByID(playerConfig.activeBiomesOnAreaID[index]);
-
-                // change decoration active/inactive
-                foreach (OwnedDecorationData ownedDecorationData in playerConfig.ownedDecorations)
-                {
-                    // if (ownedDecorationData.isActive) {
-                    if (ownedDecorationData.areasIsActive[playerConfig.lastGameAreaIndex])
-                    {
-                        ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(ownedDecorationData.decorationID);
-                        DecorationShopManager.instance.SetLastLoadTreeDecoration1(ownedDecorationData.decorationID);
-                    }
-                    else
-                    {
-                        ServiceLocator.Get<DecorationManager>()?.RemoveActiveDecoration(ownedDecorationData.decorationID);
-                    }
-
-                    DecorationUIFixHandler.SetDecorationStats(ownedDecorationData.decorationID);
-                }
             }
             else
             {
@@ -711,10 +686,5 @@ public class CatalogueMonsterData
     public string GetEvolutionStageName()
     {
         return monsterData.GetEvolutionStageName(evolutionLevel);
-    }
-
-    public MonsterType GetMonsterType()
-    {
-        return monsterData.monType;
     }
 }

@@ -31,7 +31,6 @@ public class PlayerConfig
     public List<OwnedItemData> ownedItems = new();
     public List<OwnedItemData> farmHarvestOwnedItems = new ();
     public List<string> ownedBiomes = new();
-    public List<string> activeBiomesOnAreaID = new();
     public List<OwnedFacilityData> ownedFacilities = new();
     public List<OwnedDecorationData> ownedDecorations = new();
     public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
@@ -296,29 +295,6 @@ public class PlayerConfig
         {
             activeBiomeID = biomeID;
         }
-    }
-
-    public void SetActiveBiome(string biomeID, int gameAreaId)
-    {
-        // sets the currently active biome on an area
-
-        if (gameAreaId < 0)
-            throw new ArgumentOutOfRangeException(nameof(gameAreaId));
-
-        // index valid -> replace
-        if (gameAreaId < activeBiomesOnAreaID.Count)
-        {
-            activeBiomesOnAreaID[gameAreaId] = biomeID;
-            return;
-        }
-
-        // index belum ada -> panjangkan list dulu sampai bisa menaruh di index tsb
-        while (activeBiomesOnAreaID.Count < gameAreaId)
-            activeBiomesOnAreaID.Add(string.Empty);
-
-        // sekarang Add akan masuk tepat di index == gameAreaId
-        activeBiomesOnAreaID.Add(biomeID);
-
     }
 
     // Game Area specific monster operations
@@ -764,7 +740,6 @@ public class OwnedDecorationData
 {
     public string decorationID;
     public bool isActive;
-    public List<bool> areasIsActive;
 }
 [Serializable]
 public class OwnedHotelFacilityData
