@@ -85,6 +85,8 @@ namespace MagicalGarden.Manager
             hotelLocker.StartSystem ();
             DebugTimeController.instance.AddPreDebuggingEvent (PauseAllHotelControllersTime);
             DebugTimeController.instance.AddDebuggingEvent (LoadAllHotelControllerDatas);
+            yield return new WaitForSeconds (1.0f);
+            HotelMainUI.instance.RefreshHotelRoom ();
         }
         [ContextMenu("Debug: save room hotel")]
         private void testroom()

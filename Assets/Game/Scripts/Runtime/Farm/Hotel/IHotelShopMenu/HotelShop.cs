@@ -54,6 +54,8 @@ public class HotelShop : MonoBehaviour
 
       RectTransform worldRect = worldCanvas.GetComponent<RectTransform>();
    RectTransform shopRect = hotelShopUI.GetComponent<RectTransform>();
+
+      HotelMainUI.instance.Hide ();
    /*
    Debug.LogError(
       "UI SHOP Scale: " + hotelShopUI.transform.localScale +
@@ -68,6 +70,8 @@ public class HotelShop : MonoBehaviour
       iCameraDragLocker.RemoveLockedBy (this.gameObject);
       UIWorldManager.Instance.OffBackgroundOutside ();
       hotelShopUI.gameObject.SetActive (false);
+
+      HotelMainUI.instance.Show ();
    }
 
    

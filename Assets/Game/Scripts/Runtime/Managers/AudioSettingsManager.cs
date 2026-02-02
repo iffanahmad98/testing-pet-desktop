@@ -25,6 +25,7 @@ public class AudioSettingsManager : MonoBehaviour, ISettingsSavable
     private float cachedMaster;
     private float cachedBGM;
     private float cachedSFX;
+    private bool isMuted;
 
     private void Awake()
     {
@@ -144,4 +145,20 @@ public class AudioSettingsManager : MonoBehaviour, ISettingsSavable
 
         Debug.Log("Audio Settings Reverted");
     }
+
+    #region Mute
+    public void SetMute () {
+        if (isMuted) {
+            isMuted = false;
+            masterMixer.SetFloat("MasterVolume", 0f); // normal
+        } else {
+            isMuted = true;
+            masterMixer.SetFloat("MasterVolume", -80f); // mute
+        }
+    }
+
+    public bool GetMuted () { // HotelMainUI.cs, FarmMainUI.cs
+        return isMuted;
+    }
+    #endregion
 }
