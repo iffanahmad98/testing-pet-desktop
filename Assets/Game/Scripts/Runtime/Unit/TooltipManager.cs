@@ -72,11 +72,12 @@ public class TooltipManager : MonoBehaviour
     {
         initialMousePos = Mouse.current.position.ReadValue();
         float timer = 0f;
+        rectTransform.SetAsLastSibling();
 
         while (timer < hoverShowTime)
         {
             timer += Time.deltaTime;
-
+            
             // float distance = Vector2.Distance(Mouse.current.position.ReadValue(), initialMousePos);
 
             // if (distance > hoverTolerance)
