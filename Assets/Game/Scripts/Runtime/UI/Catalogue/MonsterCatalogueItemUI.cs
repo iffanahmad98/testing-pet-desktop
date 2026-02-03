@@ -21,6 +21,7 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
     public GameObject lockedOverlay;
     public GameObject unlockedOverlay;
     public GameObject addOverlay;
+    public UIDragOutOfScroll uiDragScript;
 
     private CatalogueMonsterData catalogueMonsterData;
     private MonsterCatalogueItemType itemType;
@@ -59,6 +60,7 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
                 lockedOverlay.SetActive(false);
                 unlockedOverlay.SetActive(false);
                 addOverlay.SetActive(false);
+                uiDragScript.enabled = true;
                 break;
             case MonsterCatalogueItemType.Add:
                 monsterImage.color = Color.clear;
@@ -66,6 +68,7 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
                 lockedOverlay.SetActive(false);
                 unlockedOverlay.SetActive(false);
                 addOverlay.SetActive(true);
+                uiDragScript.enabled = false;
                 break;
             case MonsterCatalogueItemType.Locked:
                 monsterImage.color = Color.clear;
@@ -73,6 +76,7 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
                 lockedOverlay.SetActive(true);
                 unlockedOverlay.SetActive(false);
                 addOverlay.SetActive(false);
+                uiDragScript.enabled = false;
                 break;
             case MonsterCatalogueItemType.Unlocked:
                 monsterImage.color = Color.clear;
@@ -80,6 +84,7 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
                 lockedOverlay.SetActive(false);
                 unlockedOverlay.SetActive(true);
                 addOverlay.SetActive(false);
+                uiDragScript.enabled = false;
                 break;
         }
     }

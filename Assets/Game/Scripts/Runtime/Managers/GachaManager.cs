@@ -401,6 +401,15 @@ public class GachaManager : MonoBehaviour
 
     private void SpawnMonster(MonsterDataSO monsterData)
     {
+        // Di sini ngecek jumlah monster kurang dari 25
+        if (MonsterManager.instance.activeMonsters.Count >= 25)
+        {
+            // monster nomber has reached its limit. Show an info message and then return
+            Debug.Log("We have reached a limit of 25 monsters");
+            TooltipManager.Instance.StartHover("You already have maximum number of monsters in this area.");
+            return;
+        }
+
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
 
         // Update List Monster Catalogue

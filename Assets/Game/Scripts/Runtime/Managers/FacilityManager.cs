@@ -42,7 +42,7 @@ public class FacilityManager : MonoBehaviour
     /// <summary>
     /// Initialize Pumpkin Facility state on game start based on saved data
     /// </summary>
-    private void InitializePumpkinFacilityState()
+    public void InitializePumpkinFacilityState()
     {
         // Find Pumpkin Facility in database
         var pumpkinFacility = facilityDatabase?.allFacilities?.Find(f => f.isFreeToggleFacility);

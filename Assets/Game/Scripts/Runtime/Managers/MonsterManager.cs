@@ -434,19 +434,15 @@ public class MonsterManager : MonoBehaviour
 
         if (pooled != null)
         {
+            // batasi supaya tidak terlalu ke pojok
+            if (pos.x < -800) pos.x = -800;
+            if (pos.x > 800) pos.x = 800;
+
             SetupPooledObject(pooled, gameAreaRT, pos);
 
             var poolPos = pooled.transform.position;
             pooled.transform.DOMoveY(poolPos.y + 25f, 0.5f).SetEase(Ease.OutBack);
             pooled.transform.position = poolPos;
-
-            pooled.transform.DOKill(); // stop tween lama kalau ada
-            pooled.transform.DOPunchScale(
-                punch: new Vector3(0.75f, 0.75f, 0f), // seberapa besar “pantulnya”
-                duration: 0.5f,
-                vibrato: 2,        // 1 = sekali pantul (lebih besar = lebih bergetar)
-                elasticity: 0.8f   // 0-1, makin besar makin “springy”
-            );
 
             //pooled.transform.DOLocalMoveY(pos.y, 0.5f);
 
@@ -784,6 +780,28 @@ public class MonsterManager : MonoBehaviour
         LoadMonstersForCurrentArea();
 
         Debug.Log($"Switched to game area {areaIndex}");
+    }
+
+    public void RefreshGameArea()
+    {
+        // Save current monsters before switching
+        SaveAllMonsters();
+
+        // Clear current active monsters (return to pool)
+        var monstersToRemove = activeMonsters.ToList();
+        foreach (var monster in monstersToRemove)
+        {
+            DespawnToPool(monster.gameObject);
+        }
+        activeMonsters.Clear();
+
+        // Clear other active objects too
+        ClearActiveObjects();
+
+        // Load monsters for the new area
+        LoadMonstersForCurrentArea();
+
+        Debug.Log("Refresh monsters in game areas");
     }
 
     private void ClearActiveObjects()
