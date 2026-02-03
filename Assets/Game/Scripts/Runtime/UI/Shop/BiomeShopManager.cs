@@ -150,7 +150,7 @@ public class BiomeShopManager : MonoBehaviour
             {
                 bool canBuy = CheckBuyingRequirement(card);
                 card.SetGrayscale(!canBuy);
-
+                card.SetCanBuy (canBuy);
                 if (!canBuy)
                     continue;
 
