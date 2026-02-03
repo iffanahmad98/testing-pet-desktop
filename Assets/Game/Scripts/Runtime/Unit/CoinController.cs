@@ -64,6 +64,8 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
     {
         if (isCollected) return;
 
+        isCollected = true;
+
         var coinRectTransform = rectTransform.GetChild(1).transform;
 
         MonsterManager.instance.audio.PlaySFX("collect_coin");
@@ -74,7 +76,8 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
                 CoinManager.AddCoins(value);
                 ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
                 ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
-            });        
+            });   
+        
     }
 
     public void OnPointerDown(PointerEventData eventData)
