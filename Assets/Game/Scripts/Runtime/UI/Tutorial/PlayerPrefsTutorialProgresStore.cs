@@ -9,36 +9,39 @@ internal sealed class PlayerPrefsTutorialProgressStore : ITutorialProgressStore
         _keyPrefix = string.IsNullOrEmpty(keyPrefix) ? "tutorial_" : keyPrefix;
     }
 
-    private string GetKey(string tutorialId)
+    private string GetKey(int stepIndex)
     {
-        return _keyPrefix + tutorialId;
+        return _keyPrefix + stepIndex;
     }
 
-    public bool IsCompleted(string tutorialId)
+    public bool IsCompleted(int stepIndex)
     {
-        if (string.IsNullOrEmpty(tutorialId))
+        if (stepIndex < 0)
             return true;
 
-        var key = GetKey(tutorialId);
+        var key = GetKey(stepIndex);
         return PlayerPrefs.GetInt(key, 0) == 1;
     }
 
-    public void MarkCompleted(string tutorialId)
+    public void MarkCompleted(int stepIndex)
     {
-        if (string.IsNullOrEmpty(tutorialId))
+        if (stepIndex < 0)
             return;
 
-        var key = GetKey(tutorialId);
+        var key = GetKey(stepIndex);
         PlayerPrefs.SetInt(key, 1);
         PlayerPrefs.Save();
     }
 
-    public void Clear(string tutorialId)
+    public void ClearAll(int stepCount)
     {
-        if (string.IsNullOrEmpty(tutorialId))
+        if (stepCount <= 0)
             return;
 
-        var key = GetKey(tutorialId);
-        PlayerPrefs.DeleteKey(key);
+        for (int i = 0; i < stepCount; i++)
+        {
+            var key = GetKey(i);
+            PlayerPrefs.DeleteKey(key);
+        }
     }
 }

@@ -18,9 +18,7 @@ public class TutorialManager : MonoBehaviour, ITutorialService
     [SerializeField] private Transform dialogRoot;
 
     private ITutorialProgressStore _progressStore;
-    private string _currentTutorialId;
-
-    // State dialog yang sedang aktif (kalau step menggunakan dialog)
+    private int _currentStepIndex = -1;
     private ITutorialDialogView _activeDialogView;
     private TutorialStep _activeDialogStep;
     private int _activeDialogIndex;
@@ -31,106 +29,88 @@ public class TutorialManager : MonoBehaviour, ITutorialService
 
         HideAllTutorialPanels();
 
-        foreach (var step in tutorialSteps)
+        for (int i = 0; i < tutorialSteps.Count; i++)
         {
+            var stepIndex = i;
+            var step = tutorialSteps[i];
             if (step.nextButton != null)
             {
-                var capturedId = step.id;
                 step.nextButton.onClick.RemoveAllListeners();
-                step.nextButton.onClick.AddListener(() => CompleteTutorial(capturedId));
+                step.nextButton.onClick.AddListener(() =>
+                {
+                    _currentStepIndex = stepIndex;
+                    CompleteCurrent();
+                });
             }
         }
     }
-    public bool HasCompletedTutorial(string tutorialId)
-    {
-        return HasCompleted(tutorialId);
-    }
-
-    public bool TryStartTutorial(string tutorialId)
-    {
-        return TryStart(tutorialId);
-    }
-
-    public void CompleteTutorial(string tutorialId)
-    {
-        Complete(tutorialId);
-    }
-
-    public void ResetTutorial(string tutorialId)
-    {
-        Reset(tutorialId);
-    }
-    public void ResetAllTutorials()
-    {
-        ResetAll();
-    }
-
-    public bool HasCompleted(string tutorialId)
+    public bool HasAnyPending()
     {
         if (_progressStore == null)
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
 
-        return _progressStore.IsCompleted(tutorialId);
-    }
-
-    public bool TryStart(string tutorialId)
-    {
-        if (string.IsNullOrEmpty(tutorialId))
-            return false;
-
-        if (HasCompleted(tutorialId))
-            return false;
-
-        var step = FindStepById(tutorialId);
-        if (step == null)
+        for (int i = 0; i < tutorialSteps.Count; i++)
         {
-            Debug.LogWarning($"Tutorial step dengan ID '{tutorialId}' tidak ditemukan di TutorialManager.");
-            return false;
+            if (!_progressStore.IsCompleted(i))
+                return true;
         }
 
-        _currentTutorialId = tutorialId;
-        // Jika step ini dikonfigurasi memakai dialog, jalankan dialog sequence.
+        return false;
+    }
+
+    public bool TryStartNext()
+    {
+        if (_progressStore == null)
+            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
+
+        TutorialStep step = null;
+        _currentStepIndex = -1;
+
+        for (int i = 0; i < tutorialSteps.Count; i++)
+        {
+            if (_progressStore.IsCompleted(i))
+                continue;
+
+            if (tutorialSteps[i] == null)
+                continue;
+
+            _currentStepIndex = i;
+            step = tutorialSteps[i];
+            break;
+        }
+
+        if (step == null)
+            return false;
+
         if (step.useDialog && step.dialogPrefab != null && step.dialogLines != null && step.dialogLines.Count > 0)
         {
             StartDialogStep(step);
         }
         else
         {
-            // Fallback ke perilaku lama: show panel biasa.
             ShowOnly(step);
         }
+
         return true;
     }
 
-    public void Complete(string tutorialId)
+    public void CompleteCurrent()
     {
-        if (string.IsNullOrEmpty(tutorialId))
+        if (_currentStepIndex < 0 || _currentStepIndex >= tutorialSteps.Count)
             return;
 
         if (_progressStore == null)
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
 
-        _progressStore.MarkCompleted(tutorialId);
+        _progressStore.MarkCompleted(_currentStepIndex);
 
-        var step = FindStepById(tutorialId);
+        var step = tutorialSteps[_currentStepIndex];
         if (step != null && step.panelRoot != null)
         {
             step.panelRoot.SetActive(false);
         }
 
-        if (_currentTutorialId == tutorialId)
-            _currentTutorialId = null;
-    }
-
-    public void Reset(string tutorialId)
-    {
-        if (string.IsNullOrEmpty(tutorialId))
-            return;
-
-        if (_progressStore == null)
-            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
-
-        _progressStore.Clear(tutorialId);
+        _currentStepIndex = -1;
     }
 
     public void ResetAll()
@@ -138,20 +118,11 @@ public class TutorialManager : MonoBehaviour, ITutorialService
         if (_progressStore == null)
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
 
-        foreach (var step in tutorialSteps)
-        {
-            if (string.IsNullOrEmpty(step.id))
-                continue;
-
-            _progressStore.Clear(step.id);
-        }
+        _progressStore.ClearAll(tutorialSteps.Count);
     }
-
-    // ------------ Dialog handling ------------
 
     private void StartDialogStep(TutorialStep step)
     {
-        // Sembunyikan semua panel lain supaya fokus ke dialog.
         HideAllTutorialPanels();
 
         _activeDialogStep = step;
@@ -176,20 +147,17 @@ public class TutorialManager : MonoBehaviour, ITutorialService
 
         nextButton.onClick.RemoveAllListeners();
         nextButton.onClick.AddListener(OnDialogNextClicked);
+        Debug.Log($"[TutorialManager] BindDialogNextButton ke {nextButton.gameObject.name}");
     }
 
     private void OnDialogNextClicked()
     {
-        if (_activeDialogStep == null || _activeDialogView == null)
-            return;
 
+        Debug.Log($"TutorialManager: Next dialog line untuk stepIndex={_currentStepIndex}, index sebelumnya = {_activeDialogIndex}.");
         _activeDialogIndex++;
 
         if (_activeDialogIndex >= _activeDialogStep.dialogLines.Count)
         {
-            // Sequence selesai: tutup dialog dan tandai tutorial complete.
-            var finishedId = _currentTutorialId;
-
             var dialogGo = (_activeDialogView as MonoBehaviour)?.gameObject;
             if (dialogGo != null)
             {
@@ -200,10 +168,8 @@ public class TutorialManager : MonoBehaviour, ITutorialService
             _activeDialogStep = null;
             _activeDialogIndex = 0;
 
-            if (!string.IsNullOrEmpty(finishedId))
-            {
-                Complete(finishedId);
-            }
+            Debug.Log($"TutorialManager: dialog tutorial untuk stepIndex={_currentStepIndex} selesai, memanggil CompleteCurrent.");
+            CompleteCurrent();
         }
         else
         {
@@ -222,12 +188,9 @@ public class TutorialManager : MonoBehaviour, ITutorialService
         var line = _activeDialogStep.dialogLines[_activeDialogIndex];
         bool isLast = _activeDialogIndex == _activeDialogStep.dialogLines.Count - 1;
 
+        Debug.Log($"TutorialManager: tampilkan dialog line {_activeDialogIndex + 1}/{_activeDialogStep.dialogLines.Count} untuk stepIndex={_currentStepIndex}.");
         _activeDialogView.SetDialog(line.speakerName, line.text, isLast);
         _activeDialogView.Show();
-    }
-    private TutorialStep FindStepById(string tutorialId)
-    {
-        return tutorialSteps.Find(s => string.Equals(s.id, tutorialId, StringComparison.Ordinal));
     }
 
     private void HideAllTutorialPanels()

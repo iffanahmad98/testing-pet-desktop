@@ -5,10 +5,6 @@ public class LoginTutorialTrigger : MonoBehaviour
     public TutorialManager tutorialManager;
     private ITutorialService _tutorialService;
 
-    [Header("Config")]
-    [Tooltip("ID tutorial yang mau dicek waktu login. Harus sama dengan ID di TutorialManager.")]
-    public string tutorialId = "Login";
-
     private void Awake()
     {
         _tutorialService = tutorialManager;
@@ -21,19 +17,19 @@ public class LoginTutorialTrigger : MonoBehaviour
             return;
         }
 
-        var alreadyDone = _tutorialService.HasCompleted(tutorialId);
+        var hasPending = _tutorialService.HasAnyPending();
 
-        if (!alreadyDone)
+        if (hasPending)
         {
-            var started = _tutorialService.TryStart(tutorialId);
+            var started = _tutorialService.TryStartNext();
             if (!started)
             {
-                Debug.LogWarning($"LoginTutorialTrigger: gagal start tutorial dengan ID '{tutorialId}'. Cek konfigurasi TutorialManager.");
+                Debug.LogWarning("LoginTutorialTrigger: gagal start tutorial berikutnya. Cek konfigurasi TutorialManager.");
             }
         }
         else
         {
-            Debug.Log($"Tutorial '{tutorialId}' sudah pernah diselesaikan, langsung lanjut gameplay.");
+            Debug.Log("Semua tutorial sudah pernah diselesaikan, langsung lanjut gameplay.");
         }
     }
 }

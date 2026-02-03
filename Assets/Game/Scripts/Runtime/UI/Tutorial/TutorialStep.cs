@@ -6,9 +6,6 @@ using UnityEngine.UI;
 [Serializable]
 public class TutorialStep
 {
-    [Tooltip("ID unik untuk step / tutorial ini. Contoh: Login, FirstBattle, dsb.")]
-    public string id;
-
     [Header("UI Panel (Opsional)")]
     [Tooltip("Root panel untuk step ini (GameObject yang berisi semua elemen UI tutorial)")]
     public GameObject panelRoot;
@@ -25,15 +22,4 @@ public class TutorialStep
 
     [Tooltip("Daftar dialog yang akan ditampilkan berurutan untuk step ini.")]
     public List<TutorialDialogLine> dialogLines = new List<TutorialDialogLine>();
-}
-
-[Serializable]
-public class TutorialDialogLine
-{
-    [Tooltip("Nama speaker / karakter. Boleh dikosongkan kalau tidak perlu.")]
-    public string speakerName;
-
-    [TextArea]
-    [Tooltip("Teks dialog yang akan ditampilkan.")]
-    public string text;
 }
