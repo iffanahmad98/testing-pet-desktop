@@ -41641,6 +41641,7 @@ GameObject:
   - component: {fileID: 770543059}
   - component: {fileID: 770543058}
   - component: {fileID: 770543060}
+  - component: {fileID: 770543061}
   m_Layer: 5
   m_Name: Sprite
   m_TagString: Untagged
@@ -41722,6 +41723,19 @@ MonoBehaviour:
   scaleMultiplier: 1.05
   tweenTime: 0.15
   ease: 6
+--- !u!114 &770543061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 770543056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7995f59964fc12546bd9308a08a53cba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipData: {fileID: 11400000, guid: 31789d80fcad90749960ee892ad6b0ea, type: 2}
 --- !u!1 &771880052 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4233530192915360356, guid: 0627320bb009d204c931fffcd567c666, type: 3}
@@ -48427,6 +48441,7 @@ GameObject:
   - component: {fileID: 988489145}
   - component: {fileID: 988489147}
   - component: {fileID: 988489148}
+  - component: {fileID: 988489149}
   m_Layer: 5
   m_Name: miniInventoryBtn
   m_TagString: Untagged
@@ -48551,6 +48566,19 @@ MonoBehaviour:
   scaleMultiplier: 1.2
   tweenTime: 0.15
   ease: 6
+--- !u!114 &988489149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 988489143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7995f59964fc12546bd9308a08a53cba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipData: {fileID: 11400000, guid: 9d31ce60661373f42b3eea4ef2771f97, type: 2}
 --- !u!1 &994089426 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4277156262733095157, guid: 4477387947faf0441bcc879831a43cdb, type: 3}
