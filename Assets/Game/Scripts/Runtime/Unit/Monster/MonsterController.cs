@@ -54,6 +54,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     public MonsterDataSO MonsterData => monsterData;
     public Transform EatingPos => eatingPos;
     public string timeCreated { get; private set; }
+    public string lastPokedTime { get; private set; }
 
     // Event handlers
     private Action<float> _hungerChangedHandler;
@@ -209,8 +210,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     private IEnumerator FinalizeInitialization()
     {
-        yield return null;
-        ;
+        yield return new WaitUntil(()=>  SaveSystem.IsLoadFinished);
+        
         // Add this: Load saved data before starting coroutines
         if (MonsterData != null)
         {
@@ -682,6 +683,11 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         }
     }
 
+    public void SetLastTimePokedTimer(string timer)
+    {
+        lastPokedTime = timer;
+    }
+
     public void LoadMonData() => _saveHandler?.LoadData();
 
     #endregion
@@ -829,7 +835,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     public void UpdateVisuals() => _visualHandler?.ApplyMonsterVisuals();
     public void DropPoop(PoopType type = PoopType.Normal) => _visualHandler?.SpawnPoopWithAnimation(type);
-    public void DropCoin(CoinType type) => _visualHandler?.SpawnCoinWithAnimation(type);
+    public void DropCoin(CoinType type) => _visualHandler?.SpawnCoinWithAnimation(type, CalculateCoinMultiplier());
     public Sprite GetMonsterIcon() => _visualHandler?.GetMonsterIcon();
 
     public void SetFallingStarsState(bool state)
@@ -930,6 +936,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     }
 
     #endregion
+
     #region GetMonsterOutsidePlains
     // EggCrackAnimator - MonsterManager
     public void CreateHandlersForSavingData() {
@@ -938,6 +945,37 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         
         */
         CreateHandlers();
+    }
+    #endregion
+
+    #region Utility
+    private int CalculateCoinMultiplier()
+    {
+        if (DateTime.TryParse(lastPokedTime, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime lastSaveTime))
+        {
+            DateTime now = DateTime.UtcNow;
+            TimeSpan difference = now - lastSaveTime;
+
+            double hoursAway = difference.TotalHours;
+
+            if(hoursAway < 1) 
+                return 1;
+
+            float baseMultiplier = MathF.Min((float)(60f * hoursAway), 60f * 48f);
+            if (currentHunger <= 35f || IsSick)
+            {
+                baseMultiplier /= 6f;
+            }
+
+            if (baseMultiplier < 1f)
+                baseMultiplier = 1f;
+
+            Debug.Log($"Base Multiplier --> {baseMultiplier} and The final int is {(int) baseMultiplier}");
+
+            return (int)baseMultiplier;
+        }
+
+        return 1;
     }
     #endregion
 }

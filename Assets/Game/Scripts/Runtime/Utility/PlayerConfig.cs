@@ -38,8 +38,6 @@ public class PlayerConfig
     public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
     public List<HiredFarmFacilityData> hiredFarmFacilitiesData = new ();
     public List<OwnedItemFarmData> ownedItemFarmDatas = new ();
-    
-    
 
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;

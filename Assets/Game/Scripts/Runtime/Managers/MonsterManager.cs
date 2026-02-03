@@ -162,6 +162,49 @@ public class MonsterManager : MonoBehaviour
             SpawnMonster(monsterData);
     }
 
+    public void SpawnMonster(MonsterDataSO monsterData, MonsterSaveData data)
+    {
+        GameObject monster = CreateMonster(monsterData);
+        var controller = monster.GetComponent<MonsterController>();
+
+
+        controller.monsterID = data.instanceId;
+        controller.SetLastTimePokedTimer(data.lastPokedTimer);
+        var (_, evolutionLevel) = GetMonsterDataAndLevelFromID(data.instanceId);
+        if (evolutionLevel > 0) controller.evolutionLevel = evolutionLevel;
+
+        controller.LoadMonData();
+
+        var sg = controller.GetComponentInChildren<Spine.Unity.SkeletonGraphic>(true);
+        if (sg != null)
+        {
+            // (opsional) kalau skeleton per level-mu ganti asset, set di sini:
+            sg.skeletonDataAsset = controller.MonsterData.monsterSpine[0];
+
+            sg.Initialize(true);                   // re-init atlas/pose
+            sg.Skeleton?.SetToSetupPose();         // reset ke setup pose
+            sg.AnimationState?.SetAnimation(0, "idle", true);  // set anim idle (atau anim defaultmu)
+        }
+        var finalData = controller.MonsterData;
+        monster.name = $"{finalData.name}_{controller.monsterID}";
+
+        RegisterLoadedMonster(controller);
+
+        // Apply current pet scale to newly spawned monster
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null)
+        {
+            settingsManager.ApplyCurrentPetScaleToMonster(controller);
+        }
+
+        RectTransform monsterRectTransform = monster.GetComponent<RectTransform>();
+        if (monsterRectTransform)
+        {
+            Debug.Log("Change Pivot to (0.5,0.0f)");
+            monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
+        }
+    }
+
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
     {
         GameObject monster = CreateMonster(monsterData);
@@ -499,14 +542,14 @@ public class MonsterManager : MonoBehaviour
     #endregion
 
     #region Item Management
-    public GameObject SpawnCoinWithArc(Vector2 startPosition, Vector2 targetPosition, CoinType type)
+    public GameObject SpawnCoinWithArc(Vector2 startPosition, Vector2 targetPosition, CoinType type, int multiplier = 1)
     {
         var coin = GetPooledObject(_coinPool, coinPrefab);
         if (coin != null)
         {
             SetupPooledObject(coin, gameAreaRT, startPosition);
             activeCoins.Add(coin.GetComponent<CoinController>());
-            coin.GetComponent<CoinController>().Initialize(type);
+            coin.GetComponent<CoinController>().Initialize(type, multiplier);
 
             // Start arc animation coroutine
             StartCoroutine(AnimateCoinArc(coin.transform, startPosition, targetPosition));
@@ -724,7 +767,7 @@ public class MonsterManager : MonoBehaviour
                     var (monsterData, evolutionLevel) = GetMonsterDataAndLevelFromID(id);
                     if (monsterData != null)
                     {
-                        SpawnMonster(monsterData, id);
+                        SpawnMonster(monsterData, saveData);
                     }
                 }
             }
@@ -744,12 +787,13 @@ public class MonsterManager : MonoBehaviour
                 currentHappiness = monster.StatsHandler.CurrentHappiness,
                 currentHealth = monster.StatsHandler.CurrentHP,
                 currentEvolutionLevel = monster.evolutionLevel,
+                lastPokedTimer = monster.lastPokedTime,
 
                 // Evolution data
                 timeCreated = monster.GetEvolveTimeCreated(),
                 totalTimeSinceCreation = monster.GetEvolveTimeSinceCreation(),
                 nutritionConsumed = monster.GetEvolveNutritionConsumed(),
-                currentInteraction = monster.GetEvolutionInteractionCount()
+                currentInteraction = monster.GetEvolutionInteractionCount(),
             };
             SaveSystem.SaveMon(saveData);
         }

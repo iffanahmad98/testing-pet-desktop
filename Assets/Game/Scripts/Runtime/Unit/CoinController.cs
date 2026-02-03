@@ -26,12 +26,12 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
         rectTransform = GetComponentInChildren<RectTransform>();
     }
 
-    public void Initialize(CoinType coinType)
+    public void Initialize(CoinType coinType, int multiplier = 1)
     {
         isCollected = false;
         ReservedBy = null; // Reset reservation
         type = coinType;
-        value = (int)type;
+        value = (int)type * multiplier;
         if (coinType == CoinType.Platinum)
         {
             animator.SetTrigger("Silver");

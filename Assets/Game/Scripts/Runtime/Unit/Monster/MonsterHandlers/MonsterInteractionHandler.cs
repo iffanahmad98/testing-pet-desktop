@@ -1,7 +1,8 @@
-using UnityEngine;
-using UnityEngine.EventSystems;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MonsterInteractionHandler
 {
@@ -50,6 +51,7 @@ public class MonsterInteractionHandler
 
         MonsterState pokeState = GetRandomPokeState();
         _controller.StateMachine?.ChangeState(pokeState);
+        _controller.SetLastTimePokedTimer (DateTime.UtcNow.ToString("o"));
 
         if (_hasBeenInteractedWith)
         {
@@ -90,7 +92,7 @@ public class MonsterInteractionHandler
             return MonsterState.Idle;
         }
 
-        int randomIndex = Random.Range(0, availableStates.Count);
+        int randomIndex = UnityEngine.Random.Range(0, availableStates.Count);
         MonsterState selectedState = availableStates[randomIndex];
 
         if (!_controller.StateMachine.AnimationHandler.HasValidAnimationForState(selectedState))

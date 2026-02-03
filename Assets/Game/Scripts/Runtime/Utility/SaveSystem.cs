@@ -15,6 +15,8 @@ public static class SaveSystem
     public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig (Not Used)
     public static int LoadPoop() => _playerConfig.poops;
     public static event Action <PlayerConfig> DataLoaded; // DecorationManager
+
+    public static bool IsLoadFinished = false;
     
 
     public static void Initialize()
@@ -262,6 +264,8 @@ public static class SaveSystem
         {
             CreateNewPlayerConfig();
         }
+
+        IsLoadFinished = true;
     }
 
 
