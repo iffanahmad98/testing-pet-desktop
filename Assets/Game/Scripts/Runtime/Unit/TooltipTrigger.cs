@@ -8,7 +8,7 @@ public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (tooltipData != null)
+        if (tooltipData != null && this.gameObject.activeInHierarchy)
         {
             TooltipManager.Instance.StartHover(tooltipData.infoData);
         }
