@@ -522,6 +522,7 @@ public class ItemInventoryUI : MonoBehaviour
     {
         SetCanvasGroupVisibility(quickViewGameObject, true);
         SetCanvasGroupVisibility(horizontalBarGameObject, false);
+        SetCanvasGroupVisibility(cartButton.gameObject, true);
         SetCanvasGroupVisibility(verticalContentGameObject, false);
     }
 
