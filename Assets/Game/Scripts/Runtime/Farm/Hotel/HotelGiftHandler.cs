@@ -62,8 +62,8 @@ public class HotelGiftHandler : MonoBehaviour
 
     void ShowTabLoot () {
         
-        uiIconTabBounce.gameObject.SetActive (true);
-        uiIconTabBounce.Play ();
+       // uiIconTabBounce.gameObject.SetActive (true);
+      //  uiIconTabBounce.Play ();
     }
 
     void PlayLootBounce () {

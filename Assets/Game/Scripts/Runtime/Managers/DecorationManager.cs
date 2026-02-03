@@ -9,10 +9,10 @@ public class DecorationManager : MonoBehaviour {
     [SerializeField] Transform gameArea;
     
     
-
     void Awake () {
         SaveSystem.DataLoaded += LoadDecorations;
     }
+    
 
     void Start () {
         ServiceLocator.Register (this);

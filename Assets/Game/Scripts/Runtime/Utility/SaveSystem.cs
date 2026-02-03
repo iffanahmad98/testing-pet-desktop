@@ -250,12 +250,12 @@ public static class SaveSystem
                 DataLoaded?.Invoke(_playerConfig);
 
                 Debug.Log("Game data loaded successfully");
-                Debug.Log("You have Golden Tickets: " + _playerConfig.goldenTicket);
+              
             }
             catch (Exception e)
             {
                 Debug.LogError("Failed to load game data: " + e.Message);
-                CreateNewPlayerConfig();
+              //   CreateNewPlayerConfig();
             }
         }
         else
@@ -743,8 +743,8 @@ public static class SaveSystem
     {
         if (_playerConfig == null)
         {
-            Debug.LogWarning("PlayerConfig was null, creating new one.");
-            CreateNewPlayerConfig();
+            Debug.LogError("PlayerConfig was null, creating new one.");
+           // CreateNewPlayerConfig();
         }
         return _playerConfig;
     }

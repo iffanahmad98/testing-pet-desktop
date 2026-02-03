@@ -15,7 +15,7 @@ public class MonsterInteractionHandler
     public MonsterInteractionHandler(MonsterController controller, MonsterStateMachine stateMachine)
     {
         _controller = controller;
-        _controller.StateMachine.OnStateChanged += OnStateChanged;
+        // (Ada bug send to plains kalau ini di aktifkan pas buka telur) _controller.StateMachine.OnStateChanged += OnStateChanged;
         _cursorManager = ServiceLocator.Get<CursorManager>();
         _isNPC = controller.isNPC;
     }
