@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Llasalix_Data
   m_EditorClassIdentifier: 
   itemID: common_llasalix
-  itemName: Llasalix
+  itemName: llasalix
   description: "A gentle leafy friend with a fresh \u201Cgarden spirit\u201D vibe.
     The type of pet that makes your room feel brighter like nature moved in and decided
     to be cute."
@@ -23,8 +23,10 @@ MonoBehaviour:
   - anyTypeMonster: 1
     monsterType: 0
     minimumRequirements: 2
+  requirementTipDataSO: {fileID: 11400000, guid: 5cc878086ab0582489822ddeae0532d1, type: 2}
   price: 320
   nutritionValue: 0
   itemImgs:
   - {fileID: -3235876116154576855, guid: dae1c1c8cfe0170418422163cfcea7e6, type: 3}
   skeletonDataAsset: {fileID: 11400000, guid: 0acf7e148c97a87428e43798c9f6901c, type: 2}
+  rewardScale: {x: 0, y: 0, z: 0}

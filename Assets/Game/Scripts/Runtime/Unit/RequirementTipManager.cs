@@ -8,7 +8,6 @@ public class RequirementTipManager : MonoBehaviour
     public static RequirementTipManager Instance;
 
     [Header("Settings Properties")]
-    public float hoverShowTime = 0.60f;
     public float hoverHideTime = 0.15f;
     public float hoverTolerance = 8f;
     public float clampX = 40f;
@@ -52,8 +51,8 @@ public class RequirementTipManager : MonoBehaviour
         }
     }
 
-    public void StartHover(string info)
-    {
+    public void StartClick(string info)
+    { // MonsterShopManager.cs, ItemShopManager.cs
         if (currentCoroutine != null)
             StopCoroutine(currentCoroutine);
 
@@ -66,27 +65,12 @@ public class RequirementTipManager : MonoBehaviour
             StopCoroutine(currentCoroutine);
 
         currentCoroutine = StartCoroutine(HideTimer());
+        
     }
 
     private IEnumerator ShowTimer(string info)
     {
-        initialMousePos = Mouse.current.position.ReadValue();
-        float timer = 0f;
-
-        while (timer < hoverShowTime)
-        {
-            timer += Time.deltaTime;
-
-            // float distance = Vector2.Distance(Mouse.current.position.ReadValue(), initialMousePos);
-
-            // if (distance > hoverTolerance)
-            // {
-            //     yield break;
-            // }
-
-            yield return null;
-        }
-
+        yield return null;
         Show(info);
     }
 

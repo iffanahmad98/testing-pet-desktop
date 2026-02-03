@@ -1,16 +1,16 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class RequirementTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class RequirementTipClick : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
 {
     [Header("Tooltip Data")]
     public TooltipDataSO tooltipData;
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData eventData)
     {
-        if (tooltipData != null && this.gameObject.activeInHierarchy)
+        if (tooltipData != null && gameObject.activeInHierarchy)
         {
-            RequirementTipManager.Instance.StartHover(tooltipData.infoData);
+            RequirementTipManager.Instance.StartClick(tooltipData.infoData);
         }
     }
 

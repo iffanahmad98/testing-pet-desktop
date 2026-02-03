@@ -2,8 +2,8 @@ using Spine.Unity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class MonsterCardUI : MonoBehaviour
+using UnityEngine.EventSystems;
+public class MonsterCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
 {
     [Header("UI References")] public Image monsterIcon;
     public GameObject grayscaleObj;
@@ -27,6 +27,7 @@ public class MonsterCardUI : MonoBehaviour
     public System.Action<MonsterCardUI> OnSelected; // Called when select button clicked
     public System.Action<MonsterCardUI> OnBuy; // Called when buy button clicked
 
+    bool isCanBuy = false;
     private void Start()
     {
         selectButton.onClick.RemoveAllListeners();
@@ -137,4 +138,20 @@ public class MonsterCardUI : MonoBehaviour
     {
         return isSelected;
     }
+
+    #region Requirement
+    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+        isCanBuy = value;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.StartClick(monsterItemData.requirementTipDataSO.GetInfoData ());
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.EndHover();
+    }
+    #endregion
 }
