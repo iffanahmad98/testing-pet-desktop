@@ -348,11 +348,9 @@ public class DecorationShopManager : MonoBehaviour
     // DecorationCardUI (Start)
     public void SetLastLoadTreeDecoration1(string id)
     {
-        Debug.Log("Decoration Replace 0,1x");
         if (listTreeDecoration1.Contains(id))
         {
             lastLoadTreeDecoration1 = id;
-            Debug.Log("Decoration Replace 0,5x :" + lastLoadTreeDecoration1);
         }
     }
 
