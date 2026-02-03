@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public Button markFavoriteButton;
     public CatalogueMonsterData currentMonsterData;
     public Button sellMonsterButton;
+    public Button renameMonsterButton;
 
     private void Awake()
     {
@@ -45,6 +47,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     {
         sellMonsterButton.onClick.RemoveAllListeners();
         sellMonsterButton.onClick.AddListener(() => { SellMonster(); });
+
+        renameMonsterButton.onClick.RemoveAllListeners();
+        renameMonsterButton.onClick.AddListener(() => { RenameMonster(); });
 
     }
     public void SetDetails(CatalogueMonsterData catalogueMonsterData = null)
@@ -87,9 +92,12 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             });
 
             // Set details using CatalogueMonsterData
+            var playerConfig = SaveSystem.GetPlayerConfig();
+            var found = playerConfig.ownedMonsters.Find(m => m.instanceId == currentMonsterData.monsterID);
+
             canvasGroup.alpha = 1f;
             monsterImage.sprite = catalogueMonsterData.GetMonsterIcon(MonsterIconType.Detail);
-            monsterNameText.text = catalogueMonsterData.monsterData.name;
+            monsterNameText.text = found.monsterId;
             monsterTypeText.text = catalogueMonsterData.monsterData.monType.ToString();
             monsterEvolutionText.text = $"Stage {catalogueMonsterData.GetEvolutionStageName()}";
             monsterFullnessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHunger * 0.01f);
@@ -97,6 +105,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             monsterEvolutionProgressSlider.value = (catalogueMonsterData.evolutionLevel - 1f) / 2f;
             monsterSellPriceText.text = $"{catalogueMonsterData.GetSellPrice()}";
             monsterEarningText.text = $"{(1 / catalogueMonsterData.GetGoldCoinDropRate() / 60).ToString("F2")} / MIN";
+
+            TMP_InputField inputField = renameMonsterButton.GetComponentInChildren<TMP_InputField>(true);
+            inputField.text = monsterNameText.text;
         }
     }
 
@@ -107,6 +118,75 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         {
             SetDetails(new CatalogueMonsterData(evolvedMonster));
         }
+    }
+
+    private void RenameMonster()
+    {
+        if (currentMonsterData == null)
+        {
+            Debug.LogWarning("No monster to rename");
+            return;
+        }
+
+        TMP_InputField inputField = renameMonsterButton.GetComponentInChildren<TMP_InputField>(true);
+
+        if (inputField == null)
+        {
+            Debug.LogError("TMP_InputField not found as child of game area button.");
+            return;
+        }
+
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
+        // show the input field
+        inputField.gameObject.SetActive(true);
+
+        // Set the current text as the input field value
+        string oldName = inputField.text;
+        inputField.text = "Rename";
+
+        // Focus the input field and select all text
+        inputField.Select();
+        inputField.ActivateInputField();
+
+        // Remove any existing listeners to prevent duplicates
+        inputField.onEndEdit.RemoveAllListeners();
+
+        // Add listener for when editing is finished
+        inputField.onEndEdit.AddListener((newName) => OnRenameComplete(renameMonsterButton, newName, inputField, oldName));
+
+        // Add listener for when input field loses focus
+        inputField.onDeselect.AddListener((value) => OnRenameComplete(renameMonsterButton, value, inputField, oldName));
+    }
+
+    private void OnRenameComplete(Button gameAreaButton, string newName, TMP_InputField inputField, string oldName)
+    {
+        // Validate the new name
+        if (string.IsNullOrWhiteSpace(newName) || newName == "Rename")
+        {
+            newName = oldName; // Default name if empty
+        }
+
+        // Trim whitespace and limit length if needed
+        newName = newName.Trim();
+        if (newName.Length > 15) // Adjust max length as needed
+        {
+            newName = newName.Substring(0, 15);
+        }
+
+        monsterNameText.text = newName;
+
+        inputField.gameObject.SetActive(false);
+
+        // save the game
+        var playerConfig = SaveSystem.GetPlayerConfig();
+        var found = playerConfig.ownedMonsters.Find(m => m.instanceId == currentMonsterData.monsterID);
+        found.monsterId = newName;
+        playerConfig.SaveMonsterData(found);
+        
+        // Remove listeners to prevent memory leaks
+        inputField.onEndEdit.RemoveAllListeners();
+        inputField.onDeselect.RemoveAllListeners();
     }
 
     private void SellMonster()
