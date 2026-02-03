@@ -128,8 +128,8 @@ public class ItemShopManager : MonoBehaviour
     {
         var item = card.itemData;
 
-        //if (CheckBuyingRequirement(card))
-        if (true) // DEBUG ONLY
+        if (CheckBuyingRequirement(card))
+        // if (true) // DEBUG ONLY
         {
             if (SaveSystem.TryBuyItem(item))
             {
