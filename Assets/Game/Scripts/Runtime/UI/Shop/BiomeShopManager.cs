@@ -35,6 +35,7 @@ public class BiomeShopManager : MonoBehaviour
     private List<BiomeCardUI> activeCards = new List<BiomeCardUI>();
 
     private bool canBuyMonster;
+    private WaitForEndOfFrame waitEndOfFrame = new();
 
     private void Awake()
     {
@@ -133,48 +134,41 @@ public class BiomeShopManager : MonoBehaviour
         {
             BiomeCardUI card = GetPooledCard();
             card.Setup(biome);
+
             card.OnSelected = OnBiomeSelected;
             card.OnApplyClicked = OnBiomeApply;
             card.OnCancelApplied = OnBiomeCancel;
             card.OnBuyClicked = OnBiomeBuy;
 
+            bool canBuy = CheckBuyingRequirement(card);
+            card.SetGrayscale(!canBuy);
+
             activeCards.Add(card);
         }
 
-        yield return new WaitForEndOfFrame();
-
-        // Check requirement & grayscale
-        foreach (var card in activeCards)
-        {
-            if (card.BiomeData != null)
-            {
-                bool canBuy = CheckBuyingRequirement(card);
-                card.SetGrayscale(!canBuy);
-
-                if (!canBuy)
-                    continue;
-
-                if(eligibleBuyVfx)
-                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
-            }
-        }
-
         // Sort: BUYABLE → TOP
-        var filtered = activeCards
+        activeCards = activeCards
             .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
             .ToList();
 
-        // Apply order to activeCards
-        activeCards.Clear();
-        activeCards.AddRange(filtered);
+        yield return waitEndOfFrame;    //Wait set dirty UI at the end of frame
 
-        AdjustBiomeParentHeight(biomes.allBiomes.Count);
+        AdjustBiomeParentHeight(activeCards.Count);
 
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
         {
-            int tmp = i;
-            activeCards[tmp].transform.SetSiblingIndex(tmp);
+            int temp = i;
+
+            var currentCard = activeCards[temp];
+            currentCard.transform.SetSiblingIndex(temp);
+
+            if (currentCard.grayscaleObj.activeInHierarchy) continue;
+            
+            yield return waitEndOfFrame; //Wait set dirty UI at the end of frame
+
+            if (eligibleBuyVfx)
+                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
         }
 
         OnBiomeSelected(activeCards[0]);

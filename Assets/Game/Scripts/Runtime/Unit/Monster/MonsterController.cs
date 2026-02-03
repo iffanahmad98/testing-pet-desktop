@@ -961,17 +961,15 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             if(hoursAway < 1) 
                 return 1;
 
-            float baseMultiplier = MathF.Min((float)(60f * hoursAway), 60f * 48f);
+            float baseMultiplier = MathF.Min((60f * (int)hoursAway), 60f * 48f);
 
-            if (currentHunger <= 35f || IsSick)
+            if (IsSick || currentHunger <= 35f)
             {
                 baseMultiplier /= 6f;
             }
 
             if (baseMultiplier < 1f)
                 baseMultiplier = 1f;
-
-            Debug.Log($"Base Multiplier --> {baseMultiplier} and The final int is {(int) baseMultiplier}");
 
             return (int)baseMultiplier;
         }
