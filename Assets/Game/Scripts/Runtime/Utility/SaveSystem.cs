@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using static UnityEngine.Rendering.STP;
 
@@ -300,6 +301,11 @@ public static class SaveSystem
     {
         _playerConfig = new PlayerConfig();
         _playerConfig.lastLoginTime = DateTime.Now;
+        _playerConfig.gameAreas.Add(new GameAreaData
+        {
+            name = $"Game Area 1",
+            index = 0 // Index is zero-based
+        });
         _playerConfig.SyncToSerializable();
         Debug.Log("Created new game data");
     }
