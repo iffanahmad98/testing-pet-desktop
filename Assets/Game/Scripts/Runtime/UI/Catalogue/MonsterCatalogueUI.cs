@@ -362,13 +362,6 @@ public class MonsterCatalogueUI : MonoBehaviour
             index = newIndex - 1 // Index is zero-based
         });
 
-        playerConfig.activeBiomesOnAreaID.Add("default_biome");
-
-        foreach (OwnedDecorationData ownedDecorationData in playerConfig.ownedDecorations)
-        {
-            ownedDecorationData.areasIsActive.Add(false);
-        }
-
         SaveSystem.SaveAll();
         UpdateGameAreaUI();
         // Refresh all buttons to update the array and listeners
@@ -503,7 +496,6 @@ public class MonsterCatalogueUI : MonoBehaviour
                 // GameAreaManager.SetActiveGameArea(index);
                 ServiceLocator.Get<MonsterManager>().SwitchToGameArea(index);
 
-                biomeManager.ChangeBiomeByID(playerConfig.activeBiomesOnAreaID[index]);
 
                 // reinitilize pumpkin
                 ServiceLocator.Get<FacilityManager>().InitializePumpkinFacilityState();
@@ -512,9 +504,7 @@ public class MonsterCatalogueUI : MonoBehaviour
                 foreach (OwnedDecorationData ownedDecorationData in playerConfig.ownedDecorations)
                 {
                     Debug.Log($"Checking {ownedDecorationData.decorationID} at area {playerConfig.lastGameAreaIndex}");
-                    // if (ownedDecorationData.isActive) {
-                    if (ownedDecorationData.areasIsActive[playerConfig.lastGameAreaIndex])
-                    {
+                    if (ownedDecorationData.isActive) {
                         Debug.Log($"Apply decoration {ownedDecorationData.decorationID}");
                         ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(ownedDecorationData.decorationID);
                         DecorationShopManager.instance.SetLastLoadTreeDecoration1(ownedDecorationData.decorationID);
