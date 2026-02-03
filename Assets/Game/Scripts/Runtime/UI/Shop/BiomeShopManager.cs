@@ -35,7 +35,6 @@ public class BiomeShopManager : MonoBehaviour
     private List<BiomeCardUI> activeCards = new List<BiomeCardUI>();
 
     private bool canBuyMonster;
-    private WaitForEndOfFrame WaitForEndOfFrame = new();
 
     private void Awake()
     {
@@ -142,7 +141,7 @@ public class BiomeShopManager : MonoBehaviour
             activeCards.Add(card);
         }
 
-
+        yield return new WaitForEndOfFrame();
 
         // Check requirement & grayscale
         foreach (var card in activeCards)
@@ -152,6 +151,11 @@ public class BiomeShopManager : MonoBehaviour
                 bool canBuy = CheckBuyingRequirement(card);
                 card.SetGrayscale(!canBuy);
 
+                if (!canBuy)
+                    continue;
+
+                if(eligibleBuyVfx)
+                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
             }
         }
 
@@ -166,21 +170,11 @@ public class BiomeShopManager : MonoBehaviour
 
         AdjustBiomeParentHeight(biomes.allBiomes.Count);
 
-        
-
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
         {
             int tmp = i;
             activeCards[tmp].transform.SetSiblingIndex(tmp);
-
-            yield return WaitForEndOfFrame;
-
-            bool canBuy = CheckBuyingRequirement(activeCards[tmp]);
-
-            if (canBuy && eligibleBuyVfx)
-                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(activeCards[tmp].GetComponent<RectTransform>());
-            
         }
 
         OnBiomeSelected(activeCards[0]);

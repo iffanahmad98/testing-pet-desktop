@@ -29,7 +29,6 @@ public class FacilityShopManager : MonoBehaviour
     private bool canBuyItem = false;
 
     private List<FacilityCardUI> activeCards = new List<FacilityCardUI>();
-    private WaitForEndOfFrame waitForEndOfFrame = new();
 
     private void Awake()
     {
@@ -78,7 +77,7 @@ public class FacilityShopManager : MonoBehaviour
         RefreshFacilityCards(true);
     }
 
-    private void WaitRefreshFacilityCards(bool eligibleBuyVfx = false)
+    private IEnumerator WaitRefreshFacilityCards(bool eligibleBuyVfx = false)
     {
         // Destroy all existing cards
         foreach (Transform child in cardParent)
@@ -128,16 +127,17 @@ public class FacilityShopManager : MonoBehaviour
             }
         }
 
-        StartCoroutine(SortByBuyRequirement(eligibleBuyVfx));
+        yield return new WaitForEndOfFrame();
+        SortByBuyRequirement(eligibleBuyVfx);
     }
 
     public void RefreshFacilityCards(bool eligibleBuyVfx = false)
     {
-        WaitRefreshFacilityCards(eligibleBuyVfx);
+        StartCoroutine(WaitRefreshFacilityCards(eligibleBuyVfx));
         //ClearInfo();
     }
 
-    private IEnumerator SortByBuyRequirement(bool eligibleBuyVfx = false)
+    private void SortByBuyRequirement(bool eligibleBuyVfx = false)
     {
         // Check requirement & grayscale
         foreach (var card in activeCards)
@@ -148,6 +148,9 @@ public class FacilityShopManager : MonoBehaviour
                 {
                     bool canBuy = CheckBuyingRequirement(card, false);
                     card.SetGrayscale(!canBuy);
+
+                    if (canBuy && eligibleBuyVfx)
+                        ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
                 }
             }
             else if (card.npc != null)
@@ -156,6 +159,9 @@ public class FacilityShopManager : MonoBehaviour
                 {
                     bool canBuy = CheckBuyingRequirement(card, true);
                     card.SetGrayscale(!canBuy);
+
+                    if (canBuy && eligibleBuyVfx)
+                        ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
                 }
             }
         }
@@ -173,16 +179,7 @@ public class FacilityShopManager : MonoBehaviour
         for (int i = 0; i < activeCards.Count; i++)
         {
             activeCards[i].transform.SetSiblingIndex(i);
-
-            yield return waitForEndOfFrame;
-
-            bool canBuy = CheckBuyingRequirement(activeCards[i], false);
-            activeCards[i].SetGrayscale(!canBuy);
-
-            if (canBuy && eligibleBuyVfx)
-                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(activeCards[i].GetComponent<RectTransform>());
         }
-    
 
         if (activeCards[0].FacilityData != null)
         {

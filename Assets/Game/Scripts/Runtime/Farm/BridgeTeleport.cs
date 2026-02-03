@@ -77,6 +77,7 @@ public class BridgeTeleport : MonoBehaviour
 
                     camMove.FocusOnTarget(hotelSpawnPoint.position, targetZoom, transitionDuration, isHotel: true);
                     FarmMainUI.instance.Hide ();
+                    HotelMainUI.instance.Show ();
                     menuBarFarm.SetActive(false);
                     if (CursorIconManager.Instance) {CursorIconManager.Instance.HideSeedIcon ();}
                 }
@@ -92,6 +93,7 @@ public class BridgeTeleport : MonoBehaviour
 
                     camMove.FocusOnTarget(farmSpawnPoint.position, targetZoom, transitionDuration, isHotel: false);
                     FarmMainUI.instance.Show ();
+                    HotelMainUI.instance.Hide ();
                     menuBarFarm.SetActive(true);
                 }
                 break;

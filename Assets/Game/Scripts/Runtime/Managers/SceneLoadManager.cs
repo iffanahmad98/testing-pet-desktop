@@ -18,8 +18,10 @@ public class SceneLoadManager : MonoBehaviour {
         MagicalGarden.Farm.UIManager.Instance.SetUIEqualsFocus(value);
         if (value == "Hotel") {
             FarmMainUI.instance.Hide ();
+            HotelMainUI.instance.Show ();
         } else if (value == "Farm") {
             FarmMainUI.instance.Show ();
+            HotelMainUI.instance.Hide ();
         }
     }
 }

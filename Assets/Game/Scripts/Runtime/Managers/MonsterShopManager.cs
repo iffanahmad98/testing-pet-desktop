@@ -1,7 +1,8 @@
+using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using UnityEngine;
+using Unity.VisualScripting;
 
 public class MonsterShopManager : MonoBehaviour
 {
@@ -60,7 +61,7 @@ public class MonsterShopManager : MonoBehaviour
 
     public void RefreshItem()
     {
-        rarityTabController.OnTabChanged?.Invoke(indexTab);
+        rarityTabController.OnTabChanged.Invoke(indexTab);
     }
 
     public void ShowAllMonsters()
@@ -103,7 +104,7 @@ public class MonsterShopManager : MonoBehaviour
             {
                 bool canBuy = CheckBuyingRequirement(card);
                 //card.SetGrayscale(!canBuy);
-
+                
                 // Debug Only
                 card.SetGrayscale(false);
             }
@@ -176,8 +177,8 @@ public class MonsterShopManager : MonoBehaviour
         MonsterDataSO monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
 
         //if (CheckBuyingRequirement(card))
-
-
+        
+        
         if (true) // DEBUG ONLY
         {
             if (SaveSystem.TryBuyMonster(monsterItem))

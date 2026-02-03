@@ -20,8 +20,6 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public TextMeshProUGUI monsterSellPriceText;
     public TextMeshProUGUI monsterEarningText;
     public Button markFavoriteButton;
-    public Image[] diamondImages;
-    public Image[] evolStageImages;
     public CatalogueMonsterData currentMonsterData;
     public Button sellMonsterButton;
 
@@ -96,87 +94,10 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
             monsterEvolutionText.text = $"Stage {catalogueMonsterData.GetEvolutionStageName()}";
             monsterFullnessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHunger * 0.01f);
             monsterHappinessSlider.value = Mathf.Clamp01(catalogueMonsterData.currentHappiness * 0.01f);
-            
+            monsterEvolutionProgressSlider.value = (catalogueMonsterData.evolutionLevel - 1f) / 2f;
             monsterSellPriceText.text = $"{catalogueMonsterData.GetSellPrice()}";
             monsterEarningText.text = $"{(1 / catalogueMonsterData.GetGoldCoinDropRate() / 60).ToString("F2")} / MIN";
-
-            SetEvolutionDiamonds();
-            SetEvolutionStages();
-            SetEvolutionProgressBar();
         }
-    }
-
-    private void SetEvolutionDiamonds()
-    {
-        for (int i = 0; i < diamondImages.Length; i++)
-        {
-            // set all diamonds to unenabled first
-            diamondImages[i].enabled = false;
-        }
-
-        Debug.Log("Current evolution level: " + currentMonsterData.evolutionLevel);
-        for (int j = 0; j < diamondImages.Length; j++)
-        {
-            // then set the diamonds enabled based on evolution level
-            if (j < currentMonsterData.evolutionLevel)
-            {
-                diamondImages[j].enabled = true;
-            }
-        }
-    }
-
-    private void SetEvolutionStages()
-    {
-        if (evolStageImages.Length < 4)
-        {
-            Debug.LogWarning("Evolution stage image is not enough.");
-            return;
-        }
-
-        for (var i = 0; i < evolStageImages.Length; i++)
-        {
-            // pertama2 aktifkan semua imagenya
-            evolStageImages[i].gameObject.SetActive(true);
-        }
-
-        MonsterType monsterType = currentMonsterData.GetMonsterType();
-
-        switch (monsterType)
-        {
-            case MonsterType.Common:
-            case MonsterType.Uncommon:
-            case MonsterType.Rare:
-                // nonaktifkan teks stage bloom di tengah
-                evolStageImages[1].gameObject.SetActive(false);
-
-                // nonaktifkan teks stage flourish
-                evolStageImages[2].gameObject.SetActive(false);
-                break;
-            case MonsterType.Mythic:
-            case MonsterType.Legend:
-                // nonaktifkan teks stage bloom di kanan
-                evolStageImages[3].gameObject.SetActive(false);
-                break;
-        }
-    }    
-
-    private void SetEvolutionProgressBar()
-    {
-        MonsterType monsterType = currentMonsterData.GetMonsterType();
-
-        switch (monsterType)
-        {
-            case MonsterType.Common:
-            case MonsterType.Uncommon:
-            case MonsterType.Rare:
-                monsterEvolutionProgressSlider.value = (currentMonsterData.evolutionLevel - 1f) / 1f;
-                break;
-            case MonsterType.Mythic:
-            case MonsterType.Legend:
-                monsterEvolutionProgressSlider.value = (currentMonsterData.evolutionLevel - 1f) / 2f;
-                break;
-        }
-
     }
 
     private void OnMonsterEvolved(MonsterController evolvedMonster)

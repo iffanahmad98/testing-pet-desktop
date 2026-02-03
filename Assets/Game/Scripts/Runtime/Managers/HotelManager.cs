@@ -85,6 +85,8 @@ namespace MagicalGarden.Manager
             hotelLocker.StartSystem ();
             DebugTimeController.instance.AddPreDebuggingEvent (PauseAllHotelControllersTime);
             DebugTimeController.instance.AddDebuggingEvent (LoadAllHotelControllerDatas);
+            yield return new WaitForSeconds (1.0f);
+            HotelMainUI.instance.RefreshHotelRoom ();
         }
         [ContextMenu("Debug: save room hotel")]
         private void testroom()
@@ -701,6 +703,16 @@ namespace MagicalGarden.Manager
             int total = 0;
             foreach (HotelController hotel in hotelControllers) {
                 if (!hotel.IsOccupied) {
+                    total++;
+                }
+            }
+            return total;
+        }
+
+        public int GetTotalHotelControllerOccupied () { // HotelMainUI.cs
+            int total = 0;
+            foreach (HotelController hotel in hotelControllers) {
+                if (hotel.IsOccupied) {
                     total++;
                 }
             }

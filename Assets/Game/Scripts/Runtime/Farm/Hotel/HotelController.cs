@@ -246,6 +246,8 @@ namespace MagicalGarden.Hotel
 
             playerConfig.AddHotelControllerData (data);
             SaveSystem.SaveAll ();
+
+            HotelMainUI.instance.RefreshHotelRoom ();
         }
 
         public void CheckOutRoom()
@@ -304,6 +306,7 @@ namespace MagicalGarden.Hotel
 
            
             listPet.Clear ();
+            HotelMainUI.instance.RefreshHotelRoom ();
         }
         public void AddPet(PetMonsterHotel pet)
         {
