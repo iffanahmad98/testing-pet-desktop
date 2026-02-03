@@ -1,0 +1,136 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+{
+    [Header("Assign dari Inspector")]
+    [SerializeField] private Canvas rootCanvas;       // Canvas paling atas
+    [SerializeField] private RectTransform dragLayer; // DragLayer di bawah Canvas
+    [SerializeField] private ScrollRect sourceScroll; // Scroll View asal item
+
+    [SerializeField] private MonsterCatalogueItemUI monsterItemUI; // Butuh ini buat tau monsterID
+
+    private RectTransform rt;
+    private CanvasGroup cg;
+
+    private Transform originalParent;
+    private int originalSiblingIndex;
+
+    private GameObject placeholder;     // supaya layout list tidak “bolong/geser liar”
+    private Vector2 pointerOffset;      // biar item tidak loncat ke center pointer
+
+    private PlayerConfig playerConfig;
+
+    void Awake()
+    {
+        rt = (RectTransform)transform;
+
+        cg = GetComponent<CanvasGroup>();
+        playerConfig = SaveSystem.PlayerConfig;
+
+        if (!cg) cg = gameObject.AddComponent<CanvasGroup>();
+
+        if (!rootCanvas) rootCanvas = GetComponentInParent<Canvas>();
+        if (!dragLayer) dragLayer = rootCanvas.transform as RectTransform;
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        originalParent = transform.parent;
+        originalSiblingIndex = transform.GetSiblingIndex();
+
+        // Placeholder untuk menjaga posisi di LayoutGroup (Content biasanya pakai Vertical/Grid Layout)
+        placeholder = new GameObject($"{name}_placeholder", typeof(RectTransform), typeof(LayoutElement));
+        var phRt = (RectTransform)placeholder.transform;
+        phRt.SetParent(originalParent, false);
+        phRt.SetSiblingIndex(originalSiblingIndex);
+
+        var phLE = placeholder.GetComponent<LayoutElement>();
+        var myLE = GetComponent<LayoutElement>();
+        if (myLE != null)
+        {
+            phLE.preferredWidth = myLE.preferredWidth;
+            phLE.preferredHeight = myLE.preferredHeight;
+        }
+        else
+        {
+            phLE.preferredWidth = rt.rect.width;
+            phLE.preferredHeight = rt.rect.height;
+        }
+
+        // Naikkan item ke DragLayer (di bawah Canvas) agar bebas dari Mask ScrollView
+        transform.SetParent(dragLayer, true); // true = pertahankan world position
+        transform.SetAsLastSibling();
+
+        // Hitung offset pointer supaya tidak loncat
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            dragLayer, eventData.position, eventData.pressEventCamera, out var localPointerPos);
+        pointerOffset = rt.anchoredPosition - localPointerPos;
+
+        // penting: supaya drop target bisa kena raycast (kalau nanti pakai IDropHandler)
+        cg.blocksRaycasts = false;
+
+        // opsional: matikan scroll saat drag item
+        if (sourceScroll) sourceScroll.enabled = false;
+
+        // Drag layer harus ada di depan catalog panel
+        dragLayer.transform.SetAsLastSibling();
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            dragLayer, eventData.position, eventData.pressEventCamera, out var localPointerPos);
+
+        rt.anchoredPosition = localPointerPos + pointerOffset;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (sourceScroll) sourceScroll.enabled = true;
+        cg.blocksRaycasts = true;
+
+        // === Deteksi “keluar dari wilayah Scroll View” ===
+        // Umumnya yang dimaksud adalah keluar dari VIEWPORT (area yang kelihatan)
+        var viewport = sourceScroll && sourceScroll.viewport
+            ? sourceScroll.viewport
+            : (sourceScroll ? (RectTransform)sourceScroll.transform : null);
+
+        bool releasedOutsideViewport = viewport &&
+            !RectTransformUtility.RectangleContainsScreenPoint(
+                viewport, eventData.position, eventData.pressEventCamera);
+
+        if (!releasedOutsideViewport)
+        {
+            // Drop tidak valid (masih di dalam scroll area) -> balikin ke list
+            transform.SetParent(originalParent, false);
+            transform.SetSiblingIndex(placeholder.transform.GetSiblingIndex());
+        }
+        else
+        {
+            // Drop valid (di luar viewport scroll)
+
+            Debug.Log($"Monster ID of this UI: {monsterItemUI.GetCatalogueMonsterData().monsterID}," +
+                $" dropped to area {SaveSystem.LoadActiveGameAreaIndex()} " +
+                $"from area {monsterItemUI.GetCatalogueMonsterData().gameAreaId}");
+
+            // Pindahkan monster ke area yg sedang aktif
+            playerConfig.MoveMonsterToGameArea(monsterItemUI.GetCatalogueMonsterData().monsterID, 
+                monsterItemUI.GetCatalogueMonsterData().gameAreaId, SaveSystem.LoadActiveGameAreaIndex());
+
+            // refresh game area supaya monster yg tampil bener
+            MonsterManager.instance.RefreshGameArea();
+            SaveSystem.SaveAll();
+
+            // kembalikan yg di-drag ke posisi awal, jangan destroy
+            transform.SetParent(originalParent, false);
+            transform.SetSiblingIndex(placeholder.transform.GetSiblingIndex());
+
+            // refresh catalog
+            ServiceLocator.Get<MonsterCatalogueListUI>()?.RefreshCatalogue();
+        }
+
+        if (placeholder) Destroy(placeholder);
+    }
+}

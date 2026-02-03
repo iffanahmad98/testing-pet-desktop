@@ -782,6 +782,28 @@ public class MonsterManager : MonoBehaviour
         Debug.Log($"Switched to game area {areaIndex}");
     }
 
+    public void RefreshGameArea()
+    {
+        // Save current monsters before switching
+        SaveAllMonsters();
+
+        // Clear current active monsters (return to pool)
+        var monstersToRemove = activeMonsters.ToList();
+        foreach (var monster in monstersToRemove)
+        {
+            DespawnToPool(monster.gameObject);
+        }
+        activeMonsters.Clear();
+
+        // Clear other active objects too
+        ClearActiveObjects();
+
+        // Load monsters for the new area
+        LoadMonstersForCurrentArea();
+
+        Debug.Log("Refresh monsters in game areas");
+    }
+
     private void ClearActiveObjects()
     {
         // Clear coins
