@@ -17,6 +17,16 @@ public class TutorialManager : MonoBehaviour, ITutorialService
     [Tooltip("Parent transform untuk instansiasi prefab dialog. Kalau kosong akan pakai root Canvas / transform ini.")]
     [SerializeField] private Transform dialogRoot;
 
+    [Header("Initial Tutorial Pet")]
+    [Tooltip("Monster yang akan di-spawn saat tutorial pertama kali dimulai (misalnya Briarbit). Opsional.")]
+    [SerializeField] private MonsterDataSO initialTutorialPet;
+    [Tooltip("Titik spawn untuk pet awal tutorial (pakai anchoredPosition dari RectTransform ini). Opsional, default (0,0) kalau kosong.")]
+    [SerializeField] private RectTransform initialTutorialPetSpawnPoint;
+
+    [Header("Cursor Tutorial Guide")]
+    [Tooltip("Script untuk menampilkan animasi cursor ke arah pet saat tutorial dimulai.")]
+    [SerializeField] private TutorialCursorGuide cursorGuide;
+
     private ITutorialProgressStore _progressStore;
     private int _currentStepIndex = -1;
     private ITutorialDialogView _activeDialogView;
@@ -42,6 +52,21 @@ public class TutorialManager : MonoBehaviour, ITutorialService
                     CompleteCurrent();
                 });
             }
+        }
+    }
+
+    private void Start()
+    {
+        if (!HasAnyPending())
+        {
+            Debug.Log("TutorialManager: semua tutorial sudah selesai, skip auto-start.");
+            return;
+        }
+
+        var started = TryStartNext();
+        if (!started)
+        {
+            Debug.LogWarning("TutorialManager: gagal auto-start tutorial berikutnya. Cek konfigurasi tutorialSteps.");
         }
     }
     public bool HasAnyPending()
@@ -82,6 +107,13 @@ public class TutorialManager : MonoBehaviour, ITutorialService
         if (step == null)
             return false;
 
+        var spawnedPet = EnsureInitialTutorialPet();
+        if (spawnedPet != null && cursorGuide != null)
+        {
+            var petRect = spawnedPet.GetComponent<RectTransform>();
+            cursorGuide.PlayGuideToTarget(petRect);
+        }
+
         if (step.useDialog && step.dialogPrefab != null && step.dialogLines != null && step.dialogLines.Count > 0)
         {
             StartDialogStep(step);
@@ -111,6 +143,7 @@ public class TutorialManager : MonoBehaviour, ITutorialService
         }
 
         _currentStepIndex = -1;
+        this.gameObject.SetActive(false);
     }
 
     public void ResetAll()
@@ -119,6 +152,31 @@ public class TutorialManager : MonoBehaviour, ITutorialService
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
 
         _progressStore.ClearAll(tutorialSteps.Count);
+    }
+
+    private MonsterController EnsureInitialTutorialPet()
+    {
+        if (initialTutorialPet == null)
+            return null;
+
+        var monsterManager = ServiceLocator.Get<MonsterManager>();
+        if (monsterManager == null)
+        {
+            Debug.LogWarning("TutorialManager: MonsterManager tidak ditemukan, skip spawn pet awal.");
+            return null;
+        }
+
+        if (monsterManager.activeMonsters != null && monsterManager.activeMonsters.Count > 0)
+            return null;
+
+        Vector2 spawnPos = Vector2.zero;
+        if (initialTutorialPetSpawnPoint != null)
+        {
+            spawnPos = initialTutorialPetSpawnPoint.anchoredPosition;
+        }
+
+        Debug.Log("TutorialManager: spawn initial tutorial pet di posisi " + spawnPos);
+        return monsterManager.SpawnMonsterAtCenterForTutorial(initialTutorialPet, spawnPos);
     }
 
     private void StartDialogStep(TutorialStep step)

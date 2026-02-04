@@ -132,7 +132,6 @@ public class TutorialDialogView : MonoBehaviour, ITutorialDialogView
             }
         }
 
-        // Tiap Show, matikan semua button kecuali Next
         for (int i = 0; i < _cachedButtons.Length; i++)
         {
             var btn = _cachedButtons[i];
