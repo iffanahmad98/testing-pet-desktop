@@ -1,9 +1,12 @@
-using UnityEngine;
-using System.Collections.Generic;
-using System;
-using System.Linq;
-using System.IO;
 using Newtonsoft.Json;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor.Rendering.LookDev;
+using UnityEngine;
+using static UnityEngine.Rendering.STP;
 
 
 public static class SaveSystem
@@ -302,6 +305,11 @@ public static class SaveSystem
     {
         _playerConfig = new PlayerConfig();
         _playerConfig.lastLoginTime = DateTime.Now;
+        _playerConfig.gameAreas.Add(new GameAreaData
+        {
+            name = $"Game Area 1",
+            index = 0 // Index is zero-based
+        });
         _playerConfig.SyncToSerializable();
         Debug.Log("Created new game data");
     }
@@ -388,6 +396,15 @@ public static class SaveSystem
         if (!CoinManager.SpendCoins(monsterPrice))
         {
             Debug.Log($"Not enough coins to buy {monsterData.name}. Needed: {monsterPrice}, Owned: {CoinManager.Coins}");
+            return false;
+        }
+
+        Debug.Log($"In area {_playerConfig.lastGameAreaIndex} we have {MonsterManager.instance.activeMonsters.Count} monsters");
+        if (MonsterManager.instance.activeMonsters.Count >= 25)
+        {
+            Debug.Log("We have reached a limit of 25 monsters");
+            TooltipManager.Instance.StartHover("You already have maximum number of monsters in this area.");
+            
             return false;
         }
 
@@ -579,6 +596,16 @@ public static class SaveSystem
     #region  Facility Operations
     public static bool IsFacilityOwned(string facilityID)
     {
+        bool hasFacility = GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
+        var facilityToCheck = GetPlayerConfig().ownedFacilities.FirstOrDefault(f => f.facilityID == facilityID);
+
+        if (facilityToCheck != null)
+        {
+            var areaIndex = facilityToCheck.areasOwnFacility.IndexOf(GetPlayerConfig().lastGameAreaIndex);
+
+            return areaIndex > -1;
+        }
+
         return GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
     }
 
@@ -600,6 +627,7 @@ public static class SaveSystem
 
         // Create OwnedFacilityData object using constructor
         var ownedFacility = new OwnedFacilityData(facility.facilityID, facility.cooldownSeconds);
+        ownedFacility.AddAreaOwnership(config.lastGameAreaIndex);
         config.ownedFacilities.Add(ownedFacility);
 
         SaveAll();
@@ -617,6 +645,7 @@ public static class SaveSystem
 
         // Add to owned facilities with 0 cooldown (for free toggle facilities)
         var ownedFacility = new OwnedFacilityData(facilityID, 0f);
+        ownedFacility.AddAreaOwnership(config.lastGameAreaIndex);
         config.ownedFacilities.Add(ownedFacility);
 
         Debug.Log($"Marked facility {facilityID} as owned (active)");
@@ -630,7 +659,9 @@ public static class SaveSystem
         var facilityToRemove = config.ownedFacilities.FirstOrDefault(f => f.facilityID == facilityID);
         if (facilityToRemove != null)
         {
-            config.ownedFacilities.Remove(facilityToRemove);
+            // config.ownedFacilities.Remove(facilityToRemove);
+            var areaIndex = facilityToRemove.areasOwnFacility.IndexOf(config.lastGameAreaIndex);
+            facilityToRemove.areasOwnFacility.RemoveAt(areaIndex);
             Debug.Log($"Removed facility {facilityID} ownership (inactive)");
         }
     }

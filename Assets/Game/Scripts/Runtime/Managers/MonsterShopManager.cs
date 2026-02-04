@@ -35,6 +35,16 @@ public class MonsterShopManager : MonoBehaviour
 
     private void Start()
     {
+        /*
+        rarityTabController.OnTabChanged += OnRarityTabChanged;
+        OnRarityTabChanged(indexTab); // Default to "All"
+        detailPanel.SetActive(false);
+        ClearMonsterInfo();
+        */
+        Invoke ("nStart", 0.5f);
+    }
+
+    void nStart () {
         rarityTabController.OnTabChanged += OnRarityTabChanged;
         OnRarityTabChanged(indexTab); // Default to "All"
         detailPanel.SetActive(false);
@@ -100,14 +110,14 @@ public class MonsterShopManager : MonoBehaviour
         // Check requirement & grayscale
         foreach (var card in activeCards)
         {
-            if (card.monsterItemData.monsterRequirements != null)
-            {
-                bool canBuy = CheckBuyingRequirement(card);
-                //card.SetGrayscale(!canBuy);
-                
+          //  if (card.monsterItemData.monsterRequirements != null)
+           // {
+                bool canBuy = CheckBuyingRequirementNewVersion(card);
+                card.SetGrayscale(!canBuy);
+                card.SetCanBuy (canBuy);
                 // Debug Only
-                card.SetGrayscale(false);
-            }
+              //  card.SetGrayscale(false);
+          //  }
         }
 
         // sort by price
@@ -213,6 +223,61 @@ public class MonsterShopManager : MonoBehaviour
             Debug.Log("Minimum Requirement Monster not enough!");
         }
     }
+    
+    private bool CheckBuyingRequirementNewVersion (MonsterCardUI card) {
+        var monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
+
+        if (monsterItem == null)
+            return false;
+
+        // Reference All Monster Player Have
+        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+
+        // value to check if every index of Array/List is Eligible
+        int valid = 0;
+
+        // check every single current active monster to meet minimum requirement
+        foreach (var required in monsterItem.monsterRequirements)
+        {
+            if (!required.anyTypeMonster)
+            {
+                int requiredValue = 0;
+                for (int i = 0; i < monsters.Count; i++)
+                {
+                    if (required.monsterType == monsters[i].MonsterData.monType)
+                    {
+                        requiredValue++;
+                    }
+                }
+
+                if (requiredValue >= required.minimumRequirements)
+                {
+                    valid++;
+                }
+                else
+                {
+                    //Debug.Log($"Failed required value = {requiredValue}/{required.minimumRequirements}");
+                }
+            }
+            else
+            {
+                if (monsters.Count >= required.minimumRequirements)
+                {
+                    valid++;
+                }
+            }
+        }
+
+        Debug.Log ("Total valid "+monsterItem.name + valid + monsters.Count);
+        if (valid == monsterItem.monsterRequirements.Length)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     private bool CheckBuyingRequirement(MonsterCardUI card)
     {
@@ -258,7 +323,7 @@ public class MonsterShopManager : MonoBehaviour
                 }
             }
         }
-
+        
         if (valid == monsterItem.monsterRequirements.Length)
         {
             canBuyMonster = true;

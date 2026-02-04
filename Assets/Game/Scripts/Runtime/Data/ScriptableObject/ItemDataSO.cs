@@ -14,7 +14,8 @@ public class ItemDataSO : Rewardable
 
     [Header("Buy Requirements")]
     public MonsterRequirements[] monsterRequirements;
-
+    public RequirementTipDataSO requirementTipDataSO;
+    
     [Header("Stats")]
     public int price;
     public float nutritionValue; // If used as food & medicine

@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
-
-public class BiomeCardUI : MonoBehaviour
+using UnityEngine.EventSystems;
+public class BiomeCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
 {
     public GameObject grayscaleObj;
     public TMP_Text nameText;
@@ -26,7 +26,7 @@ public class BiomeCardUI : MonoBehaviour
     public Action<BiomeCardUI> OnBuyClicked;
 
     public BiomeDataSO BiomeData { get; private set; }
-
+    bool isCanBuy = false;
     public void Setup(BiomeDataSO data)
     {
         BiomeData = data;
@@ -102,4 +102,20 @@ public class BiomeCardUI : MonoBehaviour
             }
         }
     }
+
+    #region Requirement
+    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+        isCanBuy = value;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.StartClick(BiomeData.requirementTipDataSO.GetInfoData ());
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.EndHover();
+    }
+    #endregion
 }

@@ -141,6 +141,7 @@ public class BiomeShopManager : MonoBehaviour
             card.OnBuyClicked = OnBiomeBuy;
 
             bool canBuy = CheckBuyingRequirement(card);
+            card.SetCanBuy (canBuy);
             card.SetGrayscale(!canBuy);
 
             activeCards.Add(card);

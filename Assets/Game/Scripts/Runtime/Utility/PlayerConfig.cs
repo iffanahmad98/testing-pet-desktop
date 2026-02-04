@@ -724,11 +724,24 @@ public class OwnedFacilityData
 {
     public string facilityID;
     public float nextUsableTime; // Unix timestamp or game time
+    public List<int> areasOwnFacility;
 
     public OwnedFacilityData(string id, float cooldownTime)
     {
         facilityID = id;
         nextUsableTime = cooldownTime;
+    }
+
+    public void AddAreaOwnership(int areaID)
+    {
+        if (areasOwnFacility == null)
+            areasOwnFacility = new List<int>();
+
+        if (!areasOwnFacility.Any(f => f == areaID))
+        {
+            // areaID is not recorded, add it to the areas that own facility
+            areasOwnFacility.Add(areaID);
+        }
     }
 }
 [Serializable]

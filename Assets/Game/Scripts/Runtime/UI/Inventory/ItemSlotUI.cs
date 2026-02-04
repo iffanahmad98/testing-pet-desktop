@@ -57,6 +57,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         iconImage.sprite = itemData.itemImgs[0];
         iconImage.enabled = true;
+        iconImage.preserveAspect = true;
         amountText.text = $"{amount} pcs";
         inventoryUI = ServiceLocator.Get<ItemInventoryUI>();
 
