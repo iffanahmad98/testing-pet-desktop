@@ -1,50 +1,19 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
-public class TutorialManager : MonoBehaviour, ITutorialService
+public partial class TutorialManager : MonoBehaviour, ITutorialService
 {
-    [Header("Storage Config")]
-    [Tooltip("Prefix key PlayerPrefs untuk status tutorial. Contoh: tutorial_")]
-    [SerializeField] private string playerPrefsKeyPrefix = "tutorial_";
-
-    [Header("Tutorial Steps")]
-    [Tooltip("Daftar semua tutorial / step yang ada di game.")]
-    public List<TutorialStep> tutorialSteps = new List<TutorialStep>();
-
-    [Header("Dialog Config")]
-    [Tooltip("Parent transform untuk instansiasi prefab dialog. Kalau kosong akan pakai root Canvas / transform ini.")]
-    [SerializeField] private Transform dialogRoot;
-
-    [Header("Initial Tutorial Pet")]
-    [Tooltip("Monster yang akan di-spawn saat tutorial pertama kali dimulai (misalnya Briarbit). Opsional.")]
-    [SerializeField] private MonsterDataSO initialTutorialPet;
-    [Tooltip("Titik spawn untuk pet awal tutorial (pakai anchoredPosition dari RectTransform ini). Opsional, default (0,0) kalau kosong.")]
-    [SerializeField] private RectTransform initialTutorialPetSpawnPoint;
-
-    [Header("Cursor Tutorial Guide")]
-    [Tooltip("Script untuk menampilkan animasi cursor ke arah pet saat tutorial dimulai.")]
-    [SerializeField] private TutorialCursorGuide cursorGuide;
-
-    [Header("Global UI References")]
-    [Tooltip("Button global untuk skip tutorial yang tetap boleh di-klik saat dialog tampil.")]
-    [SerializeField] private Button skipTutorialButton;
-
-    private ITutorialProgressStore _progressStore;
-    private int _currentStepIndex = -1;
-    private ITutorialDialogView _activeDialogView;
-    private TutorialStep _activeDialogStep;
-    private int _activeDialogIndex;
-
-    public static Button GlobalSkipTutorialButton { get; private set; }
-
     private void Awake()
     {
         GlobalSkipTutorialButton = skipTutorialButton;
 
         _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
+
+        CacheUIButtonsFromUIManager();
 
         HideAllTutorialPanels();
 
@@ -74,12 +43,20 @@ public class TutorialManager : MonoBehaviour, ITutorialService
 
     private void Start()
     {
+        if (IsSimpleMode)
+        {
+            DisableUIManagerButtonsForTutorial();
+            StartSimpleTutorialSequence();
+            return;
+        }
+
         if (!HasAnyPending())
         {
             Debug.Log("TutorialManager: semua tutorial sudah selesai, skip auto-start.");
             return;
         }
 
+        DisableUIManagerButtonsForTutorial();
         var started = TryStartNext();
         if (!started)
         {
@@ -88,8 +65,10 @@ public class TutorialManager : MonoBehaviour, ITutorialService
     }
     public bool HasAnyPending()
     {
-        if (_progressStore == null)
-            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
+        if (IsSimpleMode)
+            return false;
+
+        EnsureProgressStore();
 
         for (int i = 0; i < tutorialSteps.Count; i++)
         {
@@ -102,8 +81,10 @@ public class TutorialManager : MonoBehaviour, ITutorialService
 
     public bool TryStartNext()
     {
-        if (_progressStore == null)
-            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
+        if (IsSimpleMode)
+            return false;
+
+        EnsureProgressStore();
 
         TutorialStep step = null;
         _currentStepIndex = -1;
@@ -124,12 +105,6 @@ public class TutorialManager : MonoBehaviour, ITutorialService
         if (step == null)
             return false;
 
-        var spawnedPet = EnsureInitialTutorialPet();
-        if (spawnedPet != null && cursorGuide != null)
-        {
-            var petRect = spawnedPet.GetComponent<RectTransform>();
-            cursorGuide.PlayGuideToTarget(petRect);
-        }
 
         if (step.useDialog && step.dialogPrefab != null && step.dialogLines != null && step.dialogLines.Count > 0)
         {
@@ -148,8 +123,7 @@ public class TutorialManager : MonoBehaviour, ITutorialService
         if (_currentStepIndex < 0 || _currentStepIndex >= tutorialSteps.Count)
             return;
 
-        if (_progressStore == null)
-            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
+        EnsureProgressStore();
 
         _progressStore.MarkCompleted(_currentStepIndex);
 
@@ -160,74 +134,159 @@ public class TutorialManager : MonoBehaviour, ITutorialService
         }
 
         _currentStepIndex = -1;
+        RestoreUIManagerButtonsInteractable();
         this.gameObject.SetActive(false);
     }
 
     public void ResetAll()
     {
-        if (_progressStore == null)
-            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
+        if (IsSimpleMode)
+            return;
 
+        EnsureProgressStore();
         _progressStore.ClearAll(tutorialSteps.Count);
     }
 
     public void SkipAllTutorials()
     {
-        if (_progressStore == null)
-            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
-
-        for (int i = 0; i < tutorialSteps.Count; i++)
+        if (!IsSimpleMode)
         {
-            _progressStore.MarkCompleted(i);
-        }
-        HideAllTutorialPanels();
+            EnsureProgressStore();
 
-        if (_activeDialogView != null)
-        {
-            var dialogGo = (_activeDialogView as MonoBehaviour)?.gameObject;
-            if (dialogGo != null)
+            for (int i = 0; i < tutorialSteps.Count; i++)
             {
-                Destroy(dialogGo);
+                _progressStore.MarkCompleted(i);
             }
+            HideAllTutorialPanels();
+
+            if (_activeDialogView != null)
+            {
+                var dialogGo = (_activeDialogView as MonoBehaviour)?.gameObject;
+                if (dialogGo != null)
+                {
+                    Destroy(dialogGo);
+                }
+            }
+
+            _activeDialogView = null;
+            _activeDialogStep = null;
+            _activeDialogIndex = 0;
+            _currentStepIndex = -1;
         }
-
-        _activeDialogView = null;
-        _activeDialogStep = null;
-        _activeDialogIndex = 0;
-        _currentStepIndex = -1;
-
-        if (cursorGuide != null)
+        else
         {
-            cursorGuide.StopGuide();
+            if (simpleTutorialPanels != null)
+            {
+                for (int i = 0; i < simpleTutorialPanels.Count; i++)
+                {
+                    var step = simpleTutorialPanels[i];
+                    if (step != null && step.panelRoot != null)
+                        step.panelRoot.SetActive(false);
+                }
+            }
+
+            _simplePanelIndex = -1;
         }
 
+        RestoreUIManagerButtonsInteractable();
         gameObject.SetActive(false);
     }
 
-    private MonsterController EnsureInitialTutorialPet()
+    private void StartSimpleTutorialSequence()
     {
-        if (initialTutorialPet == null)
-            return null;
-
-        var monsterManager = ServiceLocator.Get<MonsterManager>();
-        if (monsterManager == null)
+        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
         {
-            Debug.LogWarning("TutorialManager: MonsterManager tidak ditemukan, skip spawn pet awal.");
-            return null;
+            Debug.LogWarning("TutorialManager: simpleTutorialPanels kosong, tidak ada tutorial sederhana yang ditampilkan.");
+            return;
+        }
+        for (int i = 0; i < simpleTutorialPanels.Count; i++)
+        {
+            var step = simpleTutorialPanels[i];
+            if (step == null)
+                continue;
+
+            if (step.panelRoot != null)
+                step.panelRoot.SetActive(false);
+
+            var nextButton = GetSimpleStepNextButton(step);
+            if (nextButton != null)
+            {
+                nextButton.onClick.AddListener(ShowNextSimplePanel);
+            }
         }
 
-        if (monsterManager.activeMonsters != null && monsterManager.activeMonsters.Count > 0)
-            return null;
-
-        Vector2 spawnPos = Vector2.zero;
-        if (initialTutorialPetSpawnPoint != null)
+        _simplePanelIndex = 0;
+        if (simpleTutorialPanels[_simplePanelIndex] != null && simpleTutorialPanels[_simplePanelIndex].panelRoot != null)
         {
-            spawnPos = initialTutorialPetSpawnPoint.anchoredPosition;
+            PlaySimplePanelShowAnimation(simpleTutorialPanels[_simplePanelIndex].panelRoot);
         }
-
-        Debug.Log("TutorialManager: spawn initial tutorial pet di posisi " + spawnPos);
-        return monsterManager.SpawnMonsterAtCenterForTutorial(initialTutorialPet, spawnPos);
     }
+    public void ShowNextSimplePanel()
+    {
+        if (useTutorialSteps)
+            return;
+
+        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+            return;
+
+        if (_simplePanelIndex < 0)
+        {
+            StartSimpleTutorialSequence();
+            return;
+        }
+
+        if (_simplePanelIndex < simpleTutorialPanels.Count)
+        {
+            var currentStep = simpleTutorialPanels[_simplePanelIndex];
+            if (currentStep != null && currentStep.panelRoot != null)
+                currentStep.panelRoot.SetActive(false);
+        }
+
+        _simplePanelIndex++;
+
+        if (_simplePanelIndex >= simpleTutorialPanels.Count)
+        {
+            RestoreUIManagerButtonsInteractable();
+            gameObject.SetActive(false);
+            return;
+        }
+
+        var nextStep = simpleTutorialPanels[_simplePanelIndex];
+        if (nextStep != null && nextStep.panelRoot != null)
+        {
+            PlaySimplePanelShowAnimation(nextStep.panelRoot);
+        }
+    }
+
+    private void PlaySimplePanelShowAnimation(GameObject panel)
+    {
+        if (panel == null)
+            return;
+
+        panel.SetActive(true);
+
+        var rect = panel.GetComponent<RectTransform>();
+        var canvasGroup = panel.GetComponent<CanvasGroup>();
+
+        if (rect == null || canvasGroup == null)
+            return;
+
+        rect.DOKill();
+        canvasGroup.DOKill();
+
+        var targetPos = rect.anchoredPosition;
+        var startPos = targetPos;
+        startPos.y -= rect.rect.height;
+        rect.anchoredPosition = startPos;
+
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
+
+        rect.DOAnchorPos(targetPos, simplePanelShowDuration).SetEase(simplePanelShowEase);
+        canvasGroup.DOFade(1f, simplePanelShowDuration).SetEase(Ease.OutQuad);
+    }
+
 
     private void StartDialogStep(TutorialStep step)
     {
