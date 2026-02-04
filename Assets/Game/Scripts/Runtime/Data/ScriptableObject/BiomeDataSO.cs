@@ -13,6 +13,7 @@ public class BiomeDataSO : ScriptableObject
 
     [Header("Buying Requierements")]
     public MonsterRequirements[] monsterRequirements;
+    public RequirementTipDataSO requirementTipDataSO;
 
     [Header("Sky Layer")]
     public Sprite skyBackground;

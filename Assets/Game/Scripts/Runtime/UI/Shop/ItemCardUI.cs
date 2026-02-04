@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
-public class ItemCardUI : MonoBehaviour
+using UnityEngine.EventSystems;
+public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
 {
     [Header("UI References")]
     public GameObject grayscaleObj;
@@ -24,7 +24,7 @@ public class ItemCardUI : MonoBehaviour
 
     public System.Action<ItemCardUI> OnSelected; // Called when select button clicked
     public System.Action<ItemCardUI> OnBuy;      // Called when buy button clicked
-
+    bool isCanBuy = false;
     private void Start()
     {
         if (selectButton != null)
@@ -94,4 +94,20 @@ public class ItemCardUI : MonoBehaviour
             }
         }
     }
+
+    #region Requirement
+    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+        isCanBuy = value;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.StartClick(itemData.requirementTipDataSO.GetInfoData ());
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.EndHover();
+    }
+    #endregion
 }
