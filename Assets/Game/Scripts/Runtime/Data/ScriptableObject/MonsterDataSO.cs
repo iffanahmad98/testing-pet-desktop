@@ -225,6 +225,10 @@ public class MonsterSaveData
     public float totalTimeSinceCreation;
     public string timeCreated;
     // public EvolutionProgressData evolutionProgress;
+
+    [Header("Monster Clicked Event")]
+    public string lastPokedTimer = string.Empty;
+
 }
 
 [Serializable]

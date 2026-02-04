@@ -106,8 +106,10 @@ public class DecorationCardUI : MonoBehaviour, IPointerClickHandler, IPointerExi
     }
 
     #region Requirement
-    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+    public void SetCanBuy (bool value) // MonsterShopManager.cs
+    { 
         isCanBuy = value;
+        SetGrayscale(!value);
     }
 
     public void OnPointerClick(PointerEventData eventData)

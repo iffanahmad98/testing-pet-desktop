@@ -21,6 +21,7 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private Vector2 pointerOffset;      // biar item tidak loncat ke center pointer
 
     private PlayerConfig playerConfig;
+    private Vector3 originalScale;
 
     void Awake()
     {
@@ -37,6 +38,7 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        originalScale = transform.localScale;
         originalParent = transform.parent;
         originalSiblingIndex = transform.GetSiblingIndex();
 
@@ -84,12 +86,32 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
             dragLayer, eventData.position, eventData.pressEventCamera, out var localPointerPos);
 
         rt.anchoredPosition = localPointerPos + pointerOffset;
+
+        // Cek apakah sedang hover di atas tempat yg bisa drop
+        var viewport = sourceScroll && sourceScroll.viewport
+            ? sourceScroll.viewport
+            : (sourceScroll ? (RectTransform)sourceScroll.transform : null);
+
+        bool isOverViewport = viewport &&
+            !RectTransformUtility.RectangleContainsScreenPoint(
+                viewport, eventData.position, eventData.pressEventCamera);
+
+        // Beri efek scale
+        if (isOverViewport )
+        {
+            transform.localScale = originalScale * 1.3f;
+        }
+        else
+        {
+            transform.localScale = originalScale;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (sourceScroll) sourceScroll.enabled = true;
         cg.blocksRaycasts = true;
+        transform.localScale = originalScale;
 
         // === Deteksi “keluar dari wilayah Scroll View” ===
         // Umumnya yang dimaksud adalah keluar dari VIEWPORT (area yang kelihatan)

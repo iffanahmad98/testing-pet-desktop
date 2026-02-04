@@ -337,7 +337,7 @@ public class MonsterVisualHandler
     }
 
     // NEW: Handle coin spawn with animation (similar to poop)
-    public void SpawnCoinWithAnimation(CoinType type)
+    public void SpawnCoinWithAnimation(CoinType type, int multiplier = 1)
     {
         Vector2 launchPosition = GetCoinLaunchPosition();
         Vector2 targetPosition = GetRandomPositionOutsideBounds();
@@ -345,7 +345,7 @@ public class MonsterVisualHandler
         MonsterManager.instance.audio.PlaySFX("drop_coin");
 
         // Spawn coin through MonsterManager
-        ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type);
+        ServiceLocator.Get<MonsterManager>().SpawnCoinWithArc(launchPosition, targetPosition, type, multiplier);
     }
 
     public Sprite GetMonsterIcon() => _currentIcon;

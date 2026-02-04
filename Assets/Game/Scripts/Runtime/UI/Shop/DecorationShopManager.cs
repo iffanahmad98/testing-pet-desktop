@@ -30,6 +30,8 @@ public class DecorationShopManager : MonoBehaviour
     private Queue<DecorationCardUI> cardPool = new Queue<DecorationCardUI>();
     private List<DecorationCardUI> activeCards = new List<DecorationCardUI>();
 
+    private WaitForEndOfFrame waitEndOfFrame = new();
+
     private void Awake()
     {
         instance = this;
@@ -108,43 +110,37 @@ public class DecorationShopManager : MonoBehaviour
             card.OnCancelApplied = OnDecorationCancel;
             card.OnBuyClicked = OnDecorationBuy;
 
+            bool canBuy = CheckBuyingRequirement(card);
+            card.SetCanBuy(canBuy);
+
             activeCards.Add(card);
             totalCount++;
         }
 
-        yield return new WaitForEndOfFrame();
-
-        // Check requirement & grayscale
-        foreach (var card in activeCards)
-        {
-            if (card.DecorationData.monsterRequirements != null)
-            {
-                bool canBuy = CheckBuyingRequirement(card);
-                card.SetGrayscale(!canBuy);
-                card.SetCanBuy (canBuy);
-                if (!canBuy)
-                    continue;
-
-                if (eligibleBuyVfx)
-                {
-                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
-                }
-            }
-        }
-
         // Sort: BUYABLE → TOP
-        var filtered = activeCards
+        activeCards = activeCards
             .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
             .ToList();
 
-        // Apply order to activeCards
-        activeCards.Clear();
-        activeCards.AddRange(filtered);
+        yield return waitEndOfFrame;    //Wait set dirty UI at the end of frame
 
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
         {
-            activeCards[i].transform.SetSiblingIndex(i);
+            int temp = i;
+
+            var currentCard = activeCards[temp];
+            currentCard.transform.SetSiblingIndex(temp);
+
+            // If it's already grayscaled, we know it's not buyable.
+            if (currentCard.grayscaleObj.activeInHierarchy) continue;
+
+            yield return waitEndOfFrame;    //Wait set dirty UI at the end of frame
+
+            if (eligibleBuyVfx)
+            {
+                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+            }
         }
 
         // memberikan tombol terakhir treeDecoration1 (Pas awal load data + nampilkan menu)

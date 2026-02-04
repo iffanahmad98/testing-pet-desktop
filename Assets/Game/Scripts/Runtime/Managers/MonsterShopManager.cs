@@ -71,7 +71,7 @@ public class MonsterShopManager : MonoBehaviour
 
     public void RefreshItem()
     {
-        rarityTabController.OnTabChanged.Invoke(indexTab);
+        rarityTabController.OnTabChanged?.Invoke(indexTab);
     }
 
     public void ShowAllMonsters()

@@ -39,34 +39,39 @@ public class RefreshShopItems : MonoBehaviour
     {
         MonsterShopManager manager = ServiceLocator.Get<MonsterShopManager>();
 
-        manager.RefreshItem();
+        if(manager != null) 
+            manager.RefreshItem();
     }
 
     public void RefreshItemShop()
     {
         ItemShopManager manager = ServiceLocator.Get<ItemShopManager>();
 
-        manager.RefreshItem();
+        if (manager != null)
+            manager.RefreshItem();
     }
 
     public void RefreshBiomeShop()
     {
         BiomeShopManager manager = ServiceLocator.Get<BiomeShopManager>();
 
-        manager.RefreshItem();
+        if (manager != null)
+            manager.RefreshItem();
     }
 
     public void RefreshFacilityShop()
     {
         FacilityShopManager manager = ServiceLocator.Get<FacilityShopManager>();
 
-        manager.RefreshItem();
+        if (manager != null)
+            manager.RefreshItem();
     }
 
     public void RefreshDecorationShop()
     {
         DecorationShopManager manager = ServiceLocator.Get<DecorationShopManager>();
 
-        manager.RefreshItem();
+        if (manager != null)
+            manager.RefreshItem();
     }
 }

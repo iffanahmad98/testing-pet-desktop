@@ -318,8 +318,10 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
     }
 
     #region Requirement
-    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+    public void SetCanBuy (bool value) // MonsterShopManager.cs
+    { 
         isCanBuy = value;
+        SetGrayscale(!value);
     }
 
     public void OnPointerClick(PointerEventData eventData)

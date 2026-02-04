@@ -30,6 +30,8 @@ public class FacilityShopManager : MonoBehaviour
 
     private List<FacilityCardUI> activeCards = new List<FacilityCardUI>();
 
+    private WaitForEndOfFrame waitEndOfFrame = new();
+
     private void Awake()
     {
         facilityParentRect = facilityParent.GetComponent<RectTransform>();
@@ -77,7 +79,13 @@ public class FacilityShopManager : MonoBehaviour
         RefreshFacilityCards(true);
     }
 
-    private IEnumerator WaitRefreshFacilityCards(bool eligibleBuyVfx = false)
+    public void RefreshFacilityCards(bool eligibleBuyVfx = false)
+    {
+        WaitRefreshFacilityCards(eligibleBuyVfx);
+        //ClearInfo();
+    }
+
+    private void WaitRefreshFacilityCards(bool eligibleBuyVfx = false)
     {
         // Destroy all existing cards
         foreach (Transform child in cardParent)
@@ -104,6 +112,9 @@ public class FacilityShopManager : MonoBehaviour
                 card.OnBuyClicked = OnNPCBuy;
                 card.OnCancelClicked = OnNPCCancel;
 
+                bool canBuy = CheckBuyingRequirement(card, true);
+                card.SetGrayscale(!canBuy);
+
                 activeCards.Add(card);
                 StartCoroutine(card.nSetActiveAnim());
                 totalCount++;
@@ -122,66 +133,42 @@ public class FacilityShopManager : MonoBehaviour
                 card.OnBuyClicked = OnFacilityBuy;
                 card.OnCancelClicked = OnFacilityCancel;
 
+                bool canBuy = CheckBuyingRequirement(card, false);
+                card.SetCanBuy(canBuy);
+
                 activeCards.Add(card);
                 totalCount++;
             }
         }
 
-        yield return new WaitForEndOfFrame();
-        SortByBuyRequirement(eligibleBuyVfx);
+        StartCoroutine(SortByBuyRequirement(eligibleBuyVfx));
     }
 
-    public void RefreshFacilityCards(bool eligibleBuyVfx = false)
+
+    private IEnumerator SortByBuyRequirement(bool eligibleBuyVfx = false)
     {
-        StartCoroutine(WaitRefreshFacilityCards(eligibleBuyVfx));
-        //ClearInfo();
-    }
-
-    private void SortByBuyRequirement(bool eligibleBuyVfx = false)
-    {
-        // Check requirement & grayscale
-        foreach (var card in activeCards)
-        {
-            if (card.FacilityData != null)
-            {
-                if (card.FacilityData.monsterRequirements != null)
-                {
-                    bool canBuy = CheckBuyingRequirement(card, false);
-                    card.SetGrayscale(!canBuy);
-                    card.SetCanBuy (canBuy);
-
-                    if (canBuy && eligibleBuyVfx)
-                        ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
-                        
-                }
-            }
-            else if (card.npc != null)
-            {
-                if (card.npc.monsterRequirements != null)
-                {
-                    bool canBuy = CheckBuyingRequirement(card, true);
-                    card.SetGrayscale(!canBuy);
-                    card.SetCanBuy (canBuy);
-
-                    if (canBuy && eligibleBuyVfx)
-                        ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
-                }
-            }
-        }
-
+       
         // Sort: BUYABLE → TOP
-        var filtered = activeCards
+        activeCards = activeCards
             .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
             .ToList();
 
-        // Apply order to activeCards
-        activeCards.Clear();
-        activeCards.AddRange(filtered);
+        yield return waitEndOfFrame;
 
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
         {
-            activeCards[i].transform.SetSiblingIndex(i);
+            int temp = i;
+
+            var currentCard = activeCards[temp];
+            currentCard.transform.SetSiblingIndex(temp);
+
+            if (currentCard.grayscaleObj.activeInHierarchy) continue;
+
+            yield return waitEndOfFrame; //Wait set dirty UI at the end of frame
+
+            if (eligibleBuyVfx)
+                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
         }
 
         if (activeCards[0].FacilityData != null)

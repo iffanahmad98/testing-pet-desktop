@@ -1,4 +1,5 @@
 using MagicalGarden.Manager;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -137,6 +138,18 @@ public class GachaManager : MonoBehaviour
             return;
         }
 
+        // Di sini ngecek jumlah monster kurang dari 25
+        if (MonsterManager.instance.activeMonsters.Count >= 25)
+        {
+            // monster nomber has reached its limit. Show an info message and then return
+            Debug.Log("We have reached a limit of 25 monsters");
+            TooltipManager.Instance.StartHover("You already have maximum number of monsters in this area.");
+            StartCoroutine(EndHoverAfterDelay(4.0f));
+
+            return;
+        }
+
+
         // Update UI Coin Text
         ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
 
@@ -162,6 +175,12 @@ public class GachaManager : MonoBehaviour
         ResetPityCounter(chosenRarity);
 
         ShowGachaResult(selectedMonster, () => SellMonster(selectedMonster), () => SpawnMonster(selectedMonster));
+    }
+
+    private IEnumerator EndHoverAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        TooltipManager.Instance.EndHover();
     }
 
     private MonsterDataSO SelectRandomMonster(MonsterType rarity)
@@ -401,15 +420,6 @@ public class GachaManager : MonoBehaviour
 
     private void SpawnMonster(MonsterDataSO monsterData)
     {
-        // Di sini ngecek jumlah monster kurang dari 25
-        if (MonsterManager.instance.activeMonsters.Count >= 25)
-        {
-            // monster nomber has reached its limit. Show an info message and then return
-            Debug.Log("We have reached a limit of 25 monsters");
-            TooltipManager.Instance.StartHover("You already have maximum number of monsters in this area.");
-            return;
-        }
-
         ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
 
         // Update List Monster Catalogue

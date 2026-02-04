@@ -644,6 +644,10 @@ namespace MagicalGarden.Farm
     public int GetTotalFarmArea () { // EligibleFarmArea.cs
         return farmAreaIdsPurchased.Count +1; // +1 karena starter gak dihitung total.
     }
+
+    public List <int> GetFarmAreaIdsPurchased () { // TooltipFarmArea.cs
+        return farmAreaIdsPurchased;
+    }
 #endregion
     }
 }
