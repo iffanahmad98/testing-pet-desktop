@@ -132,11 +132,16 @@ public class TutorialDialogView : MonoBehaviour, ITutorialDialogView
             }
         }
 
+        var globalSkip = TutorialManager.GlobalSkipTutorialButton;
+
         for (int i = 0; i < _cachedButtons.Length; i++)
         {
             var btn = _cachedButtons[i];
-            if (btn != null)
-                btn.interactable = btn == nextButton;
+            if (btn == null)
+                continue;
+
+            bool isAllowed = btn == nextButton || (globalSkip != null && btn == globalSkip);
+            btn.interactable = isAllowed;
         }
     }
 

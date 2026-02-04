@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public class TutorialManager : MonoBehaviour, ITutorialService
@@ -27,14 +28,22 @@ public class TutorialManager : MonoBehaviour, ITutorialService
     [Tooltip("Script untuk menampilkan animasi cursor ke arah pet saat tutorial dimulai.")]
     [SerializeField] private TutorialCursorGuide cursorGuide;
 
+    [Header("Global UI References")]
+    [Tooltip("Button global untuk skip tutorial yang tetap boleh di-klik saat dialog tampil.")]
+    [SerializeField] private Button skipTutorialButton;
+
     private ITutorialProgressStore _progressStore;
     private int _currentStepIndex = -1;
     private ITutorialDialogView _activeDialogView;
     private TutorialStep _activeDialogStep;
     private int _activeDialogIndex;
 
+    public static Button GlobalSkipTutorialButton { get; private set; }
+
     private void Awake()
     {
+        GlobalSkipTutorialButton = skipTutorialButton;
+
         _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
 
         HideAllTutorialPanels();
@@ -52,6 +61,14 @@ public class TutorialManager : MonoBehaviour, ITutorialService
                     CompleteCurrent();
                 });
             }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GlobalSkipTutorialButton == skipTutorialButton)
+        {
+            GlobalSkipTutorialButton = null;
         }
     }
 
@@ -152,6 +169,39 @@ public class TutorialManager : MonoBehaviour, ITutorialService
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
 
         _progressStore.ClearAll(tutorialSteps.Count);
+    }
+
+    public void SkipAllTutorials()
+    {
+        if (_progressStore == null)
+            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
+
+        for (int i = 0; i < tutorialSteps.Count; i++)
+        {
+            _progressStore.MarkCompleted(i);
+        }
+        HideAllTutorialPanels();
+
+        if (_activeDialogView != null)
+        {
+            var dialogGo = (_activeDialogView as MonoBehaviour)?.gameObject;
+            if (dialogGo != null)
+            {
+                Destroy(dialogGo);
+            }
+        }
+
+        _activeDialogView = null;
+        _activeDialogStep = null;
+        _activeDialogIndex = 0;
+        _currentStepIndex = -1;
+
+        if (cursorGuide != null)
+        {
+            cursorGuide.StopGuide();
+        }
+
+        gameObject.SetActive(false);
     }
 
     private MonsterController EnsureInitialTutorialPet()
