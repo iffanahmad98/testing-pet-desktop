@@ -10655,7 +10655,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2062318055}
   m_Direction: 0
   m_Value: -0.00000046317456
-  m_Size: 0.3901758
+  m_Size: 0.3901763
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -48195,6 +48195,7 @@ RectTransform:
   - {fileID: 136858475}
   - {fileID: 2034786731}
   - {fileID: 232262779}
+  - {fileID: 1405290184}
   - {fileID: 580200882}
   - {fileID: 724959192}
   m_Father: {fileID: 0}
@@ -57127,6 +57128,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 0
+--- !u!224 &1405290184 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+  m_PrefabInstance: {fileID: 1472074021}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1411360603
 GameObject:
   m_ObjectHideFlags: 0
@@ -57806,6 +57812,107 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1464425611}
   m_CullTransparentMesh: 1
+--- !u!1001 &1472074021
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 904416554}
+    m_Modifications:
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6853115678679427544, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_Name
+      value: Tutorial
+      objectReference: {fileID: 0}
+    - target: {fileID: 9067767000509888285, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -128
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
 --- !u!1 &1488002156
 GameObject:
   m_ObjectHideFlags: 0
@@ -99864,6 +99971,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1622812312}
     - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.ShopPanel
+      value: 
+      objectReference: {fileID: 376856614487449542}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: gameContentParent
       value: 
       objectReference: {fileID: 17609071}
@@ -99875,6 +99986,14 @@ PrefabInstance:
       propertyPath: SettingCanvasGroup
       value: 
       objectReference: {fileID: 996138303833994953}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.doorButton
+      value: 
+      objectReference: {fileID: 2140113646}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.shopButton
+      value: 
+      objectReference: {fileID: 2123529928}
     - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: catalogueShopButton
       value: 
@@ -99892,6 +100011,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 988489147}
     - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.SettingPanel
+      value: 
+      objectReference: {fileID: 503878664}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: CatalogueCanvasGroup
       value: 
       objectReference: {fileID: 136858479}
@@ -99899,6 +100022,18 @@ PrefabInstance:
       propertyPath: InventoryCanvasGroup
       value: 
       objectReference: {fileID: 2010609617}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.UIMenuButton
+      value: 
+      objectReference: {fileID: 627441}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.groundButton
+      value: 
+      objectReference: {fileID: 1764624464}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.windowButton
+      value: 
+      objectReference: {fileID: 1260327425}
     - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: closeCatalogueButton
       value: 
@@ -99908,13 +100043,89 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5711547139488797716, guid: 85434a4ee77941e498d22b221f10e504, type: 3}
     - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.CataloguePanel
+      value: 
+      objectReference: {fileID: 136858474}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.InventoryPanel
+      value: 
+      objectReference: {fileID: 1570540244}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: UIFloatMenuCanvasGroup
       value: 
       objectReference: {fileID: 321689316}
     - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.settingsButton
+      value: 
+      objectReference: {fileID: 65780617}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.ShopCanvasGroup
+      value: 
+      objectReference: {fileID: 6604112310177849733}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.catalogueButton
+      value: 
+      objectReference: {fileID: 356424703}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.closeShopButton
+      value: 
+      objectReference: {fileID: 1696139249}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.UIFloatMenuPanel
+      value: 
+      objectReference: {fileID: 321689312}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.miniWindowButton
+      value: 
+      objectReference: {fileID: 1622812312}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: closeMainInventoryButton
       value: 
       objectReference: {fileID: 1850078279}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.SettingCanvasGroup
+      value: 
+      objectReference: {fileID: 996138303833994953}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: shopButtons.helpShopButton
+      value: 
+      objectReference: {fileID: 1919768138}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.closeSettingsButton
+      value: 
+      objectReference: {fileID: 5733885}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.mainInventoryButton
+      value: 
+      objectReference: {fileID: 1850078279}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.miniInventoryButton
+      value: 
+      objectReference: {fileID: 988489147}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.CatalogueCanvasGroup
+      value: 
+      objectReference: {fileID: 136858479}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.InventoryCanvasGroup
+      value: 
+      objectReference: {fileID: 2010609617}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: buttons.closeCatalogueButton
+      value: 
+      objectReference: {fileID: 838622664}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: panels.UIFloatMenuCanvasGroup
+      value: 
+      objectReference: {fileID: 321689316}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: shopButtons.settingShopButton
+      value: 
+      objectReference: {fileID: 364713308}
+    - target: {fileID: 2684505089556856475, guid: ad520e0ea22997040998be580886f569, type: 3}
+      propertyPath: shopButtons.catalogueShopButton
+      value: 
+      objectReference: {fileID: 896963918}
     - target: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
       propertyPath: buyImage
       value: 

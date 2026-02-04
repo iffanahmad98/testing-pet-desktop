@@ -8,15 +8,15 @@ public class MainInventoryUI : MonoBehaviour
     [Header("Buttons")]
     public Button storeBtn;
     public Button deleteBtn;
-    
+
     [Header("Inventory Setup")]
     public ScrollRect scrollRect;
     public GameObject itemPrefab; // This should be ItemSlotUI prefab
     public ItemDatabaseSO itemDatabase;
-    
+
     [Header("Pooling Config")]
     [SerializeField] private int poolSize = 20;
-    
+
     private Queue<ItemSlotUI> itemSlotPool = new Queue<ItemSlotUI>();
     private List<ItemSlotUI> activeSlots = new List<ItemSlotUI>();
     private Transform contentParent;
@@ -25,7 +25,7 @@ public class MainInventoryUI : MonoBehaviour
     {
         // Get references
         contentParent = scrollRect.content;
-        
+
         // Initialize pool and listeners
         InitializePool();
         InitListeners();
@@ -43,13 +43,13 @@ public class MainInventoryUI : MonoBehaviour
         {
             GameObject slotObj = Instantiate(itemPrefab, contentParent);
             ItemSlotUI slot = slotObj.GetComponent<ItemSlotUI>();
-            
+
             if (slot == null)
             {
                 Debug.LogError("itemPrefab must have ItemSlotUI component!");
                 return;
             }
-            
+
             slotObj.SetActive(false);
             itemSlotPool.Enqueue(slot);
         }
@@ -94,7 +94,7 @@ public class MainInventoryUI : MonoBehaviour
         foreach (var entry in ownedItems)
         {
             ItemDataSO itemData = itemDatabase.GetItem(entry.itemID);
-            
+
             if (itemData != null)
             {
                 ItemSlotUI slot = GetSlotFromPool();
@@ -122,18 +122,18 @@ public class MainInventoryUI : MonoBehaviour
         {
             return itemSlotPool.Dequeue();
         }
-        
+
         // If pool is empty, create new slot (emergency expansion)
         GameObject slotObj = Instantiate(itemPrefab, contentParent);
         ItemSlotUI slot = slotObj.GetComponent<ItemSlotUI>();
-        
+
         if (slot == null)
         {
             Debug.LogError("itemPrefab must have ItemSlotUI component!");
             Destroy(slotObj);
             return null;
         }
-        
+
         return slot;
     }
 
@@ -174,7 +174,8 @@ public class MainInventoryUI : MonoBehaviour
     {
         // Handle store button click
         Debug.Log("Store button clicked");
-        ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
+        var ui = ServiceLocator.Get<UIManager>();
+        ui.FadePanel(ui.panels.ShopPanel, ui.panels.ShopCanvasGroup, true);
     }
 
     private void OnDeleteButtonClicked()
