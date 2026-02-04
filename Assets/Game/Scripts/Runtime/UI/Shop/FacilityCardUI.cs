@@ -6,7 +6,8 @@ using Spine.Unity;
 using UnityEngine.Localization.SmartFormat.Core.Parsing;
 using System.Collections;
 using System.Collections.Generic;
-public class FacilityCardUI : MonoBehaviour
+using UnityEngine.EventSystems;
+public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
 {
     [Header("UI References")]
     public GameObject grayscaleObj;
@@ -43,6 +44,7 @@ public class FacilityCardUI : MonoBehaviour
     private bool _isSelected;
     public bool IsSelected => _isSelected;
 
+    bool isCanBuy;
     private void Start()
     {
         facilityManager = ServiceLocator.Get<FacilityManager>();
@@ -314,4 +316,25 @@ public class FacilityCardUI : MonoBehaviour
             _anim.material = null;
         }
     }
+
+    #region Requirement
+    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+        isCanBuy = value;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (FacilityData != null) {
+            RequirementTipManager.Instance.StartClick(FacilityData.requirementTipDataSO.GetInfoData ());
+        } else if (npc != null) {
+            RequirementTipManager.Instance.StartClick(npc.requirementTipDataSO.GetInfoData ());
+        }
+        
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.EndHover();
+    }
+    #endregion
 }

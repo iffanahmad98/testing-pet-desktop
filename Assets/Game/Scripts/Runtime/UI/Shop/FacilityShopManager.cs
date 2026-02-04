@@ -148,9 +148,11 @@ public class FacilityShopManager : MonoBehaviour
                 {
                     bool canBuy = CheckBuyingRequirement(card, false);
                     card.SetGrayscale(!canBuy);
+                    card.SetCanBuy (canBuy);
 
                     if (canBuy && eligibleBuyVfx)
                         ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());
+                        
                 }
             }
             else if (card.npc != null)
@@ -159,6 +161,7 @@ public class FacilityShopManager : MonoBehaviour
                 {
                     bool canBuy = CheckBuyingRequirement(card, true);
                     card.SetGrayscale(!canBuy);
+                    card.SetCanBuy (canBuy);
 
                     if (canBuy && eligibleBuyVfx)
                         ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(card.GetComponent<RectTransform>());

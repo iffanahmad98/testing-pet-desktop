@@ -156,7 +156,8 @@ public class MonsterCatalogueUI : MonoBehaviour
     private void OnStoreButtonClicked()
     {
         Debug.Log("Store button clicked.");
-        ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
+        var ui = ServiceLocator.Get<UIManager>();
+        ui.FadePanel(ui.panels.ShopPanel, ui.panels.ShopCanvasGroup, true);
     }
 
     private void InitializeGameAreaButtonPool()
@@ -504,7 +505,8 @@ public class MonsterCatalogueUI : MonoBehaviour
                 foreach (OwnedDecorationData ownedDecorationData in playerConfig.ownedDecorations)
                 {
                     Debug.Log($"Checking {ownedDecorationData.decorationID} at area {playerConfig.lastGameAreaIndex}");
-                    if (ownedDecorationData.isActive) {
+                    if (ownedDecorationData.isActive)
+                    {
                         Debug.Log($"Apply decoration {ownedDecorationData.decorationID}");
                         ServiceLocator.Get<DecorationManager>()?.ApplyDecorationByID(ownedDecorationData.decorationID);
                         DecorationShopManager.instance.SetLastLoadTreeDecoration1(ownedDecorationData.decorationID);

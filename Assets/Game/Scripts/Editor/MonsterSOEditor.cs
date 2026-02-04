@@ -131,6 +131,7 @@ public class MonsterDataSOEditor : Editor
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("id"), new GUIContent("ID"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("description"), new GUIContent("Description"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("tooltipData"), new GUIContent("Tooltip Data"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("requirementTipDataSO"), new GUIContent("Requirement Data"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("monsterRequirements"), new GUIContent("Monster Requirements"));
                 }
                 

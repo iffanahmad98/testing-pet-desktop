@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 49447898966149807}
   - component: {fileID: 5158855488173628680}
   - component: {fileID: 6572663727101832509}
+  - component: {fileID: 1772682922363529178}
   m_Layer: 8
   m_Name: Big Well
   m_TagString: ClickableDecoration
@@ -77,7 +78,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: -1409
+  m_SortingOrder: -1166
   m_Sprite: {fileID: -7846895399613543807, guid: d077daf2e4ed9a04ca3c5ba05db07719, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -151,3 +152,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.5742188, y: 2.0195312}
   m_EdgeRadius: 0
+--- !u!114 &1772682922363529178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924615110328574345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d720e35cb8ed95e4086fd1841e0d2a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipData: {fileID: 11400000, guid: 48b34eccde39d3f40ac6bf39c45131da, type: 2}

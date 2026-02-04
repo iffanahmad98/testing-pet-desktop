@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
-
-public class DecorationCardUI : MonoBehaviour
+using UnityEngine.EventSystems;
+public class DecorationCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
 {
     public GameObject grayscaleObj;
     public TMP_Text nameText;
@@ -26,7 +26,7 @@ public class DecorationCardUI : MonoBehaviour
     public Action<DecorationCardUI> OnBuyClicked;
 
     public DecorationDataSO DecorationData { get; private set; }
-
+    bool isCanBuy = false;
     public void Setup(DecorationDataSO data)
     {
         DecorationData = data;
@@ -104,4 +104,20 @@ public class DecorationCardUI : MonoBehaviour
             }
         }
     }
+
+    #region Requirement
+    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+        isCanBuy = value;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.StartClick(DecorationData.requirementTipDataSO.GetInfoData ());
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        RequirementTipManager.Instance.EndHover();
+    }
+    #endregion
 }

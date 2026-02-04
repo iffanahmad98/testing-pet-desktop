@@ -21,6 +21,7 @@ MonoBehaviour:
     Progression: Unlocks only after Mushkina is owned. Also upgrades the Station
     Post to the 2-Flower version."
   tooltipData: {fileID: 11400000, guid: 058bc2a49ab516642bb9c895bc86aea1, type: 2}
+  requirementTipDataSO: {fileID: 11400000, guid: a86be3adb6f739b4b874c2ff44ac8a8b, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
@@ -28,7 +29,9 @@ MonoBehaviour:
   - anyTypeMonster: 0
     monsterType: 5
     minimumRequirements: 1
-  eatingOffset: {x: 0, y: 0}
+  eatingOffset:
+  - {x: -1.3849514e+36, y: 6.54e-43}
+  - {x: 1e-45, y: NaN}
   monType: 5
   poopType: 1
   moveSpd: 100
