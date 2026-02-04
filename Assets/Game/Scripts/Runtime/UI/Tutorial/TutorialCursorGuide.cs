@@ -9,6 +9,8 @@ public class TutorialCursorGuide : MonoBehaviour
     [SerializeField] private RectTransform cursorIcon;
     [Tooltip("Posisi awal animasi cursor (misalnya dari luar layar atau dari tombol tertentu).")]
     [SerializeField] private RectTransform startPoint;
+    [Tooltip("Optional: root GameObject (panel/canvas) yang akan di-set active saat animasi cursor berjalan.")]
+    [SerializeField] private GameObject rootObject;
 
     [Header("Animation Settings")]
     [SerializeField] private float moveDuration = 1f;
@@ -48,6 +50,22 @@ public class TutorialCursorGuide : MonoBehaviour
         TryResolveCursorManager();
     }
 
+    private void EnsureCursorVisualComponents()
+    {
+        if (cursorIcon == null)
+            return;
+
+        if (_cursorImage == null)
+        {
+            _cursorImage = cursorIcon.GetComponent<Image>();
+        }
+
+        if (_cursorRawImage == null)
+        {
+            _cursorRawImage = cursorIcon.GetComponent<RawImage>();
+        }
+    }
+
     private void TryResolveCursorManager()
     {
         if (_cursorManager != null)
@@ -69,6 +87,7 @@ public class TutorialCursorGuide : MonoBehaviour
         }
 
         TryResolveCursorManager();
+        EnsureCursorVisualComponents();
 
         if (_cursorManager != null)
         {
@@ -98,6 +117,11 @@ public class TutorialCursorGuide : MonoBehaviour
         _elapsed = 0f;
         _totalElapsed = 0f;
         _lockMousePosition = Input.mousePosition;
+
+        if (rootObject != null)
+        {
+            rootObject.SetActive(true);
+        }
 
         cursorIcon.gameObject.SetActive(true);
         cursorIcon.DOKill();
@@ -160,6 +184,11 @@ public class TutorialCursorGuide : MonoBehaviour
         {
             cursorIcon.DOKill();
             cursorIcon.gameObject.SetActive(false);
+        }
+
+        if (rootObject != null)
+        {
+            rootObject.SetActive(false);
         }
 
         if (changeSystemCursor && _cursorManager != null)
