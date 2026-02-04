@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8007450061895995883}
   - component: {fileID: 2819165571163119372}
   - component: {fileID: 7932265529759545240}
+  - component: {fileID: 2228342320288538570}
   m_Layer: 0
   m_Name: Cow AI
   m_TagString: Untagged
@@ -226,3 +227,16 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &2228342320288538570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436862049803133782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d720e35cb8ed95e4086fd1841e0d2a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipData: {fileID: 11400000, guid: 558db73d5a2dde8459d294041a669aaa, type: 2}
