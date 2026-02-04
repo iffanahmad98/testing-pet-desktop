@@ -18,6 +18,7 @@ public class MonsterDataSO : ScriptableObject
     public string id;
     public string description;
     public TooltipDataSO tooltipData;
+    public RequirementTipDataSO requirementTipDataSO;
     public MonsterRequirements[] monsterRequirements;
 
     [Header("Eating Properties")]

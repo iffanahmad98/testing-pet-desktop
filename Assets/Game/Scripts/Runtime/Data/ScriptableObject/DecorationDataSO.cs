@@ -12,7 +12,8 @@ public class DecorationDataSO : Rewardable
 
     [Header("Buying Requirements")]
     public MonsterRequirements[] monsterRequirements;
-
+    public RequirementTipDataSO requirementTipDataSO;
+    
     [Header ("Rewardable")]
     public Vector3 rewardScale;
     public override string ItemId => decorationID;

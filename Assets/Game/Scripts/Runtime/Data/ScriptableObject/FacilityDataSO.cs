@@ -14,6 +14,7 @@ public class FacilityDataSO : ScriptableObject
 
     [Header("Buying Requirements")]
     public MonsterRequirements[] monsterRequirements;
+    public RequirementTipDataSO requirementTipDataSO;
 
     [Header("Functionality")]
     public float cooldownSeconds = 30f;
