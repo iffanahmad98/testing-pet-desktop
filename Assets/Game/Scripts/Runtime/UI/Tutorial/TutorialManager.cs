@@ -158,6 +158,7 @@ public class TutorialManager : MonoBehaviour, ITutorialService
 
         if (_activeDialogIndex >= _activeDialogStep.dialogLines.Count)
         {
+            Debug.Log($"TutorialManager: semua dialog line untuk stepIndex={_currentStepIndex} sudah selesai. Menghancurkan dialog dan menandai step selesai.");
             var dialogGo = (_activeDialogView as MonoBehaviour)?.gameObject;
             if (dialogGo != null)
             {
