@@ -27,6 +27,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
     public Button sellMonsterButton;
     public Button renameMonsterButton;
 
+    public TMP_Text nameText;
+    public Image innerBG;
+
     private void Awake()
     {
         canvasGroup.alpha = 0f;
@@ -208,7 +211,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         }
 
         TMP_InputField inputField = renameMonsterButton.GetComponentInChildren<TMP_InputField>(true);
-
+        
         if (inputField == null)
         {
             Debug.LogError("TMP_InputField not found as child of game area button.");
@@ -216,6 +219,10 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         }
 
         MonsterManager.instance.audio.PlaySFX("button_click");
+
+        // aktifkan text dan inner background
+        nameText.gameObject.SetActive(true);
+        innerBG.gameObject.SetActive(true);
 
         // show the input field
         inputField.gameObject.SetActive(true);
@@ -256,6 +263,9 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         monsterNameText.text = newName;
 
         inputField.gameObject.SetActive(false);
+        // aktifkan text dan inner background
+        nameText.gameObject.SetActive(false);
+        innerBG.gameObject.SetActive(false);
 
         // save the game
         var playerConfig = SaveSystem.GetPlayerConfig();
