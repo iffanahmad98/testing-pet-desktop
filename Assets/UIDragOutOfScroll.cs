@@ -86,6 +86,25 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
             dragLayer, eventData.position, eventData.pressEventCamera, out var localPointerPos);
 
         rt.anchoredPosition = localPointerPos + pointerOffset;
+
+        // Cek apakah sedang hover di atas tempat yg bisa drop
+        var viewport = sourceScroll && sourceScroll.viewport
+            ? sourceScroll.viewport
+            : (sourceScroll ? (RectTransform)sourceScroll.transform : null);
+
+        bool isOverViewport = viewport &&
+            !RectTransformUtility.RectangleContainsScreenPoint(
+                viewport, eventData.position, eventData.pressEventCamera);
+
+        // Beri efek scale
+        if (isOverViewport )
+        {
+            transform.localScale = originalScale * 1.3f;
+        }
+        else
+        {
+            transform.localScale = originalScale;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
