@@ -134,7 +134,7 @@ public class FacilityShopManager : MonoBehaviour
                 card.OnCancelClicked = OnFacilityCancel;
 
                 bool canBuy = CheckBuyingRequirement(card, false);
-                card.SetGrayscale(!canBuy);
+                card.SetCanBuy(canBuy);
 
                 activeCards.Add(card);
                 totalCount++;

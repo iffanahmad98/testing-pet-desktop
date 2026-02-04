@@ -21,11 +21,14 @@ MonoBehaviour:
     Progression: Must be purchased first to unlock Mushkino. Also unlocks the 1-Flower
     Station Post decoration."
   tooltipData: {fileID: 11400000, guid: 6dfcfd56dc1e58d438b55bbc8e5ad2e3, type: 2}
+  requirementTipDataSO: {fileID: 11400000, guid: 9d240027c19636a49b28d44b2e979178, type: 2}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
     minimumRequirements: 8
-  eatingOffset: {x: 0, y: 0}
+  eatingOffset:
+  - {x: -1.3849514e+36, y: 6.54e-43}
+  - {x: 1e-45, y: NaN}
   monType: 5
   poopType: 1
   moveSpd: 400

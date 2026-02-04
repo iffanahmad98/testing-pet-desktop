@@ -111,7 +111,7 @@ public class DecorationShopManager : MonoBehaviour
             card.OnBuyClicked = OnDecorationBuy;
 
             bool canBuy = CheckBuyingRequirement(card);
-            card.SetGrayscale(!canBuy);
+            card.SetCanBuy(canBuy);
 
             activeCards.Add(card);
             totalCount++;
