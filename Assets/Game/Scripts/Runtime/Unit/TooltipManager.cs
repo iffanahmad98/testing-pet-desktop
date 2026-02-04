@@ -52,6 +52,18 @@ public class TooltipManager : MonoBehaviour
         }
     }
 
+    public void StartHoverForDuration(string info, float duration)
+    {
+        StartHover(info);
+        StartCoroutine(EndHoverAfterDelay(4.0f));
+    }
+
+    private IEnumerator EndHoverAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        HideInstant();
+    }
+
     public void StartHover(string info)
     {
         if (currentCoroutine != null)
