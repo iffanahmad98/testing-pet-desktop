@@ -835,7 +835,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     public void UpdateVisuals() => _visualHandler?.ApplyMonsterVisuals();
     public void DropPoop(PoopType type = PoopType.Normal) => _visualHandler?.SpawnPoopWithAnimation(type);
-    public void DropCoin(CoinType type) => _visualHandler?.SpawnCoinWithAnimation(type, CalculateCoinMultiplier());
+    public void DropCoin(CoinType type) => _visualHandler?.SpawnCoinWithAnimation(type, CoinMultiplier());
     public Sprite GetMonsterIcon() => _visualHandler?.GetMonsterIcon();
 
     public void SetFallingStarsState(bool state)
@@ -949,24 +949,37 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     #endregion
 
     #region Utility
-    private int CalculateCoinMultiplier()
+
+    private int CoinMultiplier()
     {
-        if (DateTime.TryParse(lastPokedTime, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime lastSaveTime))
+        if (string.IsNullOrEmpty(lastPokedTime))
+            return CalculateCoinMultiplier(timeCreated);
+        else
+            return CalculateCoinMultiplier(lastPokedTime);
+    }
+
+    private int CalculateCoinMultiplier(string time)
+    {
+        if (DateTime.TryParse(time, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime lastSaveTime))
         {
             DateTime now = DateTime.UtcNow;
             TimeSpan difference = now - lastSaveTime;
 
             double hoursAway = difference.TotalHours;
 
-            if(hoursAway < 1) 
+            Debug.Log($"-----------> Hours Away {hoursAway}");
+
+            if (hoursAway < 1)
                 return 1;
 
-            float baseMultiplier = MathF.Min((60f * (int)hoursAway), 60f * 48f);
+            float baseMultiplier = MathF.Min(monsterData.GetGoldCoinDropRate(evolutionLevel) * (int)hoursAway, monsterData.GetGoldCoinDropRate(evolutionLevel) * 48f);
 
             if (IsSick || currentHunger <= 35f)
             {
                 baseMultiplier /= 6f;
             }
+
+            Debug.Log($"-----------> Multiplier {baseMultiplier}");
 
             if (baseMultiplier < 1f)
                 baseMultiplier = 1f;
