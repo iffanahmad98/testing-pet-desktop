@@ -403,7 +403,7 @@ public static class SaveSystem
         if (MonsterManager.instance.activeMonsters.Count >= 25)
         {
             Debug.Log("We have reached a limit of 25 monsters");
-            TooltipManager.Instance.StartHover("You already have maximum number of monsters in this area.");
+            TooltipManager.Instance.StartHoverForDuration("You already have maximum number of monsters in this area.", 4.0f);
             
             return false;
         }
