@@ -36,7 +36,8 @@ namespace MagicalGarden.Farm
         public List <PlantController> listTargettingPlantControllers = new List <PlantController> ();
         [Header ("Farm Area")]
         public List <int> farmAreaIdsPurchased = new ();
-       
+        public event Action OnLoadEvent;
+
         private void Update()
         {
             /*
@@ -522,6 +523,7 @@ namespace MagicalGarden.Farm
                 }
             }
             FieldManager.Instance.LoadFromConfig ();
+            OnLoadEvent?.Invoke ();
         }
         public void SaveToJson()
         { 
@@ -635,6 +637,8 @@ namespace MagicalGarden.Farm
             farmAreaIdsPurchased.Add (id);
             SaveToJson ();
         }
+        
+        OnLoadEvent?.Invoke ();
     }
 
     public bool IsFarmAreaUnlocked (int id) { // FieldManager.cs
@@ -647,6 +651,11 @@ namespace MagicalGarden.Farm
 
     public List <int> GetFarmAreaIdsPurchased () { // TooltipFarmArea.cs
         return farmAreaIdsPurchased;
+    }
+#endregion
+#region Data
+    public void AddLoadEventData (Action eventValue) { // TooltipFarmArea.cs
+        OnLoadEvent += eventValue;
     }
 #endregion
     }
