@@ -55,7 +55,7 @@ public class TooltipManager : MonoBehaviour
     public void StartHoverForDuration(string info, float duration)
     {
         StartHover(info);
-        StartCoroutine(EndHoverAfterDelay(4.0f));
+        StartCoroutine(EndHoverAfterDelay(duration));
     }
 
     private IEnumerator EndHoverAfterDelay(float delay)
