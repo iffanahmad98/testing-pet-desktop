@@ -21,6 +21,8 @@ public partial class UIManager
     {
         if (_isAnimating || !_onFloatMenuOpened) return;
 
+        buttons.UIMenuButton.gameObject.SetActive(true);
+
         _onFloatMenuOpened = false;
         StartCoroutine(GroundMenuAnim());
     }
@@ -67,6 +69,8 @@ public partial class UIManager
         buttons.UIMenuButton.interactable = false;
         buttons.miniInventoryButton.interactable = false;
         _isAnimating = false;
+
+        buttons.UIMenuButton.gameObject.SetActive(false);
     }
 
     private IEnumerator GroundMenuAnim()

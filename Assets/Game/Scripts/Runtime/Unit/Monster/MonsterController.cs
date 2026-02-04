@@ -967,8 +967,6 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
             double hoursAway = difference.TotalHours;
 
-            Debug.Log($"-----------> Hours Away {hoursAway}");
-
             if (hoursAway < 1)
                 return 1;
 
@@ -979,10 +977,10 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
                 baseMultiplier /= 6f;
             }
 
-            Debug.Log($"-----------> Multiplier {baseMultiplier}");
-
             if (baseMultiplier < 1f)
                 baseMultiplier = 1f;
+
+            Debug.Log($"Coin Multiplier is {baseMultiplier} with Different Time {hoursAway}");
 
             return (int)baseMultiplier;
         }
