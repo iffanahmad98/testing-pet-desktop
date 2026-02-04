@@ -53,7 +53,7 @@ public class MonsterManager : MonoBehaviour
     public List<FoodController> activeFoods = new List<FoodController>();
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     public List<Transform> pumpkinObjects = new List<Transform>(); // Pumpkin objects for sorting
-    public List <Transform> listDecorations = new List <Transform> ();
+    public List<Transform> listDecorations = new List<Transform>();
 
     private List<string> savedMonIDs = new List<string>();
     [SerializeField] private Button spawnNPC1;
@@ -67,7 +67,7 @@ public class MonsterManager : MonoBehaviour
 
     #region Initialization and Setup
     private static MonsterManager _instance;
-    
+
     public static MonsterManager instance; // MonsterController.cs
 
     public MonsterController sickMonster;
@@ -86,9 +86,9 @@ public class MonsterManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         ServiceLocator.Register(this);
-        AddingDecorationsToList ();
+        AddingDecorationsToList();
         InitializePools();
-        
+
         SaveSystem.Initialize();
 
         if (spawnNPC1 != null)
@@ -123,12 +123,15 @@ public class MonsterManager : MonoBehaviour
         pool.Enqueue(obj);
     }
 
-    private void AddingDecorationsToList () {
-        foreach (Transform child in gameAreaRT.transform) {
-            if (child.tag == "Decoration") {
-                listDecorations.Add (child);
+    private void AddingDecorationsToList()
+    {
+        foreach (Transform child in gameAreaRT.transform)
+        {
+            if (child.tag == "Decoration")
+            {
+                listDecorations.Add(child);
             }
-        }  
+        }
     }
     #endregion
 
@@ -209,8 +212,8 @@ public class MonsterManager : MonoBehaviour
     {
         GameObject monster = CreateMonster(monsterData);
         var controller = monster.GetComponent<MonsterController>();
-       // Debug.Log ("Monster " + monster.name);
-        
+        // Debug.Log ("Monster " + monster.name);
+
 
         if (monster == null || controller == null)
         {
@@ -259,11 +262,34 @@ public class MonsterManager : MonoBehaviour
             settingsManager.ApplyCurrentPetScaleToMonster(controller);
         }
 
-        RectTransform monsterRectTransform = monster.GetComponent <RectTransform> ();
-        if (monsterRectTransform) {
-            Debug.Log ("Change Pivot to (0.5,0.0f)");
-            monsterRectTransform.pivot = new Vector2 (0.5f,0.0f);
+        RectTransform monsterRectTransform = monster.GetComponent<RectTransform>();
+        if (monsterRectTransform)
+        {
+            Debug.Log("Change Pivot to (0.5,0.0f)");
+            monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
+    }
+
+    public MonsterController SpawnMonsterAtCenterForTutorial(MonsterDataSO monsterData, Vector2 anchoredPosition)
+    {
+        SpawnMonster(monsterData);
+
+        MonsterController controller = null;
+        if (activeMonsters != null && activeMonsters.Count > 0)
+        {
+            controller = activeMonsters[activeMonsters.Count - 1];
+        }
+
+        if (controller == null)
+            return null;
+
+        var rect = controller.GetComponent<RectTransform>();
+        if (rect != null && gameAreaRT != null)
+        {
+            rect.anchoredPosition = anchoredPosition;
+        }
+
+        return controller;
     }
 
     private GameObject CreateMonster(MonsterDataSO monsterData)
@@ -296,7 +322,7 @@ public class MonsterManager : MonoBehaviour
 
         monster.SetActive(true);
 
-        monster.GetComponent <MonsterController> ().CreateHandlersForSavingData ();
+        monster.GetComponent<MonsterController>().CreateHandlersForSavingData();
         return monster;
     }
 
@@ -313,7 +339,7 @@ public class MonsterManager : MonoBehaviour
         {
             activeMonsters.Add(monster);
         }
-        OnPetMonsterChanged?.Invoke ();
+        OnPetMonsterChanged?.Invoke();
     }
 
     public void RemoveSavedMonsterID(string monsterID)
@@ -322,7 +348,7 @@ public class MonsterManager : MonoBehaviour
         savedMonIDs.Remove(monsterID);
         SaveSystem.SaveMonIDs(savedMonIDs);
 
-        OnPetMonsterChanged?.Invoke ();
+        OnPetMonsterChanged?.Invoke();
     }
 
     public void AddSavedMonsterID(string monsterID)
@@ -398,10 +424,10 @@ public class MonsterManager : MonoBehaviour
             .Where(p => p != null && p.gameObject.activeInHierarchy));
 
         // Add Decorations
-        
+
         allObjectsForSorting.AddRange(listDecorations
             .Where(d => d != null && d.gameObject.activeInHierarchy));
-        
+
         if (allObjectsForSorting.Count <= 1) return;
 
         // Sort by Y position (higher Y = lower sibling index, appears behind)
@@ -670,9 +696,9 @@ public class MonsterManager : MonoBehaviour
 
     public void CollectPoop(int amount = 1)
     {
-      //  poopCollected += amount;
-      //  SaveSystem.SavePoop(poopCollected);
-      //  OnPoopChanged?.Invoke(poopCollected);
+        //  poopCollected += amount;
+        //  SaveSystem.SavePoop(poopCollected);
+        //  OnPoopChanged?.Invoke(poopCollected);
     }
     #endregion
 
@@ -726,7 +752,7 @@ public class MonsterManager : MonoBehaviour
             activeMonsters.Remove(monsterController);
             npcMonsters.Remove(monsterController);
 
-            OnPetMonsterChanged?.Invoke ();
+            OnPetMonsterChanged?.Invoke();
         }
         else if (obj.name.Contains("Poop"))
         {
@@ -973,14 +999,20 @@ public class MonsterManager : MonoBehaviour
         return true;
     }
 
-    public int GetTotalMonstersEqualRequirements (bool anyRequirements, MonsterType monsterType = MonsterType.Common) { // EligiblePetMonster.cs
+    public int GetTotalMonstersEqualRequirements(bool anyRequirements, MonsterType monsterType = MonsterType.Common)
+    { // EligiblePetMonster.cs
         int result = 0;
-        foreach (MonsterController monsterController in activeMonsters) {
-            if (anyRequirements) {
-                result ++;
-            } else {
-                if (monsterController.MonsterData.monType == monsterType) {
-                    result ++;
+        foreach (MonsterController monsterController in activeMonsters)
+        {
+            if (anyRequirements)
+            {
+                result++;
+            }
+            else
+            {
+                if (monsterController.MonsterData.monType == monsterType)
+                {
+                    result++;
                 }
             }
         }
@@ -1031,10 +1063,11 @@ public class MonsterManager : MonoBehaviour
         if (settingsManager != null)
             settingsManager.ApplyCurrentPetScaleToMonster(controller);
 
-        RectTransform monsterRectTransform = npcObj.GetComponent <RectTransform> ();
-        if (monsterRectTransform) {
-            Debug.Log ("Change Pivot to (0.5,0.0f)");
-            monsterRectTransform.pivot = new Vector2 (0.5f,0.0f);
+        RectTransform monsterRectTransform = npcObj.GetComponent<RectTransform>();
+        if (monsterRectTransform)
+        {
+            Debug.Log("Change Pivot to (0.5,0.0f)");
+            monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
     }
     public void DespawnNPC(string npcID)
@@ -1077,7 +1110,8 @@ public class MonsterManager : MonoBehaviour
 
     #endregion
     #region Event
-    public void AddEventPetMonsterChanged (Action value) { // HotelLocker.cs
+    public void AddEventPetMonsterChanged(Action value)
+    { // HotelLocker.cs
         OnPetMonsterChanged += value;
     }
     #endregion
