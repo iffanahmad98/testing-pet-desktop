@@ -143,6 +143,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3751111877653313131, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4312266740770362151}
+    - targetCorrespondingSourceObject: {fileID: 3751111877653313131, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5646202938432613707}
   m_SourcePrefab: {fileID: 100100000, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}
 --- !u!114 &1460804215330748815 stripped
 MonoBehaviour:
@@ -186,9 +189,12 @@ MonoBehaviour:
     probability: 0.2
   - stateName: run
     probability: 0.2
+  tileAIType: 1
   terrainTilemap: {fileID: 0}
   currentTile: {x: 0, y: 0}
   isOverridingState: 0
+  lockFlipTarget: 0
+  spawnEffectPrefab: {fileID: 0}
   destinationTile: {x: 0, y: 0}
   hotelRequestDetector: {fileID: 1419156657029385814}
   npcAreaPointsDatabase: {fileID: 11400000, guid: 10d707ca6de2c1940bd36ff7b26a96c0, type: 2}
@@ -201,6 +207,19 @@ MonoBehaviour:
   currentNPCAreaPointsSO: {fileID: 11400000, guid: a58c434664508a54bb37c13d3280e1fe, type: 2}
   isCollectingGift: 0
   giftObject: {fileID: 0}
+--- !u!114 &5646202938432613707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688730608344220992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d720e35cb8ed95e4086fd1841e0d2a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipData: {fileID: 11400000, guid: 2089bf98b6f84d740a1e63cd91e9cbb0, type: 2}
 --- !u!4 &8810285851502921984 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1106613957594364459, guid: fc9edbb90d0657f428d52c6fe75874a7, type: 3}

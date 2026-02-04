@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5859424390700800398}
   - component: {fileID: 1439025098038708842}
   - component: {fileID: 7023386800994700976}
+  - component: {fileID: 8930371353916145462}
   m_Layer: 8
   m_Name: Tree 2
   m_TagString: ClickableDecoration
@@ -106,7 +107,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1182172779
   m_SortingLayer: 3
-  m_SortingOrder: 948
+  m_SortingOrder: -399
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &2669713067989019923
 MonoBehaviour:
@@ -138,7 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d728c227578204546b9a2ab3b66e4e6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foliageBending: 1
+  foliageBending: 0
   offsetFactor:
   - 0
   - 0
@@ -226,6 +227,19 @@ PolygonCollider2D:
       - {x: 4.0645356, y: -5.5943522}
       - {x: 6.5765557, y: 2.1368535}
   m_UseDelaunayMesh: 0
+--- !u!114 &8930371353916145462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3095024524719100643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d720e35cb8ed95e4086fd1841e0d2a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipData: {fileID: 11400000, guid: a530eb52676a97142b63a7fdbaf55828, type: 2}
 --- !u!1001 &5044651183929600576
 PrefabInstance:
   m_ObjectHideFlags: 0
