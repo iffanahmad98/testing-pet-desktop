@@ -655,7 +655,7 @@ public class ItemInventoryUI : MonoBehaviour
     {
         SidebarManager sidebarManager = ServiceLocator.Get<SidebarManager>();
         sidebarManager.ShowPanel(sidebarManager.sidebarLinks[2]);
-        ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
+        ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().panels.ShopPanel, ServiceLocator.Get<UIManager>().panels.ShopCanvasGroup, true);
     }
 
     public void MoveItemBack(ItemSlotUI draggedSlot, ItemSlotUI targetSlot)
