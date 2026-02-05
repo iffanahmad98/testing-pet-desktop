@@ -22,4 +22,17 @@ public class TutorialStep
 
     [Tooltip("Daftar dialog yang akan ditampilkan berurutan untuk step ini.")]
     public List<TutorialDialogLine> dialogLines = new List<TutorialDialogLine>();
+
+    [Header("Pointer (Opsional)")]
+    [Tooltip("Jika true, pointer tangan akan muncul di step ini.")]
+    public bool usePointer;
+
+    [Tooltip("Jika true, pointer akan otomatis menunjuk ke monster tutorial (mis. Briabit) yang di-spawn oleh TutorialManager.")]
+    public bool useTutorialMonsterAsPointerTarget;
+
+    [Tooltip("Target UI yang akan ditunjuk pointer. Jika kosong dan usePointer = true, akan fallback ke nextButton jika ada.")]
+    public RectTransform pointerTarget;
+
+    [Tooltip("Offset tambahan dari posisi target (dalam anchoredPosition canvas). Contoh: (40, -40) supaya tangan muncul di samping tombol.")]
+    public Vector2 pointerOffset;
 }

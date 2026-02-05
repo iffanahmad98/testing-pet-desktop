@@ -96,6 +96,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     public MonsterUIHandler UI = new MonsterUIHandler();
 
+    public event Action<PointerEventData> OnClicked;
+
     // Unity components
     private SkeletonGraphic _monsterSpineGraphic;
     public SkeletonGraphic _beforeMonsterSpineGraphic;
@@ -169,9 +171,9 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             _separationBehavior = new MonsterSeparationHandler(this, _rectTransform);
             _movementHandler = new MonsterMovementHandler(this, _rectTransform, _monsterSpineGraphic);
             _visualHandler = new MonsterVisualHandler(this, _monsterSpineGraphic);
-            
+
             var npcIndex = gameObject.name == "NPCMonsterData 1_100" ? 1 : 0;
-            
+
             Debug.Log($"NPC DEBUG {npcIndex}");
             _npcHandler = new NPCPetCaretakerHandler(this, npcIndex);
             _npcHandler.Initialize();
@@ -210,8 +212,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     private IEnumerator FinalizeInitialization()
     {
-        yield return new WaitUntil(()=>  SaveSystem.IsLoadFinished);
-        
+        yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
+
         // Add this: Load saved data before starting coroutines
         if (MonsterData != null)
         {
@@ -827,7 +829,11 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         _interactionHandler?.OnPointerExit(eventData);
     }
 
-    public void OnPointerClick(PointerEventData eventData) => _interactionHandler?.OnPointerClick(eventData);
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        OnClicked?.Invoke(eventData);
+        _interactionHandler?.OnPointerClick(eventData);
+    }
 
     #endregion
 
@@ -840,7 +846,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     public void SetFallingStarsState(bool state)
     {
-        if(monsterData == null) return;
+        if (monsterData == null) return;
 
         if (monsterData.monType != MonsterType.Legend)
         {
@@ -848,7 +854,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             return;
         }
 
-        if(!UI.fallingStarsVfx.gameObject.activeInHierarchy)
+        if (!UI.fallingStarsVfx.gameObject.activeInHierarchy)
             UI.fallingStarsVfx.gameObject.SetActive(true);
 
         Vector3 q = UI.fallingStarsVfx.rectTransform.localEulerAngles;
@@ -939,7 +945,8 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     #region GetMonsterOutsidePlains
     // EggCrackAnimator - MonsterManager
-    public void CreateHandlersForSavingData() {
+    public void CreateHandlersForSavingData()
+    {
         /*
         CreateHandlers();
         

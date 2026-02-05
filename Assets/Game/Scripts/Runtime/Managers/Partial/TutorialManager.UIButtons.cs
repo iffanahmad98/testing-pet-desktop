@@ -4,8 +4,13 @@ using UnityEngine;
 
 public partial class TutorialManager
 {
+    private Button _tutorialNextButton;
+
     private void CacheUIButtonsFromUIManager()
     {
+        if (_uiButtonsCache != null && _uiButtonsCache.Length > 0)
+            return;
+
         var ui = ServiceLocator.Get<UIManager>();
         if (ui == null)
         {
@@ -37,6 +42,7 @@ public partial class TutorialManager
             Add(main.catalogueButton);
             Add(main.closeCatalogueButton);
             Add(main.mainInventoryButton);
+            _tutorialNextButton = main.tutorialnext;
             Add(main.tutorialnext);
         }
 
@@ -59,6 +65,11 @@ public partial class TutorialManager
 
     private void DisableUIManagerButtonsForTutorial()
     {
+        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        {
+            CacheUIButtonsFromUIManager();
+        }
+
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
             return;
 
@@ -88,6 +99,11 @@ public partial class TutorialManager
             {
                 btn.interactable = _uiButtonsInteractableCache[i];
             }
+        }
+
+        if (_tutorialNextButton != null)
+        {
+            _tutorialNextButton.interactable = false;
         }
 
         _uiButtonsCache = null;
@@ -131,6 +147,11 @@ public partial class TutorialManager
     {
         if (step == null)
             return null;
+
+        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        {
+            CacheUIButtonsFromUIManager();
+        }
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
             return null;
