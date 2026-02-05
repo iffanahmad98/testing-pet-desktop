@@ -129,6 +129,103 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &403957140995520726
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3284511662712655154}
+  - component: {fileID: 6412296203374087469}
+  m_Layer: 0
+  m_Name: Time
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3284511662712655154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403957140995520726}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.2543434, y: -0.3511109, z: 0.49089637}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5686940728437541436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6412296203374087469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403957140995520726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec9ff9811b0939342aed74fc0dca7d12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useSystemTime: 1
+  currentTimeStr: 
+  lastLoginTimeStr: 
+  lastDailyResetStr: 
+  addDayDebug: 0
+  timeText: {fileID: 0}
+--- !u!1 &725322620447267386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4196090382002098854}
+  - component: {fileID: 8385589094931586337}
+  m_Layer: 0
+  m_Name: PlayerHistory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4196090382002098854
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725322620447267386}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5686940728437541436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8385589094931586337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725322620447267386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f429abb3c32e2444803855879567e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hotelRoomCompleted: 0
+  harvestFruit: 0
+  harvestEggMonsters: 0
 --- !u!1 &1330516261618121772
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,9 +268,13 @@ Transform:
   - {fileID: 6843906900037728219}
   - {fileID: 5281974851083140696}
   - {fileID: 7996280615636164444}
+  - {fileID: 513479970957477224}
   - {fileID: 8401192058057084349}
   - {fileID: 8623952443653331259}
   - {fileID: 8414936558758397602}
+  - {fileID: 2785896421790979939}
+  - {fileID: 4196090382002098854}
+  - {fileID: 3284511662712655154}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2080779024412686163
@@ -213,8 +314,12 @@ MonoBehaviour:
   activePoops: []
   activeFoods: []
   activeMedicines: []
+  pumpkinObjects:
+  - {fileID: 0}
+  listDecorations: []
   spawnNPC1: {fileID: 0}
   spawnNPC2: {fileID: 0}
+  sickMonster: {fileID: 0}
 --- !u!114 &2333563077610859547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,46 +380,46 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   progressSlider: {fileID: 0}
   phases:
-  - phaseName: Phase 1
+  - phaseName: Focus
     phaseType: 0
-    sliderStart: 0.118
-    sliderEnd: 0.22
-    durationMinutes: 25
-  - phaseName: Break 1
+    sliderStart: 0.139
+    sliderEnd: 0.249
+    durationMinutes: 1
+  - phaseName: Break
     phaseType: 1
-    sliderStart: 0.216
-    sliderEnd: 0.273
-    durationMinutes: 5
-  - phaseName: Phase 2
+    sliderStart: 0.249
+    sliderEnd: 0.346
+    durationMinutes: 1
+  - phaseName: Focus
     phaseType: 0
-    sliderStart: 0.259
-    sliderEnd: 0.341
-    durationMinutes: 25
-  - phaseName: Break 2
+    sliderStart: 0.346
+    sliderEnd: 0.447
+    durationMinutes: 1
+  - phaseName: Break
     phaseType: 1
-    sliderStart: 0.328
-    sliderEnd: 0.44
-    durationMinutes: 5
-  - phaseName: Phase 3
+    sliderStart: 0.447
+    sliderEnd: 0.548
+    durationMinutes: 1
+  - phaseName: Focus
     phaseType: 0
-    sliderStart: 0.44
-    sliderEnd: 0.6
-    durationMinutes: 25
-  - phaseName: Break 3
+    sliderStart: 0.548
+    sliderEnd: 0.649
+    durationMinutes: 1
+  - phaseName: Break
     phaseType: 1
-    sliderStart: 0.44
-    sliderEnd: 0.59
-    durationMinutes: 5
-  - phaseName: Phase 4
+    sliderStart: 0.649
+    sliderEnd: 0.747
+    durationMinutes: 1
+  - phaseName: Focus
     phaseType: 0
-    sliderStart: 0.59
-    sliderEnd: 0.59
-    durationMinutes: 25
-  - phaseName: Phase 4
+    sliderStart: 0.747
+    sliderEnd: 0.861
+    durationMinutes: 1
+  - phaseName: Break
     phaseType: 1
-    sliderStart: 1
-    sliderEnd: 0.5
-    durationMinutes: 25
+    sliderStart: 0.861
+    sliderEnd: 1
+    durationMinutes: 1
 --- !u!1 &1604788168612141578
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,6 +495,7 @@ MonoBehaviour:
     activeSprite: {fileID: 8498903324148628765, guid: 2db7bf0a692c3f94ba82854dd5990c1f, type: 3}
     inactiveSprite: {fileID: 5413941449982313884, guid: c21ae5faa076bb943aaf25c16b919715, type: 3}
     buttonImage: {fileID: 0}
+  currentPanel: {fileID: 0}
 --- !u!1 &2240938270952959010
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,6 +508,8 @@ GameObject:
   - component: {fileID: 7742885387128257351}
   - component: {fileID: 82540597057440134}
   - component: {fileID: 8408899965472176798}
+  - component: {fileID: 2847608565283468555}
+  - component: {fileID: 310095876022956823}
   m_Layer: 0
   m_Name: Shop
   m_TagString: Untagged
@@ -491,6 +599,45 @@ MonoBehaviour:
   biomePriceText: {fileID: 0}
   biomeDescText: {fileID: 0}
   biomes: {fileID: 11400000, guid: 25cd78c2cdca6bd46ac7b9de77dac8d3, type: 2}
+--- !u!114 &2847608565283468555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240938270952959010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e4fff1b0b30bb9488b997fd4e4a6528, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  facilityParent: {fileID: 0}
+  cardParent: {fileID: 0}
+  facilityCardPrefab: {fileID: 4496806418264897046, guid: 98a3c0fb6230663478a3a2f051070724, type: 3}
+  facilityNameText: {fileID: 0}
+  facilityPriceText: {fileID: 0}
+  facilityDescText: {fileID: 0}
+  facilityCooldownText: {fileID: 0}
+  facilities: {fileID: 11400000, guid: f7b83edb8479dd240943066774f89590, type: 2}
+  npcDatabases: {fileID: 11400000, guid: 58fa8007c66f5e84984ceb56cfb79d58, type: 2}
+--- !u!114 &310095876022956823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240938270952959010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed2cf1417e5fa0f42a55ca0a625933f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardParent: {fileID: 0}
+  decorationCardPrefab: {fileID: 8849061846943924928, guid: 7622337dda30dd542b89f1ab20ce3071, type: 3}
+  decorationNameText: {fileID: 0}
+  decorationPriceText: {fileID: 0}
+  decorationDescText: {fileID: 0}
+  decorations: {fileID: 11400000, guid: c6bb30aaedb8975488e0b380763d0199, type: 2}
 --- !u!1 &3370980008875664216
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,8 +763,13 @@ MonoBehaviour:
   baseGround: {fileID: 0}
   darkenFilter: {fileID: 0}
   rainSystem: {fileID: 0}
+  rainObj: {fileID: 0}
+  shootingStarObj: {fileID: 0}
+  starsObj: {fileID: 0}
+  fireflyVfxObj: {fileID: 0}
   skyBG: {fileID: 0}
   ambientBG: {fileID: 0}
+  skyRaysVfxObj: {fileID: 0}
   OnCloudsToggled:
     m_PersistentCalls:
       m_Calls: []
@@ -689,6 +841,9 @@ MonoBehaviour:
   magicShovelPrefab: {fileID: 0}
   timeKeeperNormalObject: {fileID: 0}
   timeKeeperAdvanceObject: {fileID: 0}
+  pumpkinCarObject: {fileID: 0}
+  pumpkinMiniObject: {fileID: 0}
+  pomodoroPhaseManager: {fileID: 6733706673701763729}
 --- !u!1 &3680612517786595220
 GameObject:
   m_ObjectHideFlags: 0
@@ -825,7 +980,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3706006936979896945}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63ebc6d4d6c31c94fa3b06eef8b8a6d4, type: 3}
   m_Name: 
@@ -833,12 +988,54 @@ MonoBehaviour:
   bgmSource: {fileID: 182640086022123695}
   uiSource: {fileID: 1419695625290527721}
   initialPoolSize: 5
-  mainMenuBGM: {fileID: 0}
-  gameplayBGM: {fileID: 0}
-  situationalBGM: []
-  buttonClickSFX: {fileID: 0}
-  menuOpenSFX: {fileID: 0}
+  mainMenuBGM: {fileID: 8300000, guid: ec2187df71313a24c960a7a3ace1f2b5, type: 3}
+  gameplayBGM: {fileID: 8300000, guid: daece1fa17e3de44099734bf90c85b29, type: 3}
+  situationalBGM:
+  - {fileID: 8300000, guid: 1daee27bd6bcb0743926935a742c7e01, type: 3}
+  buttonClickSFX: {fileID: 8300000, guid: 7d77753fec9197447b7d108d36e89242, type: 3}
+  menuOpenSFX: {fileID: 8300000, guid: 066fe2c2afbd7574d9b64d0178c0b4f9, type: 3}
   notificationSFX: {fileID: 0}
+  menuCloseSFX: {fileID: 8300000, guid: 2fcdc8d1b9f802b4bb16ffe5544f5b11, type: 3}
+  dropCoinSFX: {fileID: 8300000, guid: f5a1e07af02753340bb28a8565a95e22, type: 3}
+  petJumpSFX: {fileID: 8300000, guid: 2b95b90b9b4cc0943a4cd1c0b34fda90, type: 3}
+  collectCoinSFX: {fileID: 8300000, guid: d60925550b1b2654cbecd5ea50f57c39, type: 3}
+  buySFX: {fileID: 8300000, guid: d448f4d0f9012154481b7263dd74fb82, type: 3}
+  openingSFX: {fileID: 8300000, guid: 467daf2edfcaf2745b3b2c95bc0480f9, type: 3}
+  placingFaciltySFX: {fileID: 8300000, guid: ae60bf9b9fc80fe4297d440abd4bf2cf, type: 3}
+  torchIgniteSFX: {fileID: 8300000, guid: ead9b50222e9f53459b14c58cbd809f6, type: 3}
+  timeKeeperSFX: {fileID: 8300000, guid: a4ca9b4f672115a4989393cbcd9fc776, type: 3}
+  magicShovelSFX: {fileID: 8300000, guid: 7941414bb6ecf4846a0e09562dd9bab8, type: 3}
+  rainbowPotSFX: {fileID: 8300000, guid: c0705c19b460bce4197900860e410923, type: 3}
+  farmAndHotelSFX:
+  - {fileID: 8300000, guid: 9bc2b666c0064104cac4d264b712c3de, type: 3}
+  - {fileID: 8300000, guid: 045de975f5df5864a8db83d5abb420e8, type: 3}
+  - {fileID: 8300000, guid: 16c9e249ee3972647a08890a075344e1, type: 3}
+  - {fileID: 8300000, guid: cb47caacafc725948aca0581246fe12a, type: 3}
+  - {fileID: 8300000, guid: 04a0177d5ca760e4c9bf5a2dc4b51764, type: 3}
+  - {fileID: 8300000, guid: acbaf9a83357ba94ca9d92c80b6869d0, type: 3}
+  - {fileID: 8300000, guid: f62e5157864700243b6e2ab1a4f18edf, type: 3}
+  - {fileID: 8300000, guid: 9290bb4afa9888e44af9398797f3ae10, type: 3}
+  - {fileID: 8300000, guid: e51512d86e410214ab6051ca838aaf2e, type: 3}
+  - {fileID: 8300000, guid: e82a7cc6138911848993f10b0a5121cb, type: 3}
+  - {fileID: 8300000, guid: 696278efd8b00f543b01fcfd2f000113, type: 3}
+  - {fileID: 8300000, guid: ab3e5c846ce8634418594c53c55e8300, type: 3}
+  - {fileID: 8300000, guid: 4b0be62ad9e8bc74f99d7353242582f0, type: 3}
+  - {fileID: 8300000, guid: 6323c5911f0ca3345b4761364e5780f0, type: 3}
+  - {fileID: 8300000, guid: 79f6083cd2030b448b0aee3f6f3653d0, type: 3}
+  - {fileID: 8300000, guid: 2817a5f20fe048f44a3b81bf94f3318d, type: 3}
+  - {fileID: 8300000, guid: f3ad810af9e8e9e438c5be9481765bf1, type: 3}
+  - {fileID: 8300000, guid: e8130fd7d98d0e8438f61c402974cc7d, type: 3}
+  - {fileID: 8300000, guid: 3b0ccbe34f07da74f980fddd75ef2084, type: 3}
+  - {fileID: 8300000, guid: fd80f80a7489bb14fa68679cb27dfd4a, type: 3}
+  - {fileID: 8300000, guid: 6fb0c80f883727c49904b52ab5184eff, type: 3}
+  - {fileID: 8300000, guid: c5f7bc2795efc774b9b522d322f960e0, type: 3}
+  - {fileID: 8300000, guid: 692a542adfc18ea408f576f4dba2c524, type: 3}
+  - {fileID: 8300000, guid: e98d894511524a74da96d1eaeadf5fd3, type: 3}
+  - {fileID: 8300000, guid: 18d3fdfdaa972004e88d3eff920d24b5, type: 3}
+  - {fileID: 8300000, guid: f37f685485ccf7949aeba639aae5d98c, type: 3}
+  - {fileID: 8300000, guid: 287ffe271786f7b4ebcf3fab34e51a8b, type: 3}
+  - {fileID: 8300000, guid: b48ac1cab4976c84cbcfa589b9c3b2b2, type: 3}
+  - {fileID: 8300000, guid: 27850b89affe408428e4533adb3b3447, type: 3}
   masterMixer: {fileID: 24100000, guid: 50d7d0b998dad8047bb22b7e183383a9, type: 2}
   bgmMixerGroup: BGM
   sfxMixerGroup: SFX
@@ -1025,30 +1222,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26fdc040f74bb244887683cd45ca3f03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UIFloatMenuPanel: {fileID: 0}
-  UIFloatMenuCanvasGroup: {fileID: 0}
-  SettingPanel: {fileID: 0}
-  SettingCanvasGroup: {fileID: 0}
-  ShopPanel: {fileID: 0}
-  ShopCanvasGroup: {fileID: 0}
-  CataloguePanel: {fileID: 0}
-  CatalogueCanvasGroup: {fileID: 0}
-  InventoryPanel: {fileID: 0}
-  InventoryCanvasGroup: {fileID: 0}
-  UIMenuButton: {fileID: 0}
-  miniInventoryButton: {fileID: 0}
-  groundButton: {fileID: 0}
-  doorButton: {fileID: 0}
-  windowButton: {fileID: 0}
-  miniWindowButton: {fileID: 0}
-  shopButton: {fileID: 0}
-  closeShopButton: {fileID: 0}
-  settingsButton: {fileID: 0}
-  closeSettingsButton: {fileID: 0}
-  catalogueButton: {fileID: 0}
-  closeCatalogueButton: {fileID: 0}
-  mainInventoryButton: {fileID: 0}
+  panels:
+    UIFloatMenuPanel: {fileID: 0}
+    UIFloatMenuCanvasGroup: {fileID: 0}
+    SettingPanel: {fileID: 0}
+    SettingCanvasGroup: {fileID: 0}
+    ShopPanel: {fileID: 0}
+    ShopCanvasGroup: {fileID: 0}
+    CataloguePanel: {fileID: 0}
+    CatalogueCanvasGroup: {fileID: 0}
+    InventoryPanel: {fileID: 0}
+    InventoryCanvasGroup: {fileID: 0}
+  buttons:
+    UIMenuButton: {fileID: 0}
+    miniInventoryButton: {fileID: 0}
+    groundButton: {fileID: 0}
+    doorButton: {fileID: 0}
+    windowButton: {fileID: 0}
+    miniWindowButton: {fileID: 0}
+    shopButton: {fileID: 0}
+    closeShopButton: {fileID: 0}
+    settingsButton: {fileID: 0}
+    closeSettingsButton: {fileID: 0}
+    catalogueButton: {fileID: 0}
+    closeCatalogueButton: {fileID: 0}
+    mainInventoryButton: {fileID: 0}
+    tutorialnext: {fileID: 0}
+  shopButtons:
+    catalogueShopButton: {fileID: 0}
+    settingShopButton: {fileID: 0}
+    helpShopButton: {fileID: 0}
   messageText: {fileID: 0}
+  unlockedBtnVfxPrefab: {fileID: 5711547139488797716, guid: 85434a4ee77941e498d22b221f10e504, type: 3}
+  vfxParent: {fileID: 0}
   animationDuration: 0.4
   buttonSlideDistance: 100
   easeOutCurve:
@@ -1174,18 +1380,98 @@ MonoBehaviour:
   monsterDatabase: {fileID: 11400000, guid: d88e49c9a756df743b7d9ec643fe611f, type: 2}
   rarityWeights:
   - type: 0
-    weight: 100
+    weight: 50
     hasSoftPity: 0
     softPityStartAt: 70
     softPityIncreasePercent: 5
     hasHardPity: 0
-    hardPityAt: 90
+    hardPityAt: 0
+    hardPityRateRange: {x: 0, y: 0}
+  - type: 1
+    weight: 30
+    hasSoftPity: 0
+    softPityStartAt: 0
+    softPityIncreasePercent: 0
+    hasHardPity: 0
+    hardPityAt: 0
+    hardPityRateRange: {x: 0, y: 0}
+  - type: 4
+    weight: 1
+    hasSoftPity: 1
+    softPityStartAt: 80
+    softPityIncreasePercent: 0.15
+    hasHardPity: 1
+    hardPityAt: 160
+    hardPityRateRange: {x: 100, y: 100}
+  - type: 2
+    weight: 15
+    hasSoftPity: 0
+    softPityStartAt: 0
+    softPityIncreasePercent: 0
+    hasHardPity: 1
+    hardPityAt: 10
     hardPityRateRange: {x: 80, y: 100}
+  - type: 3
+    weight: 4
+    hasSoftPity: 0
+    softPityStartAt: 0
+    softPityIncreasePercent: 0
+    hasHardPity: 1
+    hardPityAt: 30
+    hardPityRateRange: {x: 85, y: 100}
   gachaCost: 0
   allowedRarities: 0000000001000000020000000300000004000000
   currentTotalPulls: 0
   pityCounterDisplay: []
   gachaResultPanel: {fileID: 0}
+  gachaPriceText: {fileID: 0}
+  buyImage: {fileID: 0}
+  coinImage: {fileID: 0}
+  grayscaleMaterial: {fileID: 2100000, guid: 98b711fb8bf78d64b942aa43effc1e1f, type: 2}
+--- !u!1 &7238920729631015023
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2785896421790979939}
+  - component: {fileID: 4890157008694849231}
+  m_Layer: 0
+  m_Name: SceneLoad
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2785896421790979939
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7238920729631015023}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5686940728437541436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4890157008694849231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7238920729631015023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 795f83ec6d9207c45b1e1e19033ce633, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7491133666366765257
 GameObject:
   m_ObjectHideFlags: 0
@@ -1367,9 +1653,9 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
+  DopplerLevel: 0
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 100
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -1404,7 +1690,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -1444,6 +1730,51 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &7694568609262126558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 513479970957477224}
+  - component: {fileID: 729393054626724278}
+  m_Layer: 0
+  m_Name: Decoration
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &513479970957477224
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7694568609262126558}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5686940728437541436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &729393054626724278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7694568609262126558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66f7b9e624d622e429e67817d9aa525a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameArea: {fileID: 0}
 --- !u!1 &8649000407619575400
 GameObject:
   m_ObjectHideFlags: 0
