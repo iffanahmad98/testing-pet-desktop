@@ -308,7 +308,8 @@ public class DecorationShopManager : MonoBehaviour
     private void ShowDecorationInfo(DecorationDataSO deco)
     {
         decorationNameText.text = deco.decorationName;
-        decorationPriceText.text = $"Price: {deco.price}";
+        // decorationPriceText.text = $"Price: {deco.price}";
+        decorationPriceText.text = $"Price:\t<color=orange>{deco.price}</color>";
         decorationDescText.text = deco.description;
     }
 

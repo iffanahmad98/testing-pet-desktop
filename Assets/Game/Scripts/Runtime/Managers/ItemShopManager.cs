@@ -216,9 +216,11 @@ public class ItemShopManager : MonoBehaviour
     private void ShowItemInfo(ItemDataSO item)
     {
         itemNameText.text = item.itemName;
-        itemPriceText.text = $"Price: {item.price}";
+       // itemPriceText.text = $"Price: {item.price}";
+        itemPriceText.text = $"Price:\t<color=orange>{item.price}</color>";
         itemDescText.text = item.description;
-        itemFullnessText.text = $"Fullness: {item.nutritionValue}";
+        // itemFullnessText.text = $"Fullness: {item.nutritionValue}";
+        itemFullnessText.text = $"Fullness:\t<color=orange>{item.price}</color>";
         if (itemInfoIcon != null)
         {
             itemInfoIcon.sprite = item.itemImgs[0];
