@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class TabController : MonoBehaviour
 {
@@ -12,12 +12,14 @@ public class TabController : MonoBehaviour
         public Button tabButton;
         public Sprite activeSprite;
         public Sprite inactiveSprite;
+        public Sprite viewportPanel;
 
         [HideInInspector] public Image buttonImage;
     }
 
     [Header("Tab Configuration")]
     public List<Tab> tabs = new List<Tab>();
+    public Image viewportPanel;
     public Action<int> OnTabChanged;
 
     private int currentTabIndex = 0;
@@ -52,7 +54,17 @@ public class TabController : MonoBehaviour
                 tabs[i].buttonImage.sprite = isActive ? tabs[i].activeSprite : tabs[i].inactiveSprite;
             }
 
-            // Optional: You can also adjust color, scale, etc., here if needed
+            // Nonaktifkan image ketika button di-click, aktifkan ketika tidak di-click
+            if (tabs[i].buttonImage != null)
+            {
+                tabs[i].buttonImage.enabled = !isActive;
+            }
+        }
+
+        // Update viewport panel sprite based on active tab
+        if (viewportPanel != null && tabs[index].viewportPanel != null)
+        {
+            viewportPanel.sprite = tabs[index].viewportPanel;
         }
 
         OnTabChanged?.Invoke(index);

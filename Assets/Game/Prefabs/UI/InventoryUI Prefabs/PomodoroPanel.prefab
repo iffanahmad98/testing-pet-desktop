@@ -3270,18 +3270,19 @@ MonoBehaviour:
   pomodoroPanel: {fileID: 2710498057175709508}
   phaseManager: {fileID: 0}
   miniUI: {fileID: 0}
+  pumpkinAnim: {fileID: 0}
   phaseNameText: {fileID: 7686371175314620634}
   timeText: {fileID: 2593140991604091957}
   phaseInfoText: {fileID: 0}
-  phaseProgressFillImage: {fileID: 0}
+  phaseProgressFillImage: {fileID: 360587053475757163}
   pumpkinButton: {fileID: 0}
   playButton: {fileID: 5403577651555473269}
   restartButton: {fileID: 3999526592337613945}
   skipButton: {fileID: 968058278693382827}
   minMaxButton: {fileID: 5113213695964901054}
   closeButton: {fileID: 4548256911299861989}
-  playSprite: {fileID: 0}
-  pauseSprite: {fileID: 0}
+  playSprite: {fileID: 21300000, guid: b687b01a27ea9214a98c26e9c144ea10, type: 3}
+  pauseSprite: {fileID: 21300000, guid: a96bad906b4a7fa499c64143ebc98a9a, type: 3}
   mushroomSkeletonGraphic: {fileID: 7158986948686144109}
   runningAnimationName: running
   idleAnimationName: idle
@@ -6272,7 +6273,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.485
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -9276,7 +9277,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 9017354115870695193}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 264941033447400992}
+        m_TargetAssemblyTypeName: PomodoroUI, Assembly-CSharp
+        m_MethodName: CloseRewardBox
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &9150282840934702088
 GameObject:
   m_ObjectHideFlags: 0
@@ -9551,6 +9564,22 @@ PrefabInstance:
     - target: {fileID: 400000, guid: 2a00c90f5ea0ec64a832b2d73bcd92ef, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800004, guid: 2a00c90f5ea0ec64a832b2d73bcd92ef, type: 3}
+      propertyPath: InitialModule.startSizeY.minMaxState
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800004, guid: 2a00c90f5ea0ec64a832b2d73bcd92ef, type: 3}
+      propertyPath: InitialModule.startSizeZ.minMaxState
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800004, guid: 2a00c90f5ea0ec64a832b2d73bcd92ef, type: 3}
+      propertyPath: InitialModule.startRotationX.minMaxState
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800004, guid: 2a00c90f5ea0ec64a832b2d73bcd92ef, type: 3}
+      propertyPath: InitialModule.startRotationY.minMaxState
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 19900000, guid: 2a00c90f5ea0ec64a832b2d73bcd92ef, type: 3}
       propertyPath: m_Enabled
