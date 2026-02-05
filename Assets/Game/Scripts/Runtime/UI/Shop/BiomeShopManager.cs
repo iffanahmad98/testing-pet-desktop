@@ -342,7 +342,8 @@ public class BiomeShopManager : MonoBehaviour
     private void ShowBiomeInfo(BiomeDataSO biome)
     {
         biomeNameText.text = biome.biomeName;
-        biomePriceText.text = $"Price: {biome.price}";
+        // biomePriceText.text = $"Price: {biome.price}";
+        biomePriceText.text = $"Price:\t<color=orange>{biome.price}</color>";
         biomeDescText.text = biome.description;
     }
 
