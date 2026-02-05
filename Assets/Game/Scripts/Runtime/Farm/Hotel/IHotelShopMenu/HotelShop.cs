@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
+
 public class HotelShop : MonoBehaviour
 {
    
@@ -16,12 +19,15 @@ public class HotelShop : MonoBehaviour
 
    public Button [] categoryButtons;    
    public Dictionary <string, IHotelShopMenu> dictionaryIHotelShopMenu = new Dictionary <string, IHotelShopMenu> ();
+   public event System.Action ShowEvent;
+   public event System.Action HideEvent;
    [SerializeField] Image hotelShopUI;
    [SerializeField] Button closeShopButton;
    [SerializeField] Canvas worldCanvas;
    void Start () {
     AddListeners ();
     LoadDictionaries ();
+    AddEvents ();
    }
 
    void AddListeners() {
@@ -46,6 +52,7 @@ public class HotelShop : MonoBehaviour
 
    // ClickableShopHotel :
    public void OnShopUI () {
+      ShowEvent?.Invoke ();
       iCameraDragLocker.AddLockedBy (this.gameObject);
       UIWorldManager.Instance.OnBackgroundOutside ();
       hotelShopUI.gameObject.SetActive (true);
@@ -67,6 +74,7 @@ public class HotelShop : MonoBehaviour
    }
 
    public void OffShopUI () {
+      HideEvent?.Invoke ();
       iCameraDragLocker.RemoveLockedBy (this.gameObject);
       UIWorldManager.Instance.OffBackgroundOutside ();
       hotelShopUI.gameObject.SetActive (false);
@@ -78,10 +86,13 @@ public class HotelShop : MonoBehaviour
    public void OnShopMenu (string code) {
       HideAllMenu ();
       dictionaryIHotelShopMenu [code].ShowMenu (); 
+      
    }
 
    public void OffShopMenu (string code) {
+      
     dictionaryIHotelShopMenu [code].HideMenu ();
+    
    } 
    
    void HideAllMenu () {
@@ -91,4 +102,21 @@ public class HotelShop : MonoBehaviour
          }
    }
    
+   #region Event
+   void AddEvents () {
+      AddShowEvent (RequirementTipManager.Instance.HideAllRequirementTipClick2d);
+      AddHideEvent (RequirementTipManager.Instance.ShowAllRequirementTipClick2d);
+
+      AddShowEvent (TooltipManager.Instance.HideAllRequirementTipClick2d);
+      AddHideEvent (TooltipManager.Instance.ShowAllRequirementTipClick2d);
+   }
+
+   void AddShowEvent (System.Action value) { 
+      ShowEvent += value;
+   }
+
+   void AddHideEvent (System.Action value) { 
+      HideEvent += value;
+   }
+   #endregion
 }

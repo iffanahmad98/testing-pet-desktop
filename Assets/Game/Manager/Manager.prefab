@@ -467,33 +467,33 @@ MonoBehaviour:
   sidebarLinks:
   - sidebarButton: {fileID: 0}
     linkedPanel: {fileID: 0}
-    activeSprite: {fileID: 1458767412120962869, guid: 6f3919f7a6a1f8e40bc9f588cde3b30f, type: 3}
-    inactiveSprite: {fileID: -7644702148261772619, guid: e91da771a0f457545b46a58b82d705b6, type: 3}
+    activeSprite: {fileID: 8181284550364195573, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
+    inactiveSprite: {fileID: -6688456227135032790, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
     buttonImage: {fileID: 0}
   - sidebarButton: {fileID: 0}
     linkedPanel: {fileID: 0}
-    activeSprite: {fileID: 510568135336433756, guid: 93047f8b083b7274481525ddb0dd21a2, type: 3}
-    inactiveSprite: {fileID: 2955425167733705275, guid: 44b789a2c8195a54fbebeaa9abb66300, type: 3}
+    activeSprite: {fileID: 8128894202093839880, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
+    inactiveSprite: {fileID: 1702966859605284424, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
     buttonImage: {fileID: 0}
   - sidebarButton: {fileID: 0}
     linkedPanel: {fileID: 0}
-    activeSprite: {fileID: 5052468898254316462, guid: ba34b2c62a57a464aae17eb7e4f79856, type: 3}
-    inactiveSprite: {fileID: 9081154292498849482, guid: 94adaf84ef8bc5240ba4d839bb681328, type: 3}
+    activeSprite: {fileID: -1018747785372992665, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
+    inactiveSprite: {fileID: -3980754499673710360, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
     buttonImage: {fileID: 0}
   - sidebarButton: {fileID: 0}
     linkedPanel: {fileID: 0}
-    activeSprite: {fileID: -8641339549671308700, guid: 2eb75db2fa69adc4192fd76b6180a867, type: 3}
-    inactiveSprite: {fileID: -4909932753016731145, guid: ea58def95c278cd48828f6b49c2fd2af, type: 3}
+    activeSprite: {fileID: 3486327652840501449, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
+    inactiveSprite: {fileID: 1049289666312341200, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
     buttonImage: {fileID: 0}
   - sidebarButton: {fileID: 0}
     linkedPanel: {fileID: 0}
-    activeSprite: {fileID: -4515780251570375455, guid: 4bb4c814a0b09ea42b36ea693f4ebf89, type: 3}
-    inactiveSprite: {fileID: 6563412092030730750, guid: 86d3b26ab7223bc44a40e11fdf9628a1, type: 3}
+    activeSprite: {fileID: -4585337438534031204, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
+    inactiveSprite: {fileID: -7521560925761669848, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
     buttonImage: {fileID: 0}
   - sidebarButton: {fileID: 0}
     linkedPanel: {fileID: 0}
-    activeSprite: {fileID: 8498903324148628765, guid: 2db7bf0a692c3f94ba82854dd5990c1f, type: 3}
-    inactiveSprite: {fileID: 5413941449982313884, guid: c21ae5faa076bb943aaf25c16b919715, type: 3}
+    activeSprite: {fileID: -4195916499114428423, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
+    inactiveSprite: {fileID: 3870283911446308732, guid: f8d95a57c8189d945b7d4ebb54305128, type: 3}
     buttonImage: {fileID: 0}
   currentPanel: {fileID: 0}
 --- !u!1 &2240938270952959010
@@ -510,6 +510,8 @@ GameObject:
   - component: {fileID: 8408899965472176798}
   - component: {fileID: 2847608565283468555}
   - component: {fileID: 310095876022956823}
+  - component: {fileID: 6679420528562743589}
+  - component: {fileID: 4980085894292016383}
   m_Layer: 0
   m_Name: Shop
   m_TagString: Untagged
@@ -547,10 +549,13 @@ MonoBehaviour:
   rarityTabController: {fileID: 0}
   monsterCardParent: {fileID: 0}
   monsterCardPrefab: {fileID: 8574520169144158271, guid: 1a8ec1a343184d746b3db0a98cc8b0be, type: 3}
+  detailUpPanel: {fileID: 0}
   detailPanel: {fileID: 0}
+  monsterGraphic: {fileID: 0}
   titleText: {fileID: 0}
   priceText: {fileID: 0}
   descriptionText: {fileID: 0}
+  rarityText: {fileID: 0}
   monsterItemDatabase: {fileID: 11400000, guid: c609fc9cf304c2b42a2d42094601f43e, type: 2}
   selectedCard: {fileID: 0}
 --- !u!114 &82540597057440134
@@ -621,6 +626,45 @@ MonoBehaviour:
   facilities: {fileID: 11400000, guid: f7b83edb8479dd240943066774f89590, type: 2}
   npcDatabases: {fileID: 11400000, guid: 58fa8007c66f5e84984ceb56cfb79d58, type: 2}
 --- !u!114 &310095876022956823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240938270952959010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed2cf1417e5fa0f42a55ca0a625933f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardParent: {fileID: 0}
+  decorationCardPrefab: {fileID: 8849061846943924928, guid: 7622337dda30dd542b89f1ab20ce3071, type: 3}
+  decorationNameText: {fileID: 0}
+  decorationPriceText: {fileID: 0}
+  decorationDescText: {fileID: 0}
+  decorations: {fileID: 11400000, guid: c6bb30aaedb8975488e0b380763d0199, type: 2}
+--- !u!114 &6679420528562743589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2240938270952959010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e4fff1b0b30bb9488b997fd4e4a6528, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  facilityParent: {fileID: 0}
+  cardParent: {fileID: 0}
+  facilityCardPrefab: {fileID: 4496806418264897046, guid: 98a3c0fb6230663478a3a2f051070724, type: 3}
+  facilityNameText: {fileID: 0}
+  facilityPriceText: {fileID: 0}
+  facilityDescText: {fileID: 0}
+  facilityCooldownText: {fileID: 0}
+  facilities: {fileID: 11400000, guid: f7b83edb8479dd240943066774f89590, type: 2}
+  npcDatabases: {fileID: 11400000, guid: 58fa8007c66f5e84984ceb56cfb79d58, type: 2}
+--- !u!114 &4980085894292016383
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

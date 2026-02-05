@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
+using Spine.Unity;
 
 public class MonsterShopManager : MonoBehaviour
 {
@@ -12,11 +13,13 @@ public class MonsterShopManager : MonoBehaviour
     public Transform monsterCardParent;
     public GameObject monsterCardPrefab;
     [Header("Detail Panel References")]
+    [SerializeField] public GameObject detailUpPanel;
     [SerializeField] public GameObject detailPanel;
+    [SerializeField] SkeletonGraphic monsterGraphic;
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI priceText;
     [SerializeField] private TextMeshProUGUI descriptionText;
-
+    [SerializeField] TextMeshProUGUI rarityText;
     [Header("Monster Data")]
     [SerializeField] private ItemDatabaseSO monsterItemDatabase;
 
@@ -48,6 +51,7 @@ public class MonsterShopManager : MonoBehaviour
         rarityTabController.OnTabChanged += OnRarityTabChanged;
         OnRarityTabChanged(indexTab); // Default to "All"
         detailPanel.SetActive(false);
+        detailUpPanel.SetActive (false);
         ClearMonsterInfo();
     }
 
@@ -179,6 +183,7 @@ public class MonsterShopManager : MonoBehaviour
         selectedCard.SetSelected(true);
         Debug.Log($"Selected Monster: {card.monsterItemData.itemName}");
         detailPanel.SetActive(true);
+        detailUpPanel.SetActive (true);
         ShowMonsterInfo(card.monsterItemData);
     }
 
@@ -338,11 +343,17 @@ public class MonsterShopManager : MonoBehaviour
 
     private void ShowMonsterInfo(ItemDataSO monster)
     {
+        string rarity = monster.category.ToString ().Replace("Monster", "");
+        monsterGraphic.skeletonDataAsset = monster.skeletonDataAsset;
+        monsterGraphic.Initialize(true);
+        monsterGraphic.AnimationState.SetAnimation(0, "idle", true);
 
         titleText.text = monster.itemName;
-        priceText.text = $"Price: {monster.price}";
+       // priceText.text = $"Price: {monster.price}";
+        priceText.text = monster.price.ToString ();
         descriptionText.text = monster.description; // Assuming you have this field
-
+        
+        rarityText.text = rarity;
     }
 
     private void ClearMonsterGrid()
@@ -358,11 +369,13 @@ public class MonsterShopManager : MonoBehaviour
         titleText.text = "";
         priceText.text = "";
         descriptionText.text = "";
+        rarityText.text = "";
     }
 
     // Keep this method for backward compatibility with the detail panel
     public void ShowMonsterDetail(MonsterDataSO data)
     {
         detailPanel.SetActive(true);
+        detailUpPanel.SetActive (true);
     }
 }

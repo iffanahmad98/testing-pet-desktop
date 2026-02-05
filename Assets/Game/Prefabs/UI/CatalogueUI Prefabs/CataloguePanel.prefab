@@ -3008,6 +3008,7 @@ GameObject:
   - component: {fileID: 7323346760635895032}
   - component: {fileID: 8744424190115093074}
   - component: {fileID: 788186614443950028}
+  - component: {fileID: 4881535900312326658}
   m_Layer: 5
   m_Name: SellPriceImg
   m_TagString: Untagged
@@ -3059,7 +3060,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9882353, g: 0.83137256, b: 0.3372549, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3120,6 +3121,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4881535900312326658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2518915326756336197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 559de0da22e76394f9c8747e4ccf3482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleMultiplier: 1.2
+  tweenTime: 0.15
+  ease: 6
 --- !u!1 &2765391579035505769
 GameObject:
   m_ObjectHideFlags: 0
@@ -5760,6 +5776,7 @@ GameObject:
   - component: {fileID: 7509285440821990463}
   - component: {fileID: 7024346826904683875}
   - component: {fileID: 3358999703893110127}
+  - component: {fileID: 2823465205545294683}
   m_Layer: 5
   m_Name: renameImg
   m_TagString: Untagged
@@ -5872,6 +5889,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2823465205545294683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5072672946193714399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 559de0da22e76394f9c8747e4ccf3482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleMultiplier: 1.2
+  tweenTime: 0.15
+  ease: 6
 --- !u!1 &5212400060532729539
 GameObject:
   m_ObjectHideFlags: 0
@@ -8363,7 +8395,7 @@ MonoBehaviour:
     isNPC: 0
   sellMonsterButton: {fileID: 788186614443950028}
   renameMonsterButton: {fileID: 3358999703893110127}
-  nameText: {fileID: 1542318445880471329}
+  nameText: {fileID: 2022740474390753258}
   innerBG: {fileID: 6585460883984217592}
 --- !u!225 &169014712954404063
 CanvasGroup:

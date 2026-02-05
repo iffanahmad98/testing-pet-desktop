@@ -8,15 +8,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: cfxr proc glow soft add
-  m_Shader: {fileID: 4800000, guid: ecfa8f5732b504ef98fba10aa18d0326, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 67dfcda17071f4a41be79c4049965e67, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - UNITY_UI_ALPHACLIP
+  - _CFXR_GLOW_POW_P8
   m_InvalidKeywords:
+  - UNITY_UI_ALPHACLIP
   - _CFXR_DITHERED_SHADOWS_OFF
-  - _CFXR_GLOW_POW_P0
-  - _FADING_ON
   - _SUBGLOW_ON
   - __CFXRGLOW_POW_P4
   - __CFXRGLOW_POW_P6
@@ -57,13 +56,13 @@ Material:
     m_Ints: []
     m_Floats:
     - _CFXR_DITHERED_SHADOWS: 0
-    - _CFXR_GLOW_POW: 0
+    - _CFXR_GLOW_POW: 3
     - _ColorMask: 15
     - _DissolveSmooth: 0.1
     - _DstBlend: 10
-    - _GlowMax: 1.5
+    - _GlowMax: 1
     - _GlowMid: 2
-    - _GlowMin: 0
+    - _GlowMin: 0.7
     - _Glow_Pow: 2
     - _HdrBoost: 0
     - _HdrMultiply: 0
@@ -72,9 +71,10 @@ Material:
     - _RingTopOffset: 0.05
     - _ShadowStrength: 1
     - _Shininess: 0.2
+    - _SingleChannel: 0
     - _SoftParticlesFadeDistanceFar: 1
-    - _SoftParticlesFadeDistanceNear: 0
-    - _SrcBlend: 1
+    - _SoftParticlesFadeDistanceNear: 1.56
+    - _SrcBlend: 5
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -84,9 +84,11 @@ Material:
     - _SubGlowMax: 6.7
     - _SubGlowMin: -2.47
     - _UseDissolve: 0
+    - _UseRadialUV: 0
     - _UseSG: 1
-    - _UseSP: 1
+    - _UseSP: 0
     - _UseUIAlphaClip: 1
+    - _WorldSpaceRing: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}
