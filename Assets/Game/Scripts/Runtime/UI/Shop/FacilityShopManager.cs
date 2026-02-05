@@ -31,7 +31,7 @@ public class FacilityShopManager : MonoBehaviour
 
     private List<FacilityCardUI> activeCards = new List<FacilityCardUI>();
 
-    private WaitForEndOfFrame waitEndOfFrame = new();
+    private readonly WaitForEndOfFrame waitEndOfFrame = new();
 
     private void Awake()
     {

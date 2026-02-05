@@ -31,11 +31,10 @@ public class BiomeShopManager : MonoBehaviour
     BiomeManager biomeManager;
 
     // Object pooling
-    private Queue<BiomeCardUI> cardPool = new Queue<BiomeCardUI>();
     private List<BiomeCardUI> activeCards = new List<BiomeCardUI>();
 
     private bool canBuyMonster;
-    private WaitForEndOfFrame waitEndOfFrame = new();
+    private readonly WaitForEndOfFrame waitEndOfFrame = new();
 
     private void Awake()
     {
@@ -80,29 +79,6 @@ public class BiomeShopManager : MonoBehaviour
 
             //cardPool.Enqueue(card);
         }
-    }
-
-    private BiomeCardUI GetPooledCard()
-    {
-        if (cardPool.Count > 0)
-        {
-            BiomeCardUI card = cardPool.Dequeue();
-            card.gameObject.SetActive(true);
-            return card;
-        }
-        else
-        {
-            // Pool is empty, create new card
-            GameObject cardObj = Instantiate(biomeCardPrefab, cardParent);
-            return cardObj.GetComponent<BiomeCardUI>();
-        }
-    }
-
-    private void ReturnCardToPool(BiomeCardUI card)
-    {
-        card.gameObject.SetActive(false);
-        card.transform.SetAsLastSibling(); // Move to end to keep pool organized
-        cardPool.Enqueue(card);
     }
 
     private void Start()

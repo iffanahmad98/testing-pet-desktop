@@ -1,8 +1,9 @@
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class ItemShopManager : MonoBehaviour
 {
@@ -27,9 +28,12 @@ public class ItemShopManager : MonoBehaviour
     [Header("Data")]
     public ItemDatabaseSO itemDatabase; // Optional, if you have a database scriptable object
 
+    List<ItemCardUI> activeCards = new();
     private ItemCardUI selectedCard;
     private bool canBuyItem = false;
     private int indexTab = 0;
+
+    private readonly WaitForEndOfFrame waitEndOfFrame = new ();
 
     void Awake()
     {
@@ -38,10 +42,12 @@ public class ItemShopManager : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(InitializeCardPool());
+
         if (tabController != null)
         {
             tabController.OnTabChanged += OnTabChanged;
-            tabController.OnTabSelected(indexTab); // Default tab
+            //tabController.OnTabSelected(indexTab); // Default tab
         }
     }
 
@@ -57,55 +63,79 @@ public class ItemShopManager : MonoBehaviour
         if (tabIndex < 0 || tabIndex >= tabCategories.Count) return;
 
         ItemType category = (ItemType)System.Enum.Parse(typeof(ItemType), tabCategories[tabIndex]);
-        ShowItemsByCategory(category);
+        StartCoroutine(ShowItemsByCategory(category));
     }
-    private void ShowItemsByCategory(ItemType category)
+
+    private IEnumerator InitializeCardPool()
+    {
+        yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
+
+        for (int i = 0; i < itemDatabase.allItems.Count; i++)
+        {
+            int temp = i;
+            GameObject cardObj = Instantiate(itemCardPrefab, itemGridParent);
+            ItemCardUI card = cardObj.GetComponent<ItemCardUI>();
+            card.Setup(itemDatabase.allItems[temp]);
+
+            card.OnSelected = OnItemSelected;
+            card.OnBuy = OnItemBuy;
+
+            if (SaveSystem.UiSaveData.ItemShopCards.Count < itemDatabase.allItems.Count)
+                SaveSystem.UiSaveData.ItemShopCards.Add(new()
+                {
+                    Id = card.itemData.ItemId
+                });
+
+            card.gameObject.SetActive(false);
+            activeCards.Add(card);
+        }
+    }
+
+    private IEnumerator ShowItemsByCategory(ItemType category)
     {
         ClearItemGrid();
 
-        var filteredItems = itemDatabase.allItems.FindAll(i => i.category == category);
-        List<ItemCardUI> activeCards = new List<ItemCardUI>();
-        foreach (var item in filteredItems)
-        {
-            GameObject obj = Instantiate(itemCardPrefab, itemGridParent);
-            ItemCardUI card = obj.GetComponent<ItemCardUI>();
-            card.Setup(item);
-            card.OnSelected = OnItemSelected;
-            card.OnBuy = OnItemBuy;
-            activeCards.Add(card);
-        }
-
-        // Check requirement & grayscale
         foreach (var card in activeCards)
         {
-            if (card.itemData.monsterRequirements != null)
-            {
-                bool canBuy = CheckBuyingRequirement(card);
-                card.SetGrayscale(!canBuy);
-                card.SetCanBuy (canBuy);
-               // card.SetGrayscale(false); // DEBUG ONLY
-            }
+            //Debug.Log($"{card.itemData.name} is {card.itemData.category}");
+
+            if (card.itemData.category != category)
+                continue;
+
+            card.gameObject.SetActive(true);
+            bool canBuy = CheckBuyingRequirement(card);
+            card.SetCanBuy(canBuy);
         }
 
-        // Sort: BUYABLE → TOP
-        //var filtered = activeCards
-        //    .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
-        //    .ToList();
+        yield return waitEndOfFrame;
 
         // sort by price
-        var filtered = activeCards.OrderBy(c => c.itemData.price).ToList();
+        activeCards = activeCards.OrderByDescending(c => c.isCanBuy).ThenBy(c => c.itemData.price).ToList();
 
-        // Apply order to activeCards
-        activeCards.Clear();
-        activeCards.AddRange(filtered);
+        //yield return waitEndOfFrame;
 
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
         {
-            activeCards[i].transform.SetSiblingIndex(i);
+            int temp = i;
+
+            var currentCard = activeCards[temp];
+            currentCard.transform.SetSiblingIndex(temp);
+
+            // If it's already grayscaled, we know it's not buyable.
+            if (!currentCard.isCanBuy) continue;
+
+            yield return waitEndOfFrame;
+
+            if (!SaveSystem.UiSaveData.GetShopCardData(ShopType.ItemShop, currentCard.itemData.itemID).IsOpened)
+            {
+                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+
+                SaveSystem.UiSaveData.SetShopCardsOpenState(ShopType.ItemShop, currentCard.itemData.itemID, true);
+            }
         }
 
-        OnItemSelected(activeCards[0]);
+        //OnItemSelected(activeCards[0]);
         //ClearItemInfo(); // Reset info panel
     }
 
@@ -228,9 +258,9 @@ public class ItemShopManager : MonoBehaviour
 
     private void ClearItemGrid()
     {
-        foreach (Transform child in itemGridParent)
+        foreach (var child in activeCards)
         {
-            Destroy(child.gameObject);
+            child.gameObject.SetActive(false);
         }
     }
 

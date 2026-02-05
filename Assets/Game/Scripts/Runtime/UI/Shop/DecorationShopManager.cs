@@ -29,7 +29,7 @@ public class DecorationShopManager : MonoBehaviour
 
     private List<DecorationCardUI> activeCards = new List<DecorationCardUI>();
 
-    private WaitForEndOfFrame waitEndOfFrame = new();
+    private readonly WaitForEndOfFrame waitEndOfFrame = new();
 
     private void Awake()
     {
