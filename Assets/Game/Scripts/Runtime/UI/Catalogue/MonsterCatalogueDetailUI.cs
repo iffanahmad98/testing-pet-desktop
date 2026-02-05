@@ -220,8 +220,8 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
 
         MonsterManager.instance.audio.PlaySFX("button_click");
 
-        // aktifkan text dan inner background
-        nameText.gameObject.SetActive(true);
+        // nonaktifkan text lalu aktifkan inner background
+        nameText.gameObject.SetActive(false);
         innerBG.gameObject.SetActive(true);
 
         // show the input field
@@ -250,6 +250,7 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         // Validate the new name
         if (string.IsNullOrWhiteSpace(newName) || newName == "Rename")
         {
+            Debug.Log($"New name is {newName}, changing to oldname {oldName}");
             newName = oldName; // Default name if empty
         }
 
@@ -261,11 +262,11 @@ public class MonsterCatalogueDetailUI : MonoBehaviour
         }
 
         monsterNameText.text = newName;
+        nameText.text = newName;
 
         inputField.gameObject.SetActive(false);
-        // aktifkan text dan inner background
-        nameText.gameObject.SetActive(false);
-        innerBG.gameObject.SetActive(false);
+        nameText.gameObject.SetActive(true);
+        // innerBG.gameObject.SetActive(false);
 
         // save the game
         var playerConfig = SaveSystem.GetPlayerConfig();
