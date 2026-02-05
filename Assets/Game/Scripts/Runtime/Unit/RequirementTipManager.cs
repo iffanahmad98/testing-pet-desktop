@@ -2,6 +2,8 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
+using System.Collections.Generic;
 
 public class RequirementTipManager : MonoBehaviour
 {
@@ -25,6 +27,8 @@ public class RequirementTipManager : MonoBehaviour
 
     private Coroutine currentCoroutine;
     private Vector2 initialMousePos;
+
+    List <RequirementTipClick2D> listRequirementTipClick2d = new ();
 
     private void Awake()
     {
@@ -147,4 +151,23 @@ public class RequirementTipManager : MonoBehaviour
 
         rectTransform.position = mousePos;
     }
+
+    #region RequirementTipClick2d
+    public void AddRequirementTipClick2d (RequirementTipClick2D requirement) {
+        listRequirementTipClick2d.Add (requirement);
+    }
+
+    public void ShowAllRequirementTipClick2d () { // HotelShop.cs
+        foreach (RequirementTipClick2D triggerTip in listRequirementTipClick2d) {
+            triggerTip.enabled = true;
+        }
+    }
+    
+    public void HideAllRequirementTipClick2d () { // HotelShop.cs
+         foreach (RequirementTipClick2D triggerTip in listRequirementTipClick2d) {
+            triggerTip.enabled = false;
+        }
+        tooltipWindow.SetActive(false);
+    }
+    #endregion
 }

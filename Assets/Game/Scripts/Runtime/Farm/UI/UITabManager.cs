@@ -9,7 +9,7 @@ public class UITabManager : MonoBehaviour
     public Button[] tabButtons;
     private int currentIndex = 0;
     [SerializeField] MagicalGarden.Inventory.InventoryUISendToPlains inventoryUISendToPlains;
-    public event System.Action<int> clickEvent;
+    public event System.Action <int> clickEvent;
     void Start()
     {
         for (int i = 0; i < tabs.Length; i++)
@@ -17,7 +17,7 @@ public class UITabManager : MonoBehaviour
             int index = i; // capture index for lambda
             tabs[i].button.onClick.AddListener(() => OnTabClicked(index));
         }
-        inventoryUISendToPlains.StartPlains(this);
+        inventoryUISendToPlains.StartPlains (this);
         OnTabClicked(0); // buka tab pertama secara default
     }
 
@@ -26,26 +26,19 @@ public class UITabManager : MonoBehaviour
         for (int i = 0; i < tabs.Length; i++)
         {
             bool isActive = (i == index);
+            tabs[i].tabImage.sprite = isActive ? tabs[i].activeSprite : tabs[i].idleSprite;
             if (isActive)
             {
-                tabs[i].activePanel.GetComponent<Image>().enabled = true;
-                tabs[i].idlePanel.SetActive(false);
-                tabs[i].activePanel.transform.SetAsLastSibling();
-            }
-            else
-            {
-                tabs[i].activePanel.GetComponent<Image>().enabled = false;
-                tabs[i].idlePanel.SetActive(true);
+                tabs[i].panel.transform.SetAsLastSibling();
             }
             // tabs[i].panel.SetActive(isActive);
         }
 
         currentIndex = index;
-        clickEvent?.Invoke(currentIndex);
+        clickEvent?.Invoke (currentIndex);
     }
 
-    public void AddEventClick(System.Action<int> eventValue)
-    {
+    public void AddEventClick (System.Action <int> eventValue) {
         clickEvent += eventValue;
     }
 }
@@ -57,6 +50,5 @@ public class Tab
     public Image tabImage;
     public Sprite activeSprite;
     public Sprite idleSprite;
-    public GameObject activePanel;
-    public GameObject idlePanel;
+    public GameObject panel;
 }
