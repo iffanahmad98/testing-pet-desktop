@@ -33,29 +33,14 @@ namespace MagicalGarden.Farm
             eligibleData = eligibleDataValue;
           //  coinText.text = block.requiredCoins.ToString();
           //  harvestText.text = block.requiredHarvest.ToString();
-            target1Text.text = eligibleData.GetPrice ().ToString ();
-            if (eligibleData.IsEligibleEnoughPetMonsterOnly ()) {
-                bubblePanel.gameObject.SetActive (true);
-            } else {
-                bubblePanel.gameObject.SetActive (false);
-            }
-
-            if (eligibleData.GetHarvestFruit () == 0) {
-                target2Text.text = eligibleData.GetHarvestEgg ().ToString ();
-                requestImage2.sprite = eggSprite;
-            } else {
-                target2Text.text = eligibleData.GetHarvestFruit ().ToString ();
-                requestImage2.sprite = fruitSprite;
-            }
-            
-            if (CanUnlock ()) {
-                unlockButton.image.sprite = unlockSprite;
-            } else {
-                unlockButton.image.sprite = lockSprite;
-            }
+            RefreshDisplayUnlock ();
 
             unlockButton.onClick.RemoveAllListeners();
             unlockButton.onClick.AddListener(OnUnlockClicked);
+           // CoinManager.AddCoinChangedRefreshEvent (RefreshDisplayUnlock);
+            PlayerHistoryManager.instance.AddHarvestFruitChanged (RefreshDisplayUnlock);
+            PlayerHistoryManager.instance.AddHarvestEggMonstersChanged (RefreshDisplayUnlock);
+            MonsterManager.instance.AddEventPetMonsterChanged (RefreshDisplayUnlock);
         }
 
         void OnUnlockClicked()
@@ -94,6 +79,29 @@ namespace MagicalGarden.Farm
             return eligibleData.IsEligible ();
         }
 
+        public void RefreshDisplayUnlock () { // this, CoinManager, PlayerHistory, MonsterManager
+            target1Text.text = eligibleData.GetPrice ().ToString ();
+            Debug.Log ("Refresh Eligible UnlockBubbleUI");
+            if (eligibleData.IsEligibleEnoughPetMonsterOnly ()) {
+                bubblePanel.gameObject.SetActive (true);
+            } else {
+                bubblePanel.gameObject.SetActive (false);
+            }
+
+            if (eligibleData.GetHarvestFruit () == 0) {
+                target2Text.text = eligibleData.GetHarvestEgg ().ToString ();
+                requestImage2.sprite = eggSprite;
+            } else {
+                target2Text.text = eligibleData.GetHarvestFruit ().ToString ();
+                requestImage2.sprite = fruitSprite;
+            }
+            
+            if (CanUnlock ()) {
+                unlockButton.image.sprite = unlockSprite;
+            } else {
+                unlockButton.image.sprite = lockSprite;
+            }
+        }
         
     }
 }
