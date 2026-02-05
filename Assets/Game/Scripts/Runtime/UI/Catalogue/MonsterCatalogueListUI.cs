@@ -109,7 +109,7 @@ public class MonsterCatalogueListUI : MonoBehaviour
         }
         
         int itemIndex = 0;
-        int totalSlots = 20; // Total number of slots to display
+        int totalSlots = 24; // Total number of slots to display
         
         // 1. Get monster data for the specific game area
         List<CatalogueMonsterData> areaMonsters = GetMonstersForGameArea(currentViewingGameArea);
@@ -131,7 +131,7 @@ public class MonsterCatalogueListUI : MonoBehaviour
             {
                 itemUI.SetupItem(monsterData, MonsterCatalogueItemType.Monster);
             }
-            
+
             itemIndex++;
         }
         
