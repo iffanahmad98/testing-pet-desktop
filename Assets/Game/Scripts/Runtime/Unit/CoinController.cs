@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,6 +20,8 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
     private Animator animator;
     private RectTransform rectTransform;
     private bool isCollected = false;
+
+    public static event Action<CoinController> OnAnyPlayerCollected;
 
     void Awake()
     {
@@ -60,34 +63,44 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
         ReservedBy = null;
     }
 
-    public void OnCollected()
+    private void Collected(bool fromPlayer)
     {
         if (isCollected) return;
 
         isCollected = true;
 
+        if (fromPlayer)
+        {
+            OnAnyPlayerCollected?.Invoke(this);
+        }
+
         var coinRectTransform = rectTransform.GetChild(1).transform;
 
         MonsterManager.instance.audio.PlaySFX("collect_coin");
-        
+
         coinRectTransform.DOJump(coinRectTransform.position, 200, 1, 0.5f).SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
                 CoinManager.AddCoins(value);
                 ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
                 ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
-            });   
-        
+            });
+
+    }
+
+    public void OnCollected()
+    {
+        Collected(false);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        OnCollected();
+        Collected(true);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        OnCollected();
+        Collected(true);
     }
 }
 

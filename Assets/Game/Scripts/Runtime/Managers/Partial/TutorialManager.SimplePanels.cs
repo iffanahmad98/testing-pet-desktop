@@ -65,14 +65,17 @@ public partial class TutorialManager
         }
 
         _simplePanelIndex = 0;
-        if (simpleTutorialPanels[_simplePanelIndex] != null && simpleTutorialPanels[_simplePanelIndex].panelRoot != null)
+        var firstStep = simpleTutorialPanels[_simplePanelIndex];
+        if (firstStep != null && firstStep.panelRoot != null)
         {
-            PlaySimplePanelShowAnimation(simpleTutorialPanels[_simplePanelIndex].panelRoot);
-            UpdatePointerForSimpleStep(simpleTutorialPanels[_simplePanelIndex]);
+            PlaySimplePanelShowAnimation(firstStep.panelRoot);
+            UpdatePointerForSimpleStep(firstStep);
             _simpleStepShownTime = Time.time;
 
-            UpdateRightClickMouseHintForSimpleStep(simpleTutorialPanels[_simplePanelIndex]);
+            UpdateRightClickMouseHintForSimpleStep(firstStep);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
+
+            UpdateTutorialMonsterMovementForSimpleStep(firstStep);
 
             UpdateSimpleStepNextButtonsInteractable();
         }
@@ -98,6 +101,9 @@ public partial class TutorialManager
             if (currentStep != null && currentStep.panelRoot != null)
                 currentStep.panelRoot.SetActive(false);
             HideRightClickMouseHint();
+
+            // Saat meninggalkan step ini, lepas efek freeze movement kalau ada.
+            UpdateTutorialMonsterMovementForSimpleStep(null);
         }
 
         _simplePanelIndex++;
@@ -120,8 +126,31 @@ public partial class TutorialManager
             UpdateRightClickMouseHintForSimpleStep(nextStep);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
 
+            UpdateTutorialMonsterMovementForSimpleStep(nextStep);
+            ApplyTutorialMonsterHungerForSimpleStep(nextStep);
+
             UpdateSimpleStepNextButtonsInteractable();
         }
+    }
+
+    private void UpdateTutorialMonsterMovementForSimpleStep(SimpleTutorialPanelStep step)
+    {
+        if (_tutorialMonsterController == null)
+            return;
+
+        bool shouldFreeze = step != null && step.freezeTutorialMonsterMovement;
+        _tutorialMonsterController.SetMovementFrozenByTutorial(shouldFreeze);
+    }
+
+    private void ApplyTutorialMonsterHungerForSimpleStep(SimpleTutorialPanelStep step)
+    {
+        if (_tutorialMonsterController == null || step == null)
+            return;
+
+        if (!step.makeTutorialMonsterHungry)
+            return;
+
+        _tutorialMonsterController.SetHunger(20f);
     }
 
     private void UpdatePointerForSimpleStep(SimpleTutorialPanelStep step)
