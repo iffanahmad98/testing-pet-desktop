@@ -58,12 +58,40 @@ public partial class TutorialManager
 
     private bool IsSimpleMode => !useTutorialSteps;
 
+    private void OnEnable()
+    {
+        CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
+    }
+
+    private void OnDisable()
+    {
+        CoinController.OnAnyPlayerCollected -= OnCoinCollectedByPlayer;
+    }
+
     private void EnsureProgressStore()
     {
         if (_progressStore == null)
         {
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
         }
+    }
+
+    private void OnCoinCollectedByPlayer(CoinController coin)
+    {
+        if (!IsSimpleMode)
+            return;
+
+        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+            return;
+
+        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+            return;
+
+        var step = simpleTutorialPanels[_simplePanelIndex];
+        if (step == null || !step.useCoinCollectAsNext)
+            return;
+
+        RequestNextSimplePanel();
     }
 
     private void SpawnTutorialMonsterIfNeeded()
