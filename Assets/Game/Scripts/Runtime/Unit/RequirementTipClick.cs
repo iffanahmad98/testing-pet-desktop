@@ -4,13 +4,13 @@ using UnityEngine.EventSystems;
 public class RequirementTipClick : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
 {
     [Header("Tooltip Data")]
-    public TooltipDataSO tooltipData;
+    public RequirementTipDataSO dataSO;
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (tooltipData != null && gameObject.activeInHierarchy)
+        if (dataSO != null)
         {
-            RequirementTipManager.Instance.StartClick(tooltipData.infoData);
+            RequirementTipManager.Instance.StartClick(dataSO.infoData);
         }
     }
 

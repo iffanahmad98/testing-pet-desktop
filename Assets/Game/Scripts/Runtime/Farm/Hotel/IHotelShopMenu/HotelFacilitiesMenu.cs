@@ -17,6 +17,7 @@ public class HotelFacilitiesPodiumCard {
     public Button applyButton;
     public Button hireButton;
     public TMP_Text hiredText;
+    public RequirementTipClick requirementTipClick;
     public HotelFacilitiesDataSO facilityData;
     public GameObject cloneAI;
 }
@@ -71,12 +72,12 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 RefreshBuyButton (GetHotelFacilitiesPodiumCard (data.id), "Apply");
             }
         }
-        ShowSmallInformation ();
+        // ShowSmallInformation ();
    }
 
    public override void HideMenu () {
     base.HideMenu ();
-    HideSmallInformation ();
+   // HideSmallInformation ();
    }
 
     #region SmallInformationUI
@@ -116,8 +117,10 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 applyButton = podiumClone.transform.Find ("ApplyButton").GetComponent <Button> (),
                 hireButton = podiumClone.transform.Find ("HireButton").GetComponent <Button> (),
                 hiredText = podiumClone.transform.Find ("HiredText").GetComponent <TMP_Text> (),
+                requirementTipClick = podiumClone.transform.Find ("RequestTipClickCard").GetComponent <RequirementTipClick> (),
                 facilityData = data,
             };
+
             CheckEligibleCard (newPodiumCard, data);
 
             podiumClone.SetActive (true);
@@ -382,6 +385,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
          if (dictionaryHiredMaxFacility.ContainsKey (data.id)) { // data.maxHired > 0
                 newPodiumCard.hireButtonOnce.gameObject.SetActive (false);
                 newPodiumCard.hireButton.gameObject.SetActive (true);
+                
                 HiredHotelFacilityData hiredHotelFacilityData = SaveSystem.PlayerConfig.GetHiredHotelFacilityData (data.id);
                 int curHired = 0;
                 if (hiredHotelFacilityData != null) {
@@ -394,17 +398,25 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                         newPodiumCard.priceText.gameObject.SetActive (true);
                         newPodiumCard.priceText.text = newPodiumCard.facilityData.GetHiredPrice (curHired).ToString ();
                         newPodiumCard.coinTypeImage.gameObject.SetActive (true);
+                        
+                        newPodiumCard.requirementTipClick.dataSO = newPodiumCard.facilityData.GetRequirementTipData(curHired);
+                        newPodiumCard.requirementTipClick.gameObject.SetActive (false);
                     } else {
                         newPodiumCard.hireButton.image.color = offHireColor;
                         newPodiumCard.hireButton.interactable = false;
                         newPodiumCard.priceText.gameObject.SetActive (false);
                         newPodiumCard.coinTypeImage.gameObject.SetActive (false);
+                        
+                        newPodiumCard.requirementTipClick.dataSO = newPodiumCard.facilityData.GetRequirementTipData(curHired);
+                        newPodiumCard.requirementTipClick.gameObject.SetActive (true);
                     }
                 } else {
                         newPodiumCard.hireButton.image.color = offHireColor;
                         newPodiumCard.hireButton.interactable = false;
                         newPodiumCard.priceText.gameObject.SetActive (false);
                         newPodiumCard.coinTypeImage.gameObject.SetActive (false);
+
+                        newPodiumCard.requirementTipClick.gameObject.SetActive (false);
                 }
 
             } else {
@@ -416,6 +428,8 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                     newPodiumCard.hireButtonOnce.interactable = true;
                     newPodiumCard.priceText.gameObject.SetActive (true);
                     newPodiumCard.coinTypeImage.gameObject.SetActive (true);
+
+                    newPodiumCard.requirementTipClick.gameObject.SetActive (false);
                 } else {
                     if (SaveSystem.PlayerConfig.GetHotelFacilityData (data.id) != null) {
                         newPodiumCard.hireButtonOnce.gameObject.SetActive (false);
@@ -423,12 +437,17 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                         newPodiumCard.hireButtonOnce.interactable = false;
                         newPodiumCard.priceText.gameObject.SetActive (false);
                         newPodiumCard.coinTypeImage.gameObject.SetActive (false);
+
+                        newPodiumCard.requirementTipClick.gameObject.SetActive (false);
                     } else {
                         newPodiumCard.hireButtonOnce.gameObject.SetActive (false);
                         newPodiumCard.hireButtonOnce.image.sprite = offBuySprite;
                         newPodiumCard.hireButtonOnce.interactable = false;
                         newPodiumCard.priceText.gameObject.SetActive (true);
                         newPodiumCard.coinTypeImage.gameObject.SetActive (true);
+
+                        newPodiumCard.requirementTipClick.dataSO = newPodiumCard.facilityData.GetRequirementTipData(0);
+                        newPodiumCard.requirementTipClick.gameObject.SetActive (true);
                     }
                     
                 }

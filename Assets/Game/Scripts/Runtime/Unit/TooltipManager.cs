@@ -2,7 +2,8 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using System.Collections;
+using System.Collections.Generic;
 public class TooltipManager : MonoBehaviour
 {
     public static TooltipManager Instance;
@@ -26,6 +27,8 @@ public class TooltipManager : MonoBehaviour
 
     private Coroutine currentCoroutine;
     private Vector2 initialMousePos;
+
+    List <TooltipTriggerWorld> listToolTipTriggerWorld = new ();
 
     private void Awake()
     {
@@ -146,8 +149,8 @@ public class TooltipManager : MonoBehaviour
             canvasGroup.alpha = 1f;
     }
 
-    private void HideInstant()
-    {
+    public void HideInstant()
+    { // this, SceneLoadManager
         tooltipWindow.SetActive(false);
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
@@ -176,4 +179,25 @@ public class TooltipManager : MonoBehaviour
 
         rectTransform.position = mousePos;
     }
+
+    #region RequirementTipClick2d
+    public void AddToolTipClick2d (TooltipTriggerWorld requirement) {
+        listToolTipTriggerWorld.Add (requirement);
+    }
+
+    public void ShowAllRequirementTipClick2d () { // HotelShop.cs
+        Debug.Log ("Enabled True");
+        foreach (TooltipTriggerWorld triggerTip in listToolTipTriggerWorld) {
+            Debug.Log ("Enabled True 2");
+            triggerTip.enabled = true;
+        }
+    }
+    
+    public void HideAllRequirementTipClick2d () { // HotelShop.cs
+         foreach (TooltipTriggerWorld triggerTip in listToolTipTriggerWorld) {
+            triggerTip.enabled = false;
+        }
+        HideInstant ();
+    }
+    #endregion
 }
