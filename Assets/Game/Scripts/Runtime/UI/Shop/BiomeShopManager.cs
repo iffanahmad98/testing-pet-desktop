@@ -45,20 +45,40 @@ public class BiomeShopManager : MonoBehaviour
         originalBiomeParentHeight = biomeParentRect.sizeDelta.y;
 
         // Pre-populate pool with initial cards
-        InitializeCardPool();
+        StartCoroutine(InitializeCardPool());
     }
 
-    private void InitializeCardPool()
+    private IEnumerator InitializeCardPool()
     {
         // Create initial pool size based on expected biome count
-        int initialPoolSize = Mathf.Max(10, biomes?.allBiomes?.Count ?? 10);
+        //int initialPoolSize = Mathf.Max(10, biomes?.allBiomes?.Count ?? 10);
 
-        for (int i = 0; i < initialPoolSize; i++)
+        yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
+
+        for (int i = 0; i < biomes.allBiomes.Count; i++)
         {
+            int temp = i;
             GameObject cardObj = Instantiate(biomeCardPrefab, cardParent);
             BiomeCardUI card = cardObj.GetComponent<BiomeCardUI>();
+            card.Setup(biomes.allBiomes[temp]);
+
+            card.OnSelected = OnBiomeSelected;
+            card.OnApplyClicked = OnBiomeApply;
+            card.OnCancelApplied = OnBiomeCancel;
+            card.OnBuyClicked = OnBiomeBuy;
+
+            if (SaveSystem.UiSaveData.BiomeShopCards.Count < biomes.allBiomes.Count)
+                SaveSystem.UiSaveData.BiomeShopCards.Add(new()
+                {
+                    Id = card.BiomeData.biomeID
+                });
+
             card.gameObject.SetActive(false);
-            cardPool.Enqueue(card);
+            activeCards.Add(card);
+
+            Debug.Log($"Active Card Successfully Added {card.name}");
+
+            //cardPool.Enqueue(card);
         }
     }
 
@@ -122,29 +142,12 @@ public class BiomeShopManager : MonoBehaviour
 
     IEnumerator WaitRefreshCards(bool eligibleBuyVfx = false)
     {
-        // Return all active cards to pool
+        // Get cards from pool and setup
         foreach (var card in activeCards)
         {
-            ReturnCardToPool(card);
-        }
-        activeCards.Clear();
-
-        // Get cards from pool and setup
-        foreach (var biome in biomes.allBiomes)
-        {
-            BiomeCardUI card = GetPooledCard();
-            card.Setup(biome);
-
-            card.OnSelected = OnBiomeSelected;
-            card.OnApplyClicked = OnBiomeApply;
-            card.OnCancelApplied = OnBiomeCancel;
-            card.OnBuyClicked = OnBiomeBuy;
-
+            card.gameObject.SetActive(true);
             bool canBuy = CheckBuyingRequirement(card);
-            card.SetCanBuy (canBuy);
-            card.SetGrayscale(!canBuy);
-
-            activeCards.Add(card);
+            card.SetCanBuy(canBuy);
         }
 
         // Sort: BUYABLE → TOP
@@ -169,7 +172,14 @@ public class BiomeShopManager : MonoBehaviour
             yield return waitEndOfFrame; //Wait set dirty UI at the end of frame
 
             if (eligibleBuyVfx)
-                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+            {
+                if (!SaveSystem.UiSaveData.GetShopCardData(ShopType.BiomeShop, currentCard.BiomeData.biomeID).IsOpened)
+                {
+                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+
+                    SaveSystem.UiSaveData.SetShopCardsOpenState(ShopType.BiomeShop, currentCard.BiomeData.biomeID, true);
+                }
+            }
         }
 
         OnBiomeSelected(activeCards[0]);

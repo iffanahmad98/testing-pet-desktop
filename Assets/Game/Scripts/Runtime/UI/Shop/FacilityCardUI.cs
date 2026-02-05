@@ -43,6 +43,7 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
 
     private bool _isSelected;
     public bool IsSelected => _isSelected;
+    public bool IsNpc => isNPC;
 
     bool isCanBuy;
     private void Start()

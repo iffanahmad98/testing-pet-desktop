@@ -86,7 +86,7 @@ public class BiomeManager : MonoBehaviour
 
     private IEnumerator InitializeBiome()
     {
-        yield return new WaitForSeconds(0.1f); // Ensure all systems are ready
+        yield return new WaitForSeconds(0.2f); // Ensure all systems are ready
         // Get reference to SettingsManager
         settingsManager = ServiceLocator.Get<SettingsManager>();
         if (settingsManager != null)

@@ -27,7 +27,6 @@ public class DecorationShopManager : MonoBehaviour
     private DecorationCardUI selectedCard;
     private bool canBuyItem = false;
 
-    private Queue<DecorationCardUI> cardPool = new Queue<DecorationCardUI>();
     private List<DecorationCardUI> activeCards = new List<DecorationCardUI>();
 
     private WaitForEndOfFrame waitEndOfFrame = new();
@@ -35,51 +34,48 @@ public class DecorationShopManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        LoadListTreeDecoration1();
-        InitializeCardPool();
-
         ServiceLocator.Register(this);
+        
+        LoadListTreeDecoration1();
+        
+        StartCoroutine( InitializeCardPool());
+
     }
 
     private void Start()
     {
         RefreshDecorationCards();
-
     }
 
-    private void InitializeCardPool()
+    private IEnumerator InitializeCardPool()
     {
-        int initialPoolSize = Mathf.Max(10, decorations?.allDecorations?.Count ?? 10);
+        //int initialPoolSize = Mathf.Max(10, decorations?.allDecorations?.Count ?? 10);
 
-        for (int i = 0; i < initialPoolSize; i++)
+        yield return new WaitUntil(()=> SaveSystem.IsLoadFinished);
+
+        for (int i = 0; i < decorations.allDecorations.Count; i++)
         {
+            int temp = i;
             GameObject cardObj = Instantiate(decorationCardPrefab, cardParent);
             DecorationCardUI card = cardObj.GetComponent<DecorationCardUI>();
+
+            card.Setup(decorations.allDecorations[temp]);
+            card.OnSelected = OnDecorationSelected;
+            card.OnApplyClicked = OnDecorationApply;
+            card.OnCancelApplied = OnDecorationCancel;
+            card.OnBuyClicked = OnDecorationBuy;
+
+            if (SaveSystem.UiSaveData.DecorationShopCards.Count < decorations.allDecorations.Count)
+                SaveSystem.UiSaveData.DecorationShopCards.Add(new()
+                {
+                    Id = card.DecorationData.decorationID
+                });
+
             card.gameObject.SetActive(false);
-            cardPool.Enqueue(card);
-        }
-    }
+            activeCards.Add(card);
 
-    private DecorationCardUI GetPooledCard()
-    {
-        if (cardPool.Count > 0)
-        {
-            var card = cardPool.Dequeue();
-            card.gameObject.SetActive(true);
-            return card;
+            //cardPool.Enqueue(card);
         }
-        else
-        {
-            var cardObj = Instantiate(decorationCardPrefab, cardParent);
-            return cardObj.GetComponent<DecorationCardUI>();
-        }
-    }
-
-    private void ReturnCardToPool(DecorationCardUI card)
-    {
-        card.gameObject.SetActive(false);
-        card.transform.SetAsLastSibling();
-        cardPool.Enqueue(card);
     }
 
     public void RefreshItem()
@@ -89,32 +85,11 @@ public class DecorationShopManager : MonoBehaviour
 
     IEnumerator WaitRefreshDecorationCards(bool eligibleBuyVfx = false)
     {
-        foreach (Transform child in cardParent)
+        foreach (var deco in activeCards)
         {
-            Destroy(child.gameObject);
-        }
-
-        activeCards.Clear();
-        selectedCard = null;
-
-        int totalCount = 0;
-
-        foreach (var deco in decorations.allDecorations)
-        {
-            GameObject cardObj = Instantiate(decorationCardPrefab, cardParent);
-            DecorationCardUI card = cardObj.GetComponent<DecorationCardUI>();
-
-            card.Setup(deco);
-            card.OnSelected = OnDecorationSelected;
-            card.OnApplyClicked = OnDecorationApply;
-            card.OnCancelApplied = OnDecorationCancel;
-            card.OnBuyClicked = OnDecorationBuy;
-
-            bool canBuy = CheckBuyingRequirement(card);
-            card.SetCanBuy(canBuy);
-
-            activeCards.Add(card);
-            totalCount++;
+            deco.gameObject.SetActive(true);
+            bool canBuy = CheckBuyingRequirement(deco);
+            deco.SetCanBuy(canBuy);
         }
 
         // Sort: BUYABLE → TOP
@@ -139,7 +114,12 @@ public class DecorationShopManager : MonoBehaviour
 
             if (eligibleBuyVfx)
             {
-                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+                if (!SaveSystem.UiSaveData.GetShopCardData(ShopType.DecorationShop, currentCard.DecorationData.decorationID).IsOpened)
+                {
+                    ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+
+                    SaveSystem.UiSaveData.SetShopCardsOpenState(ShopType.DecorationShop, currentCard.DecorationData.decorationID, true);
+                }
             }
         }
 

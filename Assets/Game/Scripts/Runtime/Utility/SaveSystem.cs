@@ -12,9 +12,13 @@ using static UnityEngine.Rendering.STP;
 public static class SaveSystem
 {
     private const string SaveFileName = "playerConfig.json";
+    private const string UiDataSaveFileName = "uiConfig.json";
+
     private static PlayerConfig _playerConfig;
-    public static PlayerConfig PlayerConfig => _playerConfig;
+    private static UISaveData _uiSaveData;
     private static DateTime _sessionStartTime;
+    public static PlayerConfig PlayerConfig => _playerConfig;
+    public static UISaveData UiSaveData => _uiSaveData;
     public static void SavePoop(int poop) => _playerConfig.poops = poop; // Directly save to PlayerConfig (Not Used)
     public static int LoadPoop() => _playerConfig.poops;
     public static event Action <PlayerConfig> DataLoaded; // DecorationManager
@@ -25,6 +29,7 @@ public static class SaveSystem
     public static void Initialize()
     {
         LoadPlayerConfig();
+        LoadUiConfig();
         _sessionStartTime = DateTime.Now;
 
         Debug.Log($"Last login time: {_playerConfig.lastLoginTime}");
@@ -36,6 +41,10 @@ public static class SaveSystem
 
         // Check for time cheating
         CheckTimeDiscrepancy();
+
+        IsLoadFinished = true;
+
+        Debug.Log("IsFinished Load Save Data");
     }
 
     // Save all data when application pauses/quits
@@ -43,6 +52,7 @@ public static class SaveSystem
     {
         UpdatePlayTime();
         SavePlayerConfig();
+        SaveUiConfig();
     }
 
     public static void SaveMon(MonsterSaveData data)
@@ -267,8 +277,32 @@ public static class SaveSystem
         {
             CreateNewPlayerConfig();
         }
+    }
 
-        IsLoadFinished = true;
+    private static void LoadUiConfig()
+    {
+        string path = Path.Combine(Application.persistentDataPath, UiDataSaveFileName);
+
+        if (File.Exists(path))
+        {
+            try
+            {
+                string json = File.ReadAllText(path);
+
+                _uiSaveData = JsonConvert.DeserializeObject<UISaveData>(json, _jsonSettings);
+
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Failed to load UI Config: " + e.Message);
+                _uiSaveData = new();
+            }
+        }
+        else
+        {
+            Debug.LogError("Path not exist. Create new Ui Save Data");
+            _uiSaveData = new();
+        }
     }
 
 
@@ -279,26 +313,44 @@ public static class SaveSystem
     };
 
     private static void SavePlayerConfig()
+    {
+        string path = Path.Combine(Application.persistentDataPath, SaveFileName);
+        // Debug.Log("Before sync: " + PlayerConfig.listPetMonsterHotelData.Count);
+        try
         {
-            string path = Path.Combine(Application.persistentDataPath, SaveFileName);
-           // Debug.Log("Before sync: " + PlayerConfig.listPetMonsterHotelData.Count);
-            try
-            {
-                _playerConfig.SyncToSerializable(); // Convert DateTime to strings, etc.
+            _playerConfig.SyncToSerializable(); // Convert DateTime to strings, etc.
 
-                string json = JsonConvert.SerializeObject(_playerConfig, _jsonSettings);
+            string json = JsonConvert.SerializeObject(_playerConfig, _jsonSettings);
 
-                File.WriteAllText(path, json);
+            File.WriteAllText(path, json);
 
-                Debug.Log("Game data saved successfully");
-               // Debug.Log("After sync: " + PlayerConfig.listPetMonsterHotelData.Count);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Failed to save game data: " + e.Message);
-            }
+            Debug.Log("Game data saved successfully");
+            // Debug.Log("After sync: " + PlayerConfig.listPetMonsterHotelData.Count);
         }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to save game data: " + e.Message);
+        }
+    }
 
+    private static void SaveUiConfig()
+    {
+        string path = Path.Combine(Application.persistentDataPath, UiDataSaveFileName);
+        // Debug.Log("Before sync: " + PlayerConfig.listPetMonsterHotelData.Count);
+        try
+        {
+            string json = JsonConvert.SerializeObject(_uiSaveData, _jsonSettings);
+
+            File.WriteAllText(path, json);
+
+            Debug.Log("Ui Save Data is saved successfully");
+            // Debug.Log("After sync: " + PlayerConfig.listPetMonsterHotelData.Count);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to save ui save data: " + e.Message);
+        }
+    }
 
 
     private static void CreateNewPlayerConfig()
