@@ -72,12 +72,12 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
                 RefreshBuyButton (GetHotelFacilitiesPodiumCard (data.id), "Apply");
             }
         }
-        ShowSmallInformation ();
+        // ShowSmallInformation ();
    }
 
    public override void HideMenu () {
     base.HideMenu ();
-    HideSmallInformation ();
+   // HideSmallInformation ();
    }
 
     #region SmallInformationUI
