@@ -18,7 +18,6 @@ public class ItemInventoryUI : MonoBehaviour
     [SerializeField] private RectTransform dropdownContentRect;
     [SerializeField] private Button dropdownLeftScrollButton;
     [SerializeField] private Button dropdownRightScrollButton;
-    [SerializeField] private Button cartButton;
 
     [Header("Horizontal Bar")]
     [SerializeField] private GameObject horizontalBarGameObject;
@@ -224,7 +223,6 @@ public class ItemInventoryUI : MonoBehaviour
         quickViewGameObject.SetActive(true);
         //    horizontalBarGameObject.SetActive(false); (Non Used ini bikin bug)
         SetCanvasGroupVisibility(horizontalBarGameObject, false);
-        SetCanvasGroupVisibility(cartButton.gameObject, false);
         HideInventory();
         ResetInventoryGroupvisibility();
 
@@ -265,17 +263,10 @@ public class ItemInventoryUI : MonoBehaviour
         horizontalDownScrollButton.onClick.AddListener(() =>
         {
             SetCanvasGroupVisibility(horizontalBarGameObject, false);
-            SetCanvasGroupVisibility(cartButton.gameObject, false);
             ServiceLocator.Get<UIManager>().FadePanel(verticalContentGameObject, verticalContentGameObject.GetComponent<CanvasGroup>(), true);
         });
 
         horizontalRightScrollButton.onClick.AddListener(() =>
-        {
-            HideInventory();
-            ResetInventoryGroupvisibility();
-        });
-
-        cartButton.onClick.AddListener(() =>
         {
             HideInventory();
             ResetInventoryGroupvisibility();
@@ -522,7 +513,6 @@ public class ItemInventoryUI : MonoBehaviour
     {
         SetCanvasGroupVisibility(quickViewGameObject, true);
         SetCanvasGroupVisibility(horizontalBarGameObject, false);
-        SetCanvasGroupVisibility(cartButton.gameObject, true);
         SetCanvasGroupVisibility(verticalContentGameObject, false);
     }
 
@@ -655,7 +645,8 @@ public class ItemInventoryUI : MonoBehaviour
     {
         SidebarManager sidebarManager = ServiceLocator.Get<SidebarManager>();
         sidebarManager.ShowPanel(sidebarManager.sidebarLinks[2]);
-        ServiceLocator.Get<UIManager>().FadePanel(ServiceLocator.Get<UIManager>().ShopPanel, ServiceLocator.Get<UIManager>().ShopCanvasGroup, true);
+        var ui = ServiceLocator.Get<UIManager>();
+        ui.FadePanel(ui.panels.ShopPanel, ui.panels.ShopCanvasGroup, true);
     }
 
     public void MoveItemBack(ItemSlotUI draggedSlot, ItemSlotUI targetSlot)
