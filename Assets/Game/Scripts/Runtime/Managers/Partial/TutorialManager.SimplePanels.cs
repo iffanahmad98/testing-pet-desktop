@@ -92,6 +92,7 @@ public partial class TutorialManager
             _simpleStepShownTime = Time.time;
 
             UpdateRightClickMouseHintForSimpleStep(simpleTutorialPanels[_simplePanelIndex]);
+            PlaySimpleStepEffectForIndex(_simplePanelIndex);
         }
     }
 
@@ -137,6 +138,7 @@ public partial class TutorialManager
             _simpleStepShownTime = Time.time;
 
             UpdateRightClickMouseHintForSimpleStep(nextStep);
+            PlaySimpleStepEffectForIndex(_simplePanelIndex);
         }
     }
 
