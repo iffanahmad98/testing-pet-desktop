@@ -28,6 +28,9 @@ public class SimpleTutorialPanelStep
     [Tooltip("Jika true, pointer akan otomatis menunjuk ke monster tutorial (mis. Briabit) yang di-spawn oleh TutorialManager.")]
     public bool useTutorialMonsterAsPointerTarget;
 
+    [Tooltip("Jika true, pointer akan menunjuk ke Next Button yang dikonfigurasi untuk step ini (berdasarkan nextButtonIndex).")]
+    public bool useNextButtonAsPointerTarget;
+
     [Tooltip("Offset tambahan dari posisi target (biasanya tombol Next) dalam anchoredPosition canvas.")]
     public Vector2 pointerOffset;
 

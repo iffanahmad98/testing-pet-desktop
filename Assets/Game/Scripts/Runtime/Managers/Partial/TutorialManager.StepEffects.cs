@@ -8,24 +8,17 @@ public partial class TutorialManager
     [Serializable]
     private class SimpleStepEffectEntry
     {
-        [Tooltip("Index step simple tutorial (0-based).")]
         public int stepIndex;
-
-        [Tooltip("Root GameObject effect yang akan ditampilkan pada step ini.")]
         public GameObject effectRoot;
     }
 
     [Header("Simple Step Effects")]
-    [Tooltip("Daftar efek spesial yang akan muncul pada step simple tertentu (mis. 0,4,8,10,12,14).")]
     [SerializeField] private List<SimpleStepEffectEntry> simpleStepEffects = new List<SimpleStepEffectEntry>();
 
-    [Tooltip("Durasi animasi scale-up + fade untuk efek simple step.")]
     [SerializeField] private float simpleStepEffectDuration = 0.35f;
 
-    [Tooltip("Curve animasi scale-up untuk efek simple step.")]
     [SerializeField] private AnimationCurve simpleStepEffectEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-    [Tooltip("Berapa lama efek tetap terlihat sebelum menghilang lagi (detik). 0 = tidak auto-hide.")]
     [SerializeField] private float simpleStepEffectHoldDuration = 1.0f;
 
     private void PlaySimpleStepEffectForIndex(int stepIndex)

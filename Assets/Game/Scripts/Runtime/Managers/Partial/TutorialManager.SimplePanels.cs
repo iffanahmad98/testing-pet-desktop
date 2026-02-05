@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using DG.Tweening;
 
 public partial class TutorialManager
@@ -19,27 +20,6 @@ public partial class TutorialManager
         if (step.usePointer)
         {
             UpdatePointerForSimpleStep(step);
-        }
-
-        if (!step.useLeftClickPetAsNext && !step.useRightClickPetAsNext)
-            return;
-
-        const float minClickDelay = 0.15f;
-        if (Time.time - _simpleStepShownTime < minClickDelay)
-            return;
-
-        int wantedButton = -1;
-        if (step.useLeftClickPetAsNext && Input.GetMouseButtonDown(0))
-            wantedButton = 0;
-        else if (step.useRightClickPetAsNext && Input.GetMouseButtonDown(1))
-            wantedButton = 1;
-
-        if (wantedButton == -1)
-            return;
-
-        if (IsClickOnTutorialMonster())
-        {
-            RequestNextSimplePanel();
         }
     }
 
@@ -74,7 +54,7 @@ public partial class TutorialManager
                 step.panelRoot.SetActive(false);
 
             var nextButton = GetSimpleStepNextButton(step);
-            if (nextButton != null && !step.useLeftClickPetAsNext && !step.useRightClickPetAsNext)
+            if (nextButton != null)
             {
                 if (!_simpleNextButtonsHooked.Contains(nextButton))
                 {
@@ -93,6 +73,8 @@ public partial class TutorialManager
 
             UpdateRightClickMouseHintForSimpleStep(simpleTutorialPanels[_simplePanelIndex]);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
+
+            UpdateSimpleStepNextButtonsInteractable();
         }
     }
 
@@ -115,8 +97,6 @@ public partial class TutorialManager
             var currentStep = simpleTutorialPanels[_simplePanelIndex];
             if (currentStep != null && currentStep.panelRoot != null)
                 currentStep.panelRoot.SetActive(false);
-
-            // Sembunyikan hint mouse ketika meninggalkan step ini
             HideRightClickMouseHint();
         }
 
@@ -139,6 +119,8 @@ public partial class TutorialManager
 
             UpdateRightClickMouseHintForSimpleStep(nextStep);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
+
+            UpdateSimpleStepNextButtonsInteractable();
         }
     }
 
@@ -154,23 +136,23 @@ public partial class TutorialManager
             return;
         }
 
-        // Jika diminta menunjuk ke monster tutorial (mis. Briabit) dan referensinya ada,
-        // gunakan itu sebagai target utama.
         if (step.useTutorialMonsterAsPointerTarget && _tutorialMonsterRect != null)
         {
             pointer.PointTo(_tutorialMonsterRect, step.pointerOffset);
             return;
         }
 
-        // Fallback: gunakan tombol Next yang terdaftar lewat nextButtonIndex.
-        var btn = GetSimpleStepNextButton(step);
-        if (btn != null)
+        if (step.useNextButtonAsPointerTarget)
         {
-            var rect = btn.transform as RectTransform;
-            if (rect != null)
+            var btn = GetSimpleStepNextButton(step);
+            if (btn != null)
             {
-                pointer.PointTo(rect, step.pointerOffset);
-                return;
+                var rect = btn.transform as RectTransform;
+                if (rect != null)
+                {
+                    pointer.PointTo(rect, step.pointerOffset);
+                    return;
+                }
             }
         }
 
@@ -234,7 +216,6 @@ public partial class TutorialManager
 
         _rightClickMouseHintInstance.gameObject.SetActive(true);
 
-        // Posisi dasar: di atas pet, lalu ditambah offset dari konfigurasi step.
         var petPos = _tutorialMonsterRect.anchoredPosition;
         var baseOffset = new Vector2(0f, 120f);
         _rightClickMouseHintInstance.anchoredPosition = petPos + baseOffset + step.rightClickMouseHintOffset;
@@ -247,6 +228,94 @@ public partial class TutorialManager
         if (_rightClickMouseHintInstance != null)
         {
             _rightClickMouseHintInstance.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnTutorialMonsterClicked(PointerEventData eventData)
+    {
+        if (!IsSimpleMode)
+            return;
+
+        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+            return;
+
+        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+            return;
+
+        var step = simpleTutorialPanels[_simplePanelIndex];
+        if (step == null)
+            return;
+
+        bool wantsLeft = step.useLeftClickPetAsNext;
+        bool wantsRight = step.useRightClickPetAsNext;
+        if (!wantsLeft && !wantsRight)
+            return;
+
+        const float minClickDelay = 0.15f;
+        if (Time.time - _simpleStepShownTime < minClickDelay)
+            return;
+
+        var button = eventData.button;
+        bool isLeft = button == PointerEventData.InputButton.Left;
+        bool isRight = button == PointerEventData.InputButton.Right;
+
+        if ((isLeft && wantsLeft) || (isRight && wantsRight))
+        {
+            RequestNextSimplePanel();
+        }
+    }
+
+    private void UpdateSimpleStepNextButtonsInteractable()
+    {
+        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+            return;
+
+        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        {
+            CacheUIButtonsFromUIManager();
+        }
+
+        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+            return;
+
+        for (int i = 0; i < simpleTutorialPanels.Count; i++)
+        {
+            var step = simpleTutorialPanels[i];
+            if (step == null)
+                continue;
+
+            if (step.nextButtonIndex < 0 || step.nextButtonIndex >= _uiButtonsCache.Length)
+                continue;
+
+            var btn = _uiButtonsCache[step.nextButtonIndex];
+            if (btn == null)
+                continue;
+
+            btn.interactable = false;
+        }
+
+        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+            return;
+
+        var currentStep = simpleTutorialPanels[_simplePanelIndex];
+        if (currentStep == null)
+            return;
+
+        if (currentStep.nextButtonIndex < 0 || currentStep.nextButtonIndex >= _uiButtonsCache.Length)
+            return;
+
+        var currentBtn = _uiButtonsCache[currentStep.nextButtonIndex];
+        if (currentBtn == null)
+            return;
+
+        currentBtn.interactable = true;
+
+        if (_tutorialNextButton != null)
+        {
+            bool currentUsesTutorialNext = (currentBtn == _tutorialNextButton);
+
+            _tutorialNextButton.gameObject.SetActive(currentUsesTutorialNext);
+            _tutorialNextButton.interactable = currentUsesTutorialNext;
         }
     }
 }
