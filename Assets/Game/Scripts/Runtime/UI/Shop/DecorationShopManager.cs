@@ -88,6 +88,7 @@ public class DecorationShopManager : MonoBehaviour
         foreach (var deco in activeCards)
         {
             deco.gameObject.SetActive(true);
+            deco.UpdateState();
             bool canBuy = CheckBuyingRequirement(deco);
             deco.SetCanBuy(canBuy);
         }

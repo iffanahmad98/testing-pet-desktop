@@ -145,6 +145,7 @@ public class FacilityShopManager : MonoBehaviour
         foreach (var card in activeCards)
         {
             card.gameObject.SetActive(true);
+            card.UpdateState();
             bool canBuy = CheckBuyingRequirement(card, card.IsNpc);
             card.SetGrayscale(!canBuy);
 
