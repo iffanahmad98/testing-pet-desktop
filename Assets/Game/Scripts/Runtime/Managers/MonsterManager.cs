@@ -72,6 +72,8 @@ public class MonsterManager : MonoBehaviour
 
     public MonsterController sickMonster;
 
+    [Header ("MonsterManagerEligible")]
+    List <MonsterDataSO> listPurchasedMonsterDataSO = new ();
     private void Awake()
     {
         instance = this;
@@ -170,7 +172,7 @@ public class MonsterManager : MonoBehaviour
         GameObject monster = CreateMonster(monsterData);
         var controller = monster.GetComponent<MonsterController>();
 
-
+        Debug.Log ("Spawn Monster 1");
         controller.monsterID = data.instanceId;
         controller.SetLastTimePokedTimer(data.lastPokedTimer);
         var (_, evolutionLevel) = GetMonsterDataAndLevelFromID(data.instanceId);
@@ -206,6 +208,7 @@ public class MonsterManager : MonoBehaviour
             Debug.Log("Change Pivot to (0.5,0.0f)");
             monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
+        AddListMonsterManagerEligible (monsterData);
     }
 
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
@@ -268,6 +271,7 @@ public class MonsterManager : MonoBehaviour
             Debug.Log("Change Pivot to (0.5,0.0f)");
             monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
+        AddListMonsterManagerEligible (monsterData);
     }
 
     public MonsterController SpawnMonsterAtCenterForTutorial(MonsterDataSO monsterData, Vector2 anchoredPosition)
@@ -506,6 +510,7 @@ public class MonsterManager : MonoBehaviour
             // batasi supaya tidak terlalu ke pojok
             if (pos.x < -800) pos.x = -800;
             if (pos.x > 800) pos.x = 800;
+            if (pos.y < -400) pos.y = -400;
 
             SetupPooledObject(pooled, gameAreaRT, pos);
 
@@ -1069,7 +1074,10 @@ public class MonsterManager : MonoBehaviour
             Debug.Log("Change Pivot to (0.5,0.0f)");
             monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
+
+        
     }
+
     public void DespawnNPC(string npcID)
     {
         var npc = npcMonsters.FirstOrDefault(n => n.monsterID == npcID);
@@ -1106,6 +1114,17 @@ public class MonsterManager : MonoBehaviour
 
         ServiceLocator.Get<UIManager>()?.ShowMessage($"Time accelerated by {hours} hours!");
         Debug.Log($"Time Skip Complete: Affected {activeMonsters.Count} monsters");
+    }
+
+    #endregion
+    #region MonsterManagerEligible
+    void AddListMonsterManagerEligible (MonsterDataSO monsterData) {
+        Debug.Log ("Add Monster Eligible");
+        listPurchasedMonsterDataSO.Add (monsterData);
+    }
+
+    public List <MonsterDataSO> GetListPurchasedMonsterDataSO () {
+        return listPurchasedMonsterDataSO;
     }
 
     #endregion

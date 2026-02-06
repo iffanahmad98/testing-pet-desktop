@@ -4,7 +4,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using Spine.Unity;
-
+using UnityEngine.UI;
 public class MonsterShopManager : MonoBehaviour
 {
     [Header("Rarity Tab Controller")]
@@ -19,6 +19,7 @@ public class MonsterShopManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI priceText;
     [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] Button buyButton;
     [SerializeField] TextMeshProUGUI rarityText;
     [Header("Monster Data")]
     [SerializeField] private ItemDatabaseSO monsterItemDatabase;
@@ -44,6 +45,7 @@ public class MonsterShopManager : MonoBehaviour
         detailPanel.SetActive(false);
         ClearMonsterInfo();
         */
+        buyButton.onClick.AddListener (ClickBuyPreviewButton);
         Invoke ("nStart", 0.5f);
     }
 
@@ -199,11 +201,9 @@ public class MonsterShopManager : MonoBehaviour
             if (SaveSystem.TryBuyMonster(monsterItem))
             {
                 OnMonsterSelected(card);
-
                 // Success message
                 ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monsterItem.name}!", 2f);
-                ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
-
+                 ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
                 // Update UI Coin Text
                 ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
 
@@ -228,6 +228,10 @@ public class MonsterShopManager : MonoBehaviour
             Debug.Log("Minimum Requirement Monster not enough!");
         }
     }
+
+    private void ClickBuyPreviewButton () {
+        OnMonsterBuy (selectedCard);
+    }
     
     private bool CheckBuyingRequirementNewVersion (MonsterCardUI card) {
         var monsterItem = ServiceLocator.Get<MonsterManager>().monsterDatabase.GetMonsterByID(card.monsterItemData.itemName);
@@ -236,8 +240,8 @@ public class MonsterShopManager : MonoBehaviour
             return false;
 
         // Reference All Monster Player Have
-        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-
+        // var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+        var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO ();
         // value to check if every index of Array/List is Eligible
         int valid = 0;
 
@@ -249,7 +253,7 @@ public class MonsterShopManager : MonoBehaviour
                 int requiredValue = 0;
                 for (int i = 0; i < monsters.Count; i++)
                 {
-                    if (required.monsterType == monsters[i].MonsterData.monType)
+                    if (required.monsterType == monsters[i].monType)
                     {
                         requiredValue++;
                     }
@@ -292,8 +296,8 @@ public class MonsterShopManager : MonoBehaviour
             return false;
 
         // Reference All Monster Player Have
-        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-
+        // var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+        var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO ();
         // value to check if every index of Array/List is Eligible
         int valid = 0;
 
@@ -305,7 +309,7 @@ public class MonsterShopManager : MonoBehaviour
                 int requiredValue = 0;
                 for (int i = 0; i < monsters.Count; i++)
                 {
-                    if (required.monsterType == monsters[i].MonsterData.monType)
+                    if (required.monsterType == monsters[i].monType)
                     {
                         requiredValue++;
                     }
@@ -354,6 +358,13 @@ public class MonsterShopManager : MonoBehaviour
         descriptionText.text = monster.description; // Assuming you have this field
         
         rarityText.text = rarity;
+
+        bool canBuy = CheckBuyingRequirementNewVersion(selectedCard);
+        if (canBuy) {
+            buyButton.interactable = true;
+        } else {
+            buyButton.interactable = false;
+        }
     }
 
     private void ClearMonsterGrid()

@@ -28,6 +28,7 @@ public class FarmFacilitiesDataSO : ScriptableObject {
     [Header ("Eligibility (Hotel Facilities Menu)")]
     public List<EligibilityRuleSO> rules = new();
     public List <HiredEligibility> rulesHiredEligibility = new List <HiredEligibility> ();
+    public RequirementTipDataSO [] requirementTipDataSO;
 
     #region Eligibility
     public bool IsEligible() // untuk yang tidak ada tingkat
@@ -61,6 +62,9 @@ public class FarmFacilitiesDataSO : ScriptableObject {
         return 0;
     }
 
+    public RequirementTipDataSO GetRequirementTipData (int target) {
+        return requirementTipDataSO[target];
+    }
     #endregion
     
 }

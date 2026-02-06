@@ -40,6 +40,7 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
         public Image smallPodium;
         public Button buyButton;
         public TMP_Text priceText;
+        public RequirementTipClick requirementTipClick;
         public FarmFacilitiesDataSO dataSO;
     }
 
@@ -80,6 +81,7 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
                 newItemCard.smallPodium = clone.transform.Find ("SmallPodium").gameObject.GetComponent <Image> ();
                 newItemCard.buyButton = clone.transform.Find ("BuyButton").gameObject.GetComponent <Button> ();
                 newItemCard.priceText = newItemCard.buyButton.gameObject.transform.Find ("PriceText").gameObject.GetComponent <TMP_Text> ();
+                newItemCard.requirementTipClick = clone.transform.Find ("RequirementTipClick").gameObject.GetComponent <RequirementTipClick> ();
                 newItemCard.dataSO  = dataSO;
 
                 cloneMotionSample.transform.SetParent (newItemCard.smallPodium.gameObject.transform);
@@ -239,14 +241,27 @@ public class FarmShopMonsterPanel : FarmShopPanelBase {
                 Debug.Log ($"Hired Total : {totalHired} max hired {dataSO.maxHired}");
                 if (dataSO.IsHiredEligible(totalHired) && totalHired < dataSO.maxHired) {
                     itemCard.buyButton.interactable = true;
+
+                    itemCard.requirementTipClick.gameObject.SetActive (false);
                 } else {
                     itemCard.buyButton.interactable = false;
+
+                    if (totalHired < dataSO.maxHired) {
+                        itemCard.requirementTipClick.gameObject.SetActive (true);
+                        itemCard.requirementTipClick.dataSO = dataSO.GetRequirementTipData (totalHired);
+                    }
                 }
             } else {
                 if (dataSO.IsHiredEligible(0)) {
                     itemCard.buyButton.interactable = true;
+
+                    itemCard.requirementTipClick.gameObject.SetActive (false);
+                    itemCard.requirementTipClick.dataSO = dataSO.GetRequirementTipData (0);
                 } else {
                     itemCard.buyButton.interactable = false;
+                    
+                    itemCard.requirementTipClick.gameObject.SetActive (true);
+                    itemCard.requirementTipClick.dataSO = dataSO.GetRequirementTipData (0);
                 }
             }
             

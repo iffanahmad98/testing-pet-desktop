@@ -12,6 +12,9 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
     public int harvestEggMonsters = 0;
 
     public event Action OnHotelRoomCompletedChanged;
+    public event Action OnHarvestFruitChanged;
+    public event Action OnHarvestEggMonstersChanged;
+
     void Awake () {
         instance = this;
     }
@@ -22,6 +25,12 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
     #region Event
     public void AddHotelRoomCompletedChanged (Action actionValue) {
         OnHotelRoomCompletedChanged += actionValue;
+    }
+    public void AddHarvestFruitChanged (Action actionValue) { // UnlockBubbleUI
+        OnHarvestFruitChanged += actionValue;
+    }
+    public void AddHarvestEggMonstersChanged(Action actionValue) {
+        OnHarvestEggMonstersChanged += actionValue;
     }
     #endregion
     #region Load
@@ -43,12 +52,14 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
         playerConfig.hotelRoomCompleted = hotelRoomCompleted;
         Debug.Log ("Hotel Room Completed " + playerConfig.hotelRoomCompleted);
         SaveSystem.SaveAll ();
+        OnHotelRoomCompletedChanged?.Invoke ();
     }
     public void SetHarvestFruit (int value) { // InventoryManager.cs
         harvestFruit += value;
         playerConfig.harvestFruit = harvestFruit;
         Debug.Log ("Hotel Room Completed " + playerConfig.harvestFruit);
         SaveSystem.SaveAll ();
+        OnHarvestFruitChanged?.Invoke ();
     }
 
     public void SetHarvestEggMonsters (int value) { // InventoryManager.cs
@@ -56,6 +67,7 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
         playerConfig.harvestEggMonsters = harvestEggMonsters;
         Debug.Log ("Hotel Room Completed " + playerConfig.harvestEggMonsters);
         SaveSystem.SaveAll ();
+        OnHotelRoomCompletedChanged?.Invoke ();
     }
     #endregion
 }
