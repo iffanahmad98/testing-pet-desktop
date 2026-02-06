@@ -36,6 +36,16 @@ public class MonsterStateMachine : MonoBehaviour
 
         if (_controller?.EvolutionHandler?.IsEvolving == true) return;
 
+
+        if (_controller != null && _controller.IsMovementFrozenByTutorial)
+        {
+            if (_currentState != MonsterState.Idle)
+            {
+                ChangeState(MonsterState.Idle);
+            }
+            return;
+        }
+
         // Reduce movement intensity when happiness or hunger is low (but don't force 100% idle)
         // The actual state selection logic is handled in MonsterBehaviorHandler
 
@@ -133,9 +143,9 @@ public class MonsterStateMachine : MonoBehaviour
         }
 
         _previousState = _currentState;
-        _currentState  = newState;
-        _stateTimer    = 0f;
-        
+        _currentState = newState;
+        _stateTimer = 0f;
+
         _animationHandler?.PlayStateAnimation(newState); // aman kalau null
         OnStateChanged?.Invoke(_currentState);
 

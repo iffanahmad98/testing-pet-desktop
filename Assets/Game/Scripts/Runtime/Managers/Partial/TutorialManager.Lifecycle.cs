@@ -41,6 +41,11 @@ public partial class TutorialManager
     {
         if (IsSimpleMode)
         {
+            if (IsSimpleTutorialAlreadyCompleted())
+            {
+                return;
+            }
+
             DisableUIManagerButtonsForTutorial();
             SpawnTutorialMonsterIfNeeded();
             StartSimpleTutorialSequence();
@@ -185,6 +190,13 @@ public partial class TutorialManager
             }
 
             _simplePanelIndex = -1;
+
+            if (_tutorialMonsterController != null)
+            {
+                _tutorialMonsterController.SetInteractionsDisabledByTutorial(false);
+            }
+
+            MarkSimpleTutorialCompleted();
         }
 
         RestoreUIManagerButtonsInteractable();

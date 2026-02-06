@@ -9,7 +9,7 @@ public class MonsterInteractionHandler
     private MonsterController _controller;
     private CursorManager _cursorManager;
     private float _pokeCooldownTimer = 0f;
-    private bool _hasBeenInteractedWith = false; 
+    private bool _hasBeenInteractedWith = false;
     private bool _pendingEvolutionCheck = false;
     private bool _isNPC = false;
 
@@ -20,18 +20,18 @@ public class MonsterInteractionHandler
         _cursorManager = ServiceLocator.Get<CursorManager>();
         _isNPC = controller.isNPC;
     }
-    
+
     private void OnStateChanged(MonsterState newState)
     {
         if (_pendingEvolutionCheck)
         {
-            bool wasPokeState = 
+            bool wasPokeState =
                 _controller.StateMachine.PreviousState == MonsterState.Jumping ||
                 _controller.StateMachine.PreviousState == MonsterState.Itching ||
                 _controller.StateMachine.PreviousState == MonsterState.Flapping;
 
             bool isNowNormalState = newState == MonsterState.Idle;
-                
+
             if (wasPokeState && isNowNormalState)
             {
                 _pendingEvolutionCheck = false;
@@ -39,7 +39,7 @@ public class MonsterInteractionHandler
             }
         }
     }
-    
+
     public void HandlePoke()
     {
         if (_pokeCooldownTimer > 0f) return;
@@ -51,7 +51,7 @@ public class MonsterInteractionHandler
 
         MonsterState pokeState = GetRandomPokeState();
         _controller.StateMachine?.ChangeState(pokeState);
-        _controller.SetLastTimePokedTimer (DateTime.UtcNow.ToString("o"));
+        _controller.SetLastTimePokedTimer(DateTime.UtcNow.ToString("o"));
 
         if (_hasBeenInteractedWith)
         {
@@ -65,7 +65,7 @@ public class MonsterInteractionHandler
             _pokeCooldownTimer = 3f; //temp cooldown for demo purposes
         }
     }
-    
+
     private void HandleMonsterInfo()
     {
         _controller.UI.ShowMonsterInfo();
@@ -103,10 +103,10 @@ public class MonsterInteractionHandler
 
         return selectedState;
     }
-    
+
     public void UpdateTimers(float deltaTime)
     {
-        if (_pokeCooldownTimer > 0f) 
+        if (_pokeCooldownTimer > 0f)
         {
             _pokeCooldownTimer -= deltaTime;
             if (_pokeCooldownTimer <= 0f)
@@ -115,16 +115,16 @@ public class MonsterInteractionHandler
             }
         }
     }
-    
+
     public void UpdateOutsideInteraction()
     {
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
-           _controller.UI.HideMonsterInfo();
+            _controller.UI.HideMonsterInfo();
         }
     }
 
-    
+
     private IEnumerator DelayedEvolutionTrigger()
     {
         yield return new WaitForSeconds(0.5f);
@@ -134,6 +134,8 @@ public class MonsterInteractionHandler
     public void OnPointerEnter(PointerEventData e)
     {
         if (_controller.EvolutionHandler.IsEvolving) return;
+
+        if (_controller.InteractionsDisabledByTutorial) return;
 
         if (!_isNPC)
         {
@@ -150,6 +152,8 @@ public class MonsterInteractionHandler
     {
         if (_controller.EvolutionHandler.IsEvolving) return;
 
+        if (_controller.InteractionsDisabledByTutorial) return;
+
         if (!_isNPC)
         {
             _controller.SetHovered(false);
@@ -160,10 +164,14 @@ public class MonsterInteractionHandler
             return;
         }
     }
-    
+
     public void OnPointerClick(PointerEventData e)
     {
         if (_controller.EvolutionHandler.IsEvolving) return;
+
+        // Saat tutorial sederhana aktif, interaksi normal (poke, info, dll)
+        // dimatikan supaya klik hanya dipakai oleh sistem tutorial.
+        if (_controller.InteractionsDisabledByTutorial) return;
 
         if (!_isNPC)
         {

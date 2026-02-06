@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
-
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource uiSource;
@@ -51,6 +50,7 @@ public class AudioManager : MonoBehaviour
         InitializeSFXPool();
         InitializeSFXDictionary();
         AssignOutputsToMixerGroups();
+        
     }
 
     private void OnEnable()
@@ -293,6 +293,10 @@ public class AudioManager : MonoBehaviour
             // hotel ambiance night is at index 13
             PlayFarmSFX(13, ambianceVolume, true);
         }
+    }
+
+    public void PlaySFXClip (AudioClip clip) { // HotelEggsCollectionMenu.cs
+        PlaySFX(clip);
     }
 
     public void StopAllSFX()

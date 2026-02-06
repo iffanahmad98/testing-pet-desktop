@@ -76,7 +76,11 @@ public partial class UIManager
         shopButtons.catalogueShopButton?.onClick.AddListener(() => FadePanel(panels.CataloguePanel, panels.CatalogueCanvasGroup, true));
 
         buttons.closeSettingsButton?.onClick.AddListener(() => FadePanel(panels.SettingPanel, panels.SettingCanvasGroup, false));
-        buttons.closeShopButton?.onClick.AddListener(() => FadePanel(panels.ShopPanel, panels.ShopCanvasGroup, false));
+        buttons.closeShopButton?.onClick.AddListener(() =>
+        {
+            FadePanel(panels.ShopPanel, panels.ShopCanvasGroup, false);
+            GroundMenu();
+        });
         buttons.closeCatalogueButton?.onClick.AddListener(() => FadePanel(panels.CataloguePanel, panels.CatalogueCanvasGroup, false));
     }
 
