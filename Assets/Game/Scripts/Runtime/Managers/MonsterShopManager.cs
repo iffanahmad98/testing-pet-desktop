@@ -236,8 +236,8 @@ public class MonsterShopManager : MonoBehaviour
             return false;
 
         // Reference All Monster Player Have
-        // var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-        var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO ();
+         var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+       // var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO ();
         // value to check if every index of Array/List is Eligible
         int valid = 0;
 
@@ -249,7 +249,7 @@ public class MonsterShopManager : MonoBehaviour
                 int requiredValue = 0;
                 for (int i = 0; i < monsters.Count; i++)
                 {
-                    if (required.monsterType == monsters[i].monType)
+                    if (required.monsterType == monsters[i].MonsterDataSO.monType)
                     {
                         requiredValue++;
                     }
