@@ -12,6 +12,9 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
     public int harvestEggMonsters = 0;
 
     public event Action OnHotelRoomCompletedChanged;
+    public event Action OnHarvestFruitChanged;
+    public event Action OnHarvestEggMonstersChanged;
+
     void Awake () {
         instance = this;
     }
@@ -22,6 +25,12 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
     #region Event
     public void AddHotelRoomCompletedChanged (Action actionValue) {
         OnHotelRoomCompletedChanged += actionValue;
+    }
+    public void AddHarvestFruitChanged (Action actionValue) { // UnlockBubbleUI
+        OnHarvestFruitChanged += actionValue;
+    }
+    public void AddHarvestEggMonstersChanged(Action actionValue) {
+        OnHarvestEggMonstersChanged += actionValue;
     }
     #endregion
     #region Load

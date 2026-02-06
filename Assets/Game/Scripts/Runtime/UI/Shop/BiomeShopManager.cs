@@ -302,8 +302,8 @@ public class BiomeShopManager : MonoBehaviour
             return false;
 
         // Reference All Monster Player Have
-        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-
+        //var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+        var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO ();
         // value to check if every index of Array/List is Eligible
         int valid = 0;
 
@@ -315,7 +315,7 @@ public class BiomeShopManager : MonoBehaviour
                 int requiredValue = 0;
                 for (int i = 0; i < monsters.Count; i++)
                 {
-                    if (required.monsterType == monsters[i].MonsterData.monType)
+                    if (required.monsterType == monsters[i].monType)
                     {
                         requiredValue++;
                     }
@@ -356,7 +356,8 @@ public class BiomeShopManager : MonoBehaviour
     private void ShowBiomeInfo(BiomeDataSO biome)
     {
         biomeNameText.text = biome.biomeName;
-        biomePriceText.text = $"Price: {biome.price}";
+        // biomePriceText.text = $"Price: {biome.price}";
+        biomePriceText.text = $"Price:\t<color=orange>{biome.price}</color>";
         biomeDescText.text = biome.description;
     }
 

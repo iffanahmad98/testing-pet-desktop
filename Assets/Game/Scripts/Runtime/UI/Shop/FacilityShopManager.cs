@@ -194,12 +194,13 @@ public class FacilityShopManager : MonoBehaviour
         facilityNameText.text = facility.name;
 
         // Show "FREE" for toggle facilities, otherwise show price
-        facilityPriceText.text = facility.isFreeToggleFacility ? "Price: FREE" : $"Price: {facility.price}";
-
+        // facilityPriceText.text = facility.isFreeToggleFacility ? "Price: FREE" : $"Price: {facility.price}";
+        facilityPriceText.text = facility.isFreeToggleFacility ? "Price:\t<color=orange>FREE</color>" : $"Price:\t<color=orange>{facility.price}</color>";
         facilityDescText.text = facility.description;
 
         // Don't show cooldown for free toggle facilities
-        facilityCooldownText.text = facility.isFreeToggleFacility ? "" : $"Cooldown: {facility.cooldownSeconds}s";
+       // facilityCooldownText.text = facility.isFreeToggleFacility ? "" : $"Cooldown: {facility.cooldownSeconds}s";
+       facilityCooldownText.text = facility.isFreeToggleFacility ? "" : $"Cooldown:\t<color=orange>{facility.cooldownSeconds}</color>s";
     }
 
     private void OnFacilitySelected(FacilityCardUI card)
@@ -295,8 +296,8 @@ public class FacilityShopManager : MonoBehaviour
         //     return false;
 
         // Reference All Monster Player Have
-        var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-
+        // var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
+        var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO ();
         // value to check if every index of Array/List is Eligible
         int valid = 0;
 
@@ -310,7 +311,7 @@ public class FacilityShopManager : MonoBehaviour
                     int requiredValue = 0;
                     for (int i = 0; i < monsters.Count; i++)
                     {
-                        if (required.monsterType == monsters[i].MonsterData.monType)
+                        if (required.monsterType == monsters[i].monType)
                         {
                             requiredValue++;
                         }
@@ -355,7 +356,7 @@ public class FacilityShopManager : MonoBehaviour
                     int requiredValue = 0;
                     for (int i = 0; i < monsters.Count; i++)
                     {
-                        if (required.monsterType == monsters[i].MonsterData.monType)
+                        if (required.monsterType == monsters[i].monType)
                         {
                             requiredValue++;
                         }
@@ -461,7 +462,8 @@ public class FacilityShopManager : MonoBehaviour
         if (npcData != null)
         {
             facilityNameText.text = npcData.monsterName;
-            facilityPriceText.text = $"Price: {npcData.monsterPrice}";
+           // facilityPriceText.text = $"Price: {npcData.monsterPrice}";
+            facilityPriceText.text = $"Price:\t<color=orange>{npcData.monsterPrice}</color>";
             facilityDescText.text = npcData.description;
             facilityCooldownText.text = "";
         }

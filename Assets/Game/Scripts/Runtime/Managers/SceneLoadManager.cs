@@ -23,5 +23,7 @@ public class SceneLoadManager : MonoBehaviour {
             FarmMainUI.instance.Show ();
             HotelMainUI.instance.Hide ();
         }
+        
+        TooltipManager.Instance.HideInstant ();
     }
 }

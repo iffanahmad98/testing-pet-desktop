@@ -33,7 +33,7 @@ public class HotelFacilitiesDataSO : ScriptableObject {
     [Header ("Eligibility (Hotel Facilities Menu)")]
     public List<EligibilityRuleSO> rules = new();
     public List <HiredEligibility> rulesHiredEligibility = new List <HiredEligibility> ();
-    
+    public RequirementTipDataSO [] requirementTipDataSO;
     #region Eligibility
     public bool IsEligible() // untuk yang tidak ada tingkat
     { // HotelFacilitiesMenu.cs
@@ -71,6 +71,10 @@ public class HotelFacilitiesDataSO : ScriptableObject {
                 return targetRule.minCoin;
         }
         return 0;
+    }
+
+    public RequirementTipDataSO GetRequirementTipData (int target) {
+        return requirementTipDataSO[target];
     }
     #endregion
     

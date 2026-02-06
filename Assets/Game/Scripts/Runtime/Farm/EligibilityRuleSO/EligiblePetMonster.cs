@@ -7,7 +7,7 @@ public class EligiblePetMonster : EligibilityRuleSO
 
     public override bool IsEligible()
     {
-        return  MonsterManager.instance.GetTotalMonstersEqualRequirements (true)>= minPetMonster;
+        return  MonsterManagerEligible.Instance.GetTotalMonstersEqualRequirements (true)>= minPetMonster;
     }
 
     public override string GetFailReason()
