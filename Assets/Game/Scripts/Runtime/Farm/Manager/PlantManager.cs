@@ -538,7 +538,11 @@ namespace MagicalGarden.Farm
         {
              
             string path = Application.persistentDataPath + "/plants.json";
-            if (!System.IO.File.Exists(path)) return;
+            // if (!System.IO.File.Exists(path)) return;
+            if (!System.IO.File.Exists(path)) {
+                SaveToJson ();
+              //  return;
+            }
 
             string json = System.IO.File.ReadAllText(path);
             var wrapper = JsonUtility.FromJson<PlantSaveWrapper>(json);
