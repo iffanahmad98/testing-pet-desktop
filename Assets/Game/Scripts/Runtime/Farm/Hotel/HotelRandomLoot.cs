@@ -238,8 +238,9 @@ public class HotelRandomLoot : MonoBehaviour
     }
 
     void Update () {
+    #if UNITY_EDITOR
         DebugHandler ();
-        
+    #endif    
     }
 
     void GetClickedGameObject (GameObject clickedObject) {

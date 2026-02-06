@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 using MagicalGarden.Manager;
 using MagicalGarden.AI;
-
+using System;
 public class HotelGiftHandler : MonoBehaviour
 {
     public static HotelGiftHandler instance;
@@ -52,12 +52,17 @@ public class HotelGiftHandler : MonoBehaviour
             onceRefresh = true;
             currentText.text = HotelGift.instance.GetCurrency().ToString ();
         }
+
+        try {
         GameObject clone = GameObject.Instantiate(hotelGiftDisplayPrefab);
         clone.SetActive (true);
         clone.transform.SetParent (lootTargetUI.transform.parent);
         clone.GetComponent<HotelLootDisplay> ().OnClearTransitionFinished += PlayLootBounce;
         clone.GetComponent <HotelLootDisplay> ().StartPlay (lootTargetUI.transform); 
         ShowTabLoot ();
+        } catch (Exception exception) {
+            PlayLootBounce ();
+        }
     }
 
     void ShowTabLoot () {
@@ -105,7 +110,7 @@ public class HotelGiftHandler : MonoBehaviour
 
     public (Vector2Int pos, GameObject obj) GetRandomGiftPosition()
     {
-        int idTarget = Random.Range(0, listHotelGift.Count);
+        int idTarget = UnityEngine.Random.Range(0, listHotelGift.Count);
         GameObject chosen = listHotelGift[idTarget].gameObject;
         Vector2Int tilePos = DetectTiles(chosen);
         listHotelGift.Remove (listHotelGift[idTarget]);
@@ -173,7 +178,7 @@ public class HotelGiftHandler : MonoBehaviour
         Vector3Int[] arr = new Vector3Int[tiles.Count];
         tiles.CopyTo(arr);
 
-        Vector3Int randomTile = arr[Random.Range(0, arr.Length)];
+        Vector3Int randomTile = arr[UnityEngine.Random.Range(0, arr.Length)];
         return new Vector2Int(randomTile.x, randomTile.y);
     }
 

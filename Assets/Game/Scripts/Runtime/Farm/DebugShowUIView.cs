@@ -7,9 +7,9 @@ public class NewMonoBehaviourScript : MonoBehaviour
 
     private bool show = false;
 
-    // Update is called once per frame
     void Update()
     {
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.U))
         {
             show = !show;
@@ -19,5 +19,6 @@ public class NewMonoBehaviourScript : MonoBehaviour
                 go.SetActive(show);
             }
         }
+#endif
     }
 }
