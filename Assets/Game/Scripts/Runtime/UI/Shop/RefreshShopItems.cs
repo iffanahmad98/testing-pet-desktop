@@ -1,11 +1,11 @@
 using UnityEngine;
+public enum ShopType
+{
+    MonsterShop, ItemShop, BiomeShop, FacilityShop, DecorationShop
+}
 
 public class RefreshShopItems : MonoBehaviour
 {
-    public enum ShopType
-    {
-        MonsterShop, ItemShop, BiomeShop, FacilityShop, DecorationShop
-    }
     public ShopType shopType;
 
     void Awake()

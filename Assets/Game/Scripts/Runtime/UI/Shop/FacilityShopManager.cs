@@ -1,10 +1,11 @@
+using MagicalGarden.Farm;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using MagicalGarden.Farm;
+using static UnityEditor.PlayerSettings.WSA;
 public class FacilityShopManager : MonoBehaviour
 {
     [Header("UI References")]
@@ -30,7 +31,7 @@ public class FacilityShopManager : MonoBehaviour
 
     private List<FacilityCardUI> activeCards = new List<FacilityCardUI>();
 
-    private WaitForEndOfFrame waitEndOfFrame = new();
+    private readonly WaitForEndOfFrame waitEndOfFrame = new();
 
     private void Awake()
     {
@@ -48,6 +49,8 @@ public class FacilityShopManager : MonoBehaviour
         {
             facilityManager.OnTimeKeeperStateChanged += OnTimeKeeperStateChanged;
         }
+
+        StartCoroutine(InitializeCardPool());
     }
 
     private void OnDestroy()
@@ -56,6 +59,57 @@ public class FacilityShopManager : MonoBehaviour
         if (facilityManager != null)
         {
             facilityManager.OnTimeKeeperStateChanged -= OnTimeKeeperStateChanged;
+        }
+    }
+
+    private IEnumerator InitializeCardPool()
+    {
+        //int initialPoolSize = Mathf.Max(10, decorations?.allDecorations?.Count ?? 10);
+
+        yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
+
+        for (int i = 0; i < facilities.allFacilities.Count; i++)
+        {
+            int temp = i;
+            GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
+            FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
+
+            card.SetupFacility(facilities.allFacilities[temp]);
+            card.OnSelected = OnFacilitySelected;
+            card.OnUseClicked = OnFacilityUse;
+            card.OnBuyClicked = OnFacilityBuy;
+            card.OnCancelClicked = OnFacilityCancel;
+
+            if (SaveSystem.UiSaveData.FacilityShopCards.Count < facilities.allFacilities.Count + npcDatabases.monsters.Count)
+                SaveSystem.UiSaveData.FacilityShopCards.Add(new()
+                {
+                    Id = card.FacilityData.facilityID
+                });
+
+            card.gameObject.SetActive(false);
+            activeCards.Add(card);
+        }
+
+        for (int i = 0; i < npcDatabases.monsters.Count; i++)
+        {
+            int temp = i;
+            GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
+            FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
+
+            card.SetupNPC(npcDatabases.monsters[temp]);
+            card.OnSelected = OnFacilitySelected;
+            card.OnUseClicked = OnFacilityUse;
+            card.OnBuyClicked = OnFacilityBuy;
+            card.OnCancelClicked = OnFacilityCancel;
+
+            if (SaveSystem.UiSaveData.FacilityShopCards.Count < facilities.allFacilities.Count + npcDatabases.monsters.Count)
+                SaveSystem.UiSaveData.FacilityShopCards.Add(new()
+                {
+                    Id = card.npc.id
+                });
+
+            card.gameObject.SetActive(false);
+            activeCards.Add(card);
         }
     }
 
@@ -87,58 +141,14 @@ public class FacilityShopManager : MonoBehaviour
 
     private void WaitRefreshFacilityCards(bool eligibleBuyVfx = false)
     {
-        // Destroy all existing cards
-        foreach (Transform child in cardParent)
+
+        foreach (var card in activeCards)
         {
-            Destroy(child.gameObject);
-        }
+            card.gameObject.SetActive(true);
+            card.UpdateState();
+            bool canBuy = CheckBuyingRequirement(card, card.IsNpc);
+            card.SetGrayscale(!canBuy);
 
-        activeCards.Clear();
-        //selectedCard = null;
-
-        int totalCount = 0;
-
-
-        // NPCs
-        if (npcDatabases != null && npcDatabases.monsters != null)
-        {
-            foreach (var npc in npcDatabases.monsters)
-            {
-                GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
-                FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
-                card.SetupNPC(npc);
-                card.OnSelected = OnNPCSelected;
-                card.OnUseClicked = OnNPCUse;
-                card.OnBuyClicked = OnNPCBuy;
-                card.OnCancelClicked = OnNPCCancel;
-
-                bool canBuy = CheckBuyingRequirement(card, true);
-                card.SetGrayscale(!canBuy);
-
-                activeCards.Add(card);
-                StartCoroutine(card.nSetActiveAnim());
-                totalCount++;
-            }
-        }
-        if (facilities != null && facilities.allFacilities != null)
-        {
-            foreach (var facility in facilities.allFacilities)
-            {
-                GameObject cardObj = Instantiate(facilityCardPrefab, cardParent);
-                FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
-
-                card.SetupFacility(facility);
-                card.OnSelected = OnFacilitySelected;
-                card.OnUseClicked = OnFacilityUse;
-                card.OnBuyClicked = OnFacilityBuy;
-                card.OnCancelClicked = OnFacilityCancel;
-
-                bool canBuy = CheckBuyingRequirement(card, false);
-                card.SetCanBuy(canBuy);
-
-                activeCards.Add(card);
-                totalCount++;
-            }
         }
 
         StartCoroutine(SortByBuyRequirement(eligibleBuyVfx));
@@ -167,8 +177,14 @@ public class FacilityShopManager : MonoBehaviour
 
             yield return waitEndOfFrame; //Wait set dirty UI at the end of frame
 
-            if (eligibleBuyVfx)
+            string idToCheck = currentCard.IsNpc ? currentCard.npc.id : currentCard.FacilityData.facilityID;
+
+            if (!SaveSystem.UiSaveData.GetShopCardData(ShopType.FacilityShop, idToCheck).IsOpened)
+            {
                 ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+
+                SaveSystem.UiSaveData.SetShopCardsOpenState(ShopType.FacilityShop, idToCheck, true);
+            }
         }
 
         if (activeCards[0].FacilityData != null)

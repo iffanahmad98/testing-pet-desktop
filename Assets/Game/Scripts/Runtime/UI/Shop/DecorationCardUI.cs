@@ -26,8 +26,10 @@ public class DecorationCardUI : MonoBehaviour, IPointerClickHandler, IPointerExi
     public Action<DecorationCardUI> OnBuyClicked;
 
     public DecorationDataSO DecorationData { get; private set; }
-    bool isCanBuy = false;
-    public void Setup(DecorationDataSO data)
+
+    public bool IsCanBuy { get; private set; }
+
+public void Setup(DecorationDataSO data)
     {
         DecorationData = data;
         nameText.text = data.decorationName;
@@ -52,9 +54,6 @@ public class DecorationCardUI : MonoBehaviour, IPointerClickHandler, IPointerExi
         applyButton.onClick.AddListener(() => OnApplyClicked?.Invoke(this));
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(() => OnCancelApplied?.Invoke(this));
-
-       
-        
     }
 
     public void UpdateState()
@@ -108,7 +107,7 @@ public class DecorationCardUI : MonoBehaviour, IPointerClickHandler, IPointerExi
     #region Requirement
     public void SetCanBuy (bool value) // MonsterShopManager.cs
     { 
-        isCanBuy = value;
+        IsCanBuy = value;
         SetGrayscale(!value);
     }
 

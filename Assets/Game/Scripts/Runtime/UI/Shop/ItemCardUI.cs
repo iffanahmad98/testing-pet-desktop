@@ -24,7 +24,8 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
 
     public System.Action<ItemCardUI> OnSelected; // Called when select button clicked
     public System.Action<ItemCardUI> OnBuy;      // Called when buy button clicked
-    bool isCanBuy = false;
+    public bool IsCanBuy { get; private set; }
+
     private void Start()
     {
         if (selectButton != null)
@@ -97,7 +98,8 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
 
     #region Requirement
     public void SetCanBuy (bool value) { // MonsterShopManager.cs
-        isCanBuy = value;
+        IsCanBuy = value;
+        SetGrayscale(!value);
     }
 
     public void OnPointerClick(PointerEventData eventData)
