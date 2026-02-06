@@ -23,6 +23,9 @@ public class HotelGiftExchangeMenu : HotelShopMenuBase
    [SerializeField] Sprite openBoxAvailableSprite;
    [SerializeField] Sprite openBoxNotAvailableSprite;
 
+   [Header ("Audio")]
+   public AudioClip exchangeSfx;
+
    [SerializeField] SkeletonGraphic npcSkeletonGrpahic;
    void Start () {
       openBoxButton.onClick.AddListener (OpenBox);
@@ -75,6 +78,7 @@ public class HotelGiftExchangeMenu : HotelShopMenuBase
          rewardAnimator.OpenBox ();
          HotelGift.instance.UsingLoot (1);
          RefreshDisplay ();
+         SfxExchange ();
          NpcThankyou ();
       }
    }
@@ -102,4 +106,10 @@ public class HotelGiftExchangeMenu : HotelShopMenuBase
             npcSkeletonGrpahic.Update(0);
         }
    }
+
+    #region Audio
+   void SfxExchange () {
+      ServiceLocator.Get<AudioManager> ().PlaySFX (exchangeSfx);
+   }
+   #endregion
 }

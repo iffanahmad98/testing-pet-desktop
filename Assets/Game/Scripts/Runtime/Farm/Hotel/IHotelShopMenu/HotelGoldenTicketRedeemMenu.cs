@@ -41,9 +41,10 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
   [SerializeField] Sprite redeemRed;
   [SerializeField] Button redeemButton;
   Coroutine cnRedeemButton; 
+  [Header ("Audio")]
+   public AudioClip exchangeSfx;
   [Header ("Data")]
-  PlayerConfig playerConfig;
-
+  PlayerConfig playerConfig; 
   public override void ShowMenu () {
         base.ShowMenu ();
         playerConfig = SaveSystem.PlayerConfig;
@@ -225,6 +226,7 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
          RefreshMotionAddInventory (1);
          RefreshMotionPrize ();
          RefreshRedeemColorButton ();
+         SfxExchange ();
       }
       
    }
@@ -245,6 +247,11 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
       return listGoldenTicketCards.FirstOrDefault(gc => gc.clone == cloneTarget);
    }
 
+   #endregion
+    #region Audio
+   void SfxExchange () {
+      ServiceLocator.Get<AudioManager> ().PlaySFX (exchangeSfx);
+   }
    #endregion
    #region Listener
    void OnLoadListener () {
