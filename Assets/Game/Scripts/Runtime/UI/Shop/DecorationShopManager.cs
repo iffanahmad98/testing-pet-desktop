@@ -109,7 +109,7 @@ public class DecorationShopManager : MonoBehaviour
             currentCard.transform.SetSiblingIndex(temp);
 
             // If it's already grayscaled, we know it's not buyable.
-            if (currentCard.grayscaleObj.activeInHierarchy) continue;
+            if (!currentCard.IsCanBuy) continue;
 
             yield return waitEndOfFrame;    //Wait set dirty UI at the end of frame
 

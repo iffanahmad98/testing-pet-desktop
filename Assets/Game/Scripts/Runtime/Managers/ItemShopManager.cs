@@ -110,7 +110,7 @@ public class ItemShopManager : MonoBehaviour
         yield return waitEndOfFrame;
 
         // sort by price
-        activeCards = activeCards.OrderByDescending(c => c.isCanBuy).ThenBy(c => c.itemData.price).ToList();
+        activeCards = activeCards.OrderByDescending(c => c.IsCanBuy).ThenBy(c => c.itemData.price).ToList();
 
         //yield return waitEndOfFrame;
 
@@ -123,7 +123,7 @@ public class ItemShopManager : MonoBehaviour
             currentCard.transform.SetSiblingIndex(temp);
 
             // If it's already grayscaled, we know it's not buyable.
-            if (!currentCard.isCanBuy) continue;
+            if (!currentCard.IsCanBuy) continue;
 
             yield return waitEndOfFrame;
 

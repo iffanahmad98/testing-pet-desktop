@@ -144,7 +144,7 @@ public class BiomeShopManager : MonoBehaviour
             var currentCard = activeCards[temp];
             currentCard.transform.SetSiblingIndex(temp);
 
-            if (currentCard.grayscaleObj.activeInHierarchy) continue;
+            if (!currentCard.IsCanBuy) continue;
             
             yield return waitEndOfFrame; //Wait set dirty UI at the end of frame
 

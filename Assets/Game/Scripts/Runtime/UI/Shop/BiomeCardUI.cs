@@ -26,7 +26,7 @@ public class BiomeCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHand
     public Action<BiomeCardUI> OnBuyClicked;
 
     public BiomeDataSO BiomeData { get; private set; }
-    bool isCanBuy = false;
+    public bool IsCanBuy { get; private set; }
     public void Setup(BiomeDataSO data)
     {
         BiomeData = data;
@@ -105,7 +105,7 @@ public class BiomeCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHand
 
     #region Requirement
     public void SetCanBuy (bool value) { // MonsterShopManager.cs
-        isCanBuy = value;
+        IsCanBuy = value;
         SetGrayscale(!value);
     }
 
