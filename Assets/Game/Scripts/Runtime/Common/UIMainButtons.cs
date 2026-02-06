@@ -18,6 +18,7 @@ public class UIMainButtons
     public Button catalogueButton;
     public Button closeCatalogueButton;
     public Button mainInventoryButton;
+    public Button creditsButton;
 
     public Button tutorialnext;
 }

@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 [Serializable]
 public class UIPanels
@@ -19,5 +18,8 @@ public class UIPanels
 
     [Header("Inventory Panel")] public GameObject InventoryPanel;
     public CanvasGroup InventoryCanvasGroup;
+
+    [Header("Credits Panel")] public GameObject CreditsPanel;
+    public CanvasGroup CreditsCanvasGroup;
 }
 
