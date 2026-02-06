@@ -249,7 +249,7 @@ public class MonsterShopManager : MonoBehaviour
                 int requiredValue = 0;
                 for (int i = 0; i < monsters.Count; i++)
                 {
-                    if (required.monsterType == monsters[i].MonsterDataSO.monType)
+                    if (required.monsterType == monsters[i].MonsterData.monType)
                     {
                         requiredValue++;
                     }
