@@ -222,7 +222,7 @@ public class HotelRandomLoot : MonoBehaviour
             ShowLootAreas ();
         }
 
-        hotelRandomLootObjects[0].currentText.text = SaveSystem.PlayerConfig.goldenTicket.ToString ();
+//        hotelRandomLootObjects[0].currentText.text = SaveSystem.PlayerConfig.goldenTicket.ToString ();
      //   hotelRandomLootObjects[1].currentText.text = SaveSystem.PlayerConfig.normalEgg.ToString ();
       //  hotelRandomLootObjects[2].currentText.text = SaveSystem.PlayerConfig.rareEgg.ToString ();
       // 1 & 2 digabung :
@@ -232,7 +232,7 @@ public class HotelRandomLoot : MonoBehaviour
         dictionaryHotelRandomLootConfig.Add (LootType.GoldenTicket, hotelRandomLootConfigs [0]);
         dictionaryHotelRandomLootConfig.Add (LootType.NormalEgg, hotelRandomLootConfigs [1]);
         dictionaryHotelRandomLootConfig.Add (LootType.RareEgg, hotelRandomLootConfigs [2]);
-
+        Debug.Log ("Add Loot Type");
         debugGenerateDirectly.onClick.AddListener (GenerateDirectly);
         DebugTimeController.instance.AddDebuggingEvent (DebugTimeControllerAutoGenerateLoot);
     }
