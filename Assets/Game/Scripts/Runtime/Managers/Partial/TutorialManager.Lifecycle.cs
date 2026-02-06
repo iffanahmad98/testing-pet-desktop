@@ -87,6 +87,14 @@ public partial class TutorialManager
 
     private bool ShouldRunStepTutorialOnStart()
     {
+        // If tutorials have been globally skipped, never run step-based
+        // tutorials again regardless of local playerPrefsKeyPrefix.
+        if (PlayerPrefs.GetInt("tutorial_all_steps_skipped_global", 0) == 1)
+        {
+            Debug.Log("TutorialManager: global step-tutorial skip flag is set, skip auto-start.");
+            return false;
+        }
+
         if (!HasAnyPending())
         {
             Debug.Log("TutorialManager: semua tutorial sudah selesai, skip auto-start.");
@@ -187,6 +195,8 @@ public partial class TutorialManager
         {
             _progressStore.MarkCompleted(i);
         }
+        PlayerPrefs.SetInt("tutorial_all_steps_skipped_global", 1);
+        PlayerPrefs.Save();
 
         HideAllTutorialPanels();
 

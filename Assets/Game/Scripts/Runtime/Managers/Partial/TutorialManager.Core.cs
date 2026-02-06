@@ -66,6 +66,7 @@ public partial class TutorialManager
     private bool _isSubscribedToMonsterPoopClean;
 
     private string SimpleTutorialCompletedKey => playerPrefsKeyPrefix + "simple_completed";
+    private const string GlobalSimpleTutorialCompletedKey = "tutorial_simple_completed_global";
     private string TutorialItemsGrantedKey => playerPrefsKeyPrefix + "items_granted";
 
     private void OnEnable()
@@ -175,12 +176,19 @@ public partial class TutorialManager
 
     private bool IsSimpleTutorialAlreadyCompleted()
     {
-        return PlayerPrefs.GetInt(SimpleTutorialCompletedKey, 0) == 1;
+        // Check both the instance-specific key (with prefix) and a
+        // global key so that once the simple tutorial is completed
+        // or skipped in any scene, it doesn't re-run elsewhere.
+        if (PlayerPrefs.GetInt(SimpleTutorialCompletedKey, 0) == 1)
+            return true;
+
+        return PlayerPrefs.GetInt(GlobalSimpleTutorialCompletedKey, 0) == 1;
     }
 
     private void MarkSimpleTutorialCompleted()
     {
         PlayerPrefs.SetInt(SimpleTutorialCompletedKey, 1);
+        PlayerPrefs.SetInt(GlobalSimpleTutorialCompletedKey, 1);
         PlayerPrefs.Save();
     }
 
