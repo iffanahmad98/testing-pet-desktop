@@ -12,6 +12,11 @@ public partial class TutorialManager
         CacheUIButtonsFromUIManager();
 
         HideAllTutorialPanels();
+        if (skipTutorialButton != null)
+        {
+            skipTutorialButton.onClick.RemoveListener(SkipAllTutorials);
+            skipTutorialButton.onClick.AddListener(SkipAllTutorials);
+        }
 
         for (int i = 0; i < tutorialSteps.Count; i++)
         {
