@@ -11,8 +11,9 @@ public class TooltipTriggerWorld : MonoBehaviour
 
     void OnMouseEnter()
     {
+        Debug.LogError ("Mouse Trigger");
         if (!enabled) return;   // guard tambahan
-        Debug.Log ("Mouse Trigger");
+        
         if (tooltipData == null) return;
         if (!gameObject.activeInHierarchy) return;
 
