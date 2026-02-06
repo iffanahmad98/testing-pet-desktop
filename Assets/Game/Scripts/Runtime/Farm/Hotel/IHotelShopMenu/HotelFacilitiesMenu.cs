@@ -43,6 +43,9 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
     public Dictionary <string, int> dictionaryHiredMaxFacility = new Dictionary <string, int> ();
     public Dictionary <string, int> dictionaryCurrentFacility = new Dictionary <string, int> ();
     
+    [Header ("Audio")]
+   public AudioClip hireSfx;
+
     public enum HotelFacilitiesType {
         Single, Multiple    
     }
@@ -265,7 +268,7 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
 
             SaveSystem.PlayerConfig.AddHotelFacilityData(data.id);
             SaveSystem.SaveAll();
-
+            SfxHire ();
             SkeletonGraphic skeletonGraphic =
                 podiumCard.cloneAI.GetComponent<SkeletonGraphic>();
 
@@ -294,8 +297,8 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
         SaveSystem.SaveAll ();
 
         // Hire autopals is at index 23
-        MonsterManager.instance.audio.PlayFarmSFX(23);
-        
+       //  MonsterManager.instance.audio.PlayFarmSFX(23);
+        SfxHire ();
         /*
         var state = podiumCard.baseEntityAI.skeleton.AnimationState;
         // play jump sekali
@@ -454,6 +457,11 @@ public class HotelFacilitiesMenu : HotelShopMenuBase {
             }
     }
     #endregion
+     #region Audio
+   void SfxHire () {
+      ServiceLocator.Get<AudioManager> ().PlaySFX (hireSfx);
+   }
+   #endregion
     #region Handler
     void LoadAllDatas () {
         ownedHotelFacilitiesData = SaveSystem.PlayerConfig.ownedHotelFacilitiesData;

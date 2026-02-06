@@ -14,7 +14,7 @@ public class HotelMenuEggCard {
    public Toggle cardToggle;
    public Image selectedCard;
    public TMP_Text remainText;
-   
+
    [HideInInspector] public int remain;
 
    public void RefreshRemain () {
@@ -73,7 +73,11 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
    [SerializeField] Sprite openEggAvailable, openEggNotAvailable;
    [SerializeField] Image hotelShopBlocker;
    [SerializeField] SkeletonGraphic npcSkeletonGrpahic;
+
    bool listenerLoaded = false;
+   [Header ("Audio")]
+   public AudioClip openEggClip;
+   
 
    public override void ShowMenu () {
         base.ShowMenu ();
@@ -120,6 +124,7 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
          selectedHotelMenuEgg.UsingEgg ();
          RefreshDisplay ();
          hotelShopBlocker.gameObject.SetActive (true);
+         SfxCrackEgg ();
          NpcThankyou ();
       }
    }
@@ -149,4 +154,9 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
         }
    }
 
+   #region Audio
+   void SfxCrackEgg () {
+      ServiceLocator.Get<AudioManager> ().PlaySFX (openEggClip);
+   }
+   #endregion
 }
