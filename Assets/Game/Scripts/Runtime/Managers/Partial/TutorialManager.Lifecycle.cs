@@ -182,51 +182,47 @@ public partial class TutorialManager
 
     public void SkipAllTutorials()
     {
-        if (!IsSimpleMode)
+        EnsureProgressStore();
+        for (int i = 0; i < tutorialSteps.Count; i++)
         {
-            EnsureProgressStore();
-
-            for (int i = 0; i < tutorialSteps.Count; i++)
-            {
-                _progressStore.MarkCompleted(i);
-            }
-            HideAllTutorialPanels();
-
-            if (_activeDialogView != null)
-            {
-                var dialogGo = (_activeDialogView as MonoBehaviour)?.gameObject;
-                if (dialogGo != null)
-                {
-                    UnityEngine.Object.Destroy(dialogGo);
-                }
-            }
-
-            _activeDialogView = null;
-            _activeDialogStep = null;
-            _activeDialogIndex = 0;
-            _currentStepIndex = -1;
+            _progressStore.MarkCompleted(i);
         }
-        else
+
+        HideAllTutorialPanels();
+
+        if (_activeDialogView != null)
         {
-            if (simpleTutorialPanels != null)
+            var dialogGo = (_activeDialogView as MonoBehaviour)?.gameObject;
+            if (dialogGo != null)
             {
-                for (int i = 0; i < simpleTutorialPanels.Count; i++)
-                {
-                    var step = simpleTutorialPanels[i];
-                    if (step != null && step.panelRoot != null)
-                        step.panelRoot.SetActive(false);
-                }
+                UnityEngine.Object.Destroy(dialogGo);
             }
-
-            _simplePanelIndex = -1;
-
-            if (_tutorialMonsterController != null)
-            {
-                _tutorialMonsterController.SetInteractionsDisabledByTutorial(false);
-            }
-
-            MarkSimpleTutorialCompleted();
         }
+
+        _activeDialogView = null;
+        _activeDialogStep = null;
+        _activeDialogIndex = 0;
+        _currentStepIndex = -1;
+
+        if (simpleTutorialPanels != null)
+        {
+            for (int i = 0; i < simpleTutorialPanels.Count; i++)
+            {
+                var step = simpleTutorialPanels[i];
+                if (step != null && step.panelRoot != null)
+                    step.panelRoot.SetActive(false);
+            }
+        }
+
+        _simplePanelIndex = -1;
+
+        if (_tutorialMonsterController != null)
+        {
+            _tutorialMonsterController.SetInteractionsDisabledByTutorial(false);
+        }
+
+        // Persist the "simple tutorial completed" PlayerPrefs flag as well
+        MarkSimpleTutorialCompleted();
 
         RestoreUIManagerButtonsInteractable();
         gameObject.SetActive(false);
