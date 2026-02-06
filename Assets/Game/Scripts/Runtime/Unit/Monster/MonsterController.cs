@@ -119,6 +119,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     private float _depthSortThreshold = 20f;
     private float _lastTargetChangeTime = 0f;
     private const float TARGET_CHANGE_COOLDOWN = 3f;
+    private bool _movementFrozenByTutorial = false;
 
     #endregion
 
@@ -267,6 +268,18 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         HandleMovement();
     }
 
+    public void SetMovementFrozenByTutorial(bool frozen)
+    {
+        _movementFrozenByTutorial = frozen;
+
+        if (frozen)
+        {
+            // Paksa ke Idle supaya animasi jalan/terbang berhenti.
+            _stateMachine?.ChangeState(MonsterState.Idle);
+            SetFallingStarsState(false);
+        }
+    }
+
     private void OnEnable()
     {
         SubscribeToEvents();
@@ -360,6 +373,13 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     private void HandleMovement()
     {
+        if (_movementFrozenByTutorial)
+        {
+            // Saat dibekukan oleh tutorial, jangan proses movement sama sekali.
+            SetFallingStarsState(false);
+            return;
+        }
+
         // Early return for NPCs - they should use simplified movement
         if (isNPC)
         {
