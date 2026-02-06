@@ -51,6 +51,8 @@ public class MonsterManager : MonoBehaviour
     public List<CoinController> activeCoins = new List<CoinController>();
     public List<PoopController> activePoops = new List<PoopController>();
     public List<FoodController> activeFoods = new List<FoodController>();
+
+    public event System.Action<FoodController> OnFoodSpawned;
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     public List<Transform> pumpkinObjects = new List<Transform>(); // Pumpkin objects for sorting
     public List<Transform> listDecorations = new List<Transform>();
@@ -72,8 +74,8 @@ public class MonsterManager : MonoBehaviour
 
     public MonsterController sickMonster;
 
-    [Header ("MonsterManagerEligible")]
-    List <MonsterDataSO> listPurchasedMonsterDataSO = new ();
+    [Header("MonsterManagerEligible")]
+    List<MonsterDataSO> listPurchasedMonsterDataSO = new();
     private void Awake()
     {
         instance = this;
@@ -172,7 +174,7 @@ public class MonsterManager : MonoBehaviour
         GameObject monster = CreateMonster(monsterData);
         var controller = monster.GetComponent<MonsterController>();
 
-        Debug.Log ("Spawn Monster 1");
+        Debug.Log("Spawn Monster 1");
         controller.monsterID = data.instanceId;
         controller.SetLastTimePokedTimer(data.lastPokedTimer);
         var (_, evolutionLevel) = GetMonsterDataAndLevelFromID(data.instanceId);
@@ -208,7 +210,7 @@ public class MonsterManager : MonoBehaviour
             Debug.Log("Change Pivot to (0.5,0.0f)");
             monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
-        AddListMonsterManagerEligible (monsterData);
+        AddListMonsterManagerEligible(monsterData);
     }
 
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
@@ -271,7 +273,7 @@ public class MonsterManager : MonoBehaviour
             Debug.Log("Change Pivot to (0.5,0.0f)");
             monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
-        AddListMonsterManagerEligible (monsterData);
+        AddListMonsterManagerEligible(monsterData);
     }
 
     public MonsterController SpawnMonsterAtCenterForTutorial(MonsterDataSO monsterData, Vector2 anchoredPosition)
@@ -542,6 +544,7 @@ public class MonsterManager : MonoBehaviour
                     if (pooled.TryGetComponent<FoodController>(out var foodCtrl) && !activeFoods.Contains(foodCtrl))
                     {
                         activeFoods.Add(foodCtrl);
+                        OnFoodSpawned?.Invoke(foodCtrl);
                     }
                     break;
 
@@ -1075,7 +1078,7 @@ public class MonsterManager : MonoBehaviour
             monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
         }
 
-        
+
     }
 
     public void DespawnNPC(string npcID)
@@ -1118,12 +1121,14 @@ public class MonsterManager : MonoBehaviour
 
     #endregion
     #region MonsterManagerEligible
-    void AddListMonsterManagerEligible (MonsterDataSO monsterData) {
-        Debug.Log ("Add Monster Eligible");
-        listPurchasedMonsterDataSO.Add (monsterData);
+    void AddListMonsterManagerEligible(MonsterDataSO monsterData)
+    {
+        Debug.Log("Add Monster Eligible");
+        listPurchasedMonsterDataSO.Add(monsterData);
     }
 
-    public List <MonsterDataSO> GetListPurchasedMonsterDataSO () {
+    public List<MonsterDataSO> GetListPurchasedMonsterDataSO()
+    {
         return listPurchasedMonsterDataSO;
     }
 

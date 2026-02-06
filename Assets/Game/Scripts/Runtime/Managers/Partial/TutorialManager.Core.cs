@@ -46,6 +46,7 @@ public partial class TutorialManager
     private MonsterController _tutorialMonsterController;
 
     private float _simpleStepShownTime;
+    private int _foodDropCountForCurrentStep;
     private readonly HashSet<Button> _simpleNextButtonsHooked = new();
     private Coroutine _simpleNextDelayRoutine;
 
@@ -58,14 +59,28 @@ public partial class TutorialManager
 
     private bool IsSimpleMode => !useTutorialSteps;
 
+    private string SimpleTutorialCompletedKey => playerPrefsKeyPrefix + "simple_completed";
+
     private void OnEnable()
     {
         CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
+
+        var monsterManager = ServiceLocator.Get<MonsterManager>();
+        if (monsterManager != null)
+        {
+            monsterManager.OnFoodSpawned += OnFoodSpawnedByPlayer;
+        }
     }
 
     private void OnDisable()
     {
         CoinController.OnAnyPlayerCollected -= OnCoinCollectedByPlayer;
+
+        var monsterManager = ServiceLocator.Get<MonsterManager>();
+        if (monsterManager != null)
+        {
+            monsterManager.OnFoodSpawned -= OnFoodSpawnedByPlayer;
+        }
     }
 
     private void EnsureProgressStore()
@@ -74,6 +89,17 @@ public partial class TutorialManager
         {
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
         }
+    }
+
+    private bool IsSimpleTutorialAlreadyCompleted()
+    {
+        return PlayerPrefs.GetInt(SimpleTutorialCompletedKey, 0) == 1;
+    }
+
+    private void MarkSimpleTutorialCompleted()
+    {
+        PlayerPrefs.SetInt(SimpleTutorialCompletedKey, 1);
+        PlayerPrefs.Save();
     }
 
     private void OnCoinCollectedByPlayer(CoinController coin)
@@ -88,7 +114,48 @@ public partial class TutorialManager
             return;
 
         var step = simpleTutorialPanels[_simplePanelIndex];
-        if (step == null || !step.useCoinCollectAsNext)
+        if (step == null)
+            return;
+
+        if (step.useFoodDropAsNext)
+            return;
+
+        if (step.useUIManagerButtonHandPointer)
+            return;
+
+        if (!step.useCoinCollectAsNext)
+            return;
+
+        RequestNextSimplePanel();
+    }
+
+    private void OnFoodSpawnedByPlayer(FoodController food)
+    {
+        if (!IsSimpleMode)
+            return;
+
+        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+            return;
+
+        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+            return;
+
+        var step = simpleTutorialPanels[_simplePanelIndex];
+        if (step == null)
+            return;
+
+        if (!step.useFoodDropAsNext)
+            return;
+
+        _foodDropCountForCurrentStep++;
+
+        int required = step.requiredFoodDropCount <= 0 ? 1 : step.requiredFoodDropCount;
+
+        float delay = step.minFoodDropDelay > 0f ? step.minFoodDropDelay : 5f;
+        if (Time.time - _simpleStepShownTime < delay)
+            return;
+
+        if (_foodDropCountForCurrentStep < required)
             return;
 
         RequestNextSimplePanel();
@@ -160,45 +227,47 @@ public partial class TutorialManager
         var cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
         return RectTransformUtility.RectangleContainsScreenPoint(_tutorialMonsterRect, Input.mousePosition, cam);
     }
-
-    /// <summary>
-    /// Meminta pindah ke simple panel berikutnya dengan jeda sesuai konfigurasi step aktif.
-    /// Dipanggil dari tombol Next atau interaksi klik pet.
-    /// </summary>
     private void RequestNextSimplePanel()
     {
+        if (_isRunningHandPointerSubTutorial)
+            return;
+
         if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
         {
-            ShowNextSimplePanel();
+            if (_simpleNextDelayRoutine != null)
+                return;
+
+            _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(0f));
             return;
         }
 
         if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
         {
-            ShowNextSimplePanel();
+            if (_simpleNextDelayRoutine != null)
+                return;
+
+            _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(0f));
             return;
         }
 
-        // Jika sudah ada timer jalan, abaikan klik tambahan supaya tidak dobel.
         if (_simpleNextDelayRoutine != null)
             return;
 
         var step = simpleTutorialPanels[_simplePanelIndex];
         float delay = step != null ? Mathf.Max(0f, step.nextStepDelay) : 0f;
-
-        if (delay <= 0f)
-        {
-            ShowNextSimplePanel();
-        }
-        else
-        {
-            _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(delay));
-        }
+        _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(delay));
     }
 
     private IEnumerator SimpleNextDelayRoutine(float delay)
     {
-        yield return new WaitForSeconds(delay);
+        if (delay > 0f)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+        else
+        {
+            yield return null;
+        }
         _simpleNextDelayRoutine = null;
         ShowNextSimplePanel();
     }

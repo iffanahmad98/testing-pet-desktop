@@ -26,7 +26,7 @@ namespace MagicalGarden.Manager
         public List<HotelController> hotelControllers = new List<HotelController>();
         public List<GuestStageGroup> guestStageGroup;
         public NPCHotel npcHotel;
-        public List <NPCHotel> listNpcHotelAvailables = new List <NPCHotel> ();
+        public List<NPCHotel> listNpcHotelAvailables = new List<NPCHotel>();
         public bool npcHotelAvailable = false;
 
         [Header("Guest Queue")]
@@ -39,23 +39,23 @@ namespace MagicalGarden.Manager
         [SerializeField] public Transform objectGuestPool;
         private string[] types = { "Fire", "Water", "Earth", "Air", "Plant" };
         public DateTime lastGeneratedDate;
-        public List <Button> listBubbleRequest = new List <Button> ();
+        public List<Button> listBubbleRequest = new List<Button>();
 
         [Header("Debug")]
-       // public int minRequestCount = 5;
-      //  public int maxRequestCount = 7;
+        // public int minRequestCount = 5;
+        //  public int maxRequestCount = 7;
 
-        [Header ("Management")]
-        public List <HotelController> listHotelControllerHasRequest = new List <HotelController> ();
-        public List <HotelController> listHotelControllerHasReward = new List <HotelController> ();
+        [Header("Management")]
+        public List<HotelController> listHotelControllerHasRequest = new List<HotelController>();
+        public List<HotelController> listHotelControllerHasReward = new List<HotelController>();
 
-        [Tooltip ("NPC Service")]
-        public List <NPCService> listNPCService = new List <NPCService> ();
-        
-        [Tooltip ("Data")]
+        [Tooltip("NPC Service")]
+        public List<NPCService> listNPCService = new List<NPCService>();
+
+        [Tooltip("Data")]
         PlayerConfig playerConfig;
         bool firstTimeCheckGenerateQuest = false;
-        bool firstTimeRefresh = false; 
+        bool firstTimeRefresh = false;
         private void Awake()
         {
             if (Instance == null)
@@ -64,15 +64,15 @@ namespace MagicalGarden.Manager
 
         private void Start()
         {
-            playerConfig =  SaveSystem.PlayerConfig;
+            playerConfig = SaveSystem.PlayerConfig;
             FindAllHotelRoom();
             StartCoroutine(InitializeAfterDelay());
         }
 
         IEnumerator InitializeAfterDelay()
         {
-           // yield return new WaitForSeconds(1f);
-           yield return new WaitForSeconds (0.1f);
+            // yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.1f);
             emptyGuest.SetActive(false);
             PlayerPrefs.DeleteAll();
             PlayerPrefs.Save();
@@ -80,13 +80,13 @@ namespace MagicalGarden.Manager
             LoadLastDate();
             LoadGuestRequests();
             CheckGenerateGuestList();
-            LoadAllHotelControllerDatas ();
-            LoadAllPetMonsterHotelDatas ();
-            hotelLocker.StartSystem ();
-            DebugTimeController.instance.AddPreDebuggingEvent (PauseAllHotelControllersTime);
-            DebugTimeController.instance.AddDebuggingEvent (LoadAllHotelControllerDatas);
-            yield return new WaitForSeconds (1.0f);
-            HotelMainUI.instance.RefreshHotelRoom ();
+            LoadAllHotelControllerDatas();
+            LoadAllPetMonsterHotelDatas();
+            hotelLocker.StartSystem();
+            DebugTimeController.instance.AddPreDebuggingEvent(PauseAllHotelControllersTime);
+            DebugTimeController.instance.AddDebuggingEvent(LoadAllHotelControllerDatas);
+            yield return new WaitForSeconds(1.0f);
+            HotelMainUI.instance.RefreshHotelRoom();
         }
         [ContextMenu("Debug: save room hotel")]
         private void testroom()
@@ -112,14 +112,16 @@ namespace MagicalGarden.Manager
         }
 
         // HotelController
-        public GuestStageGroup GetSpecificGuestStagePrefab (string targetName)
+        public GuestStageGroup GetSpecificGuestStagePrefab(string targetName)
         {
-            foreach (GuestStageGroup guest in guestStageGroup) {
-                if (guest.name == targetName) {
+            foreach (GuestStageGroup guest in guestStageGroup)
+            {
+                if (guest.name == targetName)
+                {
                     return guest;
                 }
             }
-            Debug.LogError ("Specific Guest Stage Prefab not found");
+            Debug.LogError("Specific Guest Stage Prefab not found");
             return null;
         }
         GuestRarity GetRandomRarity()
@@ -179,27 +181,29 @@ namespace MagicalGarden.Manager
                 pet.hotelContrRef = hotelController;
                 pet.SetupPetHotel();
 
-                PetMonsterHotelData petMonsterHotelData = new PetMonsterHotelData {
+                PetMonsterHotelData petMonsterHotelData = new PetMonsterHotelData
+                {
                     idHotel = hotelController.idHotel,
                     guestStageGroupName = guest.GuestGroup.name,
                     guestStage = stage
                 };
-                 pet.SetPetMonsterHotelData (petMonsterHotelData);
-                 /*
-                    playerConfig.AddPetMonsterHotelData (petMonsterHotelData);
-                    SaveSystem.SaveAll ();
-                */
+                pet.SetPetMonsterHotelData(petMonsterHotelData);
+                /*
+                   playerConfig.AddPetMonsterHotelData (petMonsterHotelData);
+                   SaveSystem.SaveAll ();
+               */
             }
 
             bool removed = todayGuestRequests.Remove(guest);
             emptyGuest.SetActive(todayGuestRequests.Count == 0);
 
-            playerConfig.RemoveGuestRequestData (guest.guestRequestData);
-            SaveSystem.SaveAll ();
+            playerConfig.RemoveGuestRequestData(guest.guestRequestData);
+            SaveSystem.SaveAll();
         }
 
-        public bool IsCanAssign () { // GuestItem.cs
-           List<HotelController> availableRooms = new List<HotelController>();
+        public bool IsCanAssign()
+        { // GuestItem.cs
+            List<HotelController> availableRooms = new List<HotelController>();
 
             foreach (var room in hotelControllers)
             {
@@ -207,19 +211,20 @@ namespace MagicalGarden.Manager
                     availableRooms.Add(room);
             }
 
-            return availableRooms.Count >0;
+            return availableRooms.Count > 0;
         }
 
-        public void DeclineGuest (GuestRequest guest) { // GuestItem.cs
+        public void DeclineGuest(GuestRequest guest)
+        { // GuestItem.cs
 
             bool removed = todayGuestRequests.Remove(guest);
 
-            playerConfig.RemoveGuestRequestData (guest.guestRequestData);
-            SaveSystem.SaveAll ();
+            playerConfig.RemoveGuestRequestData(guest.guestRequestData);
+            SaveSystem.SaveAll();
 
             emptyGuest.SetActive(todayGuestRequests.Count == 0);
         }
-        
+
         private List<int> GetStageDistribution(int partySize)
         {
             List<int> stages = new List<int>();
@@ -252,64 +257,70 @@ namespace MagicalGarden.Manager
         }
         public void GenerateGuestRequestsForToday(DateTime generateTime, bool freeGenerate, int specificGenerate = 0)
         {
-            
+
             int requestCount = 0;
-            if (freeGenerate) {
-                playerConfig.ClearAllGuestRequestData ();
+            if (freeGenerate)
+            {
+                playerConfig.ClearAllGuestRequestData();
                 todayGuestRequests.Clear();
-                requestCount = UnityEngine.Random.Range(GetTotalHotelControllerAvailable (), GetTotalHotelControllerAvailable () +4);
-                if (requestCount < 5) {
-                    requestCount =5;
+                requestCount = UnityEngine.Random.Range(GetTotalHotelControllerAvailable(), GetTotalHotelControllerAvailable() + 4);
+                if (requestCount < 5)
+                {
+                    requestCount = 5;
                 }
-            } else {
+            }
+            else
+            {
                 requestCount = specificGenerate;
             }
-            
+
 
             for (int i = 0; i < requestCount; i++)
             {
                 string type = types[UnityEngine.Random.Range(0, types.Length)];
                 int party = UnityEngine.Random.Range(1, 5);
                 //int price = UnityEngine.Random.Range(100, 301);
-                
+
                 //random
                 // int days = UnityEngine.Random.Range(2, 6);
                 // int minutes = UnityEngine.Random.Range(0, 60);
                 // TimeSpan stayDuration = new TimeSpan(days, 0, minutes, 0);
-                int day = UnityEngine.Random.Range (1,4);
+                int day = UnityEngine.Random.Range(1, 4);
                 // day =0;
                 TimeSpan stayDuration = new TimeSpan(day, 0, 0, 0); // 3 menit // 0,0,3,0
-                int price = (party * 150) + (day * 400) + UnityEngine.Random.Range (1,100);
+                int price = (party * 150) + (day * 400) + UnityEngine.Random.Range(1, 100);
                 var guestTemp = GetRandomGuestStagePrefab();
 
-                GuestRequestData guestRequestData = new GuestRequestData ();
+                GuestRequestData guestRequestData = new GuestRequestData();
                 guestRequestData.type = type;
                 guestRequestData.party = party;
                 guestRequestData.price = price;
                 guestRequestData.stayDuration = stayDuration;
                 guestRequestData.guestName = guestTemp.name;
-                
-                GuestRequest newRequest = new GuestRequest(guestRequestData, guestTemp.name,guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
+
+                GuestRequest newRequest = new GuestRequest(guestRequestData, guestTemp.name, guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
                 newRequest.GuestGroup = guestTemp;
                 todayGuestRequests.Add(newRequest);
-                 playerConfig.AddGuestRequestData (guestRequestData);
-                                 
+                playerConfig.AddGuestRequestData(guestRequestData);
+
 
             }
             DisplayGuestRequests();
 
-            if (freeGenerate) {
-                playerConfig.SetLastRefreshGenerateGuest (generateTime);
+            if (freeGenerate)
+            {
+                playerConfig.SetLastRefreshGenerateGuest(generateTime);
             }
-            SaveSystem.SaveAll ();
-            
+            SaveSystem.SaveAll();
+
             emptyGuest.SetActive(todayGuestRequests.Count == 0);
             Debug.Log("Generated " + requestCount + " guest requests for this time.");
         }
 
-        public void LoadLastestGuestRequest () {
+        public void LoadLastestGuestRequest()
+        {
             todayGuestRequests.Clear();
-            List <GuestRequestData> listGuestRequestData = playerConfig.GetListGuestRequestData ();
+            List<GuestRequestData> listGuestRequestData = playerConfig.GetListGuestRequestData();
 
             for (int i = 0; i < listGuestRequestData.Count; i++)
             {
@@ -318,14 +329,14 @@ namespace MagicalGarden.Manager
                 string type = guestRequestData.type;
                 int party = guestRequestData.party;
                 int price = guestRequestData.price;
-    
+
                 TimeSpan stayDuration = guestRequestData.stayDuration;
                 var guestTemp = GetSpecificGuestStagePrefab(guestRequestData.guestName);
-                GuestRequest newRequest = new GuestRequest(guestRequestData, guestTemp.name,guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
+                GuestRequest newRequest = new GuestRequest(guestRequestData, guestTemp.name, guestTemp.icon, type, party, price, stayDuration, guestTemp.guestType);
                 newRequest.GuestGroup = guestTemp;
 
                 todayGuestRequests.Add(newRequest);
-                                 
+
             }
             DisplayGuestRequests();
 
@@ -349,7 +360,7 @@ namespace MagicalGarden.Manager
         private void FindAllHotelRoom()
         {
             hotelControllers.Clear();
-            int curId= 0;
+            int curId = 0;
             foreach (Transform child in poolHotelRoom)
             {
                 HotelController controller = child.GetComponent<HotelController>();
@@ -357,7 +368,7 @@ namespace MagicalGarden.Manager
                 {
                     controller.idHotel = curId;
                     hotelControllers.Add(controller);
-                    curId ++;
+                    curId++;
                 }
             }
         }
@@ -365,7 +376,7 @@ namespace MagicalGarden.Manager
         public void CheckGenerateGuestList() // this, HotelReciption (Listener)
         {
             DateTime today = TimeManager.Instance.currentTime;
-            Debug.Log ("Generate hari ini : " + today + playerConfig.lastRefreshGenerateGuest);
+            Debug.Log("Generate hari ini : " + today + playerConfig.lastRefreshGenerateGuest);
             /*
             if (today > lastGeneratedDate.Date || today < lastGeneratedDate.Date)
             {
@@ -381,18 +392,22 @@ namespace MagicalGarden.Manager
                // DisplayGuestRequests();
             }
             */
-            if (FirstTimeCheckGenerateQuest(SaveSystem.PlayerConfig.lastRefreshGenerateGuest)) {
-                playerConfig.SetLastRefreshGenerateGuest (today);
-                SaveSystem.SaveAll ();
+            if (FirstTimeCheckGenerateQuest(SaveSystem.PlayerConfig.lastRefreshGenerateGuest))
+            {
+                playerConfig.SetLastRefreshGenerateGuest(today);
+                SaveSystem.SaveAll();
             }
 
             TimeSpan diffTime = today - playerConfig.lastRefreshGenerateGuest;
             double hours = diffTime.TotalHours;
-            if (hours > 8) {
+            if (hours > 8)
+            {
                 GenerateGuestRequestsForToday(today, true);
-            } else {
-                Debug.Log ("Generate belum expired");
-                LoadLastestGuestRequest ();
+            }
+            else
+            {
+                Debug.Log("Generate belum expired");
+                LoadLastestGuestRequest();
             }
 
         }
@@ -422,7 +437,7 @@ namespace MagicalGarden.Manager
             PlayerPrefs.SetString("GuestRequestList", json);
             PlayerPrefs.Save();
         }
-        
+
         private void LoadGuestRequests()
         {
             if (PlayerPrefs.HasKey("GuestRequestList"))
@@ -523,35 +538,45 @@ namespace MagicalGarden.Manager
         #endregion
         #region NPCHotel
         // NPCHotel
-        public void AddNPCHotelAvailable (NPCHotel npc) {
-            listNpcHotelAvailables.Add (npc);
-            if (listNpcHotelAvailables.Count>0) {
+        public void AddNPCHotelAvailable(NPCHotel npc)
+        {
+            listNpcHotelAvailables.Add(npc);
+            if (listNpcHotelAvailables.Count > 0)
+            {
                 npcHotelAvailable = true;
             }
-            RefreshBubbleRoomService ();
+            RefreshBubbleRoomService();
         }
         // NPCHotel
-        public void RemoveNPCHotelAvailable (NPCHotel npc) {
-            listNpcHotelAvailables.Remove (npc);
-            if (listNpcHotelAvailables.Count==0) {
+        public void RemoveNPCHotelAvailable(NPCHotel npc)
+        {
+            listNpcHotelAvailables.Remove(npc);
+            if (listNpcHotelAvailables.Count == 0)
+            {
                 npcHotelAvailable = false;
             }
-            RefreshBubbleRoomService ();
+            RefreshBubbleRoomService();
         }
 
         // HotelController
-        public bool CheckNPCHotelAvailable () {
+        public bool CheckNPCHotelAvailable()
+        {
             return npcHotelAvailable;
         }
-        
-        void RefreshBubbleRoomService () {
-            if (npcHotelAvailable) {
-                foreach (Button bubble in listBubbleRequest) {
+
+        void RefreshBubbleRoomService()
+        {
+            if (npcHotelAvailable)
+            {
+                foreach (Button bubble in listBubbleRequest)
+                {
                     bubble.interactable = true;
                 }
             }
-            else {
-                foreach (Button bubble in listBubbleRequest) {
+            else
+            {
+                foreach (Button bubble in listBubbleRequest)
+                {
                     bubble.interactable = false;
                 }
             }
@@ -560,177 +585,216 @@ namespace MagicalGarden.Manager
 
         #region HotelController
         // HotelController
-        public void AddBubbleRequest (Button bubbleButton) {
-            listBubbleRequest.Add (bubbleButton);
-            RefreshBubbleRoomService ();
+        public void AddBubbleRequest(Button bubbleButton)
+        {
+            listBubbleRequest.Add(bubbleButton);
+            RefreshBubbleRoomService();
         }
 
         // HotelController
-        public void RemoveBubbleRequest (Button bubbleButton) {
-            listBubbleRequest.Remove (bubbleButton);
-            RefreshBubbleRoomService ();
+        public void RemoveBubbleRequest(Button bubbleButton)
+        {
+            listBubbleRequest.Remove(bubbleButton);
+            RefreshBubbleRoomService();
         }
 
-        public void AddHotelControllerHasRequest (HotelController hotelController) {
-            if (!listHotelControllerHasRequest.Contains (hotelController))
-           // Debug.Log ("Add Hotel Request");
-            listHotelControllerHasRequest.Add (hotelController);
+        public void AddHotelControllerHasRequest(HotelController hotelController)
+        {
+            if (!listHotelControllerHasRequest.Contains(hotelController))
+                // Debug.Log ("Add Hotel Request");
+                listHotelControllerHasRequest.Add(hotelController);
         }
 
-        public void RemoveHotelControllerHasRequest (HotelController hotelController, bool refreshRobo = false) {
-            if (listHotelControllerHasRequest.Contains (hotelController))
-           //  Debug.Log ("Remove Hotel Request");
-            listHotelControllerHasRequest.Remove (hotelController);
-            if (refreshRobo) {
-                RefreshAllMovementRoboShroom (hotelController); // mencegahBug (stuck isServing)
+        public void RemoveHotelControllerHasRequest(HotelController hotelController, bool refreshRobo = false)
+        {
+            if (listHotelControllerHasRequest.Contains(hotelController))
+                //  Debug.Log ("Remove Hotel Request");
+                listHotelControllerHasRequest.Remove(hotelController);
+            if (refreshRobo)
+            {
+                RefreshAllMovementRoboShroom(hotelController); // mencegahBug (stuck isServing)
             }
         }
 
-        public bool IsHasHotelRequest () { // HoteRequestDetector.cs
+        public bool IsHasHotelRequest()
+        { // HoteRequestDetector.cs
             return listHotelControllerHasRequest.Count > 0;
         }
         #region HotelControllerHasReward
-        public void AddListHotelControllerHasReward(HotelController hotelController) {
-            if (!listHotelControllerHasReward.Contains (hotelController))
-           // Debug.Log ("Add Hotel Request");
-            listHotelControllerHasReward.Add (hotelController);
+        public void AddListHotelControllerHasReward(HotelController hotelController)
+        {
+            if (!listHotelControllerHasReward.Contains(hotelController))
+                // Debug.Log ("Add Hotel Request");
+                listHotelControllerHasReward.Add(hotelController);
         }
 
-        public void RemoveListHotelControllerHasReward (HotelController hotelController, bool refreshNPC = false) {
-            if (listHotelControllerHasReward.Contains (hotelController))
-           //  Debug.Log ("Remove Hotel Request");
-            listHotelControllerHasReward.Remove (hotelController);
-            if (refreshNPC) {
-                RefreshAllMovementRoboShroom (hotelController); // mencegahBug (stuck isServing)
+        public void RemoveListHotelControllerHasReward(HotelController hotelController, bool refreshNPC = false)
+        {
+            if (listHotelControllerHasReward.Contains(hotelController))
+                //  Debug.Log ("Remove Hotel Request");
+                listHotelControllerHasReward.Remove(hotelController);
+            if (refreshNPC)
+            {
+                RefreshAllMovementRoboShroom(hotelController); // mencegahBug (stuck isServing)
             }
         }
 
-        public bool IsHasHotelReward () { // NPCBellboyShroom.cs
+        public bool IsHasHotelReward()
+        { // NPCBellboyShroom.cs
             return listHotelControllerHasReward.Count > 0;
         }
 
-        public List <HotelController> GetListHotelControllerHasReward () { // NPCBellboyShroom.cs
+        public List<HotelController> GetListHotelControllerHasReward()
+        { // NPCBellboyShroom.cs
             return listHotelControllerHasReward;
         }
         #endregion
 
-        public void AddGuestRequestAfterCheckOut () { // called at HotelController.cs when their check out.
-            if (todayGuestRequests.Count < 20) {
-                GenerateGuestRequestsForToday (new DateTime (), false,1);
+        public void AddGuestRequestAfterCheckOut()
+        { // called at HotelController.cs when their check out.
+            if (todayGuestRequests.Count < 20)
+            {
+                GenerateGuestRequestsForToday(new DateTime(), false, 1);
             }
         }
 
-        public GameObject GetCleaningVfx () {
+        public GameObject GetCleaningVfx()
+        {
             return cleaningVfx;
         }
 
-        public GameObject GetRayCleaningVfx () {
+        public GameObject GetRayCleaningVfx()
+        {
             return rayCleaningVfx;
         }
         #endregion
 
         #region HotelRequestDetector
-        public HotelController GetRandomHotelRequestDetector () {
-            int target = UnityEngine.Random.Range (0,listHotelControllerHasRequest.Count);
+        public HotelController GetRandomHotelRequestDetector()
+        {
+            int target = UnityEngine.Random.Range(0, listHotelControllerHasRequest.Count);
             HotelController targetHotel = listHotelControllerHasRequest[target];
-            RemoveHotelControllerHasRequest (targetHotel, false);
+            RemoveHotelControllerHasRequest(targetHotel, false);
             return targetHotel;
         }
 
-        public List <HotelController> GetListHotelController () {
+        public List<HotelController> GetListHotelController()
+        {
             return listHotelControllerHasRequest;
         }
 
-        public void RemoveSpecificHotelControllerHasRequest (HotelController hotelController) {
-            RemoveHotelControllerHasRequest (hotelController, true);
-            
+        public void RemoveSpecificHotelControllerHasRequest(HotelController hotelController)
+        {
+            RemoveHotelControllerHasRequest(hotelController, true);
+
         }
         #endregion
 
         #region NPCService
         // NPCService.cs
-        public void AddNPCService (NPCService npc) {
-            listNPCService.Add (npc);
+        public void AddNPCService(NPCService npc)
+        {
+            listNPCService.Add(npc);
         }
 
         // NPCService.cs
-        public void RemoveNPCService (NPCService npc) {
-            listNPCService.Remove (npc);
+        public void RemoveNPCService(NPCService npc)
+        {
+            listNPCService.Remove(npc);
         }
 
-        void RefreshAllMovementRoboShroom (HotelController hotelController) {
-            foreach (NPCService npc in listNPCService) {
-                npc.ResetMovementHotel (hotelController);    
+        void RefreshAllMovementRoboShroom(HotelController hotelController)
+        {
+            foreach (NPCService npc in listNPCService)
+            {
+                npc.ResetMovementHotel(hotelController);
             }
         }
 
-        
+
         #endregion
 
         #region Data
-        void LoadAllHotelControllerDatas () {
-            if (!firstTimeRefresh) {
+        void LoadAllHotelControllerDatas()
+        {
+            if (!firstTimeRefresh)
+            {
                 firstTimeRefresh = true;
-                playerConfig.SetLastRefreshTimeHotel (TimeManager.Instance.currentTime);
-            } else {
-                playerConfig.SetLastRefreshTimeHotel (TimeManager.Instance.currentTime);
-                SaveSystem.SaveAll ();
-                
+                playerConfig.SetLastRefreshTimeHotel(TimeManager.Instance.currentTime);
             }
-            StartCoroutine (nLoadHotelControllerDatasDebug ());
+            else
+            {
+                playerConfig.SetLastRefreshTimeHotel(TimeManager.Instance.currentTime);
+                SaveSystem.SaveAll();
+
+            }
+            StartCoroutine(nLoadHotelControllerDatasDebug());
         }
 
-        
 
-        void LoadAllPetMonsterHotelDatas () {
-             List <PetMonsterHotelData> listPetMonsterHotel = new List <PetMonsterHotelData> ();
-            listPetMonsterHotel = playerConfig.GetListPetMonsterHotelData ();
-            foreach (PetMonsterHotelData data in listPetMonsterHotel) {
-                
-                var prefab = GetSpecificGuestStagePrefab (data.guestStageGroupName).GetPrefabByStage(data.guestStage);
-                var guestObject = Instantiate(prefab, new Vector3 (0,0,0), Quaternion.identity);
+
+        void LoadAllPetMonsterHotelDatas()
+        {
+            List<PetMonsterHotelData> listPetMonsterHotel = new List<PetMonsterHotelData>();
+            listPetMonsterHotel = playerConfig.GetListPetMonsterHotelData();
+            foreach (PetMonsterHotelData data in listPetMonsterHotel)
+            {
+
+                var prefab = GetSpecificGuestStagePrefab(data.guestStageGroupName).GetPrefabByStage(data.guestStage);
+                var guestObject = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity);
                 var pet = guestObject.GetComponent<PetMonsterHotel>();
-                pet.hotelContrRef = hotelControllers [data.idHotel];
+                pet.hotelContrRef = hotelControllers[data.idHotel];
                 pet.hotelContrRef.AddPet(pet);
-                pet.LoadData (data);
+                pet.LoadData(data);
             }
-            
+
         }
 
         #endregion
         #region Utility
-        int GetTotalHotelControllerAvailable () {
+        int GetTotalHotelControllerAvailable()
+        {
             int total = 0;
-            foreach (HotelController hotel in hotelControllers) {
-                if (!hotel.IsOccupied) {
+            foreach (HotelController hotel in hotelControllers)
+            {
+                if (!hotel.IsOccupied)
+                {
                     total++;
                 }
             }
             return total;
         }
 
-        public int GetTotalHotelControllerOccupied () { // HotelMainUI.cs
+        public int GetTotalHotelControllerOccupied()
+        { // HotelMainUI.cs
             int total = 0;
-            foreach (HotelController hotel in hotelControllers) {
-                if (hotel.IsOccupied) {
+            foreach (HotelController hotel in hotelControllers)
+            {
+                if (hotel.IsOccupied)
+                {
                     total++;
                 }
             }
             return total;
         }
 
-        public List <HotelController> GetHotelControllers () { // HotelLocker.cs
+        public List<HotelController> GetHotelControllers()
+        { // HotelLocker.cs
             return hotelControllers;
         }
         #endregion
 
         #region Debug Only (IsTimeInFuture)
-        
-        bool FirstTimeCheckGenerateQuest (DateTime dateTime) {
-            if (!firstTimeCheckGenerateQuest) {
+
+        bool FirstTimeCheckGenerateQuest(DateTime dateTime)
+        {
+            if (!firstTimeCheckGenerateQuest)
+            {
                 firstTimeCheckGenerateQuest = true;
                 return TimeManager.Instance.IsTimeInFuture(dateTime);
-            } else {
+            }
+            else
+            {
                 return false;
             }
         }
@@ -746,64 +810,72 @@ namespace MagicalGarden.Manager
             }
         }   
         */
-        IEnumerator nLoadHotelControllerDatasDebug ()
+        IEnumerator nLoadHotelControllerDatasDebug()
         {
             yield return null;
-            
-            
+
+
 
             List<HotelControllerData> listHotelControllerData =
                 playerConfig.GetListHotelControllerData();
 
             // Increase Happiness System
-            TimeSpan diff = TimeManager.Instance.currentTime 
+            TimeSpan diff = TimeManager.Instance.currentTime
                             - SaveSystem.PlayerConfig.lastRefreshTimeHotel;
 
             double hours = diff.TotalHours;
 
-           
+
             int cycles = (int)(hours / 1.0); // 1 cycle setiap 1 jam
-            if (cycles > 0) {
-                 int totalNPCService = playerConfig.GetTotalHiredServiceWithNpcServiceFeatures ();
+            if (cycles > 0)
+            {
+                int totalNPCService = playerConfig.GetTotalHiredServiceWithNpcServiceFeatures();
                 int totalHotelCanHandled = totalNPCService * 3;
-                for (int c = 0; c < cycles; c++) {
+                for (int c = 0; c < cycles; c++)
+                {
                     //-- Memasukan element
-                    List <int> cloneRandomListHotelControllerData = new List <int> ();
-                    for (int x = 0; x < listHotelControllerData.Count; x++) {
-                        cloneRandomListHotelControllerData.Add (x);
+                    List<int> cloneRandomListHotelControllerData = new List<int>();
+                    for (int x = 0; x < listHotelControllerData.Count; x++)
+                    {
+                        cloneRandomListHotelControllerData.Add(x);
                     }
 
-                    for (int i = 0; i < totalHotelCanHandled; i++) {
-                        if (cloneRandomListHotelControllerData.Count > 0) {
-                            int targetHotel = cloneRandomListHotelControllerData[UnityEngine.Random.Range (0,cloneRandomListHotelControllerData.Count)];
-                            hotelControllers [targetHotel].ChangeHappinessOffline (true);
-                            cloneRandomListHotelControllerData.Remove (targetHotel);
+                    for (int i = 0; i < totalHotelCanHandled; i++)
+                    {
+                        if (cloneRandomListHotelControllerData.Count > 0)
+                        {
+                            int targetHotel = cloneRandomListHotelControllerData[UnityEngine.Random.Range(0, cloneRandomListHotelControllerData.Count)];
+                            hotelControllers[targetHotel].ChangeHappinessOffline(true);
+                            cloneRandomListHotelControllerData.Remove(targetHotel);
                         }
                     }
-                    for (int j=0; j < cloneRandomListHotelControllerData.Count; j++) {
+                    for (int j = 0; j < cloneRandomListHotelControllerData.Count; j++)
+                    {
                         int targetHotel = cloneRandomListHotelControllerData[j];
-                        hotelControllers [targetHotel].ChangeHappinessOffline (false);
+                        hotelControllers[targetHotel].ChangeHappinessOffline(false);
                     }
                 }
             }
             // Load Data
             for (int i = listHotelControllerData.Count - 1; i >= 0; i--)
             {
-                hotelControllers [listHotelControllerData[i].idHotel].LoadData (listHotelControllerData[i]);
+                hotelControllers[listHotelControllerData[i].idHotel].LoadData(listHotelControllerData[i]);
             }
 
-          //  SaveSystem.SaveAll ();
+            //  SaveSystem.SaveAll ();
 
         }
 
-        public void PauseAllHotelControllersTime () {
-            foreach (HotelController hotel in hotelControllers) {
-                hotel.SetTimePaused (true);
+        public void PauseAllHotelControllersTime()
+        {
+            foreach (HotelController hotel in hotelControllers)
+            {
+                hotel.SetTimePaused(true);
             }
         }
         #endregion
 
-        
+
     }
 
     [Serializable]
@@ -858,6 +930,6 @@ namespace MagicalGarden.Manager
             return guestType == GuestRarity.Rare || guestType == GuestRarity.Mythic || guestType == GuestRarity.Legend;
         }
     }
-    
+
 }
 

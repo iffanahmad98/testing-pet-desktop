@@ -11,16 +11,28 @@ public class SimpleTutorialPanelStep
     public int nextButtonIndex = -1;
     public float nextStepDelay = 0f;
 
+    [Header("Timing")]
+    public float minNextClickDelay = 0f;
+
     [Header("Interaction")]
     public bool useLeftClickPetAsNext;
     public bool useRightClickPetAsNext;
     public bool useCoinCollectAsNext;
+
+    public bool useFoodDropAsNext;
+
+    public int requiredFoodDropCount = 1;
 
     [Header("Pointer")]
     public bool usePointer;
     public bool useTutorialMonsterAsPointerTarget;
     public bool useNextButtonAsPointerTarget;
     public Vector2 pointerOffset;
+
+    [Header("UI Hand Pointer")]
+    public bool useUIManagerButtonHandPointer;
+
+    public HandPointerTutorialSequenceSO handPointerSequence;
 
     [Header("Mouse Hint")]
     public bool showRightClickMouseHint;
@@ -29,4 +41,14 @@ public class SimpleTutorialPanelStep
     [Header("Monster")]
     public bool freezeTutorialMonsterMovement;
     public bool makeTutorialMonsterHungry;
+
+    [Range(0f, 100f)]
+    public float hungryReduceAmount = 50f;
+    public bool dropPoopOnStepStart;
+
+    [Header("Monster Info")]
+    public bool showMonsterInfoOnStepStart;
+
+    [Header("Food Drop Timing")]
+    public float minFoodDropDelay = 5f;
 }

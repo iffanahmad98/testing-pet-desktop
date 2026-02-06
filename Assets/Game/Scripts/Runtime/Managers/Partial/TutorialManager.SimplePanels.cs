@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using static CoinType;
 
 public partial class TutorialManager
 {
@@ -21,6 +22,7 @@ public partial class TutorialManager
         {
             UpdatePointerForSimpleStep(step);
         }
+        UpdateSimpleStepNextButtonsInteractable();
     }
 
     public void RefreshCurrentSimplePointer()
@@ -44,6 +46,12 @@ public partial class TutorialManager
             Debug.LogWarning("TutorialManager: simpleTutorialPanels kosong, tidak ada tutorial sederhana yang ditampilkan.");
             return;
         }
+
+        if (_tutorialMonsterController != null)
+        {
+            _tutorialMonsterController.SetInteractionsDisabledByTutorial(true);
+        }
+
         for (int i = 0; i < simpleTutorialPanels.Count; i++)
         {
             var step = simpleTutorialPanels[i];
@@ -71,13 +79,25 @@ public partial class TutorialManager
             PlaySimplePanelShowAnimation(firstStep.panelRoot);
             UpdatePointerForSimpleStep(firstStep);
             _simpleStepShownTime = Time.time;
+            _foodDropCountForCurrentStep = 0;
 
             UpdateRightClickMouseHintForSimpleStep(firstStep);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
 
             UpdateTutorialMonsterMovementForSimpleStep(firstStep);
 
-            UpdateSimpleStepNextButtonsInteractable();
+            ApplyTutorialMonsterPoopForSimpleStep(firstStep);
+
+            ShowMonsterInfoForSimpleStep(firstStep);
+
+            if (firstStep.handPointerSequence != null)
+            {
+                StartHandPointerSubTutorial(firstStep);
+            }
+            else
+            {
+                UpdateSimpleStepNextButtonsInteractable();
+            }
         }
     }
 
@@ -102,7 +122,6 @@ public partial class TutorialManager
                 currentStep.panelRoot.SetActive(false);
             HideRightClickMouseHint();
 
-            // Saat meninggalkan step ini, lepas efek freeze movement kalau ada.
             UpdateTutorialMonsterMovementForSimpleStep(null);
         }
 
@@ -110,8 +129,14 @@ public partial class TutorialManager
 
         if (_simplePanelIndex >= simpleTutorialPanels.Count)
         {
+            MarkSimpleTutorialCompleted();
+
             HidePointerIfAny();
             RestoreUIManagerButtonsInteractable();
+            if (_tutorialMonsterController != null)
+            {
+                _tutorialMonsterController.SetInteractionsDisabledByTutorial(false);
+            }
             gameObject.SetActive(false);
             return;
         }
@@ -122,14 +147,24 @@ public partial class TutorialManager
             PlaySimplePanelShowAnimation(nextStep.panelRoot);
             UpdatePointerForSimpleStep(nextStep);
             _simpleStepShownTime = Time.time;
+            _foodDropCountForCurrentStep = 0;
 
             UpdateRightClickMouseHintForSimpleStep(nextStep);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
 
             UpdateTutorialMonsterMovementForSimpleStep(nextStep);
             ApplyTutorialMonsterHungerForSimpleStep(nextStep);
+            ApplyTutorialMonsterPoopForSimpleStep(nextStep);
+            ShowMonsterInfoForSimpleStep(nextStep);
 
-            UpdateSimpleStepNextButtonsInteractable();
+            if (nextStep.handPointerSequence != null)
+            {
+                StartHandPointerSubTutorial(nextStep);
+            }
+            else
+            {
+                UpdateSimpleStepNextButtonsInteractable();
+            }
         }
     }
 
@@ -150,7 +185,31 @@ public partial class TutorialManager
         if (!step.makeTutorialMonsterHungry)
             return;
 
-        _tutorialMonsterController.SetHunger(20f);
+        float currentHunger = _tutorialMonsterController.StatsHandler?.CurrentHunger ?? 100f;
+        float newHunger = currentHunger - step.hungryReduceAmount;
+        _tutorialMonsterController.SetHunger(newHunger);
+    }
+
+    private void ApplyTutorialMonsterPoopForSimpleStep(SimpleTutorialPanelStep step)
+    {
+        if (_tutorialMonsterController == null || step == null)
+            return;
+
+        if (!step.dropPoopOnStepStart)
+            return;
+
+        _tutorialMonsterController.DropPoop(PoopType.Normal);
+    }
+
+    private void ShowMonsterInfoForSimpleStep(SimpleTutorialPanelStep step)
+    {
+        if (_tutorialMonsterController == null || step == null)
+            return;
+
+        if (!step.showMonsterInfoOnStepStart)
+            return;
+
+        _tutorialMonsterController.UI?.ShowMonsterInfo();
     }
 
     private void UpdatePointerForSimpleStep(SimpleTutorialPanelStep step)
@@ -159,7 +218,10 @@ public partial class TutorialManager
         if (pointer == null)
             return;
 
-        if (step == null || !step.usePointer)
+        bool wantsUIHand = step != null && step.useUIManagerButtonHandPointer;
+        bool wantsPointer = step != null && (step.usePointer || wantsUIHand);
+
+        if (!wantsPointer)
         {
             pointer.Hide();
             return;
@@ -171,7 +233,7 @@ public partial class TutorialManager
             return;
         }
 
-        if (step.useNextButtonAsPointerTarget)
+        if (step.useNextButtonAsPointerTarget || wantsUIHand)
         {
             var btn = GetSimpleStepNextButton(step);
             if (btn != null)
@@ -275,6 +337,12 @@ public partial class TutorialManager
         if (step == null)
             return;
 
+        if (step.useFoodDropAsNext)
+            return;
+
+        if (step.useUIManagerButtonHandPointer)
+            return;
+
         bool wantsLeft = step.useLeftClickPetAsNext;
         bool wantsRight = step.useRightClickPetAsNext;
         if (!wantsLeft && !wantsRight)
@@ -290,6 +358,10 @@ public partial class TutorialManager
 
         if ((isLeft && wantsLeft) || (isRight && wantsRight))
         {
+            if (_tutorialMonsterController != null)
+            {
+                _tutorialMonsterController.DropCoin(Gold);
+            }
             RequestNextSimplePanel();
         }
     }
@@ -330,6 +402,9 @@ public partial class TutorialManager
         if (currentStep == null)
             return;
 
+        if (currentStep.useFoodDropAsNext)
+            return;
+
         if (currentStep.nextButtonIndex < 0 || currentStep.nextButtonIndex >= _uiButtonsCache.Length)
             return;
 
@@ -337,14 +412,30 @@ public partial class TutorialManager
         if (currentBtn == null)
             return;
 
-        currentBtn.interactable = true;
+        bool allowInteract = true;
+        if (currentStep.minNextClickDelay > 0f)
+        {
+            if (Time.time - _simpleStepShownTime < currentStep.minNextClickDelay)
+            {
+                allowInteract = false;
+            }
+        }
+        currentBtn.interactable = allowInteract;
+
+        if (currentStep.useUIManagerButtonHandPointer)
+        {
+            if (!currentBtn.gameObject.activeSelf)
+                currentBtn.gameObject.SetActive(true);
+
+            currentBtn.interactable = true;
+        }
 
         if (_tutorialNextButton != null)
         {
             bool currentUsesTutorialNext = (currentBtn == _tutorialNextButton);
 
             _tutorialNextButton.gameObject.SetActive(currentUsesTutorialNext);
-            _tutorialNextButton.interactable = currentUsesTutorialNext;
+            _tutorialNextButton.interactable = currentUsesTutorialNext && allowInteract;
         }
     }
 }

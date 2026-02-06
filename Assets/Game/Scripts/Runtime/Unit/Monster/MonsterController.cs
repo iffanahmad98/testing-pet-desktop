@@ -120,6 +120,10 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
     private float _lastTargetChangeTime = 0f;
     private const float TARGET_CHANGE_COOLDOWN = 3f;
     private bool _movementFrozenByTutorial = false;
+    private bool _interactionsDisabledByTutorial = false;
+
+    public bool IsMovementFrozenByTutorial => _movementFrozenByTutorial;
+    public bool InteractionsDisabledByTutorial => _interactionsDisabledByTutorial;
 
     #endregion
 
@@ -278,6 +282,11 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
             _stateMachine?.ChangeState(MonsterState.Idle);
             SetFallingStarsState(false);
         }
+    }
+
+    public void SetInteractionsDisabledByTutorial(bool disabled)
+    {
+        _interactionsDisabledByTutorial = disabled;
     }
 
     private void OnEnable()
