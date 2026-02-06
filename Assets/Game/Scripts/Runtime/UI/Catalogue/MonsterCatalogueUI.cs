@@ -149,6 +149,7 @@ public class MonsterCatalogueUI : MonoBehaviour
             {
                 monsterCollectionCanvasGroup.interactable = true;
                 monsterCollectionCanvasGroup.blocksRaycasts = true;
+                monsterCollectionCanvasGroup.transform.SetAsLastSibling();
             });
         });
     }
@@ -346,6 +347,13 @@ public class MonsterCatalogueUI : MonoBehaviour
         }
 
         int newIndex = playerConfig.maxGameArea + 1;
+
+        if (newIndex > 5)
+        {
+            Debug.Log("Game area is more than 5");
+            TooltipManager.Instance.StartHoverForDuration("You already have maximum number of game areas.", 4.0f);
+            return;
+        }
 
         // Get button from pool
         GameObject newButtonObj = GetPooledGameAreaButton();

@@ -65,6 +65,12 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         ResetScale();
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
+
+        // preserve aspect is different per category
+        if (data.category == ItemType.Food)
+            iconImage.preserveAspect = false;
+        else if (data.category == ItemType.Medicine)
+            iconImage.preserveAspect = true;
     }
 
     public void OnPointerClick(PointerEventData eventData)

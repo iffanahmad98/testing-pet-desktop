@@ -44,7 +44,7 @@ public class HotelGoldenTicketRedeemMenu : HotelShopMenuBase
   [Header ("Audio")]
    public AudioClip exchangeSfx;
   [Header ("Data")]
-  PlayerConfig playerConfig; 
+  PlayerConfig playerConfig;
   public override void ShowMenu () {
         base.ShowMenu ();
         playerConfig = SaveSystem.PlayerConfig;

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
     [SerializeField] private ScrollRect sourceScroll; // Scroll View asal item
 
     [SerializeField] private MonsterCatalogueItemUI monsterItemUI; // Butuh ini buat tau monsterID
+    [SerializeField] private MonsterCatalogueUI mCatalogueUI; // Butuh ini supaya bisa dapat tombol game area
 
     private RectTransform rt;
     private CanvasGroup cg;
@@ -100,11 +102,26 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
         if (isOverViewport )
         {
             transform.localScale = originalScale * 1.3f;
+            ApplySpecialEffectToGameAreaButton();
         }
         else
         {
             transform.localScale = originalScale;
         }
+    }
+
+    private void ApplySpecialEffectToGameAreaButton()
+    {
+        float scaleMultiplier = 1.1f;
+        float tweenTime = 0.15f;
+        int destinationAreaIndex = SaveSystem.LoadActiveGameAreaIndex();
+        var buttonTransform = mCatalogueUI.gameAreaButtons[destinationAreaIndex].transform;
+        Vector3 baseScale = buttonTransform.localScale;
+
+        if (DOTween.IsTweening(buttonTransform)) return;
+
+        buttonTransform.DOScale(baseScale * scaleMultiplier, tweenTime)
+            .SetEase(Ease.OutQuad).SetLoops(2, LoopType.Yoyo);
     }
 
     public void OnEndDrag(PointerEventData eventData)

@@ -50,6 +50,12 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
         if (priceText != null)
             priceText.text = data.price.ToString();
 
+        // preserve aspect is different per category
+        if (data.category == ItemType.Food)
+            itemIcon.preserveAspect = false;
+        else if (data.category == ItemType.Medicine)
+            itemIcon.preserveAspect = true;
+
         SetSelected(false);
     }
 
