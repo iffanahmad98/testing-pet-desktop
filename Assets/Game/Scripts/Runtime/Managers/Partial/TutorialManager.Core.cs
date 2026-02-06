@@ -63,6 +63,7 @@ public partial class TutorialManager
     private bool IsSimpleMode => !useTutorialSteps;
 
     private bool _isSubscribedToPlacementManager;
+    private bool _isSubscribedToMonsterPoopClean;
 
     private string SimpleTutorialCompletedKey => playerPrefsKeyPrefix + "simple_completed";
     private string TutorialItemsGrantedKey => playerPrefsKeyPrefix + "items_granted";
@@ -70,24 +71,23 @@ public partial class TutorialManager
     private void OnEnable()
     {
         CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
-
-        var monsterManager = ServiceLocator.Get<MonsterManager>();
-        if (monsterManager != null)
-        {
-            monsterManager.OnPoopCleaned += OnPoopCleanedByPlayer;
-        }
-
+        _isSubscribedToMonsterPoopClean = false;
         TrySubscribePlacementManager();
+        TrySubscribeMonsterPoopClean();
     }
 
     private void OnDisable()
     {
         CoinController.OnAnyPlayerCollected -= OnCoinCollectedByPlayer;
 
-        var monsterManager = ServiceLocator.Get<MonsterManager>();
-        if (monsterManager != null)
+        if (_isSubscribedToMonsterPoopClean)
         {
-            monsterManager.OnPoopCleaned -= OnPoopCleanedByPlayer;
+            var monsterManager = ServiceLocator.Get<MonsterManager>();
+            if (monsterManager != null)
+            {
+                monsterManager.OnPoopCleaned -= OnPoopCleanedByPlayer;
+            }
+            _isSubscribedToMonsterPoopClean = false;
         }
 
         if (_isSubscribedToPlacementManager)
@@ -99,6 +99,20 @@ public partial class TutorialManager
             }
             _isSubscribedToPlacementManager = false;
         }
+    }
+
+    private void TrySubscribeMonsterPoopClean()
+    {
+        if (_isSubscribedToMonsterPoopClean)
+            return;
+
+        var monsterManager = ServiceLocator.Get<MonsterManager>();
+        if (monsterManager == null)
+            return;
+
+        monsterManager.OnPoopCleaned += OnPoopCleanedByPlayer;
+        _isSubscribedToMonsterPoopClean = true;
+        Debug.Log("TutorialManager: Subscribed to MonsterManager.OnPoopCleaned");
     }
 
     private void EnsureProgressStore()

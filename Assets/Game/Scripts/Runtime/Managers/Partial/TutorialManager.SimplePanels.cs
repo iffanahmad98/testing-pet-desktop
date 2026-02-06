@@ -15,6 +15,7 @@ public partial class TutorialManager
             return;
 
         TrySubscribePlacementManager();
+        TrySubscribeMonsterPoopClean();
 
         var step = simpleTutorialPanels[_simplePanelIndex];
         if (step == null)
