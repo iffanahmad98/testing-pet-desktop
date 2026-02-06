@@ -27,6 +27,8 @@ namespace MagicalGarden.Hotel
         private Vector3 originalScale;
         private bool isHovered = false;
 
+        [Header ("Audio")]
+        public AudioClip openShopSFX;
         private void Start()
         {
             originalScale = transform.localScale;
@@ -53,7 +55,7 @@ namespace MagicalGarden.Hotel
             // Ignore if pointer is over UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
-
+            SfxOpenMenu ();
             isHovered = true;
         }
 
@@ -113,5 +115,10 @@ namespace MagicalGarden.Hotel
                 Debug.LogWarning($"[ClickableShopHotel] Animator is not assigned on {gameObject.name}");
             }
         }
+        #region SFX
+        void SfxOpenMenu () {
+            ServiceLocator.Get<AudioManager> ().PlaySFX (openShopSFX);
+        }
+        #endregion
     }
 }

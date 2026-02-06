@@ -25,8 +25,7 @@ public class HotelShop : MonoBehaviour
    [SerializeField] Button closeShopButton;
    [SerializeField] Canvas worldCanvas;
 
-   [Header ("Audio")]
-   public AudioClip openShopSFX;
+   
    void Start () {
     AddListeners ();
     LoadDictionaries ();
@@ -55,6 +54,7 @@ public class HotelShop : MonoBehaviour
 
    // ClickableShopHotel :
    public void OnShopUI () {
+      
       ShowEvent?.Invoke ();
       iCameraDragLocker.AddLockedBy (this.gameObject);
       UIWorldManager.Instance.OnBackgroundOutside ();
@@ -104,11 +104,7 @@ public class HotelShop : MonoBehaviour
             kvp.Value.HideMenu();
          }
    }
-   #region SFX
-   void SfxExchange () {
-      ServiceLocator.Get<AudioManager> ().PlaySFX (openShopSFX);
-   }
-   #endregion
+   
    #region Event
    void AddEvents () {
       AddShowEvent (RequirementTipManager.Instance.HideAllRequirementTipClick2d);
