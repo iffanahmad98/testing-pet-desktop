@@ -5,7 +5,6 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.PlayerSettings.WSA;
 public class FacilityShopManager : MonoBehaviour
 {
     [Header("UI References")]

@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.SceneManagement; 
 public class GameManager : MonoBehaviour
 {
   public static GameManager instance;
@@ -7,6 +7,10 @@ public class GameManager : MonoBehaviour
 
   void Awake () {
     instance = this;
+  }
+
+  void Start () {
+    SceneManager.LoadScene("TooltipScene", LoadSceneMode.Additive);
   }
 
   private void OnApplicationQuit()

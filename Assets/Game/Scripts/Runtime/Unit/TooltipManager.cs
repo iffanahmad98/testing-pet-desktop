@@ -44,6 +44,7 @@ public class TooltipManager : MonoBehaviour
 
     private void Start()
     {
+       // Debug.LogError ("Start Tooltip");
         tooltipWindow.SetActive(false);
     }
 
