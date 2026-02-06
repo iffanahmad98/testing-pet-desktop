@@ -52,12 +52,14 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
         playerConfig.hotelRoomCompleted = hotelRoomCompleted;
         Debug.Log ("Hotel Room Completed " + playerConfig.hotelRoomCompleted);
         SaveSystem.SaveAll ();
+        OnHotelRoomCompletedChanged?.Invoke ();
     }
     public void SetHarvestFruit (int value) { // InventoryManager.cs
         harvestFruit += value;
         playerConfig.harvestFruit = harvestFruit;
         Debug.Log ("Hotel Room Completed " + playerConfig.harvestFruit);
         SaveSystem.SaveAll ();
+        OnHarvestFruitChanged?.Invoke ();
     }
 
     public void SetHarvestEggMonsters (int value) { // InventoryManager.cs
@@ -65,6 +67,7 @@ public class PlayerHistoryManager : MonoBehaviour, IPlayerHistory
         playerConfig.harvestEggMonsters = harvestEggMonsters;
         Debug.Log ("Hotel Room Completed " + playerConfig.harvestEggMonsters);
         SaveSystem.SaveAll ();
+        OnHotelRoomCompletedChanged?.Invoke ();
     }
     #endregion
 }
