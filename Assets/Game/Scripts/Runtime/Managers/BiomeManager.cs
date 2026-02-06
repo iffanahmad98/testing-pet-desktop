@@ -97,7 +97,7 @@ public class BiomeManager : MonoBehaviour
             UpdateBackgroundPositions();
         }
 
-        yield return new WaitForSeconds(0.1f); // Allow time for settings to initialize
+        yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
 
         string savedBiomeID = SaveSystem.GetActiveBiome();
         if (!string.IsNullOrEmpty(savedBiomeID))

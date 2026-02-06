@@ -39,6 +39,7 @@ public partial class UIManager
         buttons.windowButton?.onClick.AddListener(ToggleMiniWindowMode);
         buttons.miniWindowButton?.onClick.AddListener(ToggleMiniWindowMode);
 
+        buttons.creditsButton.onClick.AddListener(() => FadePanel(panels.CreditsPanel, panels.CreditsCanvasGroup, true));
         buttons.settingsButton?.onClick.AddListener(() => FadePanel(panels.SettingPanel, panels.SettingCanvasGroup, true));
         shopButtons.settingShopButton?.onClick.AddListener(() => FadePanel(panels.SettingPanel, panels.SettingCanvasGroup, true));
         buttons.shopButton?.onClick.AddListener(() => FadePanel(panels.ShopPanel, panels.ShopCanvasGroup, true));
@@ -101,6 +102,7 @@ public partial class UIManager
         buttons.closeCatalogueButton?.onClick.RemoveAllListeners();
         buttons.miniInventoryButton?.onClick.RemoveAllListeners();
         buttons.mainInventoryButton?.onClick.RemoveAllListeners();
+        buttons.creditsButton.onClick.RemoveAllListeners();
     }
 
     #endregion
