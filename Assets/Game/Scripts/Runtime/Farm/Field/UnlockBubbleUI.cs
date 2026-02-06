@@ -38,6 +38,8 @@ namespace MagicalGarden.Farm
             unlockButton.onClick.RemoveAllListeners();
             unlockButton.onClick.AddListener(OnUnlockClicked);
            // CoinManager.AddCoinChangedRefreshEvent (RefreshDisplayUnlock);
+           global::CoinManager.AddCoinChangedRefreshEvent(RefreshDisplayUnlock);
+
             PlayerHistoryManager.instance.AddHarvestFruitChanged (RefreshDisplayUnlock);
             PlayerHistoryManager.instance.AddHarvestEggMonstersChanged (RefreshDisplayUnlock);
             MonsterManager.instance.AddEventPetMonsterChanged (RefreshDisplayUnlock);
@@ -48,7 +50,8 @@ namespace MagicalGarden.Farm
             if (CanUnlock())
             {
                // CoinManager.Instance.SpendCoins(block.requiredCoins);
-                CoinManager.Instance.SpendCoins (eligibleData.GetPrice ());
+              //  CoinManager.Instance.SpendCoins (eligibleData.GetPrice ());
+                global::CoinManager.SpendCoins(eligibleData.GetPrice ());
                 FieldManager.Instance.UnlockBlock(block.blockId);
                 PlantManager.Instance.PurchaseFarmArea (block.numberId); 
                 Debug.Log (" Block Id : " + block.numberId);
