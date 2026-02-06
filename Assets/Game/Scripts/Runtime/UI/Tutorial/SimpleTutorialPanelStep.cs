@@ -21,6 +21,8 @@ public class SimpleTutorialPanelStep
 
     public bool useFoodDropAsNext;
 
+    public bool usePoopCleanAsNext;
+
     public int requiredFoodDropCount = 1;
 
     [Header("Pointer")]

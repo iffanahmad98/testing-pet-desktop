@@ -14,6 +14,8 @@ public partial class TutorialManager
         if (_simplePanelIndex < 0 || simpleTutorialPanels == null || _simplePanelIndex >= simpleTutorialPanels.Count)
             return;
 
+        TrySubscribePlacementManager();
+
         var step = simpleTutorialPanels[_simplePanelIndex];
         if (step == null)
             return;
@@ -126,6 +128,7 @@ public partial class TutorialManager
         }
 
         _simplePanelIndex++;
+        Debug.Log($"TutorialManager: moving to simple panel index {_simplePanelIndex}");
 
         if (_simplePanelIndex >= simpleTutorialPanels.Count)
         {
@@ -231,6 +234,26 @@ public partial class TutorialManager
         {
             pointer.PointTo(_tutorialMonsterRect, step.pointerOffset);
             return;
+        }
+
+        if (step.usePoopCleanAsNext)
+        {
+            var monsterManager = ServiceLocator.Get<MonsterManager>();
+            if (monsterManager != null &&
+                monsterManager.activePoops != null &&
+                monsterManager.activePoops.Count > 0)
+            {
+                var poop = monsterManager.activePoops[0];
+                if (poop != null)
+                {
+                    var poopRect = poop.GetComponentInChildren<RectTransform>();
+                    if (poopRect != null)
+                    {
+                        pointer.PointTo(poopRect, step.pointerOffset);
+                        return;
+                    }
+                }
+            }
         }
 
         if (step.useNextButtonAsPointerTarget || wantsUIHand)
@@ -402,7 +425,7 @@ public partial class TutorialManager
         if (currentStep == null)
             return;
 
-        if (currentStep.useFoodDropAsNext)
+        if (currentStep.useFoodDropAsNext || currentStep.usePoopCleanAsNext)
             return;
 
         if (currentStep.nextButtonIndex < 0 || currentStep.nextButtonIndex >= _uiButtonsCache.Length)

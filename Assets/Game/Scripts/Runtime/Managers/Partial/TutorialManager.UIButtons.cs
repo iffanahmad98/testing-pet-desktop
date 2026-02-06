@@ -5,6 +5,7 @@ using UnityEngine;
 public partial class TutorialManager
 {
     private Button _tutorialNextButton;
+    private bool _hasLoggedUIButtonCache;
 
     private void CacheUIButtonsFromUIManager()
     {
@@ -54,6 +55,9 @@ public partial class TutorialManager
             Add(shop.helpShopButton);
         }
 
+        // Also collect buttons from any other UI sources (e.g. BoardSign)
+        CacheButtonsFromSceneSources(list);
+
         _uiButtonsCache = list.ToArray();
         _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
         for (int i = 0; i < _uiButtonsCache.Length; i++)
@@ -61,6 +65,63 @@ public partial class TutorialManager
             var btn = _uiButtonsCache[i];
             _uiButtonsInteractableCache[i] = btn != null && btn.interactable;
         }
+
+        LogUIButtonCacheOnce();
+    }
+
+    private void CacheButtonsFromSceneSources(List<Button> list)
+    {
+        if (list == null)
+            return;
+
+        // Find all MonoBehaviours so we can check which ones implement IUIButtonSource.
+        var behaviours = Object.FindObjectsOfType<MonoBehaviour>(true);
+        if (behaviours == null || behaviours.Length == 0)
+            return;
+
+        foreach (var behaviour in behaviours)
+        {
+            if (behaviour is IUIButtonSource source)
+            {
+                source.CollectButtons(list);
+            }
+        }
+    }
+
+    private void LogUIButtonCacheOnce()
+    {
+        if (_hasLoggedUIButtonCache)
+            return;
+
+        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+            return;
+
+        _hasLoggedUIButtonCache = true;
+
+        for (int i = 0; i < _uiButtonsCache.Length; i++)
+        {
+            var btn = _uiButtonsCache[i];
+            if (btn == null)
+                continue;
+
+            var go = btn.gameObject;
+            Debug.Log($"[TutorialManager] UI button cache index {i}: Button='{btn.name}', GameObject='{go.name}', Path='{GetTransformPath(go.transform)}'");
+        }
+    }
+
+    private static string GetTransformPath(Transform t)
+    {
+        if (t == null)
+            return "<null>";
+
+        var stack = new System.Collections.Generic.List<string>();
+        while (t != null)
+        {
+            stack.Add(t.name);
+            t = t.parent;
+        }
+        stack.Reverse();
+        return string.Join("/", stack);
     }
 
     private void DisableUIManagerButtonsForTutorial()

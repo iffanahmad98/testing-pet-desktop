@@ -122,20 +122,29 @@ public partial class TutorialManager
             _simplePanelIndex < simpleTutorialPanels.Count)
         {
             var currentSimpleStep = simpleTutorialPanels[_simplePanelIndex];
-            if (currentSimpleStep != null && currentSimpleStep.useFoodDropAsNext)
+            if (currentSimpleStep != null)
             {
-                int required = currentSimpleStep.requiredFoodDropCount <= 0 ? 1 : currentSimpleStep.requiredFoodDropCount;
-                float delay = currentSimpleStep.minFoodDropDelay > 0f ? currentSimpleStep.minFoodDropDelay : 5f;
-
-                if (_foodDropCountForCurrentStep >= required && Time.time - _simpleStepShownTime >= delay)
+                if (currentSimpleStep.useFoodDropAsNext)
                 {
-                    RequestNextSimplePanel();
+                    // For food-drop steps, defer progression to TryHandleFoodDropProgress
+                    // so it can re-check count & delay instead of forcing Next here.
+                    TryHandleFoodDropProgress(false);
+                    return;
                 }
 
-                return;
+                if (currentSimpleStep.usePoopCleanAsNext)
+                {
+                    // For poop-clean steps, delegate to TryHandlePoopCleanProgress
+                    // so that progression still goes through the centralized logic
+                    // (which will call RequestNextSimplePanel).
+                    TryHandlePoopCleanProgress();
+                    return;
+                }
             }
         }
 
+        // Default behaviour for steps that don't use special world interactions:
+        // finish hand pointer, then just advance to next simple panel.
         ShowNextSimplePanel();
     }
 }

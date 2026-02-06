@@ -41,10 +41,13 @@ public partial class TutorialManager
     {
         if (IsSimpleMode)
         {
-            if (IsSimpleTutorialAlreadyCompleted())
+            if (!ShouldRunSimpleTutorialOnStart())
             {
+                gameObject.SetActive(false);
                 return;
             }
+
+            GrantTutorialStartItemsIfNeeded();
 
             DisableUIManagerButtonsForTutorial();
             SpawnTutorialMonsterIfNeeded();
@@ -52,9 +55,9 @@ public partial class TutorialManager
             return;
         }
 
-        if (!HasAnyPending())
+        if (!ShouldRunStepTutorialOnStart())
         {
-            Debug.Log("TutorialManager: semua tutorial sudah selesai, skip auto-start.");
+            gameObject.SetActive(false);
             return;
         }
 
@@ -65,6 +68,27 @@ public partial class TutorialManager
         {
             Debug.LogWarning("TutorialManager: gagal auto-start tutorial berikutnya. Cek konfigurasi tutorialSteps.");
         }
+    }
+
+    private bool ShouldRunSimpleTutorialOnStart()
+    {
+        if (IsSimpleTutorialAlreadyCompleted())
+        {
+            return false;
+        }
+
+        return simpleTutorialPanels != null && simpleTutorialPanels.Count > 0;
+    }
+
+    private bool ShouldRunStepTutorialOnStart()
+    {
+        if (!HasAnyPending())
+        {
+            Debug.Log("TutorialManager: semua tutorial sudah selesai, skip auto-start.");
+            return false;
+        }
+
+        return true;
     }
 
     public bool HasAnyPending()

@@ -62,6 +62,7 @@ public class MonsterManager : MonoBehaviour
     [SerializeField] private Button spawnNPC2;
 
     public System.Action<int> OnPoopChanged;
+    public System.Action<PoopController> OnPoopCleaned;
     public System.Action OnPetMonsterChanged;
 
     public AudioManager audio { get; private set; }

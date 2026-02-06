@@ -45,6 +45,9 @@ public partial class TutorialManager
     private RectTransform _tutorialMonsterRect;
     private MonsterController _tutorialMonsterController;
 
+    [Header("Tutorial Start Items")]
+    [SerializeField] private TutorialItemReward[] tutorialStartItems;
+
     private float _simpleStepShownTime;
     private int _foodDropCountForCurrentStep;
     private readonly HashSet<Button> _simpleNextButtonsHooked = new();
@@ -59,7 +62,10 @@ public partial class TutorialManager
 
     private bool IsSimpleMode => !useTutorialSteps;
 
+    private bool _isSubscribedToPlacementManager;
+
     private string SimpleTutorialCompletedKey => playerPrefsKeyPrefix + "simple_completed";
+    private string TutorialItemsGrantedKey => playerPrefsKeyPrefix + "items_granted";
 
     private void OnEnable()
     {
@@ -68,8 +74,10 @@ public partial class TutorialManager
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         if (monsterManager != null)
         {
-            monsterManager.OnFoodSpawned += OnFoodSpawnedByPlayer;
+            monsterManager.OnPoopCleaned += OnPoopCleanedByPlayer;
         }
+
+        TrySubscribePlacementManager();
     }
 
     private void OnDisable()
@@ -79,7 +87,17 @@ public partial class TutorialManager
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         if (monsterManager != null)
         {
-            monsterManager.OnFoodSpawned -= OnFoodSpawnedByPlayer;
+            monsterManager.OnPoopCleaned -= OnPoopCleanedByPlayer;
+        }
+
+        if (_isSubscribedToPlacementManager)
+        {
+            var placementManager = ServiceLocator.Get<PlacementManager>();
+            if (placementManager != null)
+            {
+                placementManager.OnFoodPlacementConfirmed -= OnFoodPlacementConfirmed;
+            }
+            _isSubscribedToPlacementManager = false;
         }
     }
 
@@ -89,6 +107,56 @@ public partial class TutorialManager
         {
             _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
         }
+    }
+
+    private bool HaveGivenTutorialStartItems()
+    {
+        return PlayerPrefs.GetInt(TutorialItemsGrantedKey, 0) == 1;
+    }
+
+    private void MarkTutorialStartItemsGiven()
+    {
+        PlayerPrefs.SetInt(TutorialItemsGrantedKey, 1);
+        PlayerPrefs.Save();
+    }
+
+    private void GrantTutorialStartItemsIfNeeded()
+    {
+        if (HaveGivenTutorialStartItems())
+            return;
+
+        if (tutorialStartItems == null || tutorialStartItems.Length == 0)
+            return;
+
+        foreach (var reward in tutorialStartItems)
+        {
+            if (reward == null || reward.item == null || reward.amount == 0)
+                continue;
+
+            SaveSystem.UpdateItemData(reward.item.itemID, reward.item.category, reward.amount);
+        }
+
+        MarkTutorialStartItemsGiven();
+    }
+
+    private void TrySubscribePlacementManager()
+    {
+        if (_isSubscribedToPlacementManager)
+            return;
+
+        var placementManager = ServiceLocator.Get<PlacementManager>();
+        if (placementManager == null)
+            return;
+
+        placementManager.OnFoodPlacementConfirmed += OnFoodPlacementConfirmed;
+        _isSubscribedToPlacementManager = true;
+    }
+
+    [System.Serializable]
+    private class TutorialItemReward
+    {
+        public ItemDataSO item;
+        public int amount = 10;
     }
 
     private bool IsSimpleTutorialAlreadyCompleted()
@@ -129,7 +197,19 @@ public partial class TutorialManager
         RequestNextSimplePanel();
     }
 
-    private void OnFoodSpawnedByPlayer(FoodController food)
+    private void OnFoodPlacementConfirmed()
+    {
+        Debug.Log("TutorialManager: TryHandleFoodDropProgress from PlacementManager");
+        TryHandleFoodDropProgress(true);
+    }
+
+    private void OnPoopCleanedByPlayer(PoopController poop)
+    {
+        Debug.Log($"TutorialManager: OnPoopCleanedByPlayer called for poop '{poop?.name}' at simple index {_simplePanelIndex}");
+        TryHandlePoopCleanProgress();
+    }
+
+    private void TryHandleFoodDropProgress(bool incrementCount)
     {
         if (!IsSimpleMode)
             return;
@@ -147,7 +227,10 @@ public partial class TutorialManager
         if (!step.useFoodDropAsNext)
             return;
 
-        _foodDropCountForCurrentStep++;
+        if (incrementCount)
+        {
+            _foodDropCountForCurrentStep++;
+        }
 
         int required = step.requiredFoodDropCount <= 0 ? 1 : step.requiredFoodDropCount;
 
@@ -156,9 +239,57 @@ public partial class TutorialManager
             return;
 
         if (_foodDropCountForCurrentStep < required)
+        {
+            Debug.Log($"TutorialManager: food-drop progress pending (count={_foodDropCountForCurrentStep}/{required})");
             return;
+        }
 
+        Debug.Log("TutorialManager: food-drop conditions met, requesting next simple panel");
+        CancelFoodPlacementIfAny();
         RequestNextSimplePanel();
+    }
+
+    private void TryHandlePoopCleanProgress()
+    {
+        if (!IsSimpleMode)
+        {
+            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (not in simple mode)");
+            return;
+        }
+
+        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+        {
+            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (no simpleTutorialPanels)");
+            return;
+        }
+
+        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+        {
+            Debug.Log($"TutorialManager: TryHandlePoopCleanProgress ignored (invalid index {_simplePanelIndex})");
+            return;
+        }
+
+        var step = simpleTutorialPanels[_simplePanelIndex];
+        if (step == null)
+        {
+            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (current step is null)");
+            return;
+        }
+
+        if (!step.usePoopCleanAsNext)
+        {
+            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (usePoopCleanAsNext is false on this step)");
+            return;
+        }
+
+        Debug.Log("TutorialManager: TryHandlePoopCleanProgress -> calling RequestNextSimplePanel");
+        RequestNextSimplePanel();
+    }
+
+    private void CancelFoodPlacementIfAny()
+    {
+        var placementManager = ServiceLocator.Get<PlacementManager>();
+        placementManager?.CancelPlacement();
     }
 
     private void SpawnTutorialMonsterIfNeeded()
@@ -194,6 +325,7 @@ public partial class TutorialManager
                 {
                     _tutorialMonsterRect = controller.GetComponent<RectTransform>();
                     SetupTutorialMonsterController(controller);
+                    monsterManager.SaveAllMonsters();
                 }
             }
         }
@@ -229,6 +361,18 @@ public partial class TutorialManager
     }
     private void RequestNextSimplePanel()
     {
+        if (simpleTutorialPanels != null &&
+            _simplePanelIndex >= 0 &&
+            _simplePanelIndex < simpleTutorialPanels.Count)
+        {
+            var currentStep = simpleTutorialPanels[_simplePanelIndex];
+            if (_isRunningHandPointerSubTutorial && currentStep != null &&
+                (currentStep.useFoodDropAsNext || currentStep.usePoopCleanAsNext))
+            {
+                EndHandPointerSubTutorial();
+            }
+        }
+
         if (_isRunningHandPointerSubTutorial)
             return;
 

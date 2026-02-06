@@ -12,6 +12,8 @@ public class PlacementManager : MonoBehaviour
     private System.Action<Vector2> onConfirmPlace;
     private System.Action onCancel;
 
+    public event System.Action OnFoodPlacementConfirmed;
+
     [Header("Visual Feedback")]
     [SerializeField] private Color validColor = Color.white;
     [SerializeField] private Color invalidColor = Color.red;
@@ -78,7 +80,7 @@ public class PlacementManager : MonoBehaviour
             {
                 if (images[i].name == "Sprite") images[i].sprite = previewSprite;
             }
-            
+
         }
     }
 
@@ -100,6 +102,13 @@ public class PlacementManager : MonoBehaviour
         {
             if (isValid)
             {
+                bool isFoodPlacement = !isPlacingMedicine && allowMultiplePlacement;
+                if (isFoodPlacement)
+                {
+                    Debug.Log("PlacementManager: Food placement confirmed");
+                    OnFoodPlacementConfirmed?.Invoke();
+                }
+
                 onConfirmPlace?.Invoke(pos);
 
                 if (!allowMultiplePlacement)

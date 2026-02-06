@@ -20,8 +20,8 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     // NPC reservation system to prevent multiple NPCs targeting the same poop
     public MonsterController ReservedBy { get; private set; }
 
-    [Header ("Database")]
-    public ItemData [] poopItemDatas;
+    [Header("Database")]
+    public ItemData[] poopItemDatas;
     ItemData poopItemData;
 
     private void Awake()
@@ -41,13 +41,13 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         {
             animator.SetTrigger("Normal");
             poopId = "poop_ori";
-            poopItemData = poopItemDatas [0];
+            poopItemData = poopItemDatas[0];
         }
         else if (type == PoopType.Sparkle)
         {
             animator.SetTrigger("Special");
             poopId = "poop_rare";
-            poopItemData = poopItemDatas [1];
+            poopItemData = poopItemDatas[1];
         }
     }
 
@@ -79,8 +79,20 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SaveSystem.UpdateItemData(poopId, ItemType.Poop, 1);
         SaveSystem.Flush();
         */
-        SaveSystem.PlayerConfig.AddItemFarm (poopItemData.itemId, 1);
-        SaveSystem.SaveAll ();
+        Debug.Log($"PoopController: OnCollected called for '{name}' (type={poopType})");
+        SaveSystem.PlayerConfig.AddItemFarm(poopItemData.itemId, 1);
+        SaveSystem.SaveAll();
+
+        var monsterManager = ServiceLocator.Get<MonsterManager>();
+        if (monsterManager == null)
+        {
+            Debug.LogWarning("PoopController: MonsterManager not found when trying to raise OnPoopCleaned");
+        }
+        else
+        {
+            Debug.Log("PoopController: Invoking MonsterManager.OnPoopCleaned for tutorial");
+            monsterManager.OnPoopCleaned?.Invoke(this);
+        }
         // Fadeout
         for (int i = 0; i < images.Length; i++)
         {

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 /// <summary>
 /// Board Sign controller with buttons to adjust game area height and navigate between scenes
 /// </summary>
-public class BoardSign : MonoBehaviour
+public class BoardSign : MonoBehaviour, IUIButtonSource
 {
     [Header("Game Area Height Buttons")]
     [SerializeField] private Button setMaxHeightButton;
@@ -144,15 +144,15 @@ public class BoardSign : MonoBehaviour
         MonsterManager.instance.audio.playFarmAmbiance();
         // farm game intro SFX is at index 0
         MonsterManager.instance.audio.PlayFarmSFX(0);
-        
-        
+
+
         // Set focus target to Farm before switching scene
         SceneFocusManager.SetFocusTarget(SceneFocusManager.FocusTarget.Farm);
 
         Debug.Log($"[BoardSign] Switching to FarmGame scene with Farm focus target");
         sceneLoader.SwitchToFarmScene();
 
-       SceneLoadManager.Instance.SetUIEqualsFocus ("Farm");
+        SceneLoadManager.Instance.SetUIEqualsFocus("Farm");
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ public class BoardSign : MonoBehaviour
         Debug.Log($"[BoardSign] Switching to FarmGame scene with Hotel focus target");
         sceneLoader.SwitchToFarmScene();
 
-        SceneLoadManager.Instance.SetUIEqualsFocus ("Hotel");
+        SceneLoadManager.Instance.SetUIEqualsFocus("Hotel");
     }
 
     /// <summary>
@@ -191,6 +191,26 @@ public class BoardSign : MonoBehaviour
         farmGameSceneName = sceneName;
     }
 
-   
-    
+    /// <summary>
+    /// Expose this BoardSign's buttons to any global UI button cache (e.g. TutorialManager).
+    /// </summary>
+    public void CollectButtons(System.Collections.Generic.List<Button> target)
+    {
+        if (target == null)
+            return;
+
+        void Add(Button b)
+        {
+            if (b != null && !target.Contains(b))
+            {
+                target.Add(b);
+            }
+        }
+
+        Add(setMaxHeightButton);
+        Add(setMinHeightButton);
+        Add(goToFarmButton);
+        Add(goToHotelButton);
+    }
+
 }
