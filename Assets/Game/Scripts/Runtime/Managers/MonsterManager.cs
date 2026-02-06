@@ -506,6 +506,7 @@ public class MonsterManager : MonoBehaviour
             // batasi supaya tidak terlalu ke pojok
             if (pos.x < -800) pos.x = -800;
             if (pos.x > 800) pos.x = 800;
+            if (pos.y < -400) pos.y = -400;
 
             SetupPooledObject(pooled, gameAreaRT, pos);
 
