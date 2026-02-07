@@ -10,12 +10,41 @@ public partial class TutorialManager
     private int _handPointerSubStepIndex = -1;
     private HandPointerTutorialSequenceSO _activeHandPointerSubTutorial;
     private Button _currentHandPointerTargetButton;
-    private void StartHandPointerSubTutorial(SimpleTutorialPanelStep simpleStep)
+    private void SetHandPointerSequenceButtonsInteractable(bool interactable)
     {
-        if (simpleStep == null || simpleStep.handPointerSequence == null)
+        if (_activeHandPointerSubTutorial == null ||
+            _activeHandPointerSubTutorial.steps == null ||
+            _activeHandPointerSubTutorial.steps.Count == 0)
             return;
 
-        var sequence = simpleStep.handPointerSequence;
+        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        {
+            CacheUIButtonsFromUIManager();
+        }
+
+        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+            return;
+
+        for (int i = 0; i < _activeHandPointerSubTutorial.steps.Count; i++)
+        {
+            var subStep = _activeHandPointerSubTutorial.steps[i];
+            if (subStep == null || subStep.uiButtonIndex < 0 || subStep.uiButtonIndex >= _uiButtonsCache.Length)
+                continue;
+
+            var btn = _uiButtonsCache[subStep.uiButtonIndex];
+            if (btn == null)
+                continue;
+
+            btn.interactable = interactable;
+        }
+    }
+    private void StartHandPointerSubTutorial(SimpleTutorialPanelStep simpleStep)
+    {
+        var config = simpleStep != null ? simpleStep.config : null;
+        if (config == null || config.handPointerSequence == null)
+            return;
+
+        var sequence = config.handPointerSequence;
         if (sequence.steps == null || sequence.steps.Count == 0)
             return;
 
@@ -89,6 +118,13 @@ public partial class TutorialManager
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
             return;
 
+        // Saat pindah ke sub-step berikutnya, matikan interaksi
+        // pada tombol target sebelumnya.
+        if (_currentHandPointerTargetButton != null)
+        {
+            _currentHandPointerTargetButton.interactable = false;
+        }
+
         _handPointerSubStepIndex++;
 
         if (_handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
@@ -103,6 +139,10 @@ public partial class TutorialManager
 
     private void EndHandPointerSubTutorial()
     {
+        // Setelah sequence selesai, semua tombol yang pernah
+        // dipakai sebagai target hand pointer dibuat non-interactable.
+        SetHandPointerSequenceButtonsInteractable(false);
+
         _isRunningHandPointerSubTutorial = false;
 
         var pointer = ServiceLocator.Get<ITutorialPointer>();
@@ -122,9 +162,10 @@ public partial class TutorialManager
             _simplePanelIndex < simpleTutorialPanels.Count)
         {
             var currentSimpleStep = simpleTutorialPanels[_simplePanelIndex];
-            if (currentSimpleStep != null)
+            var config = currentSimpleStep != null ? currentSimpleStep.config : null;
+            if (config != null)
             {
-                if (currentSimpleStep.useFoodDropAsNext)
+                if (config.useFoodDropAsNext)
                 {
                     // For food-drop steps, defer progression to TryHandleFoodDropProgress
                     // so it can re-check count & delay instead of forcing Next here.
@@ -132,7 +173,7 @@ public partial class TutorialManager
                     return;
                 }
 
-                if (currentSimpleStep.usePoopCleanAsNext)
+                if (config.usePoopCleanAsNext)
                 {
                     // For poop-clean steps, delegate to TryHandlePoopCleanProgress
                     // so that progression still goes through the centralized logic

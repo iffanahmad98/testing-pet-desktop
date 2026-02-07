@@ -21,11 +21,16 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
     [Tooltip("Kecepatan goyangan kiri-kanan.")]
     [SerializeField] private float swaySpeed = 3f;
 
+    [Header("Sorting (Layer)")]
+    [Tooltip("Sorting order tinggi supaya pointer selalu di depan tanpa perlu mengubah hierarki.")]
+    [SerializeField] private int sortingOrderOnTop = 5000;
+
     private RectTransform _canvasRect;
     private RectTransform _target;
     private Vector2 _offset;
     private Vector2 _velocity;
     private float _swayTime;
+    private Canvas _pointerCanvas;
 
     private void Awake()
     {
@@ -46,6 +51,20 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
 
         if (pointerRect != null)
         {
+            _pointerCanvas = pointerRect.GetComponent<Canvas>();
+            if (_pointerCanvas == null)
+            {
+                _pointerCanvas = pointerRect.gameObject.AddComponent<Canvas>();
+            }
+
+            if (rootCanvas != null)
+            {
+                _pointerCanvas.sortingLayerID = rootCanvas.sortingLayerID;
+            }
+
+            _pointerCanvas.overrideSorting = true;
+            _pointerCanvas.sortingOrder = sortingOrderOnTop;
+
             pointerRect.gameObject.SetActive(false);
         }
 

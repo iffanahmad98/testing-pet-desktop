@@ -18,10 +18,30 @@ public partial class TutorialManager
         TrySubscribeMonsterPoopClean();
 
         var step = simpleTutorialPanels[_simplePanelIndex];
-        if (step == null)
+        var config = step != null ? step.config : null;
+        if (config == null)
             return;
 
-        if (step.usePointer)
+        if (_tutorialMonsterRect == null)
+        {
+            var monsterManager = ServiceLocator.Get<MonsterManager>();
+            if (monsterManager != null &&
+                monsterManager.activeMonsters != null &&
+                monsterManager.activeMonsters.Count > 0)
+            {
+                var controller = monsterManager.activeMonsters[0];
+                if (controller != null)
+                {
+                    _tutorialMonsterRect = controller.GetComponent<RectTransform>();
+                    SetupTutorialMonsterController(controller);
+
+                    MoveTutorialMonsterForSimpleStep(step);
+                    UpdateRightClickMouseHintForSimpleStep(step);
+                }
+            }
+        }
+
+        if (config.usePointer)
         {
             UpdatePointerForSimpleStep(step);
         }
@@ -77,23 +97,24 @@ public partial class TutorialManager
 
         _simplePanelIndex = 0;
         var firstStep = simpleTutorialPanels[_simplePanelIndex];
-        if (firstStep != null && firstStep.panelRoot != null)
+        var firstConfig = firstStep != null ? firstStep.config : null;
+        if (firstStep != null && firstStep.panelRoot != null && firstConfig != null)
         {
             PlaySimplePanelShowAnimation(firstStep.panelRoot);
-            UpdatePointerForSimpleStep(firstStep);
             _simpleStepShownTime = Time.time;
             _foodDropCountForCurrentStep = 0;
 
+            UpdateTutorialMonsterMovementForSimpleStep(firstStep);
+            MoveTutorialMonsterForSimpleStep(firstStep);
+
+            UpdatePointerForSimpleStep(firstStep);
             UpdateRightClickMouseHintForSimpleStep(firstStep);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
 
-            UpdateTutorialMonsterMovementForSimpleStep(firstStep);
-
             ApplyTutorialMonsterPoopForSimpleStep(firstStep);
-
             ShowMonsterInfoForSimpleStep(firstStep);
 
-            if (firstStep.handPointerSequence != null)
+            if (firstConfig.handPointerSequence != null)
             {
                 StartHandPointerSubTutorial(firstStep);
             }
@@ -106,9 +127,6 @@ public partial class TutorialManager
 
     public void ShowNextSimplePanel()
     {
-        if (useTutorialSteps)
-            return;
-
         if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
             return;
 
@@ -146,22 +164,25 @@ public partial class TutorialManager
         }
 
         var nextStep = simpleTutorialPanels[_simplePanelIndex];
-        if (nextStep != null && nextStep.panelRoot != null)
+        var nextConfig = nextStep != null ? nextStep.config : null;
+        if (nextStep != null && nextStep.panelRoot != null && nextConfig != null)
         {
             PlaySimplePanelShowAnimation(nextStep.panelRoot);
-            UpdatePointerForSimpleStep(nextStep);
             _simpleStepShownTime = Time.time;
             _foodDropCountForCurrentStep = 0;
 
+            UpdateTutorialMonsterMovementForSimpleStep(nextStep);
+            ApplyTutorialMonsterHungerForSimpleStep(nextStep);
+            MoveTutorialMonsterForSimpleStep(nextStep);
+
+            UpdatePointerForSimpleStep(nextStep);
             UpdateRightClickMouseHintForSimpleStep(nextStep);
             PlaySimpleStepEffectForIndex(_simplePanelIndex);
 
-            UpdateTutorialMonsterMovementForSimpleStep(nextStep);
-            ApplyTutorialMonsterHungerForSimpleStep(nextStep);
             ApplyTutorialMonsterPoopForSimpleStep(nextStep);
             ShowMonsterInfoForSimpleStep(nextStep);
 
-            if (nextStep.handPointerSequence != null)
+            if (nextConfig.handPointerSequence != null)
             {
                 StartHandPointerSubTutorial(nextStep);
             }
@@ -177,40 +198,91 @@ public partial class TutorialManager
         if (_tutorialMonsterController == null)
             return;
 
-        bool shouldFreeze = step != null && step.freezeTutorialMonsterMovement;
+        var config = step != null ? step.config : null;
+        bool shouldFreeze = config != null && config.freezeTutorialMonsterMovement;
         _tutorialMonsterController.SetMovementFrozenByTutorial(shouldFreeze);
     }
 
     private void ApplyTutorialMonsterHungerForSimpleStep(SimpleTutorialPanelStep step)
     {
-        if (_tutorialMonsterController == null || step == null)
+        var config = step != null ? step.config : null;
+        if (_tutorialMonsterController == null || config == null)
             return;
 
-        if (!step.makeTutorialMonsterHungry)
+        if (!config.makeTutorialMonsterHungry)
             return;
 
         float currentHunger = _tutorialMonsterController.StatsHandler?.CurrentHunger ?? 100f;
-        float newHunger = currentHunger - step.hungryReduceAmount;
+        float newHunger = currentHunger - config.hungryReduceAmount;
         _tutorialMonsterController.SetHunger(newHunger);
     }
 
     private void ApplyTutorialMonsterPoopForSimpleStep(SimpleTutorialPanelStep step)
     {
-        if (_tutorialMonsterController == null || step == null)
+        var config = step != null ? step.config : null;
+        if (_tutorialMonsterController == null || config == null)
             return;
 
-        if (!step.dropPoopOnStepStart)
+        if (!config.dropPoopOnStepStart)
             return;
 
         _tutorialMonsterController.DropPoop(PoopType.Normal);
     }
 
-    private void ShowMonsterInfoForSimpleStep(SimpleTutorialPanelStep step)
+    private void MoveTutorialMonsterForSimpleStep(SimpleTutorialPanelStep step)
     {
-        if (_tutorialMonsterController == null || step == null)
+        if (_tutorialMonsterController == null || _tutorialMonsterRect == null || step == null)
             return;
 
-        if (!step.showMonsterInfoOnStepStart)
+        var config = step.config;
+        if (config == null || !config.moveTutorialMonsterToTarget)
+            return;
+
+        if (string.IsNullOrEmpty(config.monsterTargetId))
+            return;
+        TutorialMonsterTargetMarker[] markers = FindObjectsOfType<TutorialMonsterTargetMarker>(true);
+        TutorialMonsterTargetMarker targetMarker = null;
+
+        for (int i = 0; i < markers.Length; i++)
+        {
+            var marker = markers[i];
+            if (marker != null && marker.isActiveAndEnabled && string.Equals(marker.id, config.monsterTargetId, StringComparison.Ordinal))
+            {
+                targetMarker = marker;
+                break;
+            }
+        }
+
+        if (targetMarker == null)
+            return;
+
+        var targetRect = targetMarker.transform as RectTransform;
+        if (targetRect == null)
+            return;
+
+        var canvas = _tutorialMonsterRect.GetComponentInParent<Canvas>();
+        if (canvas == null)
+            return;
+
+        var cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+        var parentRect = _tutorialMonsterRect.parent as RectTransform;
+        if (parentRect == null)
+            return;
+
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(cam, targetRect.position);
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, screenPos, cam, out var localPos))
+        {
+            _tutorialMonsterRect.anchoredPosition = localPos;
+        }
+    }
+
+    private void ShowMonsterInfoForSimpleStep(SimpleTutorialPanelStep step)
+    {
+        var config = step != null ? step.config : null;
+        if (_tutorialMonsterController == null || config == null)
+            return;
+
+        if (!config.showMonsterInfoOnStepStart)
             return;
 
         _tutorialMonsterController.UI?.ShowMonsterInfo();
@@ -221,9 +293,10 @@ public partial class TutorialManager
         var pointer = ServiceLocator.Get<ITutorialPointer>();
         if (pointer == null)
             return;
+        var config = step != null ? step.config : null;
 
-        bool wantsUIHand = step != null && step.useUIManagerButtonHandPointer;
-        bool wantsPointer = step != null && (step.usePointer || wantsUIHand);
+        bool wantsUIHand = config != null && config.useUIManagerButtonHandPointer;
+        bool wantsPointer = config != null && (config.usePointer || wantsUIHand);
 
         if (!wantsPointer)
         {
@@ -231,13 +304,13 @@ public partial class TutorialManager
             return;
         }
 
-        if (step.useTutorialMonsterAsPointerTarget && _tutorialMonsterRect != null)
+        if (config != null && config.useTutorialMonsterAsPointerTarget && _tutorialMonsterRect != null)
         {
-            pointer.PointTo(_tutorialMonsterRect, step.pointerOffset);
+            pointer.PointTo(_tutorialMonsterRect, config.pointerOffset);
             return;
         }
 
-        if (step.usePoopCleanAsNext)
+        if (config != null && config.usePoopCleanAsNext)
         {
             var monsterManager = ServiceLocator.Get<MonsterManager>();
             if (monsterManager != null &&
@@ -250,14 +323,14 @@ public partial class TutorialManager
                     var poopRect = poop.GetComponentInChildren<RectTransform>();
                     if (poopRect != null)
                     {
-                        pointer.PointTo(poopRect, step.pointerOffset);
+                        pointer.PointTo(poopRect, config.pointerOffset);
                         return;
                     }
                 }
             }
         }
 
-        if (step.useNextButtonAsPointerTarget || wantsUIHand)
+        if ((config != null && config.useNextButtonAsPointerTarget) || wantsUIHand)
         {
             var btn = GetSimpleStepNextButton(step);
             if (btn != null)
@@ -265,7 +338,7 @@ public partial class TutorialManager
                 var rect = btn.transform as RectTransform;
                 if (rect != null)
                 {
-                    pointer.PointTo(rect, step.pointerOffset);
+                    pointer.PointTo(rect, config.pointerOffset);
                     return;
                 }
             }
@@ -305,7 +378,8 @@ public partial class TutorialManager
 
     private void UpdateRightClickMouseHintForSimpleStep(SimpleTutorialPanelStep step)
     {
-        if (step == null || !step.showRightClickMouseHint)
+        var config = step != null ? step.config : null;
+        if (config == null || !config.showRightClickMouseHint)
         {
             HideRightClickMouseHint();
             return;
@@ -333,7 +407,7 @@ public partial class TutorialManager
 
         var petPos = _tutorialMonsterRect.anchoredPosition;
         var baseOffset = new Vector2(0f, 120f);
-        _rightClickMouseHintInstance.anchoredPosition = petPos + baseOffset + step.rightClickMouseHintOffset;
+        _rightClickMouseHintInstance.anchoredPosition = petPos + baseOffset + config.rightClickMouseHintOffset;
 
         PlaySimplePanelShowAnimation(_rightClickMouseHintInstance.gameObject);
     }
@@ -358,17 +432,18 @@ public partial class TutorialManager
             return;
 
         var step = simpleTutorialPanels[_simplePanelIndex];
-        if (step == null)
+        var config = step != null ? step.config : null;
+        if (step == null || config == null)
             return;
 
-        if (step.useFoodDropAsNext)
+        if (config.useFoodDropAsNext)
             return;
 
-        if (step.useUIManagerButtonHandPointer)
+        if (config.useUIManagerButtonHandPointer)
             return;
 
-        bool wantsLeft = step.useLeftClickPetAsNext;
-        bool wantsRight = step.useRightClickPetAsNext;
+        bool wantsLeft = config.useLeftClickPetAsNext;
+        bool wantsRight = config.useRightClickPetAsNext;
         if (!wantsLeft && !wantsRight)
             return;
 
@@ -406,14 +481,18 @@ public partial class TutorialManager
         for (int i = 0; i < simpleTutorialPanels.Count; i++)
         {
             var step = simpleTutorialPanels[i];
-            if (step == null)
+            var config = step != null ? step.config : null;
+            if (step == null || config == null)
                 continue;
 
-            if (step.nextButtonIndex < 0 || step.nextButtonIndex >= _uiButtonsCache.Length)
+            if (config.nextButtonIndex < 0 || config.nextButtonIndex >= _uiButtonsCache.Length)
                 continue;
 
-            var btn = _uiButtonsCache[step.nextButtonIndex];
+            var btn = _uiButtonsCache[config.nextButtonIndex];
             if (btn == null)
+                continue;
+
+            if (_isRunningHandPointerSubTutorial && _currentHandPointerTargetButton == btn)
                 continue;
 
             btn.interactable = false;
@@ -423,30 +502,41 @@ public partial class TutorialManager
             return;
 
         var currentStep = simpleTutorialPanels[_simplePanelIndex];
-        if (currentStep == null)
+        var currentConfig = currentStep != null ? currentStep.config : null;
+        if (currentStep == null || currentConfig == null)
             return;
 
-        if (currentStep.useFoodDropAsNext || currentStep.usePoopCleanAsNext)
+        if (currentConfig.useFoodDropAsNext || currentConfig.usePoopCleanAsNext)
             return;
 
-        if (currentStep.nextButtonIndex < 0 || currentStep.nextButtonIndex >= _uiButtonsCache.Length)
+        if (currentConfig.nextButtonIndex < 0 || currentConfig.nextButtonIndex >= _uiButtonsCache.Length)
             return;
 
-        var currentBtn = _uiButtonsCache[currentStep.nextButtonIndex];
+        var currentBtn = _uiButtonsCache[currentConfig.nextButtonIndex];
         if (currentBtn == null)
             return;
 
         bool allowInteract = true;
-        if (currentStep.minNextClickDelay > 0f)
+        if (currentConfig.minNextClickDelay > 0f)
         {
-            if (Time.time - _simpleStepShownTime < currentStep.minNextClickDelay)
+            if (Time.time - _simpleStepShownTime < currentConfig.minNextClickDelay)
             {
                 allowInteract = false;
             }
         }
-        currentBtn.interactable = allowInteract;
 
-        if (currentStep.useUIManagerButtonHandPointer)
+        // Jika sedang ada hand-pointer sub-tutorial dan tombol ini
+        // adalah target-nya, biarkan selalu interactable.
+        if (_isRunningHandPointerSubTutorial && _currentHandPointerTargetButton == currentBtn)
+        {
+            currentBtn.interactable = true;
+        }
+        else
+        {
+            currentBtn.interactable = allowInteract;
+        }
+
+        if (currentConfig.useUIManagerButtonHandPointer)
         {
             if (!currentBtn.gameObject.activeSelf)
                 currentBtn.gameObject.SetActive(true);

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfaa2fb309311f04080a1dd9c30ad5c1, type: 3}
+  m_Name: Step 10
+  m_EditorClassIdentifier: 
+  nextButtonIndex: 13
+  nextStepDelay: 0
+  minNextClickDelay: 1
+  useLeftClickPetAsNext: 0
+  useRightClickPetAsNext: 0
+  useCoinCollectAsNext: 0
+  useFoodDropAsNext: 0
+  usePoopCleanAsNext: 0
+  requiredFoodDropCount: 1
+  usePointer: 1
+  useTutorialMonsterAsPointerTarget: 0
+  useNextButtonAsPointerTarget: 1
+  pointerOffset: {x: 10, y: 0}
+  useUIManagerButtonHandPointer: 0
+  handPointerSequence: {fileID: 0}
+  showRightClickMouseHint: 0
+  rightClickMouseHintOffset: {x: 0, y: 0}
+  freezeTutorialMonsterMovement: 0
+  makeTutorialMonsterHungry: 0
+  hungryReduceAmount: 50
+  dropPoopOnStepStart: 0
+  moveTutorialMonsterToTarget: 0
+  monsterTargetId: 
+  showMonsterInfoOnStepStart: 0
+  minFoodDropDelay: 5

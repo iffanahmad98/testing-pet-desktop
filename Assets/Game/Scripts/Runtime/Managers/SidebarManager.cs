@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SidebarManager : MonoBehaviour
+public class SidebarManager : MonoBehaviour, IUIButtonSource
 {
     [System.Serializable]
     public class SidebarPanelLink
@@ -29,6 +29,25 @@ public class SidebarManager : MonoBehaviour
 
         if (sidebarLinks.Count > 0)
             ShowPanel(sidebarLinks[0]);
+
+        Debug.Log(this.gameObject.name);
+    }
+
+    public void CollectButtons(List<Button> target)
+    {
+        if (target == null || sidebarLinks == null)
+            return;
+
+        foreach (var link in sidebarLinks)
+        {
+            if (link == null || link.sidebarButton == null)
+                continue;
+
+            if (!target.Contains(link.sidebarButton))
+            {
+                target.Add(link.sidebarButton);
+            }
+        }
     }
 
     public void ShowPanel(SidebarPanelLink linkToShow)
