@@ -3,6 +3,7 @@ using UnityEngine;
 
 public partial class UIManager
 {
+    public MinimizeWindow minimizeWindow;
     #region UI Feedback
 
     public void ShowMessage(string message, float duration = 1f)
@@ -62,7 +63,8 @@ public partial class UIManager
             Debug.LogWarning("TransparentWindow service not found - cannot minimize");
 
 #if !UNITY_STANDALONE_WIN && !UNITY_EDITOR_WIN
-            Application.Quit();
+            // Application.Quit();
+            minimizeWindow.Minimize ();
 #endif
         }
     }

@@ -15,6 +15,7 @@ public class MinimizeWindow : MonoBehaviour
 
     public void Minimize()
     {
+       // Debug.LogError ("Minimize Window");
         #if UNITY_STANDALONE_WIN
         Screen.fullScreen = false;
         ShowWindow(GetActiveWindow(), SW_MINIMIZE);
