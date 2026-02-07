@@ -85,7 +85,6 @@ public class FacilityShopManager : MonoBehaviour
                     Id = card.FacilityData.facilityID
                 });
 
-            card.gameObject.SetActive(false);
             activeCards.Add(card);
         }
 
@@ -107,7 +106,6 @@ public class FacilityShopManager : MonoBehaviour
                     Id = card.npc.id
                 });
 
-            card.gameObject.SetActive(false);
             activeCards.Add(card);
         }
     }
@@ -143,7 +141,6 @@ public class FacilityShopManager : MonoBehaviour
 
         foreach (var card in activeCards)
         {
-            card.gameObject.SetActive(true);
             card.UpdateState();
             bool canBuy = CheckBuyingRequirement(card, card.IsNpc);
             card.SetGrayscale(!canBuy);

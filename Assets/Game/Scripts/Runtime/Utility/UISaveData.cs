@@ -4,6 +4,7 @@ using System.Linq;
 
 public class UISaveData 
 {
+    public List<ShopCardData> MonsterShopCards = new();
     public List<ShopCardData> ItemShopCards = new();
     public List<ShopCardData> BiomeShopCards = new();
     public List<ShopCardData> DecorationShopCards = new();
@@ -11,6 +12,7 @@ public class UISaveData
 
     public ShopCardData GetShopCardData(ShopType type, string id) => type switch
     {
+        ShopType.MonsterShop => MonsterShopCards.FirstOrDefault(x => x.Id == id),
         ShopType.ItemShop => ItemShopCards.FirstOrDefault(x => x.Id == id),
         ShopType.BiomeShop => BiomeShopCards.FirstOrDefault(x => x.Id == id),
         ShopType.DecorationShop => DecorationShopCards.FirstOrDefault(x => x.Id == id),
@@ -22,6 +24,9 @@ public class UISaveData
     {
         switch (type)
         {
+            case ShopType.MonsterShop:
+                MonsterShopCards.Find(x => x.Id == id).IsOpened = state;
+                break;
             case ShopType.ItemShop:
                 ItemShopCards.Find(x => x.Id == id).IsOpened = state;
                 break;

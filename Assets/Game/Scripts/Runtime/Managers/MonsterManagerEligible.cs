@@ -5,7 +5,7 @@ public class MonsterManagerEligible : MonoBehaviour
 {
     public static MonsterManagerEligible Instance;
     PlayerConfig playerConfig;
-    List <MonsterDataSO> listMonsterDataSO = new ();
+    [SerializeField] List <MonsterDataSO> listMonsterDataSO = new ();
     [SerializeField] MonsterDatabaseSO monsterDatabase;
 
     void Awake () {
@@ -49,10 +49,10 @@ public class MonsterManagerEligible : MonoBehaviour
 
     void RefreshListMonsterDataSO () {
         listMonsterDataSO.Clear ();
-        foreach (MonsterSaveData data in playerConfig.ownedMonsters) {
-            MonsterDataSO dataSO = monsterDatabase.GetMonsterByID (data.monsterId);
-            listMonsterDataSO.Add (dataSO);
-        }
+        //foreach (MonsterSaveData data in playerConfig.ownedMonsters) {
+        //    MonsterDataSO dataSO = monsterDatabase.GetMonsterByID (data.monsterId);
+        //    listMonsterDataSO.Add (dataSO);
+        //}
         foreach (MonsterDataSO dataSO in MonsterManager.instance.GetListPurchasedMonsterDataSO ()) {
             listMonsterDataSO.Add (dataSO);
         }
