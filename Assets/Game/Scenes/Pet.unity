@@ -17599,6 +17599,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 296168054}
   m_CullTransparentMesh: 1
+--- !u!114 &304695902 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3888539829609478757, guid: ad520e0ea22997040998be580886f569, type: 3}
+  m_PrefabInstance: {fileID: 111256857656826533}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a2ed6a822c863a449510e308739e90d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &321689312
 GameObject:
   m_ObjectHideFlags: 0
@@ -108736,6 +108747,14 @@ PrefabInstance:
     - target: {fileID: 5341540339618512186, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6401401660636882601, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 304695902}
+    - target: {fileID: 6401401660636882601, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RollGacha
       objectReference: {fileID: 0}
     - target: {fileID: 6936790041401780084, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
       propertyPath: m_LocalScale.x

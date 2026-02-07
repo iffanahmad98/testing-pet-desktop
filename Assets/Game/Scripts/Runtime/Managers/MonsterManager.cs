@@ -209,7 +209,7 @@ public class MonsterManager : MonoBehaviour
         if (monsterRectTransform)
         {
             Debug.Log("Change Pivot to (0.5,0.0f)");
-            monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
+            monsterRectTransform.pivot = new Vector2(0.5f, 0.2f);
         }
         AddListMonsterManagerEligible(monsterData);
     }
@@ -272,7 +272,7 @@ public class MonsterManager : MonoBehaviour
         if (monsterRectTransform)
         {
             Debug.Log("Change Pivot to (0.5,0.0f)");
-            monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
+            monsterRectTransform.pivot = new Vector2(0.5f, 0.2f);
         }
         AddListMonsterManagerEligible(monsterData);
     }
@@ -1076,7 +1076,7 @@ public class MonsterManager : MonoBehaviour
         if (monsterRectTransform)
         {
             Debug.Log("Change Pivot to (0.5,0.0f)");
-            monsterRectTransform.pivot = new Vector2(0.5f, 0.0f);
+            monsterRectTransform.pivot = new Vector2(0.5f, 0.2f);
         }
 
 
