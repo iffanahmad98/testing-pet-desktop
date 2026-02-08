@@ -45,6 +45,9 @@ public partial class TutorialManager
         {
             UpdatePointerForSimpleStep(step);
         }
+
+        UpdateCurrentHandPointerOffsetRealtime();
+
         UpdateSimpleStepNextButtonsInteractable();
     }
 
@@ -139,11 +142,24 @@ public partial class TutorialManager
         if (_simplePanelIndex < simpleTutorialPanels.Count)
         {
             var currentStep = simpleTutorialPanels[_simplePanelIndex];
+            var currentConfig = currentStep != null ? currentStep.config : null;
+
             if (currentStep != null && currentStep.panelRoot != null)
                 currentStep.panelRoot.SetActive(false);
-            HideRightClickMouseHint();
 
+            HideRightClickMouseHint();
             UpdateTutorialMonsterMovementForSimpleStep(null);
+
+            if (currentConfig != null && currentConfig.hideInventoryOnNext)
+            {
+                var inventory = ServiceLocator.Get<ItemInventoryUI>();
+                if (inventory != null)
+                {
+                    inventory.HideInventory();
+                    inventory.ResetInventoryGroupvisibility();
+                    inventory.ExitDeleteMode();
+                }
+            }
         }
 
         _simplePanelIndex++;
@@ -420,6 +436,33 @@ public partial class TutorialManager
         }
     }
 
+    public void ToggleInventoryFromSimpleTutorial()
+    {
+        var inventory = ServiceLocator.Get<ItemInventoryUI>();
+        if (inventory == null)
+        {
+            Debug.LogWarning("TutorialManager: ItemInventoryUI tidak ditemukan saat ToggleInventoryFromSimpleTutorial.");
+            return;
+        }
+
+        var canvasGroup = inventory.GetComponent<CanvasGroup>();
+        bool isVisible = canvasGroup != null && canvasGroup.interactable && canvasGroup.alpha > 0.5f;
+
+        if (isVisible)
+        {
+            inventory.HideInventory();
+            inventory.ResetInventoryGroupvisibility();
+            inventory.ExitDeleteMode();
+        }
+        else
+        {
+            inventory.ShowInventory();
+            inventory.ResetInventoryGroupvisibility();
+        }
+
+        RequestNextSimplePanel();
+    }
+
     private void OnTutorialMonsterClicked(PointerEventData eventData)
     {
         if (!IsSimpleMode)
@@ -525,8 +568,6 @@ public partial class TutorialManager
             }
         }
 
-        // Jika sedang ada hand-pointer sub-tutorial dan tombol ini
-        // adalah target-nya, biarkan selalu interactable.
         if (_isRunningHandPointerSubTutorial && _currentHandPointerTargetButton == currentBtn)
         {
             currentBtn.interactable = true;

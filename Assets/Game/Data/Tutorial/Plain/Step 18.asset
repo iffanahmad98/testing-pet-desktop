@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dfaa2fb309311f04080a1dd9c30ad5c1, type: 3}
-  m_Name: Step 4
+  m_Name: Step 18
   m_EditorClassIdentifier: 
-  nextButtonIndex: 9
+  nextButtonIndex: 13
   nextStepDelay: 0
   minNextClickDelay: 1
   useLeftClickPetAsNext: 0
   useRightClickPetAsNext: 0
-  useCoinCollectAsNext: 1
+  useCoinCollectAsNext: 0
   useFoodDropAsNext: 0
   usePoopCleanAsNext: 0
   requiredFoodDropCount: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
   handPointerSequence: {fileID: 0}
   showRightClickMouseHint: 0
   rightClickMouseHintOffset: {x: 0, y: 0}
-  freezeTutorialMonsterMovement: 1
+  freezeTutorialMonsterMovement: 0
   makeTutorialMonsterHungry: 0
   hungryReduceAmount: 50
   dropPoopOnStepStart: 0
@@ -38,4 +38,4 @@ MonoBehaviour:
   showMonsterInfoOnStepStart: 0
   minFoodDropDelay: 5
   hideInventoryOnNext: 0
-  coinCollectNextStepDelay: 2
+  coinCollectNextStepDelay: 0

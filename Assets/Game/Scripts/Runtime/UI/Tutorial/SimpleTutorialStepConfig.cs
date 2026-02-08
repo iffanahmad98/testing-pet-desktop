@@ -49,4 +49,12 @@ public class SimpleTutorialStepConfig : ScriptableObject
 
     [Header("Food Drop Timing")]
     public float minFoodDropDelay = 5f;
+
+    [Header("Inventory")]
+    [Tooltip("Jika true, ketika step simple panel ini selesai (Next), inventory akan di-hide seperti tombol close inventory.")]
+    public bool hideInventoryOnNext;
+
+    [Header("Coin Collect")]
+    [Tooltip("Khusus jika useCoinCollectAsNext = true: delay sebelum pindah ke step berikutnya setelah coin dikoleksi.")]
+    public float coinCollectNextStepDelay = 0f;
 }

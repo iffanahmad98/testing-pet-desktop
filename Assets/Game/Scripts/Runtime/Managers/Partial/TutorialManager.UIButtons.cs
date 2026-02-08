@@ -12,10 +12,32 @@ public partial class TutorialManager
 
     public void RebuildUIButtonCache()
     {
+        var previousInteractables = _uiButtonsInteractableCache;
+
         _uiButtonsCache = null;
         _uiButtonsInteractableCache = null;
         _hasLoggedUIButtonCache = false;
+
         CacheUIButtonsFromUIManager();
+        if (previousInteractables != null && _uiButtonsCache != null)
+        {
+            var merged = new bool[_uiButtonsCache.Length];
+            for (int i = 0; i < _uiButtonsCache.Length; i++)
+            {
+                if (i < previousInteractables.Length)
+                {
+                    merged[i] = previousInteractables[i];
+                }
+                else
+                {
+                    var btn = _uiButtonsCache[i];
+                    merged[i] = btn != null && btn.interactable;
+                }
+            }
+
+            _uiButtonsInteractableCache = merged;
+        }
+
         Debug.Log("[TutorialManager] RebuildUIButtonCache dipanggil.");
     }
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfaa2fb309311f04080a1dd9c30ad5c1, type: 3}
   m_Name: Step 10
   m_EditorClassIdentifier: 
-  nextButtonIndex: 13
+  nextButtonIndex: 25
   nextStepDelay: 0
   minNextClickDelay: 1
   useLeftClickPetAsNext: 0
@@ -21,12 +21,12 @@ MonoBehaviour:
   useFoodDropAsNext: 0
   usePoopCleanAsNext: 0
   requiredFoodDropCount: 1
-  usePointer: 1
+  usePointer: 0
   useTutorialMonsterAsPointerTarget: 0
-  useNextButtonAsPointerTarget: 1
-  pointerOffset: {x: 10, y: 0}
-  useUIManagerButtonHandPointer: 0
-  handPointerSequence: {fileID: 0}
+  useNextButtonAsPointerTarget: 0
+  pointerOffset: {x: 78.7, y: 0}
+  useUIManagerButtonHandPointer: 1
+  handPointerSequence: {fileID: 11400000, guid: 660893e55e391064cbcefa8acb86c752, type: 2}
   showRightClickMouseHint: 0
   rightClickMouseHintOffset: {x: 0, y: 0}
   freezeTutorialMonsterMovement: 0
@@ -37,3 +37,5 @@ MonoBehaviour:
   monsterTargetId: 
   showMonsterInfoOnStepStart: 0
   minFoodDropDelay: 5
+  hideInventoryOnNext: 0
+  coinCollectNextStepDelay: 0

@@ -13,6 +13,15 @@ public partial class TutorialManager
         {
             skipTutorialButton.onClick.RemoveListener(SkipAllTutorials);
             skipTutorialButton.onClick.AddListener(SkipAllTutorials);
+
+            var cg = skipTutorialButton.GetComponent<CanvasGroup>();
+            if (cg == null)
+            {
+                cg = skipTutorialButton.gameObject.AddComponent<CanvasGroup>();
+            }
+            cg.alpha = 0f;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
         }
 
     }
@@ -38,6 +47,9 @@ public partial class TutorialManager
         DisableUIManagerButtonsForTutorial();
         SpawnTutorialMonsterIfNeeded();
         StartSimpleTutorialSequence();
+
+        // Tampilkan skip button dengan animasi saat tutorial simple mulai.
+        ShowSkipButtonAnimated();
     }
 
     private bool ShouldRunSimpleTutorialOnStart()
@@ -103,6 +115,7 @@ public partial class TutorialManager
         HideRightClickMouseHint();
         HidePointerIfAny();
         RestoreUIManagerButtonsInteractable();
+        HideSkipButtonAnimated();
         gameObject.SetActive(false);
     }
 }

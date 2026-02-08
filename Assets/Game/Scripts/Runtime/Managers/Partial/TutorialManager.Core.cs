@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
 public partial class TutorialManager
 {
@@ -79,6 +80,60 @@ public partial class TutorialManager
             }
             _isSubscribedToPlacementManager = false;
         }
+    }
+
+    public void ShowSkipButtonAnimated()
+    {
+        if (skipTutorialButton == null)
+            return;
+
+        var rect = skipTutorialButton.transform as RectTransform;
+        var cg = skipTutorialButton.GetComponent<CanvasGroup>();
+        if (rect == null || cg == null)
+            return;
+
+        rect.DOKill();
+        cg.DOKill();
+
+        var targetPos = rect.anchoredPosition;
+        var startPos = targetPos;
+        startPos.y -= 80f;
+        rect.anchoredPosition = startPos;
+
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+        rect.DOAnchorPos(targetPos, 0.3f).SetEase(Ease.OutQuad);
+        cg.DOFade(1f, 0.3f).OnComplete(() =>
+        {
+            cg.interactable = true;
+            cg.blocksRaycasts = true;
+        });
+    }
+
+    public void HideSkipButtonAnimated()
+    {
+        if (skipTutorialButton == null)
+            return;
+
+        var rect = skipTutorialButton.transform as RectTransform;
+        var cg = skipTutorialButton.GetComponent<CanvasGroup>();
+        if (rect == null || cg == null)
+            return;
+
+        rect.DOKill();
+        cg.DOKill();
+
+        var startPos = rect.anchoredPosition;
+        var targetPos = startPos;
+        targetPos.y -= 80f;
+
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+        rect.DOAnchorPos(targetPos, 0.25f).SetEase(Ease.InQuad);
+        cg.DOFade(0f, 0.25f);
     }
 
     private void TrySubscribeMonsterPoopClean()
@@ -422,7 +477,23 @@ public partial class TutorialManager
 
         var step = simpleTutorialPanels[_simplePanelIndex];
         var config = step != null ? step.config : null;
-        float delay = config != null ? Mathf.Max(0f, config.nextStepDelay) : 0f;
+
+        float delay = 0f;
+        if (config != null)
+        {
+            if (config.useCoinCollectAsNext)
+            {
+                if (config.coinCollectNextStepDelay > 0f)
+                {
+                    delay = Mathf.Max(0f, config.coinCollectNextStepDelay);
+                }
+            }
+            else
+            {
+                delay = Mathf.Max(0f, config.nextStepDelay);
+            }
+        }
+
         _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(delay));
     }
 

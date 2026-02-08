@@ -10,6 +10,7 @@ public partial class TutorialManager
     private int _handPointerSubStepIndex = -1;
     private HandPointerTutorialSequenceSO _activeHandPointerSubTutorial;
     private Button _currentHandPointerTargetButton;
+    private RectTransform _currentHandPointerTargetRect;
     private void SetHandPointerSequenceButtonsInteractable(bool interactable)
     {
         if (_activeHandPointerSubTutorial == null ||
@@ -110,6 +111,7 @@ public partial class TutorialManager
         _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
         _currentHandPointerTargetButton.onClick.AddListener(OnHandPointerTargetClicked);
 
+        _currentHandPointerTargetRect = rect;
         pointer.PointTo(rect, step.pointerOffset);
     }
 
@@ -157,6 +159,8 @@ public partial class TutorialManager
             _currentHandPointerTargetButton = null;
         }
 
+        _currentHandPointerTargetRect = null;
+
         if (simpleTutorialPanels != null &&
             _simplePanelIndex >= 0 &&
             _simplePanelIndex < simpleTutorialPanels.Count)
@@ -187,5 +191,31 @@ public partial class TutorialManager
         // Default behaviour for steps that don't use special world interactions:
         // finish hand pointer, then just advance to next simple panel.
         ShowNextSimplePanel();
+    }
+
+    /// <summary>
+    /// Dipanggil tiap frame untuk meng-update posisi hand pointer
+    /// berdasarkan nilai offset terbaru di HandPointerTutorialSequenceSO.
+    /// Ini memungkinkan kamu mengubah pointerOffset di asset saat Play,
+    /// dan melihat perpindahan pointer secara realtime.
+    /// </summary>
+    private void UpdateCurrentHandPointerOffsetRealtime()
+    {
+        if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
+            return;
+
+        if (_handPointerSubStepIndex < 0 ||
+            _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
+            return;
+
+        if (_currentHandPointerTargetRect == null)
+            return;
+
+        var pointer = ServiceLocator.Get<ITutorialPointer>();
+        if (pointer == null)
+            return;
+
+        var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
+        pointer.PointTo(_currentHandPointerTargetRect, step.pointerOffset);
     }
 }

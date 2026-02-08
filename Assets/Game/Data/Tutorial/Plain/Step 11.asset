@@ -21,9 +21,9 @@ MonoBehaviour:
   useFoodDropAsNext: 0
   usePoopCleanAsNext: 0
   requiredFoodDropCount: 1
-  usePointer: 1
+  usePointer: 0
   useTutorialMonsterAsPointerTarget: 0
-  useNextButtonAsPointerTarget: 1
+  useNextButtonAsPointerTarget: 0
   pointerOffset: {x: 0, y: 0}
   useUIManagerButtonHandPointer: 0
   handPointerSequence: {fileID: 0}
@@ -33,5 +33,9 @@ MonoBehaviour:
   makeTutorialMonsterHungry: 0
   hungryReduceAmount: 50
   dropPoopOnStepStart: 0
+  moveTutorialMonsterToTarget: 0
+  monsterTargetId: 
   showMonsterInfoOnStepStart: 0
   minFoodDropDelay: 5
+  hideInventoryOnNext: 0
+  coinCollectNextStepDelay: 0
