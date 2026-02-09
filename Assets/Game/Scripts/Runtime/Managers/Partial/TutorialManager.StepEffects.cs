@@ -12,24 +12,24 @@ public partial class TutorialManager
         public GameObject effectRoot;
     }
 
-    [Header("Simple Step Effects")]
-    [SerializeField] private List<SimpleStepEffectEntry> simpleStepEffects = new List<SimpleStepEffectEntry>();
+    [Header("Plain Step Effects")]
+    [SerializeField] private List<SimpleStepEffectEntry> plainStepEffects = new List<SimpleStepEffectEntry>();
 
-    [SerializeField] private float simpleStepEffectDuration = 0.35f;
+    [SerializeField] private float plainStepEffectDuration = 0.35f;
 
-    [SerializeField] private AnimationCurve simpleStepEffectEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] private AnimationCurve plainStepEffectEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-    [SerializeField] private float simpleStepEffectHoldDuration = 1.0f;
+    [SerializeField] private float plainStepEffectHoldDuration = 1.0f;
 
-    private void PlaySimpleStepEffectForIndex(int stepIndex)
+    private void PlayPlainStepEffectForIndex(int stepIndex)
     {
-        if (simpleStepEffects == null || simpleStepEffects.Count == 0)
+        if (plainStepEffects == null || plainStepEffects.Count == 0)
             return;
 
         SimpleStepEffectEntry config = null;
-        for (int i = 0; i < simpleStepEffects.Count; i++)
+        for (int i = 0; i < plainStepEffects.Count; i++)
         {
-            var entry = simpleStepEffects[i];
+            var entry = plainStepEffects[i];
             if (entry != null && entry.stepIndex == stepIndex && entry.effectRoot != null)
             {
                 config = entry;
@@ -71,16 +71,16 @@ public partial class TutorialManager
         // Sequence: scale-up + fade-in → (tahan) → scale-down + fade-out → nonaktifkan.
         var seq = DOTween.Sequence();
 
-        seq.Append(rect.DOScale(targetScale, simpleStepEffectDuration).SetEase(simpleStepEffectEase));
-        seq.Join(canvasGroup.DOFade(1f, simpleStepEffectDuration).SetEase(Ease.OutQuad));
+        seq.Append(rect.DOScale(targetScale, plainStepEffectDuration).SetEase(plainStepEffectEase));
+        seq.Join(canvasGroup.DOFade(1f, plainStepEffectDuration).SetEase(Ease.OutQuad));
 
-        if (simpleStepEffectHoldDuration > 0f)
+        if (plainStepEffectHoldDuration > 0f)
         {
-            seq.AppendInterval(simpleStepEffectHoldDuration);
+            seq.AppendInterval(plainStepEffectHoldDuration);
         }
 
-        seq.Append(rect.DOScale(Vector3.zero, simpleStepEffectDuration).SetEase(simpleStepEffectEase));
-        seq.Join(canvasGroup.DOFade(0f, simpleStepEffectDuration).SetEase(Ease.InQuad));
+        seq.Append(rect.DOScale(Vector3.zero, plainStepEffectDuration).SetEase(plainStepEffectEase));
+        seq.Join(canvasGroup.DOFade(0f, plainStepEffectDuration).SetEase(Ease.InQuad));
 
         seq.OnComplete(() =>
         {

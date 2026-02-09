@@ -4,11 +4,11 @@ public partial class TutorialManager
 {
     private void HideAllTutorialPanels()
     {
-        if (simpleTutorialPanels != null)
+        if (plainTutorials != null)
         {
-            for (int i = 0; i < simpleTutorialPanels.Count; i++)
+            for (int i = 0; i < plainTutorials.Count; i++)
             {
-                var step = simpleTutorialPanels[i];
+                var step = plainTutorials[i];
                 if (step != null && step.panelRoot != null)
                 {
                     step.panelRoot.SetActive(false);

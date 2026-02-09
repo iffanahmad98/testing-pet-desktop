@@ -1,9 +1,8 @@
 using System;
 using UnityEngine;
 
-// Deprecated: Use PlainTutorialStepConfig instead
 [CreateAssetMenu(menuName = "Tutorial/Plain Tutorial Step Config", fileName = "PlainTutorialStepConfig")]
-public class SimpleTutorialStepConfig : ScriptableObject
+public class PlainTutorialStepConfig : ScriptableObject
 {
     [Header("Next Button")]
     public int nextButtonIndex = -1;

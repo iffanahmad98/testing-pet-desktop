@@ -7,16 +7,16 @@ using DG.Tweening;
 
 public partial class TutorialManager
 {
-    [SerializeField] private List<SimpleTutorialPanelStep> simpleTutorialPanels = new List<SimpleTutorialPanelStep>();
+    [SerializeField] private List<PlainTutorialPanelStep> plainTutorials = new List<PlainTutorialPanelStep>();
 
-    [Header("Simple Panels Animation")]
-    [SerializeField] private float simplePanelShowDuration = 0.4f;
-    [SerializeField] private AnimationCurve simplePanelShowEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [Header("Plain Panels Animation")]
+    [SerializeField] private float plainPanelShowDuration = 0.4f;
+    [SerializeField] private AnimationCurve plainPanelShowEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Global UI References")]
     [SerializeField] private Button skipTutorialButton;
 
-    private int _simplePanelIndex = -1;
+    private int _plainPanelIndex = -1;
 
     public Button[] _uiButtonsCache;
     private bool[] _uiButtonsInteractableCache;
@@ -31,10 +31,10 @@ public partial class TutorialManager
     [Header("Tutorial Start Items")]
     [SerializeField] private TutorialItemReward[] tutorialStartItems;
 
-    private float _simpleStepShownTime;
+    private float _plainStepShownTime;
     private int _foodDropCountForCurrentStep;
-    private readonly HashSet<Button> _simpleNextButtonsHooked = new();
-    private Coroutine _simpleNextDelayRoutine;
+    private readonly HashSet<Button> _plainNextButtonsHooked = new();
+    private Coroutine _plainNextDelayRoutine;
 
     [Header("Mouse Hint Config")]
     [SerializeField] private RectTransform rightClickMouseHintPrefab;
@@ -43,8 +43,7 @@ public partial class TutorialManager
 
     public static Button GlobalSkipTutorialButton { get; private set; }
 
-    // Step-based tutorial mode has been removed; this manager now always runs in simple mode.
-    private bool IsSimpleMode => true;
+    private bool IsPlainMode => true;
 
     private bool _isSubscribedToPlacementManager;
     private bool _isSubscribedToMonsterPoopClean;
@@ -208,42 +207,40 @@ public partial class TutorialManager
         public int amount = 10;
     }
 
-    private bool IsSimpleTutorialAlreadyCompleted()
+    private bool IsPlainTutorialAlreadyCompleted()
     {
         var config = SaveSystem.PlayerConfig;
         if (config == null)
             return false;
 
-        // Consider tutorial completed if either local simple flag
-        // or global "skip all tutorials" flag is set.
-        return config.simpleTutorialCompleted || config.allStepTutorialsSkippedGlobal;
+        return config.plaintutorial || config.allStepTutorialsSkippedGlobal;
     }
 
-    private void MarkSimpleTutorialCompleted()
+    private void MarkPlainTutorialCompleted()
     {
         var config = SaveSystem.PlayerConfig;
         if (config == null)
             return;
 
-        if (!config.simpleTutorialCompleted)
+        if (!config.plaintutorial)
         {
-            config.simpleTutorialCompleted = true;
+            config.plaintutorial = true;
             SaveSystem.SaveAll();
         }
     }
 
     private void OnCoinCollectedByPlayer(CoinController coin)
     {
-        if (!IsSimpleMode)
+        if (!IsPlainMode)
             return;
 
-        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+        if (plainTutorials == null || plainTutorials.Count == 0)
             return;
 
-        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+        if (_plainPanelIndex < 0 || _plainPanelIndex >= plainTutorials.Count)
             return;
 
-        var step = simpleTutorialPanels[_simplePanelIndex];
+        var step = plainTutorials[_plainPanelIndex];
         var config = step != null ? step.config : null;
         if (config == null)
             return;
@@ -257,7 +254,7 @@ public partial class TutorialManager
         if (!config.useCoinCollectAsNext)
             return;
 
-        RequestNextSimplePanel();
+        RequestNextPlainPanel();
     }
 
     private void OnFoodPlacementConfirmed()
@@ -268,22 +265,22 @@ public partial class TutorialManager
 
     private void OnPoopCleanedByPlayer(PoopController poop)
     {
-        Debug.Log($"TutorialManager: OnPoopCleanedByPlayer called for poop '{poop?.name}' at simple index {_simplePanelIndex}");
+        Debug.Log($"TutorialManager: OnPoopCleanedByPlayer called for poop '{poop?.name}' at plain index {_plainPanelIndex}");
         TryHandlePoopCleanProgress();
     }
 
     private void TryHandleFoodDropProgress(bool incrementCount)
     {
-        if (!IsSimpleMode)
+        if (!IsPlainMode)
             return;
 
-        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+        if (plainTutorials == null || plainTutorials.Count == 0)
             return;
 
-        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+        if (_plainPanelIndex < 0 || _plainPanelIndex >= plainTutorials.Count)
             return;
 
-        var step = simpleTutorialPanels[_simplePanelIndex];
+        var step = plainTutorials[_plainPanelIndex];
         var config = step != null ? step.config : null;
         if (config == null)
             return;
@@ -299,7 +296,7 @@ public partial class TutorialManager
         int required = config.requiredFoodDropCount <= 0 ? 1 : config.requiredFoodDropCount;
 
         float delay = config.minFoodDropDelay > 0f ? config.minFoodDropDelay : 5f;
-        if (Time.time - _simpleStepShownTime < delay)
+        if (Time.time - _plainStepShownTime < delay)
             return;
 
         if (_foodDropCountForCurrentStep < required)
@@ -308,32 +305,32 @@ public partial class TutorialManager
             return;
         }
 
-        Debug.Log("TutorialManager: food-drop conditions met, requesting next simple panel");
+        Debug.Log("TutorialManager: food-drop conditions met, requesting next plain panel");
         CancelFoodPlacementIfAny();
-        RequestNextSimplePanel();
+        RequestNextPlainPanel();
     }
 
     private void TryHandlePoopCleanProgress()
     {
-        if (!IsSimpleMode)
+        if (!IsPlainMode)
         {
-            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (not in simple mode)");
+            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (not in plain mode)");
             return;
         }
 
-        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+        if (plainTutorials == null || plainTutorials.Count == 0)
         {
-            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (no simpleTutorialPanels)");
+            Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (no plainTutorials)");
             return;
         }
 
-        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+        if (_plainPanelIndex < 0 || _plainPanelIndex >= plainTutorials.Count)
         {
-            Debug.Log($"TutorialManager: TryHandlePoopCleanProgress ignored (invalid index {_simplePanelIndex})");
+            Debug.Log($"TutorialManager: TryHandlePoopCleanProgress ignored (invalid index {_plainPanelIndex})");
             return;
         }
 
-        var step = simpleTutorialPanels[_simplePanelIndex];
+        var step = plainTutorials[_plainPanelIndex];
         var config = step != null ? step.config : null;
         if (config == null)
         {
@@ -347,8 +344,8 @@ public partial class TutorialManager
             return;
         }
 
-        Debug.Log("TutorialManager: TryHandlePoopCleanProgress -> calling RequestNextSimplePanel");
-        RequestNextSimplePanel();
+        Debug.Log("TutorialManager: TryHandlePoopCleanProgress -> calling RequestNextPlainPanel");
+        RequestNextPlainPanel();
     }
 
     private void CancelFoodPlacementIfAny()
@@ -436,13 +433,13 @@ public partial class TutorialManager
         return RectTransformUtility.RectangleContainsScreenPoint(_tutorialMonsterRect, Input.mousePosition, cam);
     }
 
-    private void RequestNextSimplePanel()
+    private void RequestNextPlainPanel()
     {
-        if (simpleTutorialPanels != null &&
-            _simplePanelIndex >= 0 &&
-            _simplePanelIndex < simpleTutorialPanels.Count)
+        if (plainTutorials != null &&
+            _plainPanelIndex >= 0 &&
+            _plainPanelIndex < plainTutorials.Count)
         {
-            var currentStep = simpleTutorialPanels[_simplePanelIndex];
+            var currentStep = plainTutorials[_plainPanelIndex];
             var currentConfig = currentStep != null ? currentStep.config : null;
             if (_isRunningHandPointerSubTutorial && currentConfig != null &&
                 (currentConfig.useFoodDropAsNext || currentConfig.usePoopCleanAsNext))
@@ -454,28 +451,28 @@ public partial class TutorialManager
         if (_isRunningHandPointerSubTutorial)
             return;
 
-        if (simpleTutorialPanels == null || simpleTutorialPanels.Count == 0)
+        if (plainTutorials == null || plainTutorials.Count == 0)
         {
-            if (_simpleNextDelayRoutine != null)
+            if (_plainNextDelayRoutine != null)
                 return;
 
-            _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(0f));
+            _plainNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(0f));
             return;
         }
 
-        if (_simplePanelIndex < 0 || _simplePanelIndex >= simpleTutorialPanels.Count)
+        if (_plainPanelIndex < 0 || _plainPanelIndex >= plainTutorials.Count)
         {
-            if (_simpleNextDelayRoutine != null)
+            if (_plainNextDelayRoutine != null)
                 return;
 
-            _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(0f));
+            _plainNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(0f));
             return;
         }
 
-        if (_simpleNextDelayRoutine != null)
+        if (_plainNextDelayRoutine != null)
             return;
 
-        var step = simpleTutorialPanels[_simplePanelIndex];
+        var step = plainTutorials[_plainPanelIndex];
         var config = step != null ? step.config : null;
 
         float delay = 0f;
@@ -494,7 +491,7 @@ public partial class TutorialManager
             }
         }
 
-        _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(delay));
+        _plainNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(delay));
     }
 
     private IEnumerator SimpleNextDelayRoutine(float delay)
@@ -507,7 +504,7 @@ public partial class TutorialManager
         {
             yield return null;
         }
-        _simpleNextDelayRoutine = null;
-        ShowNextSimplePanel();
+        _plainNextDelayRoutine = null;
+        ShowNextPlainPanel();
     }
 }

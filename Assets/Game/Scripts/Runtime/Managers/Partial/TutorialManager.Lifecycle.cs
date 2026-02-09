@@ -36,7 +36,7 @@ public partial class TutorialManager
 
     private void Start()
     {
-        if (!ShouldRunSimpleTutorialOnStart())
+        if (!ShouldRunPlainTutorialOnStart())
         {
             gameObject.SetActive(false);
             return;
@@ -46,20 +46,18 @@ public partial class TutorialManager
 
         DisableUIManagerButtonsForTutorial();
         SpawnTutorialMonsterIfNeeded();
-        StartSimpleTutorialSequence();
-
-        // Tampilkan skip button dengan animasi saat tutorial simple mulai.
+        StartPlainTutorialSequence();
         ShowSkipButtonAnimated();
     }
 
-    private bool ShouldRunSimpleTutorialOnStart()
+    private bool ShouldRunPlainTutorialOnStart()
     {
-        if (IsSimpleTutorialAlreadyCompleted())
+        if (IsPlainTutorialAlreadyCompleted())
         {
             return false;
         }
 
-        return simpleTutorialPanels != null && simpleTutorialPanels.Count > 0;
+        return plainTutorials != null && plainTutorials.Count > 0;
     }
 
     public bool HasAnyPending()
@@ -94,23 +92,23 @@ public partial class TutorialManager
 
         HideAllTutorialPanels();
 
-        if (simpleTutorialPanels != null)
+        if (plainTutorials != null)
         {
-            for (int i = 0; i < simpleTutorialPanels.Count; i++)
+            for (int i = 0; i < plainTutorials.Count; i++)
             {
-                var step = simpleTutorialPanels[i];
+                var step = plainTutorials[i];
                 if (step != null && step.panelRoot != null)
                     step.panelRoot.SetActive(false);
             }
         }
 
-        _simplePanelIndex = -1;
+        _plainPanelIndex = -1;
 
         if (_tutorialMonsterController != null)
         {
             _tutorialMonsterController.SetInteractionsDisabledByTutorial(false);
         }
-        MarkSimpleTutorialCompleted();
+        MarkPlainTutorialCompleted();
 
         HideRightClickMouseHint();
         HidePointerIfAny();

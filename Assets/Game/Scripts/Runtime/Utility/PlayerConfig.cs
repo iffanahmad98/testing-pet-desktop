@@ -45,7 +45,7 @@ public class PlayerConfig
     public bool isAmbientEnabled = false;
     public bool isRainEnabled = false;
     public bool isMondayReset = false;
-    public bool simpleTutorialCompleted = false;
+    public bool plaintutorial = false;
     public bool tutorialItemsGranted = false;
     public bool allStepTutorialsSkippedGlobal = false;
 

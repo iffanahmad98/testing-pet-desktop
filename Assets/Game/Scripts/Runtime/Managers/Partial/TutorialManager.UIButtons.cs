@@ -86,10 +86,7 @@ public partial class TutorialManager
             Add(shop.helpShopButton);
         }
 
-        // Also collect buttons from any other UI sources (e.g. BoardSign)
         CacheButtonsFromSceneSources(list);
-
-        // Terakhir, tambahkan button manual dari Inspector (jika ada).
         if (manualUIButtonExtras != null)
         {
             foreach (var extra in manualUIButtonExtras)
@@ -218,12 +215,12 @@ public partial class TutorialManager
         if (btn == skipTutorialButton)
             return true;
 
-        if (simpleTutorialPanels != null)
+        if (plainTutorials != null)
         {
-            for (int i = 0; i < simpleTutorialPanels.Count; i++)
+            for (int i = 0; i < plainTutorials.Count; i++)
             {
-                var simpleStep = simpleTutorialPanels[i];
-                var config = simpleStep != null ? simpleStep.config : null;
+                var plainStep = plainTutorials[i];
+                var config = plainStep != null ? plainStep.config : null;
                 if (config != null && config.nextButtonIndex >= 0 &&
                     _uiButtonsCache != null && config.nextButtonIndex < _uiButtonsCache.Length &&
                     _uiButtonsCache[config.nextButtonIndex] == btn)
@@ -234,7 +231,7 @@ public partial class TutorialManager
         return false;
     }
 
-    private Button GetSimpleStepNextButton(SimpleTutorialPanelStep step)
+    private Button GetPlainStepNextButton(PlainTutorialPanelStep step)
     {
         if (step == null)
             return null;

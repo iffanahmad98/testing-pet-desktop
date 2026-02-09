@@ -373,12 +373,12 @@ GameObject:
   - component: {fileID: 8197295549105066125}
   - component: {fileID: 5537526895806762855}
   m_Layer: 5
-  m_Name: Step 16
+  m_Name: Step 18
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &861763108241154322
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1520,8 +1520,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 23.335083}
+  m_SizeDelta: {x: 0, y: -46.6701}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5167518984134304630
 CanvasRenderer:
@@ -1551,7 +1551,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Plain Tutorial \nPomodoro Timer"
+  m_text: "Plain Tutorial \u2014 Pomodoro Timer"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
   m_sharedMaterial: {fileID: 3116694589875926387, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
@@ -3084,7 +3084,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 16.646912, y: 276}
+  m_AnchoredPosition: {x: 16.646912, y: 684}
   m_SizeDelta: {x: -1465.1216, y: 166.8984}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &648311577177290409
@@ -5056,7 +5056,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 16.646912, y: 695}
+  m_AnchoredPosition: {x: 16.646912, y: 265}
   m_SizeDelta: {x: -1465.1216, y: 166.8984}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8268011217751014384
@@ -5913,7 +5913,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 270}
-  m_SizeDelta: {x: 987.8218, y: 152.4821}
+  m_SizeDelta: {x: 1109.5701, y: 152.4821}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8629407427007158245
 CanvasRenderer:
@@ -9001,8 +9001,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Skip
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
+  m_sharedMaterial: {fileID: 3116694589875926387, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9026,8 +9026,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 27.81
+  m_fontSizeBase: 27.81
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -10736,7 +10736,7 @@ MonoBehaviour:
   pointerRect: {fileID: 6324533274903710229}
   rootCanvas: {fileID: 0}
   followSmoothTime: 0.15
-  swayAmplitude: 26.4
+  swayAmplitude: 6
   swaySpeed: 3
   sortingOrderOnTop: 5000
 --- !u!1 &6185590459470151922
@@ -12508,45 +12508,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1297f0b226f748940acef37e723e4460, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  simpleTutorialPanels:
+  plainTutorials:
   - panelRoot: {fileID: 973239746739933002}
     config: {fileID: 11400000, guid: bffb0e92b06b9dc488fc36bbf71be4ab, type: 2}
   - panelRoot: {fileID: 9131394497424638126}
-    config: {fileID: 11400000, guid: b6ce26cf4e9111c4f8f11d7f36b36fac, type: 2}
+    config: {fileID: 11400000, guid: 09874dbba3cc8384db8d8f0f7d1ed4c4, type: 2}
   - panelRoot: {fileID: 7017023766083380383}
-    config: {fileID: 11400000, guid: 1de40643bc484254aa4152c5ae0c4ece, type: 2}
+    config: {fileID: 11400000, guid: 8f04672acc468f143a902a871cc26c52, type: 2}
   - panelRoot: {fileID: 2107446871949622429}
-    config: {fileID: 11400000, guid: b7f4880eba320aa4ab41d50035cb64c0, type: 2}
+    config: {fileID: 11400000, guid: e180c6bde46f9c64d9a51c8e06f5bd30, type: 2}
   - panelRoot: {fileID: 1822071485969724975}
-    config: {fileID: 11400000, guid: 5fc4ba23c2a5e6b42ba9fc92078e5d61, type: 2}
+    config: {fileID: 11400000, guid: dbc966e963f67bf448de2c74b6dea8da, type: 2}
   - panelRoot: {fileID: 1241186858816966929}
-    config: {fileID: 11400000, guid: 1a280311bcedd5544929adf8241f24be, type: 2}
+    config: {fileID: 11400000, guid: 74a74ef8d78ceb24aa30cee71e23df2a, type: 2}
   - panelRoot: {fileID: 648434179120552562}
-    config: {fileID: 11400000, guid: 25919d54dec5a8042a2b9aeb69cfb293, type: 2}
+    config: {fileID: 11400000, guid: 50ff77f416c8cee46a0bc843eb0643ab, type: 2}
   - panelRoot: {fileID: 9065852688841435893}
-    config: {fileID: 11400000, guid: a110f742dbdd101459122f05a80c4996, type: 2}
+    config: {fileID: 11400000, guid: 349e4694acd02d9479d2f30ce356ecbd, type: 2}
   - panelRoot: {fileID: 4386888542832933374}
-    config: {fileID: 11400000, guid: 1c4352b0ba1157646b66642742fcfd86, type: 2}
+    config: {fileID: 11400000, guid: 669908ed58bb6bb49bbe65fc7feddc57, type: 2}
   - panelRoot: {fileID: 5931920797665019787}
-    config: {fileID: 11400000, guid: ec18a2450a79b4d4a8931fefb4d3ab91, type: 2}
+    config: {fileID: 11400000, guid: 2ac76cf37f51f7b40a77c20d29ba1016, type: 2}
   - panelRoot: {fileID: 9076395438097040563}
-    config: {fileID: 11400000, guid: d7e22b023cb6ca74fb9bd6baed9580e5, type: 2}
+    config: {fileID: 11400000, guid: 06f532dc114a8b445962fda6924e0bd4, type: 2}
   - panelRoot: {fileID: 8320419700642377254}
-    config: {fileID: 11400000, guid: 0e284ad4bd283e94c967310e6467c340, type: 2}
+    config: {fileID: 11400000, guid: c271796cffa9661419c1ef013b35cb7d, type: 2}
   - panelRoot: {fileID: 7830048836293419534}
-    config: {fileID: 11400000, guid: 0e284ad4bd283e94c967310e6467c340, type: 2}
+    config: {fileID: 11400000, guid: 691fd70f376295e4098fc279fd5bd972, type: 2}
   - panelRoot: {fileID: 8057704167137120021}
-    config: {fileID: 11400000, guid: 0e284ad4bd283e94c967310e6467c340, type: 2}
+    config: {fileID: 11400000, guid: 691fd70f376295e4098fc279fd5bd972, type: 2}
   - panelRoot: {fileID: 2411972868294799215}
-    config: {fileID: 11400000, guid: 8cda26ae85b32de4dbdc765053c22d07, type: 2}
+    config: {fileID: 11400000, guid: 98733bec999c8e947ac24f548bd57595, type: 2}
   - panelRoot: {fileID: 2585567067184993382}
-    config: {fileID: 11400000, guid: 27e9f5bd465ce904eab0fb8c59f114a5, type: 2}
+    config: {fileID: 11400000, guid: d6b964bd26db8fc48b2ea3604b559ca7, type: 2}
   - panelRoot: {fileID: 4736593486450886677}
-    config: {fileID: 11400000, guid: 54b2128674fb9f64d96162184e7b5094, type: 2}
+    config: {fileID: 11400000, guid: 864466fef8a61ef4db4ff8efa7b6be19, type: 2}
   - panelRoot: {fileID: 1546997853044591269}
-    config: {fileID: 11400000, guid: 12cb9097b20074b428808c2b49e40334, type: 2}
-  simplePanelShowDuration: 0.4
-  simplePanelShowEase:
+    config: {fileID: 11400000, guid: 1726bbdeda57e7c4682e9c9e595488e6, type: 2}
+  - panelRoot: {fileID: 259863509740082709}
+    config: {fileID: 11400000, guid: edebd7192619f8b43bd9dcd218aca3aa, type: 2}
+  plainPanelShowDuration: 0.4
+  plainPanelShowEase:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -12580,21 +12582,21 @@ MonoBehaviour:
     amount: 10
   rightClickMouseHintPrefab: {fileID: 1485937831992675327, guid: 2cf0867a2f3b6e64b8890154b575b4ee, type: 3}
   handPointerNextButton: {fileID: 0}
-  simpleStepEffects:
+  plainStepEffects:
   - stepIndex: 0
     effectRoot: {fileID: 1127978842236179642}
   - stepIndex: 4
     effectRoot: {fileID: 2802486459294717536}
-  - stepIndex: 7
+  - stepIndex: 9
     effectRoot: {fileID: 4810013638239993300}
-  - stepIndex: 10
+  - stepIndex: 11
     effectRoot: {fileID: 7053073384266013064}
-  - stepIndex: 14
-    effectRoot: {fileID: 3203224552894175810}
   - stepIndex: 15
+    effectRoot: {fileID: 3203224552894175810}
+  - stepIndex: 17
     effectRoot: {fileID: 7356507651314019612}
-  simpleStepEffectDuration: 0.35
-  simpleStepEffectEase:
+  plainStepEffectDuration: 0.35
+  plainStepEffectEase:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -12618,7 +12620,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  simpleStepEffectHoldDuration: 1
+  plainStepEffectHoldDuration: 1
   manualUIButtonExtras:
   - {fileID: 0}
   - {fileID: 0}
@@ -13339,7 +13341,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Plain Tutorial \nWindow Controls"
+  m_text: "Plain Tutorial \u2014 Window Controls"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
   m_sharedMaterial: {fileID: 3116694589875926387, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
@@ -13521,8 +13523,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 270}
-  m_SizeDelta: {x: 987.8218, y: 152.4821}
+  m_AnchoredPosition: {x: 0, y: 292.35}
+  m_SizeDelta: {x: 987.8218, y: 107.79}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &228934300812783868
 CanvasRenderer:
@@ -13797,6 +13799,7 @@ GameObject:
   - component: {fileID: 5102869048906703717}
   - component: {fileID: 3105574752831489225}
   - component: {fileID: 5993205656996545921}
+  - component: {fileID: 8700931447434420756}
   m_Layer: 5
   m_Name: Skip
   m_TagString: Untagged
@@ -13813,7 +13816,7 @@ RectTransform:
   m_GameObject: {fileID: 7421549556660788430}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.3554218, y: 1.3554218, z: 1.3554218}
+  m_LocalScale: {x: 0.94809043, y: 0.94809043, z: 0.94809043}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7789371213957726166}
@@ -13821,8 +13824,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -782, y: -205}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: -835.6, y: 427.2}
+  m_SizeDelta: {x: 160, y: 73.107}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5102869048906703717
 CanvasRenderer:
@@ -13852,9 +13855,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
+  m_Sprite: {fileID: 8658504750554263084, guid: b7f52fb6345604c4a93bd8c00205c1aa, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -13918,6 +13921,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &8700931447434420756
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7421549556660788430}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7463597778789392845
 GameObject:
   m_ObjectHideFlags: 0

@@ -39,9 +39,9 @@ public partial class TutorialManager
             btn.interactable = interactable;
         }
     }
-    private void StartHandPointerSubTutorial(SimpleTutorialPanelStep simpleStep)
+    private void StartHandPointerSubTutorial(PlainTutorialPanelStep plainStep)
     {
-        var config = simpleStep != null ? simpleStep.config : null;
+        var config = plainStep != null ? plainStep.config : null;
         if (config == null || config.handPointerSequence == null)
             return;
 
@@ -161,12 +161,12 @@ public partial class TutorialManager
 
         _currentHandPointerTargetRect = null;
 
-        if (simpleTutorialPanels != null &&
-            _simplePanelIndex >= 0 &&
-            _simplePanelIndex < simpleTutorialPanels.Count)
+        if (plainTutorials != null &&
+            _plainPanelIndex >= 0 &&
+            _plainPanelIndex < plainTutorials.Count)
         {
-            var currentSimpleStep = simpleTutorialPanels[_simplePanelIndex];
-            var config = currentSimpleStep != null ? currentSimpleStep.config : null;
+            var currentPlainStep = plainTutorials[_plainPanelIndex];
+            var config = currentPlainStep != null ? currentPlainStep.config : null;
             if (config != null)
             {
                 if (config.useFoodDropAsNext)
@@ -181,24 +181,16 @@ public partial class TutorialManager
                 {
                     // For poop-clean steps, delegate to TryHandlePoopCleanProgress
                     // so that progression still goes through the centralized logic
-                    // (which will call RequestNextSimplePanel).
+                    // (which will call RequestNextPlainPanel).
                     TryHandlePoopCleanProgress();
                     return;
                 }
             }
         }
 
-        // Default behaviour for steps that don't use special world interactions:
-        // finish hand pointer, then just advance to next simple panel.
-        ShowNextSimplePanel();
+        ShowNextPlainPanel();
     }
 
-    /// <summary>
-    /// Dipanggil tiap frame untuk meng-update posisi hand pointer
-    /// berdasarkan nilai offset terbaru di HandPointerTutorialSequenceSO.
-    /// Ini memungkinkan kamu mengubah pointerOffset di asset saat Play,
-    /// dan melihat perpindahan pointer secara realtime.
-    /// </summary>
     private void UpdateCurrentHandPointerOffsetRealtime()
     {
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
