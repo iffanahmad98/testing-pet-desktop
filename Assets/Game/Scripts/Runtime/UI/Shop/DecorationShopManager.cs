@@ -71,10 +71,7 @@ public class DecorationShopManager : MonoBehaviour
                     Id = card.DecorationData.decorationID
                 });
 
-            card.gameObject.SetActive(false);
             activeCards.Add(card);
-
-            //cardPool.Enqueue(card);
         }
     }
 
@@ -87,7 +84,6 @@ public class DecorationShopManager : MonoBehaviour
     {
         foreach (var deco in activeCards)
         {
-            deco.gameObject.SetActive(true);
             deco.UpdateState();
             bool canBuy = CheckBuyingRequirement(deco);
             deco.SetCanBuy(canBuy);

@@ -4,21 +4,20 @@ using System.Collections;
 public class MonsterManagerEligible : MonoBehaviour
 {
     public static MonsterManagerEligible Instance;
-    PlayerConfig playerConfig;
-    List <MonsterDataSO> listMonsterDataSO = new ();
+    //PlayerConfig playerConfig;
+    [SerializeField] List <MonsterDataSO> listMonsterDataSO = new ();
     [SerializeField] MonsterDatabaseSO monsterDatabase;
 
     void Awake () {
-        Instance= this;
+        Instance = this;
     }
-    void Start () {
-        playerConfig = SaveSystem.PlayerConfig;
-        MonsterManager.instance.AddEventPetMonsterChanged (RefreshListMonsterDataSO);
-        Invoke ("RefreshListMonsterDataSO", 0.5f);
-    }
-    void nStart () {
-        RefreshListMonsterDataSO ();
-    }
+
+    //void Start () 
+    //{
+    //   /playerConfig = SaveSystem.PlayerConfig;
+    //    MonsterManager.instance.AddEventPetMonsterChanged (RefreshListMonsterDataSO);
+    //}
+
     public int GetTotalMonstersEqualRequirements(bool anyRequirements, MonsterType monsterType = MonsterType.Common)
     { // EligiblePetMonster.cs
         /*
@@ -47,16 +46,23 @@ public class MonsterManagerEligible : MonoBehaviour
         return result;
     }
 
-    void RefreshListMonsterDataSO () {
+    void RefreshListMonsterDataSO () 
+    {
         listMonsterDataSO.Clear ();
-        foreach (MonsterSaveData data in playerConfig.ownedMonsters) {
-            MonsterDataSO dataSO = monsterDatabase.GetMonsterByID (data.monsterId);
-            listMonsterDataSO.Add (dataSO);
+        //foreach (MonsterSaveData data in playerConfig.ownedMonsters)
+        //{
+        //    MonsterDataSO dataSO = monsterDatabase.GetMonsterByID(data.monsterId);
+        //    listMonsterDataSO.Add(dataSO);
+        //}
+        foreach (MonsterDataSO dataSO in MonsterManager.instance.GetListPurchasedMonsterDataSO())
+        {
+            listMonsterDataSO.Add(dataSO);
         }
-        foreach (MonsterDataSO dataSO in MonsterManager.instance.GetListPurchasedMonsterDataSO ()) {
-            listMonsterDataSO.Add (dataSO);
-        }
-        
+    }
+
+    public void AddListMonsterEligible(MonsterDataSO dataSO)
+    {
+        listMonsterDataSO.Add(dataSO);
     }
 
     #region Utility

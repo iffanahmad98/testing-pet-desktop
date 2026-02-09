@@ -49,9 +49,6 @@ public class BiomeShopManager : MonoBehaviour
 
     private IEnumerator InitializeCardPool()
     {
-        // Create initial pool size based on expected biome count
-        //int initialPoolSize = Mathf.Max(10, biomes?.allBiomes?.Count ?? 10);
-
         yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
 
         for (int i = 0; i < biomes.allBiomes.Count; i++)
@@ -72,18 +69,13 @@ public class BiomeShopManager : MonoBehaviour
                     Id = card.BiomeData.biomeID
                 });
 
-            card.gameObject.SetActive(false);
             activeCards.Add(card);
-
-            Debug.Log($"Active Card Successfully Added {card.name}");
-
-            //cardPool.Enqueue(card);
         }
     }
 
     private void Start()
     {
-        RefreshBiomeCards();
+        //RefreshBiomeCards();
 
         biomeManager = ServiceLocator.Get<BiomeManager>();
 
@@ -121,7 +113,6 @@ public class BiomeShopManager : MonoBehaviour
         // Get cards from pool and setup
         foreach (var card in activeCards)
         {
-            card.gameObject.SetActive(true);
             card.UpdateState();
             bool canBuy = CheckBuyingRequirement(card);
             card.SetCanBuy(canBuy);
@@ -129,7 +120,7 @@ public class BiomeShopManager : MonoBehaviour
 
         // Sort: BUYABLE → TOP
         activeCards = activeCards
-            .OrderByDescending(card => !card.grayscaleObj.activeInHierarchy)
+            .OrderByDescending(card => card.IsCanBuy)
             .ToList();
 
         yield return waitEndOfFrame;    //Wait set dirty UI at the end of frame

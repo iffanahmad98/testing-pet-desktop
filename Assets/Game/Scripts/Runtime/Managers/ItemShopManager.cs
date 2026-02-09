@@ -86,7 +86,7 @@ public class ItemShopManager : MonoBehaviour
                     Id = card.itemData.ItemId
                 });
 
-            card.gameObject.SetActive(false);
+            //card.gameObject.SetActive(true);
             activeCards.Add(card);
         }
 
@@ -99,14 +99,17 @@ public class ItemShopManager : MonoBehaviour
 
     private IEnumerator ShowItemsByCategory(ItemType category)
     {
-        ClearItemGrid();
+        //ClearItemGrid();
 
         foreach (var card in activeCards)
         {
             //Debug.Log($"{card.itemData.name} is {card.itemData.category}");
 
             if (card.itemData.category != category)
+            {
+                card.gameObject.SetActive(false);
                 continue;
+            }
 
             card.gameObject.SetActive(true);
             bool canBuy = CheckBuyingRequirement(card);
@@ -117,8 +120,6 @@ public class ItemShopManager : MonoBehaviour
 
         // sort by price
         activeCards = activeCards.OrderByDescending(c => c.IsCanBuy).ThenBy(c => c.itemData.price).ToList();
-
-        //yield return waitEndOfFrame;
 
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
@@ -261,14 +262,6 @@ public class ItemShopManager : MonoBehaviour
         {
             itemInfoIcon.sprite = item.itemImgs[0];
             itemInfoIcon.enabled = item.itemImgs[0] != null;
-        }
-    }
-
-    private void ClearItemGrid()
-    {
-        foreach (var child in activeCards)
-        {
-            child.gameObject.SetActive(false);
         }
     }
 

@@ -211,6 +211,7 @@ public class MonsterManager : MonoBehaviour
             Debug.Log("Change Pivot to (0.5,0.0f)");
             monsterRectTransform.pivot = new Vector2(0.5f, 0.2f);
         }
+
         AddListMonsterManagerEligible(monsterData);
     }
 
@@ -257,6 +258,7 @@ public class MonsterManager : MonoBehaviour
         if (string.IsNullOrEmpty(id))
         {
             RegisterNewMonster(controller);
+            Debug.LogWarning("Bought New Monster");
         }
         else
             RegisterLoadedMonster(controller);
@@ -274,6 +276,7 @@ public class MonsterManager : MonoBehaviour
             Debug.Log("Change Pivot to (0.5,0.0f)");
             monsterRectTransform.pivot = new Vector2(0.5f, 0.2f);
         }
+        
         AddListMonsterManagerEligible(monsterData);
     }
 
@@ -1122,13 +1125,15 @@ public class MonsterManager : MonoBehaviour
     }
 
     #endregion
+
     #region MonsterManagerEligible
     void AddListMonsterManagerEligible(MonsterDataSO monsterData)
     {
-        Debug.Log("Add Monster Eligible");
         listPurchasedMonsterDataSO.Add(monsterData);
+        MonsterManagerEligible.Instance.AddListMonsterEligible(monsterData);
     }
 
+    //NO USE FOR NOW
     public List<MonsterDataSO> GetListPurchasedMonsterDataSO()
     {
         return listPurchasedMonsterDataSO;

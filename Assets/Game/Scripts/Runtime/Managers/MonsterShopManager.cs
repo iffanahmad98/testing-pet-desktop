@@ -1,9 +1,9 @@
-using UnityEngine;
+using Spine.Unity;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
-using Spine.Unity;
+using UnityEngine;
 using UnityEngine.UI;
 public class MonsterShopManager : MonoBehaviour
 {
@@ -27,10 +27,12 @@ public class MonsterShopManager : MonoBehaviour
     public MonsterCardUI selectedCard;
 
     // Object pool for monster cards
-    private List<MonsterCardUI> cardPool = new List<MonsterCardUI>();
     private List<MonsterCardUI> activeCards = new List<MonsterCardUI>();
     private bool canBuyMonster = false;
+    private bool poolIsInitiated = false;
     private int indexTab = 0;
+
+    private readonly WaitForEndOfFrame waitEndOfFrame = new();
 
     void Awake()
     {
@@ -46,15 +48,46 @@ public class MonsterShopManager : MonoBehaviour
         ClearMonsterInfo();
         */
         buyButton.onClick.AddListener (ClickBuyPreviewButton);
-        Invoke ("nStart", 0.5f);
+        //Invoke ("nStart", 0.5f);
+        nStart();
     }
 
     void nStart () {
         rarityTabController.OnTabChanged += OnRarityTabChanged;
-        OnRarityTabChanged(indexTab); // Default to "All"
+        //OnRarityTabChanged(indexTab); // Default to "All"
         detailPanel.SetActive(false);
         detailUpPanel.SetActive (false);
-        ClearMonsterInfo();
+        //ClearMonsterInfo();
+
+        StartCoroutine(InitializeCardPool());
+    }
+
+    private IEnumerator InitializeCardPool()
+    {
+        yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
+
+        for (int i = 0; i < monsterItemDatabase.allItems.Count; i++)
+        {
+            int temp = i;
+            GameObject cardObj = Instantiate(monsterCardPrefab, monsterCardParent);
+            MonsterCardUI card = cardObj.GetComponent<MonsterCardUI>();
+            card.Setup(monsterItemDatabase.allItems[temp]);
+
+            card.OnSelected = OnMonsterSelected;
+            card.OnBuy = OnMonsterBuy;
+
+            if (SaveSystem.UiSaveData.MonsterShopCards.Count < monsterItemDatabase.allItems.Count)
+                SaveSystem.UiSaveData.MonsterShopCards.Add(new()
+                {
+                    Id = card.monsterItemData.ItemId
+                });
+
+            card.gameObject.SetActive(true);
+            activeCards.Add(card);
+        }
+
+        poolIsInitiated = true;
+        OnRarityTabChanged(0);
     }
 
     private void OnRarityTabChanged(int index)
@@ -77,102 +110,67 @@ public class MonsterShopManager : MonoBehaviour
 
     public void RefreshItem()
     {
+        if (!poolIsInitiated)
+            return;
+
         rarityTabController.OnTabChanged?.Invoke(indexTab);
     }
 
     public void ShowAllMonsters()
     {
-        if (monsterItemDatabase != null && monsterItemDatabase.allItems != null)
-        {
-            Populate(monsterItemDatabase.allItems);
-        }
+        StartCoroutine(Populate(ItemType.Medicine, true));
     }
 
     private void FilterByRarity(ItemType rarity)
     {
-        if (monsterItemDatabase != null && monsterItemDatabase.allItems != null)
-        {
-            var filtered = monsterItemDatabase.allItems.Where(m => m.category == rarity).ToList();
-            Populate(filtered);
-        }
+
+        StartCoroutine(Populate(rarity));
     }
 
-    private void Populate(List<ItemDataSO> list)
+    private IEnumerator Populate(ItemType category, bool ignoreCategory = false)
     {
-        ReturnCardsToPool();
-        activeCards.Clear();
-
-        // Create cards
-        for (int i = 0; i < list.Count; i++)
-        {
-            MonsterCardUI card = GetCardFromPool();
-            card.Setup(list[i]);
-            card.OnSelected = OnMonsterSelected;
-            card.OnBuy = OnMonsterBuy;
-            card.gameObject.SetActive(true);
-            activeCards.Add(card);
-        }
-
         // Check requirement & grayscale
         foreach (var card in activeCards)
         {
-          //  if (card.monsterItemData.monsterRequirements != null)
-           // {
-                bool canBuy = CheckBuyingRequirementNewVersion(card);
-                card.SetGrayscale(!canBuy);
-                card.SetCanBuy (canBuy);
-                // Debug Only
-              //  card.SetGrayscale(false);
-          //  }
+            if (card.monsterItemData.category != category && !ignoreCategory)
+            {
+                card.gameObject.SetActive(false);
+                continue;
+            }
+
+            card.gameObject.SetActive(true);
+            bool canBuy = CheckBuyingRequirementNewVersion(card);
+            card.SetCanBuy (canBuy);
         }
 
-        // sort by price
-        var filtered = activeCards.OrderBy(c => c.monsterItemData.price).ToList();
+        yield return waitEndOfFrame;
 
-        // Apply order to activeCards
-        activeCards.Clear();
-        activeCards.AddRange(filtered);
+        // sort by price
+        activeCards = activeCards.OrderByDescending(c => c.IsCanBuy).ThenBy(c => c.monsterItemData.price).ToList();
 
         // Apply order to UI
         for (int i = 0; i < activeCards.Count; i++)
         {
-            activeCards[i].transform.SetSiblingIndex(i);
-        }
+            int temp = i;
 
-        OnMonsterSelected(activeCards[0]);
-        //ClearMonsterInfo();
-    }
+            var currentCard = activeCards[temp];
+            currentCard.transform.SetSiblingIndex(temp);
 
-    private MonsterCardUI GetCardFromPool()
-    {
-        // Try to find an inactive card in the pool
-        for (int i = 0; i < cardPool.Count; i++)
-        {
-            if (!cardPool[i].gameObject.activeInHierarchy)
+            // If it's already grayscaled, we know it's not buyable.
+            if (!currentCard.IsCanBuy) continue;
+
+            yield return waitEndOfFrame;
+
+            if (!SaveSystem.UiSaveData.GetShopCardData(ShopType.MonsterShop, currentCard.monsterItemData.itemID).IsOpened)
             {
-                return cardPool[i];
+                ServiceLocator.Get<UIManager>().InitUnlockedMenuVfx(currentCard.GetComponent<RectTransform>());
+
+                SaveSystem.UiSaveData.SetShopCardsOpenState(ShopType.MonsterShop, currentCard.monsterItemData.itemID, true);
             }
         }
 
-        // If no inactive card found, create a new one
-        GameObject obj = Instantiate(monsterCardPrefab, monsterCardParent);
-        MonsterCardUI card = obj.GetComponent<MonsterCardUI>();
-        cardPool.Add(card);
-
-        return card;
-    }
-
-    private void ReturnCardsToPool()
-    {
-        // Deactivate all active cards
-        foreach (var card in activeCards)
-        {
-            card.gameObject.SetActive(false);
-        }
-        activeCards.Clear();
-
-        // Clear selection
-        selectedCard = null;
+        //OnMonsterSelected(activeCards[0]);
+        //ClearMonsterInfo();
     }
 
     private void OnMonsterSelected(MonsterCardUI card)
@@ -364,14 +362,6 @@ public class MonsterShopManager : MonoBehaviour
             buyButton.interactable = true;
         } else {
             buyButton.interactable = false;
-        }
-    }
-
-    private void ClearMonsterGrid()
-    {
-        foreach (Transform child in monsterCardParent)
-        {
-            Destroy(child.gameObject);
         }
     }
 
