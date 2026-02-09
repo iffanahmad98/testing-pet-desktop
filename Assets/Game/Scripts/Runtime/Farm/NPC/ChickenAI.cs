@@ -120,7 +120,11 @@ public class ChickenAI : MonoBehaviour
             giftDropCoroutine = StartCoroutine(GiftDropLoop());
         }
 
-        StartAnimalSoundCoroutine();
+        SceneFocusManager.FocusTarget focusTarget = SceneFocusManager.GetFocusTarget();
+        if (focusTarget == SceneFocusManager.FocusTarget.Farm)
+        {
+            StartAnimalSoundCoroutine();
+        }
     }
 
     public void StartAnimalSoundCoroutine()
