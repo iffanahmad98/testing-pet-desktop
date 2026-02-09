@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public partial class TutorialManager
@@ -98,12 +99,14 @@ public partial class TutorialManager
         }
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        yield return new WaitUntil(()=> SaveSystem.IsLoadFinished);
+
         if (!ShouldRunPlainTutorialOnStart())
         {
             gameObject.SetActive(false);
-            return;
+            yield break;
         }
 
         GrantTutorialStartItemsIfNeeded();
