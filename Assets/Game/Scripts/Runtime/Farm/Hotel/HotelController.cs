@@ -1055,12 +1055,13 @@ namespace MagicalGarden.Hotel
             spriteRenderer = GetComponent<SpriteRenderer>();
             spriteRenderer.color = colorHotelLocked;
             isLocked = true;
-            
+            GetComponent <RequirementTipClick2D> ().requirementData = eligibleDataSO.requirementDataSO;
         }
 
         public void HotelUnlocked () {
             spriteRenderer.color = colorHotelUnlocked;
             isLocked = false;
+            GetComponent <RequirementTipClick2D> ().requirementData = null;
         }
 
         public void GiveOptionBuy () { // HotelLocker.cs
