@@ -3,9 +3,6 @@ using UnityEngine.UI;
 
 public partial class TutorialManager
 {
-    [Header("Hand Pointer Sub-Tutorial")]
-    [SerializeField] private Button handPointerNextButton;
-
     private bool _isRunningHandPointerSubTutorial;
     private int _handPointerSubStepIndex = -1;
     private HandPointerTutorialSequenceSO _activeHandPointerSubTutorial;
@@ -83,11 +80,6 @@ public partial class TutorialManager
             {
                 targetButton = _uiButtonsCache[step.uiButtonIndex];
             }
-        }
-
-        if (targetButton == null)
-        {
-            targetButton = handPointerNextButton;
         }
 
         if (targetButton == null)

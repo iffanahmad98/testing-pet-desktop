@@ -46,8 +46,10 @@ public class PlayerConfig
     public bool isRainEnabled = false;
     public bool isMondayReset = false;
     public bool plaintutorial = false;
+    public bool hotelTutorial = false;
+    public bool plainTutorialSkipped = false;
+    public bool hotelTutorialSkipped = false;
     public bool tutorialItemsGranted = false;
-    public bool allStepTutorialsSkippedGlobal = false;
 
     public List<int> listHotelGoldenTickets = new List<int>();
     public List<int> listHotelNormalEggs = new List<int>();
