@@ -231,5 +231,17 @@ namespace MagicalGarden.AI
             return path;
         }
         
+        #region StopMovement
+        // 
+        public void StopMovement () {
+            SetAnimation("idle");
+            isOverridingState = false;
+            GetComponent<MeshRenderer>().enabled = true;
+            stateLoopCoroutine = StartCoroutine(StateLoop());
+
+            HotelManager.Instance.AddNPCHotelAvailable (this);
+        }
+
+        #endregion
     }
 }
