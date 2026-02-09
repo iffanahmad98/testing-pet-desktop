@@ -373,7 +373,11 @@ namespace MagicalGarden.Farm
                 return;
             }
             if (markWater == null) return;
+
+            if (status != PlantStatus.Mati)
+            {
             markWater.gameObject.SetActive(true);
+            }
             /*
             currentTween?.Kill();
 
