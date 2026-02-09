@@ -79,6 +79,9 @@ public class PoopController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SaveSystem.UpdateItemData(poopId, ItemType.Poop, 1);
         SaveSystem.Flush();
         */
+
+        MonsterManager.instance.audio.PlaySFX("magic_shovel");
+
         Debug.Log($"PoopController: OnCollected called for '{name}' (type={poopType})");
         SaveSystem.PlayerConfig.AddItemFarm(poopItemData.itemId, 1);
         SaveSystem.SaveAll();

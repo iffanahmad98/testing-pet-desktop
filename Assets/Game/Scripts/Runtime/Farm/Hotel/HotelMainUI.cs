@@ -73,6 +73,7 @@ public class HotelMainUI : MonoBehaviour
     #endregion
     #region Back
     public void BackToPlains () {
+        MonsterManager.instance.audio.StopAllSFX();
         gotoPetScene.PetScene ();
     }
 

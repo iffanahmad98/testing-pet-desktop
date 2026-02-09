@@ -1010,6 +1010,8 @@ MonoBehaviour:
   timeKeeperSFX: {fileID: 8300000, guid: a4ca9b4f672115a4989393cbcd9fc776, type: 3}
   magicShovelSFX: {fileID: 8300000, guid: 7941414bb6ecf4846a0e09562dd9bab8, type: 3}
   rainbowPotSFX: {fileID: 8300000, guid: c0705c19b460bce4197900860e410923, type: 3}
+  medicineSFX: {fileID: 8300000, guid: e4b068efcb62b21448407b359bf1ba76, type: 3}
+  eatingSFX: {fileID: 8300000, guid: d0b00b3cfcd6d9146aa24eb529972e38, type: 3}
   farmAndHotelSFX:
   - {fileID: 8300000, guid: 9bc2b666c0064104cac4d264b712c3de, type: 3}
   - {fileID: 8300000, guid: 045de975f5df5864a8db83d5abb420e8, type: 3}
@@ -1226,6 +1228,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26fdc040f74bb244887683cd45ca3f03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minimizeWindow: {fileID: 0}
   panels:
     UIFloatMenuPanel: {fileID: 0}
     UIFloatMenuCanvasGroup: {fileID: 0}
@@ -1237,6 +1240,8 @@ MonoBehaviour:
     CatalogueCanvasGroup: {fileID: 0}
     InventoryPanel: {fileID: 0}
     InventoryCanvasGroup: {fileID: 0}
+    CreditsPanel: {fileID: 0}
+    CreditsCanvasGroup: {fileID: 0}
   buttons:
     UIMenuButton: {fileID: 0}
     miniInventoryButton: {fileID: 0}
@@ -1251,6 +1256,7 @@ MonoBehaviour:
     catalogueButton: {fileID: 0}
     closeCatalogueButton: {fileID: 0}
     mainInventoryButton: {fileID: 0}
+    creditsButton: {fileID: 0}
     tutorialnext: {fileID: 0}
   shopButtons:
     catalogueShopButton: {fileID: 0}
