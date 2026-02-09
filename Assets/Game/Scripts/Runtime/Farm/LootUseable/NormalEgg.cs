@@ -11,13 +11,15 @@ public class NormalEgg : LootUseable
     public override int TotalValue => totalValue;
 
     bool firstTime = false;
-    
+    public static event Action OnCurrencyChangedRefreshEvent;
+
     public override void GetLoot(int value)
     {
         totalValue += value;
         SaveSystem.PlayerConfig.normalEgg = totalValue;
         Debug.Log ("Normal Egg 1");
         SaveLoot();
+       // OnCurrencyChangedRefreshEvent?.Invoke (); (Gak dibutuhkan karena sudah refresh di HotelRandomLoot.cs)
     }
 
     public override void UsingLoot(int value)
@@ -26,6 +28,7 @@ public class NormalEgg : LootUseable
         SaveSystem.PlayerConfig.normalEgg = totalValue;
         Debug.Log ("Current Eggs " + totalValue);
         SaveLoot();
+        OnCurrencyChangedRefreshEvent?.Invoke ();
     }
 
     public override void SaveLoot()
@@ -96,5 +99,9 @@ public class NormalEgg : LootUseable
                     GetLoot(totalLoot);
             }
         }
+    }
+
+    public static void AddCurrencyChangedRefreshEvent (Action value) { // HotelController.cs, FarmMainUI.cs
+        OnCurrencyChangedRefreshEvent += value;
     }
 }

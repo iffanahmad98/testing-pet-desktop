@@ -24,7 +24,11 @@ public class HotelMainUI : MonoBehaviour
      playerConfig = SaveSystem.PlayerConfig;
      backToPlainsButton.onClick.AddListener (BackToPlains);
      muteButton.onClick.AddListener (ClickMuteButton);
-     CoinManager.AddCoinChangedRefreshEvent (RefreshCoin);   
+     CoinManager.AddCoinChangedRefreshEvent (RefreshCoin);
+     NormalEgg.AddCurrencyChangedRefreshEvent (RefreshEgg);
+     RareEgg.AddCurrencyChangedRefreshEvent (RefreshEgg);
+     GoldenTicket.AddCurrencyChangedRefreshEvent (RefreshGoldenTicket);
+     HotelGift.AddCurrencyChangedRefreshEvent (RefreshHotelGift);   
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshGoldenTicket);
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshEgg);
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshHotelRoom);

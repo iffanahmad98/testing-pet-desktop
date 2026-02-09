@@ -186,6 +186,10 @@ public class TooltipManager : MonoBehaviour
         listToolTipTriggerWorld.Add (requirement);
     }
 
+    public void RemoveToolTipClick2d (TooltipTriggerWorld requirement) {
+        listToolTipTriggerWorld.Remove (requirement);
+    }
+
     public void ShowAllRequirementTipClick2d () { // HotelShop.cs
         Debug.Log ("Enabled True");
         foreach (TooltipTriggerWorld triggerTip in listToolTipTriggerWorld) {
