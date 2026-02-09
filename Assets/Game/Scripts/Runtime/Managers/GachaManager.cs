@@ -72,6 +72,8 @@ public class GachaManager : MonoBehaviour
 
     [Header("Grayscale Components")]
     public Material grayscaleMaterial;
+    [Header ("Audio")]
+    public AudioClip openEggClip;
 
     private void Awake()
     {
@@ -175,6 +177,7 @@ public class GachaManager : MonoBehaviour
         ResetPityCounter(chosenRarity);
 
         ShowGachaResult(selectedMonster, () => SellMonster(selectedMonster), () => SpawnMonster(selectedMonster));
+        SfxCrackEgg ();
     }
 
     private IEnumerator EndHoverAfterDelay(float delay)
@@ -439,4 +442,10 @@ public class GachaManager : MonoBehaviour
             gachaResultPanel.Show(monster, onSellComplete, onSpawnComplete);
         }
     }
+
+    #region Audio
+   void SfxCrackEgg () {
+      ServiceLocator.Get<AudioManager> ().PlaySFX (openEggClip);
+   }
+   #endregion
 }
