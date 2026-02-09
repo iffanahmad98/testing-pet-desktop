@@ -165,6 +165,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
 
     private void Start()
     {
+       // Debug.Log ("Initialize Monster 0");
         if (isNPC)
         {
             _stateMachine = GetComponent<MonsterStateMachine>();
@@ -213,6 +214,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         _consumableHandler = new MonsterConsumableHandler(this, _rectTransform);
 
         UI.Initialize(_statsHandler, this);
+        // Debug.Log ("Initialize Monster 1");
     }
 
     private IEnumerator FinalizeInitialization()

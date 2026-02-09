@@ -7,7 +7,7 @@ public class HotelControllerEligibleDataSO : ScriptableObject
 {
     [Header ("Eligibility (Hotel Facilities Menu)")]
     public List<EligibilityRuleSO> rules = new();
-
+    public RequirementTipDataSO requirementDataSO; // HotelController.cs
     #region Eligibility
         
     public bool IsEligible() // untuk yang tidak ada tingkat
