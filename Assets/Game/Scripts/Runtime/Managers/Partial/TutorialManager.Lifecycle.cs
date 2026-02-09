@@ -3,6 +3,64 @@ using UnityEngine;
 
 public partial class TutorialManager
 {
+    private void OnEnable()
+    {
+        CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
+        _isSubscribedToMonsterPoopClean = false;
+        TrySubscribePlacementManager();
+        TrySubscribeMonsterPoopClean();
+
+        if (_currentMode == TutorialMode.Plain)
+        {
+            if (hotelTutorials != null)
+            {
+                for (int i = 0; i < hotelTutorials.Count; i++)
+                {
+                    var step = hotelTutorials[i];
+                    if (step != null && step.panelRoot != null)
+                        step.panelRoot.SetActive(false);
+                }
+            }
+        }
+        else if (_currentMode == TutorialMode.Hotel)
+        {
+            if (plainTutorials != null)
+            {
+                for (int i = 0; i < plainTutorials.Count; i++)
+                {
+                    var step = plainTutorials[i];
+                    if (step != null && step.panelRoot != null)
+                        step.panelRoot.SetActive(false);
+                }
+            }
+        }
+    }
+
+    private void OnDisable()
+    {
+        CoinController.OnAnyPlayerCollected -= OnCoinCollectedByPlayer;
+
+        if (_isSubscribedToMonsterPoopClean)
+        {
+            var monsterManager = ServiceLocator.Get<MonsterManager>();
+            if (monsterManager != null)
+            {
+                monsterManager.OnPoopCleaned -= OnPoopCleanedByPlayer;
+            }
+            _isSubscribedToMonsterPoopClean = false;
+        }
+
+        if (_isSubscribedToPlacementManager)
+        {
+            var placementManager = ServiceLocator.Get<PlacementManager>();
+            if (placementManager != null)
+            {
+                placementManager.OnFoodPlacementConfirmed -= OnFoodPlacementConfirmed;
+            }
+            _isSubscribedToPlacementManager = false;
+        }
+    }
+
     private void Awake()
     {
         GlobalSkipTutorialButton = skipTutorialButton;
@@ -11,8 +69,14 @@ public partial class TutorialManager
         HideAllTutorialPanels();
         if (skipTutorialButton != null)
         {
-            skipTutorialButton.onClick.RemoveListener(SkipAllTutorials);
-            skipTutorialButton.onClick.AddListener(SkipAllTutorials);
+            skipTutorialButton.onClick.RemoveAllListeners();
+            skipTutorialButton.onClick.AddListener(() =>
+            {
+                if (_currentMode == TutorialMode.Plain)
+                    SkipPlainTutorial();
+                else if (_currentMode == TutorialMode.Hotel)
+                    SkipHotelTutorial();
+            });
 
             var cg = skipTutorialButton.GetComponent<CanvasGroup>();
             if (cg == null)
@@ -81,16 +145,14 @@ public partial class TutorialManager
         // No-op: there is no step-based progress to reset anymore.
     }
 
-    public void SkipAllTutorials()
+    public void SkipPlainTutorial()
     {
         var config = SaveSystem.PlayerConfig;
         if (config != null)
         {
-            config.allStepTutorialsSkippedGlobal = true;
+            config.plainTutorialSkipped = true;
             SaveSystem.SaveAll();
         }
-
-        HideAllTutorialPanels();
 
         if (plainTutorials != null)
         {
@@ -101,7 +163,6 @@ public partial class TutorialManager
                     step.panelRoot.SetActive(false);
             }
         }
-
         _plainPanelIndex = -1;
 
         if (_tutorialMonsterController != null)
@@ -113,7 +174,32 @@ public partial class TutorialManager
         HideRightClickMouseHint();
         HidePointerIfAny();
         RestoreUIManagerButtonsInteractable();
-        HideSkipButtonAnimated();
+
+        gameObject.SetActive(false);
+    }
+
+    public void SkipHotelTutorial()
+    {
+        var config = SaveSystem.PlayerConfig;
+        if (config != null)
+        {
+            config.hotelTutorialSkipped = true;
+            SaveSystem.SaveAll();
+        }
+
+        if (hotelTutorials != null)
+        {
+            for (int i = 0; i < hotelTutorials.Count; i++)
+            {
+                var step = hotelTutorials[i];
+                if (step != null && step.panelRoot != null)
+                    step.panelRoot.SetActive(false);
+            }
+        }
+        _hotelPanelIndex = -1;
+        MarkHotelTutorialCompleted();
+        HidePointerIfAny();
+
         gameObject.SetActive(false);
     }
 }

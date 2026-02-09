@@ -15,6 +15,17 @@ public partial class TutorialManager
                 }
             }
         }
+        if (hotelTutorials != null)
+        {
+            for (int i = 0; i < hotelTutorials.Count; i++)
+            {
+                var step = hotelTutorials[i];
+                if (step != null && step.panelRoot != null)
+                {
+                    step.panelRoot.SetActive(false);
+                }
+            }
+        }
 
         HidePointerIfAny();
     }

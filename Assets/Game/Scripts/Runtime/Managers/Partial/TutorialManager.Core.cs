@@ -1,3 +1,4 @@
+// Core fields, enums, and shared logic
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,16 +8,29 @@ using DG.Tweening;
 
 public partial class TutorialManager
 {
-    [SerializeField] private List<PlainTutorialPanelStep> plainTutorials = new List<PlainTutorialPanelStep>();
+    [Header("Tutorial Mode")]
+    [SerializeField] private TutorialMode _currentMode = TutorialMode.Plain;
+    private enum TutorialMode { Plain, Hotel }
 
-    [Header("Plain Panels Animation")]
+    [Header("Plain Tutorial Panels")]
+    [SerializeField] private List<PlainTutorialPanelStep> plainTutorials = new List<PlainTutorialPanelStep>();
+    private int _plainPanelIndex = -1;
+    private float _plainStepShownTime;
+    private readonly HashSet<Button> _plainNextButtonsHooked = new();
+    private Coroutine _plainNextDelayRoutine;
+    [Header("Hotel Tutorial Panels")]
+    [SerializeField] private List<HotelTutorialPanelStep> hotelTutorials = new List<HotelTutorialPanelStep>();
+    private int _hotelPanelIndex = -1;
+    private float _hotelStepShownTime;
+    private readonly HashSet<Button> _hotelNextButtonsHooked = new();
+    private Coroutine _hotelNextDelayRoutine;
+
+    [Header("Panels Animation")]
     [SerializeField] private float plainPanelShowDuration = 0.4f;
     [SerializeField] private AnimationCurve plainPanelShowEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Global UI References")]
     [SerializeField] private Button skipTutorialButton;
-
-    private int _plainPanelIndex = -1;
 
     public Button[] _uiButtonsCache;
     private bool[] _uiButtonsInteractableCache;
@@ -31,10 +45,7 @@ public partial class TutorialManager
     [Header("Tutorial Start Items")]
     [SerializeField] private TutorialItemReward[] tutorialStartItems;
 
-    private float _plainStepShownTime;
     private int _foodDropCountForCurrentStep;
-    private readonly HashSet<Button> _plainNextButtonsHooked = new();
-    private Coroutine _plainNextDelayRoutine;
 
     [Header("Mouse Hint Config")]
     [SerializeField] private RectTransform rightClickMouseHintPrefab;
@@ -43,97 +54,8 @@ public partial class TutorialManager
 
     public static Button GlobalSkipTutorialButton { get; private set; }
 
-    private bool IsPlainMode => true;
-
     private bool _isSubscribedToPlacementManager;
     private bool _isSubscribedToMonsterPoopClean;
-
-    private void OnEnable()
-    {
-        CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
-        _isSubscribedToMonsterPoopClean = false;
-        TrySubscribePlacementManager();
-        TrySubscribeMonsterPoopClean();
-    }
-
-    private void OnDisable()
-    {
-        CoinController.OnAnyPlayerCollected -= OnCoinCollectedByPlayer;
-
-        if (_isSubscribedToMonsterPoopClean)
-        {
-            var monsterManager = ServiceLocator.Get<MonsterManager>();
-            if (monsterManager != null)
-            {
-                monsterManager.OnPoopCleaned -= OnPoopCleanedByPlayer;
-            }
-            _isSubscribedToMonsterPoopClean = false;
-        }
-
-        if (_isSubscribedToPlacementManager)
-        {
-            var placementManager = ServiceLocator.Get<PlacementManager>();
-            if (placementManager != null)
-            {
-                placementManager.OnFoodPlacementConfirmed -= OnFoodPlacementConfirmed;
-            }
-            _isSubscribedToPlacementManager = false;
-        }
-    }
-
-    public void ShowSkipButtonAnimated()
-    {
-        if (skipTutorialButton == null)
-            return;
-
-        var rect = skipTutorialButton.transform as RectTransform;
-        var cg = skipTutorialButton.GetComponent<CanvasGroup>();
-        if (rect == null || cg == null)
-            return;
-
-        rect.DOKill();
-        cg.DOKill();
-
-        var targetPos = rect.anchoredPosition;
-        var startPos = targetPos;
-        startPos.y -= 80f;
-        rect.anchoredPosition = startPos;
-
-        cg.alpha = 0f;
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
-
-        rect.DOAnchorPos(targetPos, 0.3f).SetEase(Ease.OutQuad);
-        cg.DOFade(1f, 0.3f).OnComplete(() =>
-        {
-            cg.interactable = true;
-            cg.blocksRaycasts = true;
-        });
-    }
-
-    public void HideSkipButtonAnimated()
-    {
-        if (skipTutorialButton == null)
-            return;
-
-        var rect = skipTutorialButton.transform as RectTransform;
-        var cg = skipTutorialButton.GetComponent<CanvasGroup>();
-        if (rect == null || cg == null)
-            return;
-
-        rect.DOKill();
-        cg.DOKill();
-
-        var startPos = rect.anchoredPosition;
-        var targetPos = startPos;
-        targetPos.y -= 80f;
-
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
-
-        rect.DOAnchorPos(targetPos, 0.25f).SetEase(Ease.InQuad);
-        cg.DOFade(0f, 0.25f);
-    }
 
     private void TrySubscribeMonsterPoopClean()
     {
@@ -213,7 +135,7 @@ public partial class TutorialManager
         if (config == null)
             return false;
 
-        return config.plaintutorial || config.allStepTutorialsSkippedGlobal;
+        return config.plaintutorial || IsPlainTutorialSkipped();
     }
 
     private void MarkPlainTutorialCompleted()
@@ -229,9 +151,43 @@ public partial class TutorialManager
         }
     }
 
+    private bool IsHotelTutorialAlreadyCompleted()
+    {
+        var config = SaveSystem.PlayerConfig;
+        if (config == null)
+            return false;
+
+        return config.hotelTutorial || IsHotelTutorialSkipped();
+    }
+
+    private void MarkHotelTutorialCompleted()
+    {
+        var config = SaveSystem.PlayerConfig;
+        if (config == null)
+            return;
+
+        if (!config.hotelTutorial)
+        {
+            config.hotelTutorial = true;
+            SaveSystem.SaveAll();
+        }
+    }
+
+    private bool IsPlainTutorialSkipped()
+    {
+        var config = SaveSystem.PlayerConfig;
+        return config != null && config.plainTutorialSkipped;
+    }
+
+    private bool IsHotelTutorialSkipped()
+    {
+        var config = SaveSystem.PlayerConfig;
+        return config != null && config.hotelTutorialSkipped;
+    }
+
     private void OnCoinCollectedByPlayer(CoinController coin)
     {
-        if (!IsPlainMode)
+        if (_currentMode != TutorialMode.Plain)
             return;
 
         if (plainTutorials == null || plainTutorials.Count == 0)
@@ -271,7 +227,7 @@ public partial class TutorialManager
 
     private void TryHandleFoodDropProgress(bool incrementCount)
     {
-        if (!IsPlainMode)
+        if (_currentMode != TutorialMode.Plain)
             return;
 
         if (plainTutorials == null || plainTutorials.Count == 0)
@@ -312,7 +268,7 @@ public partial class TutorialManager
 
     private void TryHandlePoopCleanProgress()
     {
-        if (!IsPlainMode)
+        if (_currentMode != TutorialMode.Plain)
         {
             Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (not in plain mode)");
             return;

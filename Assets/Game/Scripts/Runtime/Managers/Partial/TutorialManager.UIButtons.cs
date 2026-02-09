@@ -12,6 +12,10 @@ public partial class TutorialManager
 
     public void RebuildUIButtonCache()
     {
+
+        if (_currentMode != TutorialMode.Plain)
+            return;
+
         var previousInteractables = _uiButtonsInteractableCache;
 
         _uiButtonsCache = null;
@@ -43,6 +47,9 @@ public partial class TutorialManager
 
     private void CacheUIButtonsFromUIManager()
     {
+        if (_currentMode != TutorialMode.Plain)
+            return;
+
         var ui = ServiceLocator.Get<UIManager>();
         if (ui == null)
         {
@@ -162,6 +169,9 @@ public partial class TutorialManager
 
     private void DisableUIManagerButtonsForTutorial()
     {
+        if (_currentMode != TutorialMode.Plain)
+            return;
+
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
         {
             CacheUIButtonsFromUIManager();
@@ -185,6 +195,9 @@ public partial class TutorialManager
 
     private void RestoreUIManagerButtonsInteractable()
     {
+        if (_currentMode != TutorialMode.Plain)
+            return;
+
         if (_uiButtonsCache == null || _uiButtonsInteractableCache == null)
             return;
 

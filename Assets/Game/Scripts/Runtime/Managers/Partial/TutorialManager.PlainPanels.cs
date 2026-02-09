@@ -8,7 +8,7 @@ public partial class TutorialManager
 {
     private void Update()
     {
-        if (!IsPlainMode)
+        if (_currentMode != TutorialMode.Plain)
             return;
 
         if (_plainPanelIndex < 0 || plainTutorials == null || _plainPanelIndex >= plainTutorials.Count)
@@ -53,7 +53,7 @@ public partial class TutorialManager
 
     public void RefreshCurrentPlainPointer()
     {
-        if (!IsPlainMode)
+        if (_currentMode != TutorialMode.Plain)
             return;
 
         if (plainTutorials == null || plainTutorials.Count == 0)
@@ -465,7 +465,7 @@ public partial class TutorialManager
 
     private void OnTutorialMonsterClicked(PointerEventData eventData)
     {
-        if (!IsPlainMode)
+        if (_currentMode != TutorialMode.Plain)
             return;
 
         if (plainTutorials == null || plainTutorials.Count == 0)
