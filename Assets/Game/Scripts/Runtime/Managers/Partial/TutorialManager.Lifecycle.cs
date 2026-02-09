@@ -3,6 +3,63 @@ using UnityEngine;
 
 public partial class TutorialManager
 {
+    private void Update()
+    {
+        if (_currentMode == TutorialMode.Plain)
+        {
+            if (_plainPanelIndex < 0 || plainTutorials == null || _plainPanelIndex >= plainTutorials.Count)
+                return;
+
+            TrySubscribePlacementManager();
+            TrySubscribeMonsterPoopClean();
+
+            var step = plainTutorials[_plainPanelIndex];
+            var config = step != null ? step.config : null;
+            if (config == null)
+                return;
+
+            if (_tutorialMonsterRect == null)
+            {
+                var monsterManager = ServiceLocator.Get<MonsterManager>();
+                if (monsterManager != null &&
+                    monsterManager.activeMonsters != null &&
+                    monsterManager.activeMonsters.Count > 0)
+                {
+                    var controller = monsterManager.activeMonsters[0];
+                    if (controller != null)
+                    {
+                        _tutorialMonsterRect = controller.GetComponent<RectTransform>();
+                        SetupTutorialMonsterController(controller);
+
+                        MoveTutorialMonsterForPlainStep(step);
+                        UpdateRightClickMouseHintForPlainStep(step);
+                    }
+                }
+            }
+
+            if (config.usePointer)
+            {
+                UpdatePointerForPlainStep(step);
+            }
+
+            UpdateCurrentHandPointerOffsetRealtime();
+
+            UpdatePlainStepNextButtonsInteractable();
+        }
+        else if (_currentMode == TutorialMode.Hotel)
+        {
+            if (_hotelPanelIndex < 0 || hotelTutorials == null || _hotelPanelIndex >= hotelTutorials.Count)
+                return;
+
+            var step = hotelTutorials[_hotelPanelIndex];
+            var config = step != null ? step.config : null;
+            if (config == null)
+                return;
+
+            UpdatePointerForHotelStep(step);
+            UpdateHotelStepNextButtonsInteractable();
+        }
+    }
     private void OnEnable()
     {
         CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
@@ -22,10 +79,11 @@ public partial class TutorialManager
                 }
             }
         }
-        else if (_currentMode == TutorialMode.Hotel)
+        else if (_currentMode == TutorialMode.Hotel && Hotel != null)
         {
             if (plainTutorials != null)
             {
+                Debug.Log("Disabling plain tutorial panels because hotel tutorial is active.");
                 for (int i = 0; i < plainTutorials.Count; i++)
                 {
                     var step = plainTutorials[i];
@@ -65,6 +123,7 @@ public partial class TutorialManager
     {
         GlobalSkipTutorialButton = skipTutorialButton;
         CacheUIButtonsFromUIManager();
+        CacheAllButtonsForHotelMode();
 
         HideAllTutorialPanels();
         if (skipTutorialButton != null)
@@ -100,18 +159,29 @@ public partial class TutorialManager
 
     private void Start()
     {
-        if (!ShouldRunPlainTutorialOnStart())
+        if (_currentMode == TutorialMode.Plain)
         {
-            gameObject.SetActive(false);
-            return;
+            if (!ShouldRunPlainTutorialOnStart())
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+            GrantTutorialStartItemsIfNeeded();
+            DisableUIManagerButtonsForTutorial();
+            SpawnTutorialMonsterIfNeeded();
+            StartPlainTutorialSequence();
+            ShowSkipButtonAnimated();
         }
-
-        GrantTutorialStartItemsIfNeeded();
-
-        DisableUIManagerButtonsForTutorial();
-        SpawnTutorialMonsterIfNeeded();
-        StartPlainTutorialSequence();
-        ShowSkipButtonAnimated();
+        else if (_currentMode == TutorialMode.Hotel)
+        {
+            if (!ShouldRunHotelTutorialOnStart())
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+            StartHotelTutorialSequence();
+            ShowSkipButtonAnimated();
+        }
     }
 
     private bool ShouldRunPlainTutorialOnStart()
@@ -122,6 +192,16 @@ public partial class TutorialManager
         }
 
         return plainTutorials != null && plainTutorials.Count > 0;
+    }
+
+    private bool ShouldRunHotelTutorialOnStart()
+    {
+        if (IsHotelTutorialAlreadyCompleted())
+        {
+            return false;
+        }
+
+        return hotelTutorials != null && hotelTutorials.Count > 0;
     }
 
     public bool HasAnyPending()
@@ -164,6 +244,8 @@ public partial class TutorialManager
             }
         }
         _plainPanelIndex = -1;
+        _uiButtonsCache = null;
+        _uiButtonsInteractableCache = null;
 
         if (_tutorialMonsterController != null)
         {

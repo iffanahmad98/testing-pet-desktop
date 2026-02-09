@@ -6,50 +6,6 @@ using static CoinType;
 
 public partial class TutorialManager
 {
-    private void Update()
-    {
-        if (_currentMode != TutorialMode.Plain)
-            return;
-
-        if (_plainPanelIndex < 0 || plainTutorials == null || _plainPanelIndex >= plainTutorials.Count)
-            return;
-
-        TrySubscribePlacementManager();
-        TrySubscribeMonsterPoopClean();
-
-        var step = plainTutorials[_plainPanelIndex];
-        var config = step != null ? step.config : null;
-        if (config == null)
-            return;
-
-        if (_tutorialMonsterRect == null)
-        {
-            var monsterManager = ServiceLocator.Get<MonsterManager>();
-            if (monsterManager != null &&
-                monsterManager.activeMonsters != null &&
-                monsterManager.activeMonsters.Count > 0)
-            {
-                var controller = monsterManager.activeMonsters[0];
-                if (controller != null)
-                {
-                    _tutorialMonsterRect = controller.GetComponent<RectTransform>();
-                    SetupTutorialMonsterController(controller);
-
-                    MoveTutorialMonsterForPlainStep(step);
-                    UpdateRightClickMouseHintForPlainStep(step);
-                }
-            }
-        }
-
-        if (config.usePointer)
-        {
-            UpdatePointerForPlainStep(step);
-        }
-
-        UpdateCurrentHandPointerOffsetRealtime();
-
-        UpdatePlainStepNextButtonsInteractable();
-    }
 
     public void RefreshCurrentPlainPointer()
     {
@@ -65,8 +21,14 @@ public partial class TutorialManager
         UpdatePointerForPlainStep(plainTutorials[_plainPanelIndex]);
     }
 
+    public void Log()
+    {
+        Debug.Log("Clicked");
+    }
+
     private void StartPlainTutorialSequence()
     {
+        Debug.Log("TutorialManager: Memulai urutan tutorial plain.");
         if (plainTutorials == null || plainTutorials.Count == 0)
         {
             Debug.LogWarning("TutorialManager: plainTutorials kosong, tidak ada tutorial plain yang ditampilkan.");
@@ -119,7 +81,7 @@ public partial class TutorialManager
 
             if (firstConfig.handPointerSequence != null)
             {
-                StartHandPointerSubTutorial(firstStep);
+                StartHandPointerPlainSubTutorial(firstStep);
             }
             else
             {
@@ -130,11 +92,22 @@ public partial class TutorialManager
 
     public void ShowNextPlainPanel()
     {
+        Debug.Log(
+            $"[PlainTutorial] ShowNextPlainPanel ENTER | " +
+            $"index={_plainPanelIndex} | " +
+            $"total={plainTutorials?.Count ?? 0} | " +
+            $"mode={_currentMode}"
+        );
+
         if (plainTutorials == null || plainTutorials.Count == 0)
+        {
+            Debug.LogWarning("[PlainTutorial] ABORT: plainTutorials null / empty");
             return;
+        }
 
         if (_plainPanelIndex < 0)
         {
+            Debug.Log("[PlainTutorial] index < 0 → StartPlainTutorialSequence()");
             StartPlainTutorialSequence();
             return;
         }
@@ -144,6 +117,12 @@ public partial class TutorialManager
             var currentStep = plainTutorials[_plainPanelIndex];
             var currentConfig = currentStep != null ? currentStep.config : null;
 
+            Debug.Log(
+                $"[PlainTutorial] Hiding current panel | " +
+                $"index={_plainPanelIndex} | " +
+                $"panel={(currentStep?.panelRoot != null ? currentStep.panelRoot.name : "NULL")}"
+            );
+
             if (currentStep != null && currentStep.panelRoot != null)
                 currentStep.panelRoot.SetActive(false);
 
@@ -152,6 +131,8 @@ public partial class TutorialManager
 
             if (currentConfig != null && currentConfig.hideInventoryOnNext)
             {
+                Debug.Log("[PlainTutorial] hideInventoryOnNext = TRUE");
+
                 var inventory = ServiceLocator.Get<ItemInventoryUI>();
                 if (inventory != null)
                 {
@@ -159,28 +140,43 @@ public partial class TutorialManager
                     inventory.ResetInventoryGroupvisibility();
                     inventory.ExitDeleteMode();
                 }
+                else
+                {
+                    Debug.LogWarning("[PlainTutorial] ItemInventoryUI NOT FOUND");
+                }
             }
         }
 
         _plainPanelIndex++;
-        Debug.Log($"TutorialManager: moving to plain panel index {_plainPanelIndex}");
+        Debug.Log($"[PlainTutorial] Increment index → {_plainPanelIndex}");
 
         if (_plainPanelIndex >= plainTutorials.Count)
         {
-            MarkPlainTutorialCompleted();
+            Debug.Log("[PlainTutorial] Tutorial FINISHED");
 
+            MarkPlainTutorialCompleted();
             HidePointerIfAny();
             RestoreUIManagerButtonsInteractable();
+
             if (_tutorialMonsterController != null)
             {
                 _tutorialMonsterController.SetInteractionsDisabledByTutorial(false);
             }
+
             gameObject.SetActive(false);
             return;
         }
 
         var nextStep = plainTutorials[_plainPanelIndex];
         var nextConfig = nextStep != null ? nextStep.config : null;
+
+        Debug.Log(
+            $"[PlainTutorial] Showing NEXT panel | " +
+            $"index={_plainPanelIndex} | " +
+            $"panel={(nextStep?.panelRoot != null ? nextStep.panelRoot.name : "NULL")} | " +
+            $"handPointer={(nextConfig?.handPointerSequence != null)}"
+        );
+
         if (nextStep != null && nextStep.panelRoot != null && nextConfig != null)
         {
             PlayPlainPanelShowAnimation(nextStep.panelRoot);
@@ -200,14 +196,21 @@ public partial class TutorialManager
 
             if (nextConfig.handPointerSequence != null)
             {
-                StartHandPointerSubTutorial(nextStep);
+                Debug.Log("[PlainTutorial] StartHandPointerPlainSubTutorial()");
+                StartHandPointerPlainSubTutorial(nextStep);
             }
             else
             {
+                Debug.Log("[PlainTutorial] UpdatePlainStepNextButtonsInteractable()");
                 UpdatePlainStepNextButtonsInteractable();
             }
         }
+        else
+        {
+            Debug.LogWarning("[PlainTutorial] NEXT STEP INVALID (step / panel / config null)");
+        }
     }
+
 
     private void UpdateTutorialMonsterMovementForPlainStep(PlainTutorialPanelStep step)
     {

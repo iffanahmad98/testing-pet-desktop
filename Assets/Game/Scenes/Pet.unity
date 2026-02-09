@@ -55837,23 +55837,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1411360603}
   m_CullTransparentMesh: 1
---- !u!1 &1415277575 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7421549556660788430, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-  m_PrefabInstance: {fileID: 1472074021}
-  m_PrefabAsset: {fileID: 0}
---- !u!225 &1415277580
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1415277575}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1 &1424050379
 GameObject:
   m_ObjectHideFlags: 0
@@ -56355,26 +56338,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 904416554}
     m_Modifications:
-    - target: {fileID: 259863509740082709, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_Name
-      value: Step 18
-      objectReference: {fileID: 0}
-    - target: {fileID: 259863509740082709, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1612645168554058426, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_text
-      value: "Plain Tutorial \u2014 Pomodoro Timer"
-      objectReference: {fileID: 0}
-    - target: {fileID: 2044380812084086599, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 107.79
-      objectReference: {fileID: 0}
-    - target: {fileID: 2044380812084086599, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 292.35
-      objectReference: {fileID: 0}
     - target: {fileID: 2733221262337265027, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -56455,109 +56418,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3105574752831489225, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_Type
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3105574752831489225, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 8658504750554263084, guid: b7f52fb6345604c4a93bd8c00205c1aa, type: 3}
-    - target: {fileID: 3105574752831489225, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_PreserveAspect
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3203224552894175810, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3752369811183673562, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 684
-      objectReference: {fileID: 0}
-    - target: {fileID: 4396631077984366750, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_text
-      value: "Plain Tutorial \u2014 Window Controls"
-      objectReference: {fileID: 0}
-    - target: {fileID: 5414226867182735799, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 265
-      objectReference: {fileID: 0}
-    - target: {fileID: 5898656600101264846, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_fontSize
-      value: 27.81
-      objectReference: {fileID: 0}
-    - target: {fileID: 5898656600101264846, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
-    - target: {fileID: 5898656600101264846, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 27.81
-      objectReference: {fileID: 0}
-    - target: {fileID: 5898656600101264846, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 3116694589875926387, guid: e4f100590b6eb11479995c4580b1ff04, type: 2}
-    - target: {fileID: 5898656600101264846, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_hasFontAssetChanged
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6430739315409983200, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 1109.5701
-      objectReference: {fileID: 0}
     - target: {fileID: 6853115678679427544, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: m_Name
       value: Tutorial
-      objectReference: {fileID: 0}
-    - target: {fileID: 6853115678679427544, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7182532127603062858, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 73.107
-      objectReference: {fileID: 0}
-    - target: {fileID: 7182532127603062858, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.94809043
-      objectReference: {fileID: 0}
-    - target: {fileID: 7182532127603062858, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.94809043
-      objectReference: {fileID: 0}
-    - target: {fileID: 7182532127603062858, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.94809043
-      objectReference: {fileID: 0}
-    - target: {fileID: 7182532127603062858, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -835.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 7182532127603062858, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 427.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7356507651314019612, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7359143927951277288, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: swayAmplitude
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 8037333176053716391, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: -46.6701
-      objectReference: {fileID: 0}
-    - target: {fileID: 8037333176053716391, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 23.335083
-      objectReference: {fileID: 0}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: simpleTutorialPanels.Array.size
-      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: 'manualUIButtonExtras.Array.data[0]'
@@ -56575,25 +56438,10 @@ PrefabInstance:
       propertyPath: 'manualUIButtonExtras.Array.data[3]'
       value: 
       objectReference: {fileID: 923867397}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: simpleTutorialPanels.Array.data[18].config
-      value: 
-      objectReference: {fileID: 11400000, guid: ebed5abad5335824e8c3a2db7df04402, type: 2}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: simpleTutorialPanels.Array.data[18].panelRoot
-      value: 
-      objectReference: {fileID: 1615359278}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: simpleTutorialPanels.Array.data[8].usePoopCleanAsNext
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7421549556660788430, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1415277580}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
 --- !u!114 &1483638824 stripped
 MonoBehaviour:
@@ -62306,11 +62154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1615359278 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 259863509740082709, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-  m_PrefabInstance: {fileID: 1472074021}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1622812310
 GameObject:
   m_ObjectHideFlags: 0
@@ -102938,7 +102781,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 370639384078260188, guid: b947eaeb3e22eaf4fb426cbbf0bbf3e5, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1427.052
+      value: -1555.9501
       objectReference: {fileID: 0}
     - target: {fileID: 441392463486605042, guid: b947eaeb3e22eaf4fb426cbbf0bbf3e5, type: 3}
       propertyPath: m_Pivot.x

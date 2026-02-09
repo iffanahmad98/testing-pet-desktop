@@ -10,6 +10,9 @@ public partial class TutorialManager
     [Header("Tutorial UI Button Cache (Manual Extras)")]
     [SerializeField] private Button[] manualUIButtonExtras;
 
+    public bool UIButtonsCacheEmpty =>
+    _uiButtonsCache == null || _uiButtonsCache.Length == 0;
+
     public void RebuildUIButtonCache()
     {
 
@@ -44,56 +47,79 @@ public partial class TutorialManager
 
         Debug.Log("[TutorialManager] RebuildUIButtonCache dipanggil.");
     }
-
-    private void CacheUIButtonsFromUIManager()
+    private void CacheAllButtonsForHotelMode()
     {
-        if (_currentMode != TutorialMode.Plain)
+        if (_currentMode != TutorialMode.Hotel)
             return;
 
-        var ui = ServiceLocator.Get<UIManager>();
-        if (ui == null)
-        {
-            Debug.LogWarning("TutorialManager: UIManager tidak ditemukan saat cache buttons.");
-            return;
-        }
-
+        var allButtons = Object.FindObjectsOfType<Button>(true);
         var list = new List<Button>();
+        foreach (var btn in allButtons)
+        {
+            if (btn != null && !list.Contains(btn))
+                list.Add(btn);
+        }
+        _uiButtonsCache = list.ToArray();
+        _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
+        for (int i = 0; i < _uiButtonsCache.Length; i++)
+        {
+            var btn = _uiButtonsCache[i];
+            _uiButtonsInteractableCache[i] = btn != null && btn.interactable;
+        }
+        Debug.Log($"[TutorialManager] CacheAllButtonsForHotelMode: {_uiButtonsCache.Length} button(s) cached for hotel mode.");
+    }
 
+    public void CacheUIButtonsFromUIManager()
+    {
+        var list = new List<Button>();
         void Add(Button b)
         {
             if (b != null && !list.Contains(b))
                 list.Add(b);
         }
 
-        var main = ui.buttons;
-        if (main != null)
+        if (_currentMode == TutorialMode.Plain)
         {
-            Add(main.UIMenuButton);
-            Add(main.miniInventoryButton);
-            Add(main.groundButton);
-            Add(main.doorButton);
-            Add(main.windowButton);
-            Add(main.miniWindowButton);
-            Add(main.shopButton);
-            Add(main.closeShopButton);
-            Add(main.settingsButton);
-            Add(main.closeSettingsButton);
-            Add(main.catalogueButton);
-            Add(main.closeCatalogueButton);
-            Add(main.mainInventoryButton);
-            _tutorialNextButton = main.tutorialnext;
-            Add(main.tutorialnext);
+            var ui = ServiceLocator.Get<UIManager>();
+            if (ui == null)
+            {
+                Debug.LogWarning("TutorialManager: UIManager tidak ditemukan saat cache buttons.");
+            }
+            else
+            {
+                var main = ui.buttons;
+                if (main != null)
+                {
+                    Add(main.UIMenuButton);
+                    Add(main.miniInventoryButton);
+                    Add(main.groundButton);
+                    Add(main.doorButton);
+                    Add(main.windowButton);
+                    Add(main.miniWindowButton);
+                    Add(main.shopButton);
+                    Add(main.closeShopButton);
+                    Add(main.settingsButton);
+                    Add(main.closeSettingsButton);
+                    Add(main.catalogueButton);
+                    Add(main.closeCatalogueButton);
+                    Add(main.mainInventoryButton);
+
+                    _tutorialNextButton = main.tutorialnext;
+                    Add(main.tutorialnext);
+                }
+
+                var shop = ui.shopButtons;
+                if (shop != null)
+                {
+                    Add(shop.catalogueShopButton);
+                    Add(shop.settingShopButton);
+                    Add(shop.helpShopButton);
+                }
+
+                CacheButtonsFromSceneSources(list);
+            }
         }
 
-        var shop = ui.shopButtons;
-        if (shop != null)
-        {
-            Add(shop.catalogueShopButton);
-            Add(shop.settingShopButton);
-            Add(shop.helpShopButton);
-        }
-
-        CacheButtonsFromSceneSources(list);
         if (manualUIButtonExtras != null)
         {
             foreach (var extra in manualUIButtonExtras)
@@ -265,5 +291,28 @@ public partial class TutorialManager
             return null;
 
         return _uiButtonsCache[config.nextButtonIndex];
+    }
+
+    public void DebugLogAssignNextButton(PlainTutorialPanelStep step, Button btn)
+    {
+        if (btn == null)
+        {
+            Debug.LogWarning($"[TutorialManager] Next button untuk step {step?.panelRoot?.name ?? "NULL"} tidak ditemukan!");
+            return;
+        }
+        Debug.Log($"[TutorialManager] Assign onClick untuk next button '{btn.gameObject.name}' pada step '{step?.panelRoot?.name ?? "NULL"}'");
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(() =>
+        {
+            Debug.Log($"[TutorialManager] Next button '{btn.gameObject.name}' diklik pada step '{step?.panelRoot?.name ?? "NULL"}'");
+            ShowNextPlainPanel();
+        });
+    }
+
+    public Button TryGetUIButtonByIndex(int index)
+    {
+        if (_uiButtonsCache == null || index < 0 || index >= _uiButtonsCache.Length)
+            return null;
+        return _uiButtonsCache[index];
     }
 }
