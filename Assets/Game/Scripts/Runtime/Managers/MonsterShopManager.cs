@@ -48,8 +48,8 @@ public class MonsterShopManager : MonoBehaviour
         ClearMonsterInfo();
         */
         buyButton.onClick.AddListener (ClickBuyPreviewButton);
-        //Invoke ("nStart", 0.5f);
-        nStart();
+        Invoke ("nStart", 0.5f);
+       // nStart();
     }
 
     void nStart () {

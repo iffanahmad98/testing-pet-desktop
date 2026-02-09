@@ -4,19 +4,19 @@ using System.Collections;
 public class MonsterManagerEligible : MonoBehaviour
 {
     public static MonsterManagerEligible Instance;
-    //PlayerConfig playerConfig;
+    PlayerConfig playerConfig;
     [SerializeField] List <MonsterDataSO> listMonsterDataSO = new ();
     [SerializeField] MonsterDatabaseSO monsterDatabase;
-
+    [SerializeField] List <string> monsterId = new ();
     void Awake () {
         Instance = this;
     }
 
-    //void Start () 
-    //{
-    //   /playerConfig = SaveSystem.PlayerConfig;
-    //    MonsterManager.instance.AddEventPetMonsterChanged (RefreshListMonsterDataSO);
-    //}
+    void Start () 
+    {
+       playerConfig = SaveSystem.PlayerConfig;
+       Invoke ("RefreshListMonsterDataSO", 0.2f);
+    }
 
     public int GetTotalMonstersEqualRequirements(bool anyRequirements, MonsterType monsterType = MonsterType.Common)
     { // EligiblePetMonster.cs
@@ -49,25 +49,33 @@ public class MonsterManagerEligible : MonoBehaviour
     void RefreshListMonsterDataSO () 
     {
         listMonsterDataSO.Clear ();
-        //foreach (MonsterSaveData data in playerConfig.ownedMonsters)
-        //{
-        //    MonsterDataSO dataSO = monsterDatabase.GetMonsterByID(data.monsterId);
-        //    listMonsterDataSO.Add(dataSO);
-        //}
+        Debug.Log ("Player Config Owned Monsters " + playerConfig.ownedMonsters.Count);
+
+        foreach (MonsterSaveData data in playerConfig.ownedMonsters)
+        {
+            MonsterDataSO dataSO = monsterDatabase.GetMonsterByID(data.monsterId);
+            monsterId.Add (data.instanceId);
+            listMonsterDataSO.Add(dataSO);
+        }
+        /*
         foreach (MonsterDataSO dataSO in MonsterManager.instance.GetListPurchasedMonsterDataSO())
         {
             listMonsterDataSO.Add(dataSO);
         }
+        */
     }
 
-    public void AddListMonsterEligible(MonsterDataSO dataSO)
+    public void AddListMonsterEligible(MonsterDataSO dataSO, string instanceId)
     {
-        listMonsterDataSO.Add(dataSO);
+        if (!monsterId.Contains (instanceId)) {
+            listMonsterDataSO.Add(dataSO);
+            monsterId.Add (instanceId);
+        }
     }
 
     #region Utility
     public List <MonsterDataSO> GetListMonsterDataSO () { // MonsterShopManager.cs
-        Debug.Log ("Monster Data SO : " +  listMonsterDataSO);
+     //   Debug.Log ("Monster Data SO : " +  listMonsterDataSO);
         return listMonsterDataSO;
     }
     #endregion

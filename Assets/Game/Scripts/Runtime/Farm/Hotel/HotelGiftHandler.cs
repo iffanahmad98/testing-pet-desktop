@@ -63,6 +63,7 @@ public class HotelGiftHandler : MonoBehaviour
         } catch (Exception exception) {
             PlayLootBounce ();
         }
+        TooltipManager.Instance.HideInstant ();
     }
 
     void ShowTabLoot () {

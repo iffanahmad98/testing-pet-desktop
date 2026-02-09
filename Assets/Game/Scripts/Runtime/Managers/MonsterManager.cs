@@ -212,7 +212,7 @@ public class MonsterManager : MonoBehaviour
             monsterRectTransform.pivot = new Vector2(0.5f, 0.2f);
         }
 
-        AddListMonsterManagerEligible(monsterData);
+        AddListMonsterManagerEligible(monsterData, controller.monsterID);
     }
 
     public void SpawnMonster(MonsterDataSO monsterData = null, string id = null)
@@ -277,7 +277,7 @@ public class MonsterManager : MonoBehaviour
             monsterRectTransform.pivot = new Vector2(0.5f, 0.2f);
         }
         
-        AddListMonsterManagerEligible(monsterData);
+        AddListMonsterManagerEligible(monsterData,controller.monsterID);
     }
 
     public MonsterController SpawnMonsterAtCenterForTutorial(MonsterDataSO monsterData, Vector2 anchoredPosition)
@@ -1127,10 +1127,10 @@ public class MonsterManager : MonoBehaviour
     #endregion
 
     #region MonsterManagerEligible
-    void AddListMonsterManagerEligible(MonsterDataSO monsterData)
+    void AddListMonsterManagerEligible(MonsterDataSO monsterData, string instancedId)
     {
         listPurchasedMonsterDataSO.Add(monsterData);
-        MonsterManagerEligible.Instance.AddListMonsterEligible(monsterData);
+        MonsterManagerEligible.Instance.AddListMonsterEligible(monsterData, instancedId);
     }
 
     //NO USE FOR NOW
