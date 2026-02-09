@@ -15,7 +15,7 @@ public class PlayerConfig
     public int rareEgg = 0;
     public int hotelGift = 0;
 
-    public int hotelRoomCompleted =0;
+    public int hotelRoomCompleted = 0;
     public int harvestFruit = 0;
     public int harvestEggMonsters = 0;
 
@@ -29,15 +29,15 @@ public class PlayerConfig
     public List<MonsterSaveData> ownedMonsters = new(); // Now using List for full JsonUtility support
     public List<NPCSaveData> ownedNPCMonsters = new(); // For monsters that are owned but not in the world
     public List<OwnedItemData> ownedItems = new();
-    public List<OwnedItemData> farmHarvestOwnedItems = new ();
+    public List<OwnedItemData> farmHarvestOwnedItems = new();
     public List<string> ownedBiomes = new();
     public List<OwnedFacilityData> ownedFacilities = new();
     public List<OwnedDecorationData> ownedDecorations = new();
-    public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new ();
-    public List<HiredHotelFacilityData> hiredHotelFacilityData = new ();
-    public List<HotelGiftWorldData> ownedHotelGiftWorldData = new ();
-    public List<HiredFarmFacilityData> hiredFarmFacilitiesData = new ();
-    public List<OwnedItemFarmData> ownedItemFarmDatas = new ();
+    public List<OwnedHotelFacilityData> ownedHotelFacilitiesData = new();
+    public List<HiredHotelFacilityData> hiredHotelFacilityData = new();
+    public List<HotelGiftWorldData> ownedHotelGiftWorldData = new();
+    public List<HiredFarmFacilityData> hiredFarmFacilitiesData = new();
+    public List<OwnedItemFarmData> ownedItemFarmDatas = new();
 
     public string activeBiomeID = "default_biome";
     public bool isSkyEnabled = false;
@@ -45,26 +45,29 @@ public class PlayerConfig
     public bool isAmbientEnabled = false;
     public bool isRainEnabled = false;
     public bool isMondayReset = false;
+    public bool simpleTutorialCompleted = false;
+    public bool tutorialItemsGranted = false;
+    public bool allStepTutorialsSkippedGlobal = false;
 
-    public List <int> listHotelGoldenTickets = new List <int> ();
-    public List <int> listHotelNormalEggs = new List <int> ();
-    public List <int> listHotelRareEggs = new List <int> ();
-    public List <int> listIdHotelOpen = new List <int> (); // HotelLocker.cs
+    public List<int> listHotelGoldenTickets = new List<int>();
+    public List<int> listHotelNormalEggs = new List<int>();
+    public List<int> listHotelRareEggs = new List<int>();
+    public List<int> listIdHotelOpen = new List<int>(); // HotelLocker.cs
     public DateTime lastRefreshTimeHotelGoldenTickets;
     public DateTime lastRefreshTimeNormalEggs;
     public DateTime lastRefreshTimeRareEggs;
     public DateTime lastGatchaTimeReset;
-    
+
     public DateTime lastRefreshGenerateGuest;
-    public List <GuestRequestData> listGuestRequestData = new List <GuestRequestData> ();
+    public List<GuestRequestData> listGuestRequestData = new List<GuestRequestData>();
     public DateTime lastRefreshTimeHotel;
-    public List <HotelControllerData> listHotelControllerData = new List <HotelControllerData> ();
-    public List <PetMonsterHotelData> listPetMonsterHotelData = new List <PetMonsterHotelData> ();
+    public List<HotelControllerData> listHotelControllerData = new List<HotelControllerData>();
+    public List<PetMonsterHotelData> listPetMonsterHotelData = new List<PetMonsterHotelData>();
 
-    public event System.Action <OwnedItemFarmData,int> eventItemFarmData;
-    public event System.Action <OwnedItemFarmData,int> eventRemoveItemFarmData;
+    public event System.Action<OwnedItemFarmData, int> eventItemFarmData;
+    public event System.Action<OwnedItemFarmData, int> eventRemoveItemFarmData;
 
-    public List<FertilizerMachineData> fertilizerMachineDatas = new ();
+    public List<FertilizerMachineData> fertilizerMachineDatas = new();
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -78,17 +81,18 @@ public class PlayerConfig
         TimeSpan.TryParse(totalPlayTimeString, out totalPlayTime);
     }
 
-    public void SyncLootUseable () 
+    public void SyncLootUseable()
     {
-        GoldenTicket.instance.LoadLoot (goldenTicket);
-        NormalEgg.instance.LoadLoot (normalEgg);
-        RareEgg.instance.LoadLoot (rareEgg);
-        HotelGift.instance.LoadLoot (hotelGift);
-        PlayerHistoryManager.instance.GetLoadPlayerConfig (hotelRoomCompleted,harvestFruit,harvestEggMonsters);
+        GoldenTicket.instance.LoadLoot(goldenTicket);
+        NormalEgg.instance.LoadLoot(normalEgg);
+        RareEgg.instance.LoadLoot(rareEgg);
+        HotelGift.instance.LoadLoot(hotelGift);
+        PlayerHistoryManager.instance.GetLoadPlayerConfig(hotelRoomCompleted, harvestFruit, harvestEggMonsters);
     }
 
-    public void SyncGuestRequestData () {
-        Debug.Log ("Sync Guest Request Data, total ada : " + listGuestRequestData.Count);
+    public void SyncGuestRequestData()
+    {
+        Debug.Log("Sync Guest Request Data, total ada : " + listGuestRequestData.Count);
     }
 
     // Inventory Logic
@@ -122,7 +126,7 @@ public class PlayerConfig
         }
     }
 
-    public void ClearItem (string itemID) // ItemInventoryUI.cs (Clear All Unused Data)
+    public void ClearItem(string itemID) // ItemInventoryUI.cs (Clear All Unused Data)
     {
         var existing = ownedItems.Find(i => i.itemID == itemID);
         if (existing != null)
@@ -137,7 +141,7 @@ public class PlayerConfig
     }
 
     #region FarmHarvestOwnedItems
-     public void AddItemFarmHarvest(string itemID, ItemType type, int amount)
+    public void AddItemFarmHarvest(string itemID, ItemType type, int amount)
     {
         if (amount == 0 || string.IsNullOrEmpty(itemID)) return;
 
@@ -167,7 +171,7 @@ public class PlayerConfig
         }
     }
 
-    public void ClearItemFarmHarvest (string itemID) // ItemInventoryUI.cs (Clear All Unused Data)
+    public void ClearItemFarmHarvest(string itemID) // ItemInventoryUI.cs (Clear All Unused Data)
     {
         var existing = farmHarvestOwnedItems.Find(i => i.itemID == itemID);
         if (existing != null)
@@ -181,7 +185,8 @@ public class PlayerConfig
         return farmHarvestOwnedItems.Find(i => i.itemID == itemID)?.amount ?? 0;
     }
 
-    public List <OwnedItemData> GetFarmHarvestOwnedItems () {
+    public List<OwnedItemData> GetFarmHarvestOwnedItems()
+    {
         return farmHarvestOwnedItems;
     }
     #endregion
@@ -364,7 +369,8 @@ public class PlayerConfig
         if (!HasDecoration(decorationID))
             ownedDecorations.Add(new OwnedDecorationData { decorationID = decorationID, isActive = isActive });
     }
-    public int GetTotalOwnedDecorations () { // RewardAnimator.cs
+    public int GetTotalOwnedDecorations()
+    { // RewardAnimator.cs
         return ownedDecorations.Count;
     }
     #endregion
@@ -373,61 +379,73 @@ public class PlayerConfig
     {
         return ownedHotelFacilitiesData.Any(d => d.id == id);
     }
-    
+
     public bool HasHotelFacilityAndIsActive(string id)
     {
         return ownedHotelFacilitiesData.Any(d => d.id == id && d.isActive == true);
     }
 
     // HotelFacilitesMenu
-    public void AddHotelFacilityData (string dataId)
+    public void AddHotelFacilityData(string dataId)
     {
         if (!HasHotelFacility(dataId))
-            ownedHotelFacilitiesData.Add(new OwnedHotelFacilityData { id = dataId, isActive = true});
+            ownedHotelFacilitiesData.Add(new OwnedHotelFacilityData { id = dataId, isActive = true });
     }
 
-    public void RemoveHotelFacilityData (string dataId) {
-        OwnedHotelFacilityData target = GetHotelFacilityData (dataId);
+    public void RemoveHotelFacilityData(string dataId)
+    {
+        OwnedHotelFacilityData target = GetHotelFacilityData(dataId);
         ownedHotelFacilitiesData.Remove(target);
     }
 
-    public void ChangeHotelFacilityData (string dataId, bool isActive) {
-        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
-            if (data.id == dataId) {
+    public void ChangeHotelFacilityData(string dataId, bool isActive)
+    {
+        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData)
+        {
+            if (data.id == dataId)
+            {
                 data.isActive = isActive;
                 return;
             }
         }
     }
 
-    public OwnedHotelFacilityData GetHotelFacilityData (string dataId) {
-        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData) {
-            if (data.id == dataId) {
+    public OwnedHotelFacilityData GetHotelFacilityData(string dataId)
+    {
+        foreach (OwnedHotelFacilityData data in ownedHotelFacilitiesData)
+        {
+            if (data.id == dataId)
+            {
                 return data;
             }
         }
         return null;
     }
 
-    public void AddHiredHotelFacilityData (string dataId, int hiredValue)
+    public void AddHiredHotelFacilityData(string dataId, int hiredValue)
     {
-        if (GetHiredHotelFacilityData(dataId) == null) 
-            hiredHotelFacilityData.Add(new HiredHotelFacilityData { id = dataId, isActive = true, hired = hiredValue});
+        if (GetHiredHotelFacilityData(dataId) == null)
+            hiredHotelFacilityData.Add(new HiredHotelFacilityData { id = dataId, isActive = true, hired = hiredValue });
         else
-            GetHiredHotelFacilityData (dataId).hired += hiredValue;
+            GetHiredHotelFacilityData(dataId).hired += hiredValue;
     }
 
-    public HiredHotelFacilityData GetHiredHotelFacilityData (string dataId) {
-        foreach (HiredHotelFacilityData data in hiredHotelFacilityData) {
+    public HiredHotelFacilityData GetHiredHotelFacilityData(string dataId)
+    {
+        foreach (HiredHotelFacilityData data in hiredHotelFacilityData)
+        {
             if (data.id == dataId) return data;
         }
         return null;
     }
 
-    public int GetTotalHiredServiceWithNpcServiceFeatures () { // HotelController.cs
+    public int GetTotalHiredServiceWithNpcServiceFeatures()
+    { // HotelController.cs
         int result = 0;
-        foreach (HiredHotelFacilityData data in hiredHotelFacilityData) {
-            if (data.id == "robo_shroom" || data.id == "bellboy_shroom") { // memiliki fitur NpcService
+        foreach (HiredHotelFacilityData data in hiredHotelFacilityData)
+        {
+            if (data.id == "robo_shroom" || data.id == "bellboy_shroom")
+            { // memiliki fitur NpcService
                 result += data.hired;
             }
         }
@@ -436,45 +454,52 @@ public class PlayerConfig
     }
     #endregion
     #region Hotel Gift World
-    public void AddHotelGiftWorld (Vector3 position) {// HotelGiftHandler
-        ownedHotelGiftWorldData.Add(new HotelGiftWorldData { dataPosition = position});
-        Debug.Log ("Melakukan Save Hotel Gift");
-        SaveSystem.SaveAll ();
+    public void AddHotelGiftWorld(Vector3 position)
+    {// HotelGiftHandler
+        ownedHotelGiftWorldData.Add(new HotelGiftWorldData { dataPosition = position });
+        Debug.Log("Melakukan Save Hotel Gift");
+        SaveSystem.SaveAll();
     }
 
-    public void RemoveHotelGiftWorld (Vector3 position) { // HotelGiftHandler
-        ownedHotelGiftWorldData.Remove(GetHotelGiftWorldData (position));
-        Debug.Log ("Melakukan Save Hotel Gift");
-        SaveSystem.SaveAll ();
+    public void RemoveHotelGiftWorld(Vector3 position)
+    { // HotelGiftHandler
+        ownedHotelGiftWorldData.Remove(GetHotelGiftWorldData(position));
+        Debug.Log("Melakukan Save Hotel Gift");
+        SaveSystem.SaveAll();
     }
 
-    HotelGiftWorldData GetHotelGiftWorldData (Vector3 targetPosition) {
-        foreach (HotelGiftWorldData data in ownedHotelGiftWorldData) {
-            if (Vector3.Distance (targetPosition, data.dataPosition) <0.5f) {
+    HotelGiftWorldData GetHotelGiftWorldData(Vector3 targetPosition)
+    {
+        foreach (HotelGiftWorldData data in ownedHotelGiftWorldData)
+        {
+            if (Vector3.Distance(targetPosition, data.dataPosition) < 0.5f)
+            {
                 return data;
             }
         }
 
-        Debug.LogError ("There is no HotelGiftWorldData similar with this position !");
+        Debug.LogError("There is no HotelGiftWorldData similar with this position !");
         return null;
     }
     #endregion
     #region Farm Facility Logic
-    public void AddHiredFarmFacilityData (string dataId, int hiredValue)
+    public void AddHiredFarmFacilityData(string dataId, int hiredValue)
     {
-        if (GetHiredFarmFacilityData(dataId) == null) 
-            hiredFarmFacilitiesData.Add(new HiredFarmFacilityData { id = dataId, isActive = true, hired = hiredValue});
+        if (GetHiredFarmFacilityData(dataId) == null)
+            hiredFarmFacilitiesData.Add(new HiredFarmFacilityData { id = dataId, isActive = true, hired = hiredValue });
         else
-            GetHiredFarmFacilityData (dataId).hired += hiredValue;
+            GetHiredFarmFacilityData(dataId).hired += hiredValue;
     }
 
-    public HiredFarmFacilityData GetHiredFarmFacilityData (string dataId) {
-        foreach (HiredFarmFacilityData data in hiredFarmFacilitiesData) {
+    public HiredFarmFacilityData GetHiredFarmFacilityData(string dataId)
+    {
+        foreach (HiredFarmFacilityData data in hiredFarmFacilitiesData)
+        {
             if (data.id == dataId) return data;
         }
         return null;
     }
-    
+
     #endregion
     #region Item Farm Data Logic
     public void AddItemFarm(string itemID, int amount)
@@ -493,16 +518,16 @@ public class PlayerConfig
             if (item.amount == 0)
                 ownedItemFarmDatas.Remove(item);
         }
-        Debug.Log ($"Item {itemID} {item.amount} bertambah {amount}");
-        eventItemFarmData?.Invoke (item, amount);
+        Debug.Log($"Item {itemID} {item.amount} bertambah {amount}");
+        eventItemFarmData?.Invoke(item, amount);
     }
 
     public void RemoveItemFarm(string itemID, int amount, bool refreshEvent = false)
     { // EligibleMaterials.cs, PlayerInventory.cs
         if (amount <= 0 || string.IsNullOrEmpty(itemID)) return;
-        Debug.Log ("berkurang : " + itemID);
+        Debug.Log("berkurang : " + itemID);
 
-        foreach (var s in this.ownedItemFarmDatas) {Debug.Log ("berkurang 2 :" + s.itemID);}
+        foreach (var s in this.ownedItemFarmDatas) { Debug.Log("berkurang 2 :" + s.itemID); }
         var existing = ownedItemFarmDatas.Find(i => i.itemID == itemID);
         // Debug.Log ($"Item {itemID} {existing.amount} berkurang {amount}");
         if (existing != null)
@@ -510,12 +535,15 @@ public class PlayerConfig
             existing.amount -= amount;
             if (existing.amount <= 0)
                 ownedItemFarmDatas.Remove(existing);
-        } else {
-            Debug.LogError ("Not Found Owned Item Farm Data : " + itemID);
+        }
+        else
+        {
+            Debug.LogError("Not Found Owned Item Farm Data : " + itemID);
         }
 
-        if (refreshEvent) {
-            eventRemoveItemFarmData?.Invoke (existing, amount);
+        if (refreshEvent)
+        {
+            eventRemoveItemFarmData?.Invoke(existing, amount);
         }
     }
 
@@ -524,97 +552,117 @@ public class PlayerConfig
         return ownedItemFarmDatas.Find(i => i.itemID == itemID)?.amount ?? 0;
     }
 
-    public List <OwnedItemFarmData> GetOwnedItemFarmDatas () {
-       // Debug.Log (ownedItemFarmDatas.Count);
+    public List<OwnedItemFarmData> GetOwnedItemFarmDatas()
+    {
+        // Debug.Log (ownedItemFarmDatas.Count);
         return ownedItemFarmDatas;
     }
 
-    public void AddEventItemFarmData (System.Action <OwnedItemFarmData, int> actionValue) { // FarmShopPlantPanel
-       // eventItemFarmData = null;
+    public void AddEventItemFarmData(System.Action<OwnedItemFarmData, int> actionValue)
+    { // FarmShopPlantPanel
+      // eventItemFarmData = null;
         eventItemFarmData += actionValue;
     }
 
-    public void AddEventRemoveItemFarmData (System.Action <OwnedItemFarmData, int> actionValue) { // FarmShopPlantPanel
-       // eventItemFarmData = null;
+    public void AddEventRemoveItemFarmData(System.Action<OwnedItemFarmData, int> actionValue)
+    { // FarmShopPlantPanel
+      // eventItemFarmData = null;
         eventRemoveItemFarmData += actionValue;
     }
     #endregion
     #region Guest Request Data
-    public void AddGuestRequestData (GuestRequestData guestRequestData) { // HotelManager.cs
-        
-        listGuestRequestData.Add (guestRequestData);
+    public void AddGuestRequestData(GuestRequestData guestRequestData)
+    { // HotelManager.cs
+
+        listGuestRequestData.Add(guestRequestData);
     }
 
-    public void RemoveGuestRequestData (GuestRequestData guestRequestData) { // HotelManager.cs
-        listGuestRequestData.Remove (guestRequestData);
+    public void RemoveGuestRequestData(GuestRequestData guestRequestData)
+    { // HotelManager.cs
+        listGuestRequestData.Remove(guestRequestData);
     }
 
-    public void ClearAllGuestRequestData () {
-        listGuestRequestData.Clear ();   
+    public void ClearAllGuestRequestData()
+    {
+        listGuestRequestData.Clear();
     }
 
-    public void SetLastRefreshGenerateGuest (DateTime dateTime) { // HotelManager.cs
+    public void SetLastRefreshGenerateGuest(DateTime dateTime)
+    { // HotelManager.cs
         lastRefreshGenerateGuest = dateTime;
     }
 
-    public List <GuestRequestData> GetListGuestRequestData () { // HotelManager.cs
+    public List<GuestRequestData> GetListGuestRequestData()
+    { // HotelManager.cs
         return listGuestRequestData;
     }
-    
+
     #endregion
     #region Hotel
-    public void SetLastRefreshTimeHotel (DateTime dateTime) { // HotelManager.cs
+    public void SetLastRefreshTimeHotel(DateTime dateTime)
+    { // HotelManager.cs
         lastRefreshTimeHotel = dateTime;
     }
     #endregion
     #region HotelControllerData
-    public void AddHotelControllerData (HotelControllerData hotelControllerData) {
-        listHotelControllerData.Add (hotelControllerData);
+    public void AddHotelControllerData(HotelControllerData hotelControllerData)
+    {
+        listHotelControllerData.Add(hotelControllerData);
         SaveSystem.SaveAll();
     }
 
-    public void RemoveHotelControllerData (HotelControllerData hotelControllerData) {
-        listHotelControllerData.Remove (hotelControllerData);
+    public void RemoveHotelControllerData(HotelControllerData hotelControllerData)
+    {
+        listHotelControllerData.Remove(hotelControllerData);
         SaveSystem.SaveAll();
     }
 
-    public List <HotelControllerData> GetListHotelControllerData () { // HotelManager.cs
-        return listHotelControllerData; 
+    public List<HotelControllerData> GetListHotelControllerData()
+    { // HotelManager.cs
+        return listHotelControllerData;
     }
 
-    public void HotelControllerDataChangeCodeRequest (int idHotel, string codeRequest) { // HotelController.cs
-        foreach (HotelControllerData data in listHotelControllerData) {
-            if (data.idHotel == idHotel) {
+    public void HotelControllerDataChangeCodeRequest(int idHotel, string codeRequest)
+    { // HotelController.cs
+        foreach (HotelControllerData data in listHotelControllerData)
+        {
+            if (data.idHotel == idHotel)
+            {
                 data.codeRequest = codeRequest;
                 return;
             }
         }
     }
 
-    public void HotelControllerDataChangeHappiness (int idHotel, int happiness) {
-        HotelControllerData hotel = GetHotelControllerDataByIdHotel (idHotel);
+    public void HotelControllerDataChangeHappiness(int idHotel, int happiness)
+    {
+        HotelControllerData hotel = GetHotelControllerDataByIdHotel(idHotel);
         hotel.happiness = happiness;
     }
 
-    public HotelControllerData GetHotelControllerDataByIdHotel (int idHotel) {
-        foreach (HotelControllerData data in listHotelControllerData) {
-            if (data.idHotel == idHotel) {
+    public HotelControllerData GetHotelControllerDataByIdHotel(int idHotel)
+    {
+        foreach (HotelControllerData data in listHotelControllerData)
+        {
+            if (data.idHotel == idHotel)
+            {
                 return data;
             }
         }
-        Debug.LogError ($"Id Hotel {idHotel} tidak ditemukan");
+        Debug.LogError($"Id Hotel {idHotel} tidak ditemukan");
         return null;
     }
 
-    public void SetHotelReward (int idHotel, bool holdReward) {
-        HotelControllerData hotel = GetHotelControllerDataByIdHotel (idHotel);
+    public void SetHotelReward(int idHotel, bool holdReward)
+    {
+        HotelControllerData hotel = GetHotelControllerDataByIdHotel(idHotel);
         hotel.holdReward = holdReward;
     }
 
-    
+
     #endregion
     #region PetMonsterHotelData
-   public void SavePetMonsterHotelElement(PetMonsterHotelData data)
+    public void SavePetMonsterHotelElement(PetMonsterHotelData data)
     { // untuk sistem yang bertabrakan dengan SaveAll ()
         // 1. Pastikan config sudah load
         var config = SaveSystem.PlayerConfig;
@@ -644,43 +692,50 @@ public class PlayerConfig
         config.listPetMonsterHotelData.Add(data);
 
         //Debug.Log("Pet element saved, total: " +
-            //      config.listPetMonsterHotelData.Count);
+        //      config.listPetMonsterHotelData.Count);
 
         // 3. SAVE FILE (tetap full json, tapi aman)
         SaveSystem.SaveAll();
     }
 
-    public List <PetMonsterHotelData> GetListPetMonsterHotelData () {
+    public List<PetMonsterHotelData> GetListPetMonsterHotelData()
+    {
         return listPetMonsterHotelData;
     }
 
-    public void RemovePetMonsterHotelData (PetMonsterHotelData data) {
-        listPetMonsterHotelData.Remove (data);
-       // SaveSystem.SaveAll ();
+    public void RemovePetMonsterHotelData(PetMonsterHotelData data)
+    {
+        listPetMonsterHotelData.Remove(data);
+        // SaveSystem.SaveAll ();
     }
-    
+
     #endregion
-  
+
     #region Fertilizer Machine Data
-    public void AddFertilizerMachineData (MagicalGarden.Manager.FertilizerType fertilizerType, DateTime startDate) { // FertilizerManager.cs
-        Debug.Log ("Save 1");
-        if (GetFertilizerMachineData (fertilizerType) == null) {
-            FertilizerMachineData newData = new FertilizerMachineData ();
+    public void AddFertilizerMachineData(MagicalGarden.Manager.FertilizerType fertilizerType, DateTime startDate)
+    { // FertilizerManager.cs
+        Debug.Log("Save 1");
+        if (GetFertilizerMachineData(fertilizerType) == null)
+        {
+            FertilizerMachineData newData = new FertilizerMachineData();
             newData.id = fertilizerMachineDatas.Count;
             newData.fertilizerType = fertilizerType;
             newData.startDate = startDate;
-            Debug.Log ("Save 2");
-            fertilizerMachineDatas.Add (newData);
+            Debug.Log("Save 2");
+            fertilizerMachineDatas.Add(newData);
         }
     }
 
-    public void RemoveFertilizerMachineData (MagicalGarden.Manager.FertilizerType type) {
-        if (GetFertilizerMachineData (type) != null) {
-            fertilizerMachineDatas.Remove (GetFertilizerMachineData (type));
+    public void RemoveFertilizerMachineData(MagicalGarden.Manager.FertilizerType type)
+    {
+        if (GetFertilizerMachineData(type) != null)
+        {
+            fertilizerMachineDatas.Remove(GetFertilizerMachineData(type));
         }
     }
 
-    FertilizerMachineData GetFertilizerMachineData (MagicalGarden.Manager.FertilizerType type) {
+    FertilizerMachineData GetFertilizerMachineData(MagicalGarden.Manager.FertilizerType type)
+    {
         return fertilizerMachineDatas.Find(f => f.fertilizerType == type);
     }
     #endregion
@@ -791,7 +846,7 @@ public class GuestRequestData
     public int party = 0;
     public int price = 0;
     public TimeSpan stayDuration;
-    public string guestName; 
+    public string guestName;
 }
 
 [Serializable]

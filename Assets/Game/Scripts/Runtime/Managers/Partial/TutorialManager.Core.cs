@@ -3,21 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
 public partial class TutorialManager
 {
-    [Header("Storage Config")]
-    [SerializeField] private string playerPrefsKeyPrefix = "tutorial_";
-
-    [Header("Mode Tutorial")]
-    [SerializeField] private bool useTutorialSteps = true;
-
-    [Header("Tutorial Steps")]
-    public List<TutorialStep> tutorialSteps = new List<TutorialStep>();
-
-    [Header("Dialog Config")]
-    [SerializeField] private Transform dialogRoot;
-
     [SerializeField] private List<SimpleTutorialPanelStep> simpleTutorialPanels = new List<SimpleTutorialPanelStep>();
 
     [Header("Simple Panels Animation")]
@@ -27,15 +16,9 @@ public partial class TutorialManager
     [Header("Global UI References")]
     [SerializeField] private Button skipTutorialButton;
 
-    private ITutorialProgressStore _progressStore;
-    private int _currentStepIndex = -1;
-    private ITutorialDialogView _activeDialogView;
-    private TutorialStep _activeDialogStep;
-    private int _activeDialogIndex;
-
     private int _simplePanelIndex = -1;
 
-    private Button[] _uiButtonsCache;
+    public Button[] _uiButtonsCache;
     private bool[] _uiButtonsInteractableCache;
 
     [Header("Tutorial Monster")]
@@ -60,14 +43,11 @@ public partial class TutorialManager
 
     public static Button GlobalSkipTutorialButton { get; private set; }
 
-    private bool IsSimpleMode => !useTutorialSteps;
+    // Step-based tutorial mode has been removed; this manager now always runs in simple mode.
+    private bool IsSimpleMode => true;
 
     private bool _isSubscribedToPlacementManager;
     private bool _isSubscribedToMonsterPoopClean;
-
-    private string SimpleTutorialCompletedKey => playerPrefsKeyPrefix + "simple_completed";
-    private const string GlobalSimpleTutorialCompletedKey = "tutorial_simple_completed_global";
-    private string TutorialItemsGrantedKey => playerPrefsKeyPrefix + "items_granted";
 
     private void OnEnable()
     {
@@ -102,6 +82,60 @@ public partial class TutorialManager
         }
     }
 
+    public void ShowSkipButtonAnimated()
+    {
+        if (skipTutorialButton == null)
+            return;
+
+        var rect = skipTutorialButton.transform as RectTransform;
+        var cg = skipTutorialButton.GetComponent<CanvasGroup>();
+        if (rect == null || cg == null)
+            return;
+
+        rect.DOKill();
+        cg.DOKill();
+
+        var targetPos = rect.anchoredPosition;
+        var startPos = targetPos;
+        startPos.y -= 80f;
+        rect.anchoredPosition = startPos;
+
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+        rect.DOAnchorPos(targetPos, 0.3f).SetEase(Ease.OutQuad);
+        cg.DOFade(1f, 0.3f).OnComplete(() =>
+        {
+            cg.interactable = true;
+            cg.blocksRaycasts = true;
+        });
+    }
+
+    public void HideSkipButtonAnimated()
+    {
+        if (skipTutorialButton == null)
+            return;
+
+        var rect = skipTutorialButton.transform as RectTransform;
+        var cg = skipTutorialButton.GetComponent<CanvasGroup>();
+        if (rect == null || cg == null)
+            return;
+
+        rect.DOKill();
+        cg.DOKill();
+
+        var startPos = rect.anchoredPosition;
+        var targetPos = startPos;
+        targetPos.y -= 80f;
+
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+        rect.DOAnchorPos(targetPos, 0.25f).SetEase(Ease.InQuad);
+        cg.DOFade(0f, 0.25f);
+    }
+
     private void TrySubscribeMonsterPoopClean()
     {
         if (_isSubscribedToMonsterPoopClean)
@@ -116,23 +150,23 @@ public partial class TutorialManager
         Debug.Log("TutorialManager: Subscribed to MonsterManager.OnPoopCleaned");
     }
 
-    private void EnsureProgressStore()
-    {
-        if (_progressStore == null)
-        {
-            _progressStore = new PlayerPrefsTutorialProgressStore(playerPrefsKeyPrefix);
-        }
-    }
-
     private bool HaveGivenTutorialStartItems()
     {
-        return PlayerPrefs.GetInt(TutorialItemsGrantedKey, 0) == 1;
+        var config = SaveSystem.PlayerConfig;
+        return config != null && config.tutorialItemsGranted;
     }
 
     private void MarkTutorialStartItemsGiven()
     {
-        PlayerPrefs.SetInt(TutorialItemsGrantedKey, 1);
-        PlayerPrefs.Save();
+        var config = SaveSystem.PlayerConfig;
+        if (config == null)
+            return;
+
+        if (!config.tutorialItemsGranted)
+        {
+            config.tutorialItemsGranted = true;
+            SaveSystem.SaveAll();
+        }
     }
 
     private void GrantTutorialStartItemsIfNeeded()
@@ -176,20 +210,26 @@ public partial class TutorialManager
 
     private bool IsSimpleTutorialAlreadyCompleted()
     {
-        // Check both the instance-specific key (with prefix) and a
-        // global key so that once the simple tutorial is completed
-        // or skipped in any scene, it doesn't re-run elsewhere.
-        if (PlayerPrefs.GetInt(SimpleTutorialCompletedKey, 0) == 1)
-            return true;
+        var config = SaveSystem.PlayerConfig;
+        if (config == null)
+            return false;
 
-        return PlayerPrefs.GetInt(GlobalSimpleTutorialCompletedKey, 0) == 1;
+        // Consider tutorial completed if either local simple flag
+        // or global "skip all tutorials" flag is set.
+        return config.simpleTutorialCompleted || config.allStepTutorialsSkippedGlobal;
     }
 
     private void MarkSimpleTutorialCompleted()
     {
-        PlayerPrefs.SetInt(SimpleTutorialCompletedKey, 1);
-        PlayerPrefs.SetInt(GlobalSimpleTutorialCompletedKey, 1);
-        PlayerPrefs.Save();
+        var config = SaveSystem.PlayerConfig;
+        if (config == null)
+            return;
+
+        if (!config.simpleTutorialCompleted)
+        {
+            config.simpleTutorialCompleted = true;
+            SaveSystem.SaveAll();
+        }
     }
 
     private void OnCoinCollectedByPlayer(CoinController coin)
@@ -204,16 +244,17 @@ public partial class TutorialManager
             return;
 
         var step = simpleTutorialPanels[_simplePanelIndex];
-        if (step == null)
+        var config = step != null ? step.config : null;
+        if (config == null)
             return;
 
-        if (step.useFoodDropAsNext)
+        if (config.useFoodDropAsNext)
             return;
 
-        if (step.useUIManagerButtonHandPointer)
+        if (config.useUIManagerButtonHandPointer)
             return;
 
-        if (!step.useCoinCollectAsNext)
+        if (!config.useCoinCollectAsNext)
             return;
 
         RequestNextSimplePanel();
@@ -243,10 +284,11 @@ public partial class TutorialManager
             return;
 
         var step = simpleTutorialPanels[_simplePanelIndex];
-        if (step == null)
+        var config = step != null ? step.config : null;
+        if (config == null)
             return;
 
-        if (!step.useFoodDropAsNext)
+        if (!config.useFoodDropAsNext)
             return;
 
         if (incrementCount)
@@ -254,9 +296,9 @@ public partial class TutorialManager
             _foodDropCountForCurrentStep++;
         }
 
-        int required = step.requiredFoodDropCount <= 0 ? 1 : step.requiredFoodDropCount;
+        int required = config.requiredFoodDropCount <= 0 ? 1 : config.requiredFoodDropCount;
 
-        float delay = step.minFoodDropDelay > 0f ? step.minFoodDropDelay : 5f;
+        float delay = config.minFoodDropDelay > 0f ? config.minFoodDropDelay : 5f;
         if (Time.time - _simpleStepShownTime < delay)
             return;
 
@@ -292,13 +334,14 @@ public partial class TutorialManager
         }
 
         var step = simpleTutorialPanels[_simplePanelIndex];
-        if (step == null)
+        var config = step != null ? step.config : null;
+        if (config == null)
         {
             Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (current step is null)");
             return;
         }
 
-        if (!step.usePoopCleanAsNext)
+        if (!config.usePoopCleanAsNext)
         {
             Debug.Log("TutorialManager: TryHandlePoopCleanProgress ignored (usePoopCleanAsNext is false on this step)");
             return;
@@ -323,6 +366,8 @@ public partial class TutorialManager
         if (monsterManager == null)
             return;
 
+        // If there is already an active monster, just use it as the
+        // tutorial target instead of spawning a new one.
         if (monsterManager.activeMonsters != null && monsterManager.activeMonsters.Count > 0)
         {
             var existing = monsterManager.activeMonsters[0];
@@ -330,8 +375,17 @@ public partial class TutorialManager
             {
                 _tutorialMonsterRect = existing.GetComponent<RectTransform>();
                 SetupTutorialMonsterController(existing);
+                _briabitSpawned = true;
             }
-            _briabitSpawned = true;
+            return;
+        }
+
+        // Avoid spawning an extra tutorial monster if the player already owns
+        // any monsters in their save data (prevents duplicate monsters on load).
+        var config = SaveSystem.PlayerConfig;
+        bool hasOwnedMonsters = config != null && config.ownedMonsters != null && config.ownedMonsters.Count > 0;
+        if (hasOwnedMonsters)
+        {
             return;
         }
 
@@ -348,10 +402,10 @@ public partial class TutorialManager
                     _tutorialMonsterRect = controller.GetComponent<RectTransform>();
                     SetupTutorialMonsterController(controller);
                     monsterManager.SaveAllMonsters();
+                    _briabitSpawned = true;
                 }
             }
         }
-        _briabitSpawned = true;
     }
 
     private void SetupTutorialMonsterController(MonsterController controller)
@@ -381,6 +435,7 @@ public partial class TutorialManager
         var cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
         return RectTransformUtility.RectangleContainsScreenPoint(_tutorialMonsterRect, Input.mousePosition, cam);
     }
+
     private void RequestNextSimplePanel()
     {
         if (simpleTutorialPanels != null &&
@@ -388,8 +443,9 @@ public partial class TutorialManager
             _simplePanelIndex < simpleTutorialPanels.Count)
         {
             var currentStep = simpleTutorialPanels[_simplePanelIndex];
-            if (_isRunningHandPointerSubTutorial && currentStep != null &&
-                (currentStep.useFoodDropAsNext || currentStep.usePoopCleanAsNext))
+            var currentConfig = currentStep != null ? currentStep.config : null;
+            if (_isRunningHandPointerSubTutorial && currentConfig != null &&
+                (currentConfig.useFoodDropAsNext || currentConfig.usePoopCleanAsNext))
             {
                 EndHandPointerSubTutorial();
             }
@@ -420,7 +476,24 @@ public partial class TutorialManager
             return;
 
         var step = simpleTutorialPanels[_simplePanelIndex];
-        float delay = step != null ? Mathf.Max(0f, step.nextStepDelay) : 0f;
+        var config = step != null ? step.config : null;
+
+        float delay = 0f;
+        if (config != null)
+        {
+            if (config.useCoinCollectAsNext)
+            {
+                if (config.coinCollectNextStepDelay > 0f)
+                {
+                    delay = Mathf.Max(0f, config.coinCollectNextStepDelay);
+                }
+            }
+            else
+            {
+                delay = Mathf.Max(0f, config.nextStepDelay);
+            }
+        }
+
         _simpleNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(delay));
     }
 

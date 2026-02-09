@@ -10,6 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 21602a64789f7e84d8feada91fe75df7, type: 3}
-  m_Name: HandPointerTutorialSequence Drop Food
+  m_Name: HandPointerTutorialSequence Close Window
   m_EditorClassIdentifier: 
-  steps: []
+  steps:
+  - uiButtonIndex: 3
+    pointerOffset: {x: 15, y: 0}

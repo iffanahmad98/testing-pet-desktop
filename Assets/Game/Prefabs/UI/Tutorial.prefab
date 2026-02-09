@@ -2422,6 +2422,55 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1395213317396688550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 175770726921461995}
+  - component: {fileID: 712079243754354696}
+  m_Layer: 5
+  m_Name: Monster Spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &175770726921461995
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1395213317396688550}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2733221262337265027}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 157, y: -259}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &712079243754354696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1395213317396688550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 075b3beb5a116b342b1e4bdeb08c0158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 1
 --- !u!1 &1403255328020800180
 GameObject:
   m_ObjectHideFlags: 0
@@ -3006,12 +3055,12 @@ GameObject:
   - component: {fileID: 648311577177290409}
   - component: {fileID: 7030285983992937794}
   m_Layer: 5
-  m_Name: Step 15
+  m_Name: Step 17
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3752369811183673562
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3035,7 +3084,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 16.646912, y: 695}
+  m_AnchoredPosition: {x: 16.646912, y: 276}
   m_SizeDelta: {x: -1465.1216, y: 166.8984}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &648311577177290409
@@ -4642,7 +4691,7 @@ GameObject:
   - component: {fileID: 4267505897444001311}
   - component: {fileID: 9204761766503200038}
   m_Layer: 5
-  m_Name: Step 12 (2)
+  m_Name: Step 14
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4978,12 +5027,12 @@ GameObject:
   - component: {fileID: 8268011217751014384}
   - component: {fileID: 4799391669020114054}
   m_Layer: 5
-  m_Name: Step 13
+  m_Name: Step 15
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5414226867182735799
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8383,12 +8432,12 @@ GameObject:
   - component: {fileID: 5568544060409597388}
   - component: {fileID: 1402712221738912855}
   m_Layer: 5
-  m_Name: Step 14
+  m_Name: Step 16
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1565379393804990211
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8412,7 +8461,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 16.646912, y: 695}
+  m_AnchoredPosition: {x: 16.646912, y: 276}
   m_SizeDelta: {x: -1465.1216, y: 166.8984}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5568544060409597388
@@ -10689,6 +10738,7 @@ MonoBehaviour:
   followSmoothTime: 0.15
   swayAmplitude: 26.4
   swaySpeed: 3
+  sortingOrderOnTop: 5000
 --- !u!1 &6185590459470151922
 GameObject:
   m_ObjectHideFlags: 0
@@ -12430,6 +12480,7 @@ RectTransform:
   - {fileID: 2044380812084086599}
   - {fileID: 6916618873602078614}
   - {fileID: 7182532127603062858}
+  - {fileID: 175770726921461995}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -12457,420 +12508,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1297f0b226f748940acef37e723e4460, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefsKeyPrefix: tutorial_
-  useTutorialSteps: 0
-  tutorialSteps:
-  - panelRoot: {fileID: 0}
-    nextButton: {fileID: 0}
-    useDialog: 1
-    dialogPrefab: {fileID: 2635249748128839060, guid: 3802b018c5cdfcd49863e69405690a05, type: 3}
-    dialogLines:
-    - speakerName: 
-      text: 'Welcome to PETAL PALS PLAIN! This is your first pet: <wave>Briarbit</wave>.
-        Left-click to <shake>interact</shake>. Move your cursor near coins to collect
-        them.'
-    - speakerName: 
-      text: "Your pet is feeling <shake>hungry</shake>! Open the <glow>Shop</glow>
-        and buy some <wave>Food</wave>. \r\nDrag and <bounce>drop</bounce> the food
-        onto the ground to feed your pet. \r\nYou can drop multiple foods if needed.
-        Right-click to <pulse>finish feeding</pulse>. \r\nDon\u2019t forget to clean
-        the <shake>poop</shake>!\r"
-    - speakerName: 
-      text: "Your pet is feeling <shake>hungry</shake>! Open the <glow>Shop</glow>
-        and buy some <wave>Food</wave>. \r\nDrag and <bounce>drop</bounce> the food
-        onto the ground to feed your pet. \r\nYou can drop multiple foods if needed.
-        Right-click to <pulse>finish feeding</pulse>. \r\nDon\u2019t forget to clean
-        the <shake>poop</shake>!\r"
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    pointerTarget: {fileID: 0}
-    pointerOffset: {x: 0, y: 0}
-  dialogRoot: {fileID: 0}
   simpleTutorialPanels:
   - panelRoot: {fileID: 973239746739933002}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 0, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: bffb0e92b06b9dc488fc36bbf71be4ab, type: 2}
   - panelRoot: {fileID: 9131394497424638126}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 1
-    useTutorialMonsterAsPointerTarget: 1
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 1
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: b6ce26cf4e9111c4f8f11d7f36b36fac, type: 2}
   - panelRoot: {fileID: 7017023766083380383}
-    nextButtonIndex: 9
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 1
-    useRightClickPetAsNext: 1
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 0, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 1
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 1
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 1de40643bc484254aa4152c5ae0c4ece, type: 2}
   - panelRoot: {fileID: 2107446871949622429}
-    nextButtonIndex: 9
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 1
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 1
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: b7f4880eba320aa4ab41d50035cb64c0, type: 2}
   - panelRoot: {fileID: 1822071485969724975}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 1
-    makeTutorialMonsterHungry: 1
-    hungryReduceAmount: 85.8
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 1
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 5fc4ba23c2a5e6b42ba9fc92078e5d61, type: 2}
   - panelRoot: {fileID: 1241186858816966929}
-    nextButtonIndex: 6
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 1
-    handPointerSequence: {fileID: 11400000, guid: 99d00b9e6d7a4744784c4f74fcd6c613, type: 2}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 1a280311bcedd5544929adf8241f24be, type: 2}
   - panelRoot: {fileID: 648434179120552562}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 1
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 1
-    handPointerSequence: {fileID: 11400000, guid: 50349ab0c7af75d4a9cc33969633ec27, type: 2}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 1
+    config: {fileID: 11400000, guid: 25919d54dec5a8042a2b9aeb69cfb293, type: 2}
   - panelRoot: {fileID: 9065852688841435893}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 1
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 2
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 1
+    config: {fileID: 11400000, guid: a110f742dbdd101459122f05a80c4996, type: 2}
   - panelRoot: {fileID: 4386888542832933374}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 1
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 1
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 1c4352b0ba1157646b66642742fcfd86, type: 2}
   - panelRoot: {fileID: 5931920797665019787}
-    nextButtonIndex: 17
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 1
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 1
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: ec18a2450a79b4d4a8931fefb4d3ab91, type: 2}
   - panelRoot: {fileID: 9076395438097040563}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 1
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 1
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: d7e22b023cb6ca74fb9bd6baed9580e5, type: 2}
   - panelRoot: {fileID: 8320419700642377254}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 0e284ad4bd283e94c967310e6467c340, type: 2}
   - panelRoot: {fileID: 7830048836293419534}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
-  - panelRoot: {fileID: 7830048836293419534}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 0e284ad4bd283e94c967310e6467c340, type: 2}
   - panelRoot: {fileID: 8057704167137120021}
-    nextButtonIndex: 13
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 0
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 0
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 0e284ad4bd283e94c967310e6467c340, type: 2}
   - panelRoot: {fileID: 2411972868294799215}
-    nextButtonIndex: 6
-    nextStepDelay: 0
-    minNextClickDelay: 1
-    useLeftClickPetAsNext: 0
-    useRightClickPetAsNext: 0
-    useCoinCollectAsNext: 0
-    useFoodDropAsNext: 0
-    usePoopCleanAsNext: 0
-    requiredFoodDropCount: 1
-    usePointer: 1
-    useTutorialMonsterAsPointerTarget: 0
-    useNextButtonAsPointerTarget: 1
-    pointerOffset: {x: 5, y: 0}
-    useUIManagerButtonHandPointer: 0
-    handPointerSequence: {fileID: 0}
-    showRightClickMouseHint: 0
-    rightClickMouseHintOffset: {x: 0, y: 0}
-    freezeTutorialMonsterMovement: 0
-    makeTutorialMonsterHungry: 0
-    hungryReduceAmount: 50
-    dropPoopOnStepStart: 0
-    showMonsterInfoOnStepStart: 0
-    minFoodDropDelay: 5
+    config: {fileID: 11400000, guid: 8cda26ae85b32de4dbdc765053c22d07, type: 2}
+  - panelRoot: {fileID: 2585567067184993382}
+    config: {fileID: 11400000, guid: 27e9f5bd465ce904eab0fb8c59f114a5, type: 2}
+  - panelRoot: {fileID: 4736593486450886677}
+    config: {fileID: 11400000, guid: 54b2128674fb9f64d96162184e7b5094, type: 2}
+  - panelRoot: {fileID: 1546997853044591269}
+    config: {fileID: 11400000, guid: 12cb9097b20074b428808c2b49e40334, type: 2}
   simplePanelShowDuration: 0.4
   simplePanelShowEase:
     serializedVersion: 2
@@ -12897,6 +12571,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   skipTutorialButton: {fileID: 5993205656996545921}
+  _uiButtonsCache: []
   briabitTutorialData: {fileID: 11400000, guid: f3cc5d16930c4714da6f39ec4c167d3d, type: 2}
   tutorialStartItems:
   - item: {fileID: 11400000, guid: d776274d943fea143baf4084291da2f6, type: 2}
@@ -12914,9 +12589,9 @@ MonoBehaviour:
     effectRoot: {fileID: 4810013638239993300}
   - stepIndex: 10
     effectRoot: {fileID: 7053073384266013064}
-  - stepIndex: 12
-    effectRoot: {fileID: 3203224552894175810}
   - stepIndex: 14
+    effectRoot: {fileID: 3203224552894175810}
+  - stepIndex: 15
     effectRoot: {fileID: 7356507651314019612}
   simpleStepEffectDuration: 0.35
   simpleStepEffectEase:
@@ -12944,6 +12619,11 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   simpleStepEffectHoldDuration: 1
+  manualUIButtonExtras:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &6888974173214622718
 GameObject:
   m_ObjectHideFlags: 0
@@ -15336,7 +15016,7 @@ GameObject:
   - component: {fileID: 8876225954776454189}
   - component: {fileID: 4009339883885161812}
   m_Layer: 5
-  m_Name: Step 12 (1)
+  m_Name: Step 13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

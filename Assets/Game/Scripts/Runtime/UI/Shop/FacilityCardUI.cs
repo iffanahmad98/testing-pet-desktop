@@ -7,7 +7,7 @@ using UnityEngine.Localization.SmartFormat.Core.Parsing;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
-public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
+public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler, IUIButtonSource
 {
     [Header("UI References")]
     public GameObject grayscaleObj;
@@ -25,7 +25,7 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
     [Header("Grayscaleable Components")]
     public Material grayscaleMat;
     public Image[] grayscaleImage;
-    
+
     [SerializeField] private SkeletonGraphic _anim;
     [SerializeField] private Animator _animator;
 
@@ -66,8 +66,8 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
             _anim.gameObject.SetActive(true);
             _anim.skeletonDataAsset = data.monsterSpine[0];
             _anim.Initialize(true);
-            _anim.timeScale=0f;
-            
+            _anim.timeScale = 0f;
+
             // StartCoroutine (nSetActiveAnim ());
         }
 
@@ -90,11 +90,12 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
 
     }
 
-    public IEnumerator nSetActiveAnim () { // menghilangkan bug jamur ketarik.
+    public IEnumerator nSetActiveAnim()
+    { // menghilangkan bug jamur ketarik.
         yield return null;
         if (_anim != null)
         {
-            _anim.timeScale=1f;
+            _anim.timeScale = 1f;
             AnimUtils.SetIdle(_anim);
         }
     }
@@ -302,7 +303,7 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
 
         if (grayscale)
         {
-            foreach(var img in grayscaleImage)
+            foreach (var img in grayscaleImage)
             {
                 img.material = grayscaleMat;
             }
@@ -310,7 +311,7 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
         }
         else
         {
-            foreach(var img in grayscaleImage)
+            foreach (var img in grayscaleImage)
             {
                 img.material = null;
             }
@@ -319,20 +320,23 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
     }
 
     #region Requirement
-    public void SetCanBuy (bool value) // MonsterShopManager.cs
-    { 
+    public void SetCanBuy(bool value) // MonsterShopManager.cs
+    {
         isCanBuy = value;
         SetGrayscale(!value);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (FacilityData != null) {
-            RequirementTipManager.Instance.StartClick(FacilityData.requirementTipDataSO.GetInfoData ());
-        } else if (npc != null) {
-            RequirementTipManager.Instance.StartClick(npc.requirementTipDataSO.GetInfoData ());
+        if (FacilityData != null)
+        {
+            RequirementTipManager.Instance.StartClick(FacilityData.requirementTipDataSO.GetInfoData());
         }
-        
+        else if (npc != null)
+        {
+            RequirementTipManager.Instance.StartClick(npc.requirementTipDataSO.GetInfoData());
+        }
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -340,4 +344,38 @@ public class FacilityCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitH
         RequirementTipManager.Instance.EndHover();
     }
     #endregion
+
+    [Header("Tutorial Integration")]
+    [Tooltip("Jika diisi, dan FacilityData.facilityID atau npc.id cocok dengan ID ini, buyButton akan dimasukkan ke UI button cache tutorial.")]
+    public string tutorialTargetIdForBuyButton;
+
+    public void CollectButtons(System.Collections.Generic.List<Button> target)
+    {
+        if (target == null || useButton == null)
+            return;
+
+        if (string.IsNullOrEmpty(tutorialTargetIdForBuyButton))
+            return;
+
+        string id = null;
+        if (FacilityData != null)
+        {
+            id = FacilityData.facilityID;
+        }
+        else if (npc != null)
+        {
+            id = npc.id;
+        }
+
+        if (string.IsNullOrEmpty(id))
+            return;
+
+        if (!string.Equals(id, tutorialTargetIdForBuyButton, System.StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (!target.Contains(useButton))
+        {
+            target.Add(useButton);
+        }
+    }
 }

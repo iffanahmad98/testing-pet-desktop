@@ -610,7 +610,7 @@ public class ItemInventoryUI : MonoBehaviour
         slot.UpdateAmountText(pendingDeleteMap.GetValueOrDefault(slot, 0)); // 🔄 update UI
     }
 
-    private void ExitDeleteMode()
+    public void ExitDeleteMode()
     {
         isDeleteMode = false;
         pendingDeleteMap.Clear();

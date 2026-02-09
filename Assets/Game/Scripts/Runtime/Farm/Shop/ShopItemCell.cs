@@ -9,7 +9,7 @@ using DG.Tweening;
 
 namespace MagicalGarden.Shop
 {
-    public class ShopItemCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class ShopItemCell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IUIButtonSource
     {
         [Header("UI References")]
         public Image itemIcon;
@@ -17,7 +17,11 @@ namespace MagicalGarden.Shop
         public TextMeshProUGUI priceText;
         public Button buyButton;
         private SheetData currentItemData;
+        private string currentItemId;
         private Sprite iconData;
+
+        [Header("Tutorial Integration")]
+        public string tutorialSeedIdForBuyButton;
 
         [Header("Tooltip Panel")]
         public GameObject tooltipPanel;
@@ -30,6 +34,7 @@ namespace MagicalGarden.Shop
             {
                 itemIcon.sprite = itemData.icon;
                 iconData = itemData.iconCrop;
+                currentItemId = itemData.itemId;
             }
             else
             {
@@ -53,7 +58,7 @@ namespace MagicalGarden.Shop
         void OnBuy()
         {
             transform.DOKill();
-            transform.localScale = Vector3.one; 
+            transform.localScale = Vector3.one;
             transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, 10, 1);
             var itemData = PlantManager.Instance.GetItemById(currentItemData.seedName.ToLower());
 
@@ -78,7 +83,45 @@ namespace MagicalGarden.Shop
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            
+
+        }
+
+        // IUIButtonSource: expose buyButton ke TutorialManager jika item ini yang diinginkan tutorial (misalnya stroberry)
+        public void CollectButtons(System.Collections.Generic.List<Button> target)
+        {
+            if (target == null || buyButton == null)
+                return;
+
+            // Jika tidak dikonfigurasi untuk tutorial, abaikan.
+            if (string.IsNullOrEmpty(tutorialSeedIdForBuyButton))
+            {
+                Debug.Log($"[ShopItemCell/Tutorial] Skip CollectButtons untuk '{name}' karena tutorialSeedIdForBuyButton kosong.");
+                return;
+            }
+
+            // Gunakan itemId dari ItemData (hasil lookup PlantManager) sebagai kunci tutorial.
+            var itemId = currentItemId;
+            if (string.IsNullOrEmpty(itemId))
+            {
+                Debug.Log($"[ShopItemCell/Tutorial] Skip CollectButtons untuk '{name}' karena currentItemId kosong. Setup sudah dipanggil? seedName='{currentItemData?.seedName}'");
+                return;
+            }
+
+            if (!string.Equals(itemId, tutorialSeedIdForBuyButton, System.StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.Log($"[ShopItemCell/Tutorial] ItemId '{itemId}' TIDAK cocok dengan tutorialId '{tutorialSeedIdForBuyButton}' untuk '{name}'.");
+                return;
+            }
+
+            if (!target.Contains(buyButton))
+            {
+                target.Add(buyButton);
+                Debug.Log($"[ShopItemCell/Tutorial] BUY BUTTON terdaftar ke UI cache untuk '{name}' (itemId='{itemId}').");
+            }
+            else
+            {
+                Debug.Log($"[ShopItemCell/Tutorial] BUY BUTTON sudah ada di UI cache untuk '{name}' (itemId='{itemId}').");
+            }
         }
     }
 }

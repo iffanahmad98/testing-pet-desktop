@@ -7,11 +7,42 @@ public partial class TutorialManager
     private Button _tutorialNextButton;
     private bool _hasLoggedUIButtonCache;
 
+    [Header("Tutorial UI Button Cache (Manual Extras)")]
+    [SerializeField] private Button[] manualUIButtonExtras;
+
+    public void RebuildUIButtonCache()
+    {
+        var previousInteractables = _uiButtonsInteractableCache;
+
+        _uiButtonsCache = null;
+        _uiButtonsInteractableCache = null;
+        _hasLoggedUIButtonCache = false;
+
+        CacheUIButtonsFromUIManager();
+        if (previousInteractables != null && _uiButtonsCache != null)
+        {
+            var merged = new bool[_uiButtonsCache.Length];
+            for (int i = 0; i < _uiButtonsCache.Length; i++)
+            {
+                if (i < previousInteractables.Length)
+                {
+                    merged[i] = previousInteractables[i];
+                }
+                else
+                {
+                    var btn = _uiButtonsCache[i];
+                    merged[i] = btn != null && btn.interactable;
+                }
+            }
+
+            _uiButtonsInteractableCache = merged;
+        }
+
+        Debug.Log("[TutorialManager] RebuildUIButtonCache dipanggil.");
+    }
+
     private void CacheUIButtonsFromUIManager()
     {
-        if (_uiButtonsCache != null && _uiButtonsCache.Length > 0)
-            return;
-
         var ui = ServiceLocator.Get<UIManager>();
         if (ui == null)
         {
@@ -57,6 +88,15 @@ public partial class TutorialManager
 
         // Also collect buttons from any other UI sources (e.g. BoardSign)
         CacheButtonsFromSceneSources(list);
+
+        // Terakhir, tambahkan button manual dari Inspector (jika ada).
+        if (manualUIButtonExtras != null)
+        {
+            foreach (var extra in manualUIButtonExtras)
+            {
+                Add(extra);
+            }
+        }
 
         _uiButtonsCache = list.ToArray();
         _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
@@ -105,7 +145,6 @@ public partial class TutorialManager
                 continue;
 
             var go = btn.gameObject;
-            Debug.Log($"[TutorialManager] UI button cache index {i}: Button='{btn.name}', GameObject='{go.name}', Path='{GetTransformPath(go.transform)}'");
         }
     }
 
@@ -179,24 +218,15 @@ public partial class TutorialManager
         if (btn == skipTutorialButton)
             return true;
 
-        if (tutorialSteps != null)
-        {
-            for (int i = 0; i < tutorialSteps.Count; i++)
-            {
-                var step = tutorialSteps[i];
-                if (step != null && step.nextButton == btn)
-                    return true;
-            }
-        }
-
         if (simpleTutorialPanels != null)
         {
             for (int i = 0; i < simpleTutorialPanels.Count; i++)
             {
                 var simpleStep = simpleTutorialPanels[i];
-                if (simpleStep != null && simpleStep.nextButtonIndex >= 0 &&
-                    _uiButtonsCache != null && simpleStep.nextButtonIndex < _uiButtonsCache.Length &&
-                    _uiButtonsCache[simpleStep.nextButtonIndex] == btn)
+                var config = simpleStep != null ? simpleStep.config : null;
+                if (config != null && config.nextButtonIndex >= 0 &&
+                    _uiButtonsCache != null && config.nextButtonIndex < _uiButtonsCache.Length &&
+                    _uiButtonsCache[config.nextButtonIndex] == btn)
                     return true;
             }
         }
@@ -209,6 +239,10 @@ public partial class TutorialManager
         if (step == null)
             return null;
 
+        var config = step.config;
+        if (config == null)
+            return null;
+
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
         {
             CacheUIButtonsFromUIManager();
@@ -217,9 +251,9 @@ public partial class TutorialManager
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
             return null;
 
-        if (step.nextButtonIndex < 0 || step.nextButtonIndex >= _uiButtonsCache.Length)
+        if (config.nextButtonIndex < 0 || config.nextButtonIndex >= _uiButtonsCache.Length)
             return null;
 
-        return _uiButtonsCache[step.nextButtonIndex];
+        return _uiButtonsCache[config.nextButtonIndex];
     }
 }

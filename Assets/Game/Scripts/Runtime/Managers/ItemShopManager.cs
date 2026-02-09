@@ -33,7 +33,7 @@ public class ItemShopManager : MonoBehaviour
     private bool canBuyItem = false;
     private int indexTab = 0;
 
-    private readonly WaitForEndOfFrame waitEndOfFrame = new ();
+    private readonly WaitForEndOfFrame waitEndOfFrame = new();
 
     void Awake()
     {
@@ -88,6 +88,12 @@ public class ItemShopManager : MonoBehaviour
 
             //card.gameObject.SetActive(true);
             activeCards.Add(card);
+        }
+
+        var tutorialManager = Object.FindObjectOfType<TutorialManager>(true);
+        if (tutorialManager != null)
+        {
+            tutorialManager.RebuildUIButtonCache();
         }
     }
 
@@ -196,7 +202,7 @@ public class ItemShopManager : MonoBehaviour
 
         // Reference All Monster Player Have
         // var monsters = ServiceLocator.Get<MonsterManager>().activeMonsters;
-        var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO ();
+        var monsters = MonsterManagerEligible.Instance.GetListMonsterDataSO();
         // value to check if every index of Array/List is Eligible
         int valid = 0;
 
@@ -247,7 +253,7 @@ public class ItemShopManager : MonoBehaviour
     private void ShowItemInfo(ItemDataSO item)
     {
         itemNameText.text = item.itemName;
-       // itemPriceText.text = $"Price: {item.price}";
+        // itemPriceText.text = $"Price: {item.price}";
         itemPriceText.text = $"Price:\t<color=orange>{item.price}</color>";
         itemDescText.text = item.description;
         // itemFullnessText.text = $"Fullness: {item.nutritionValue}";

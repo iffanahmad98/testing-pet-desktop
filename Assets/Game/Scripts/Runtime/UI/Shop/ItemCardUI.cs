@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
-public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler
+public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler, IUIButtonSource
 {
     [Header("UI References")]
     public GameObject grayscaleObj;
@@ -19,6 +19,9 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
 
     [Header("Data")]
     public ItemDataSO itemData;
+
+    [Header("Tutorial Integration")]
+    public string tutorialItemIdForBuyButton;
 
     private bool isSelected = false;
 
@@ -88,14 +91,14 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
 
         if (grayscale)
         {
-            foreach(var img in grayscaleImage)
+            foreach (var img in grayscaleImage)
             {
                 img.material = grayscaleMat;
             }
         }
         else
         {
-            foreach(var img in grayscaleImage)
+            foreach (var img in grayscaleImage)
             {
                 img.material = null;
             }
@@ -103,14 +106,15 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
     }
 
     #region Requirement
-    public void SetCanBuy (bool value) { // MonsterShopManager.cs
+    public void SetCanBuy(bool value)
+    { // MonsterShopManager.cs
         IsCanBuy = value;
         SetGrayscale(!value);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        RequirementTipManager.Instance.StartClick(itemData.requirementTipDataSO.GetInfoData ());
+        RequirementTipManager.Instance.StartClick(itemData.requirementTipDataSO.GetInfoData());
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -118,4 +122,42 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
         RequirementTipManager.Instance.EndHover();
     }
     #endregion
+
+    // IUIButtonSource: expose buyButton ke TutorialManager jika card ini adalah item yang dipakai tutorial
+    public void CollectButtons(System.Collections.Generic.List<Button> target)
+    {
+        if (target == null || buyButton == null)
+            return;
+
+        if (string.IsNullOrEmpty(tutorialItemIdForBuyButton))
+        {
+            // Tidak dikonfigurasi untuk tutorial, abaikan saja.
+            return;
+        }
+
+        if (itemData == null)
+        {
+            Debug.Log($"[ItemCardUI/Tutorial] Skip CollectButtons untuk '{name}' karena itemData null. Setup sudah dipanggil?");
+            return;
+        }
+
+        var itemId = itemData.itemID;
+        if (string.IsNullOrEmpty(itemId))
+        {
+            Debug.Log($"[ItemCardUI/Tutorial] Skip CollectButtons untuk '{name}' karena itemID kosong pada itemData '{itemData.name}'.");
+            return;
+        }
+
+        if (!string.Equals(itemId, tutorialItemIdForBuyButton, System.StringComparison.OrdinalIgnoreCase))
+        {
+            // Bukan item yang diincar tutorial, abaikan.
+            return;
+        }
+
+        if (!target.Contains(buyButton))
+        {
+            target.Add(buyButton);
+            Debug.Log($"[ItemCardUI/Tutorial] BUY BUTTON terdaftar ke UI cache untuk '{name}' (itemId='{itemId}').");
+        }
+    }
 }
