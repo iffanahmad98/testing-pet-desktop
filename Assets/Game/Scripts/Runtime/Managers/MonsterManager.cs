@@ -565,6 +565,7 @@ public class MonsterManager : MonoBehaviour
 
         if (medCtrl == null || sickMonster == null) yield break;
 
+        audio.PlaySFX("medicine");
         sickMonster.GiveMedicine(medCtrl.GetItemData().nutritionValue);
         activeMedicines.Remove(medCtrl);
         sickMonster.UI.PlayHealingVFX(sickMonster);

@@ -30,6 +30,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip timeKeeperSFX;
     [SerializeField] private AudioClip magicShovelSFX;
     [SerializeField] private AudioClip rainbowPotSFX;
+    [SerializeField] private AudioClip medicineSFX;
+    [SerializeField] private AudioClip eatingSFX;
     [SerializeField] private AudioClip[] farmAndHotelSFX;
 
     [Header("Audio Mixer")]
@@ -141,6 +143,8 @@ public class AudioManager : MonoBehaviour
         sfxDictionary.Add("time_keeper", timeKeeperSFX);
         sfxDictionary.Add("magic_shovel", magicShovelSFX);
         sfxDictionary.Add("rainbow_pot", rainbowPotSFX);
+        sfxDictionary.Add("medicine", medicineSFX);
+        sfxDictionary.Add("eating", eatingSFX);
     }
 
     private void Update()

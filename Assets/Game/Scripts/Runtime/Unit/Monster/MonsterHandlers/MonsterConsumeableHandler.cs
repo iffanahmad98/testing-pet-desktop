@@ -112,6 +112,7 @@ public class MonsterConsumableHandler
         if (_isInternallyConsuming || _consumeCoroutine != null) return;
         if (NearestConsumable == null) return;
 
+        MonsterManager.instance.audio.PlaySFX("eating");
         _isInternallyConsuming = true;
         _controller.StateMachine?.ChangeState(MonsterState.Eating);
 
