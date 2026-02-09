@@ -29,6 +29,7 @@ public class MonsterShopManager : MonoBehaviour
     // Object pool for monster cards
     private List<MonsterCardUI> activeCards = new List<MonsterCardUI>();
     private bool canBuyMonster = false;
+    private bool poolIsInitiated = false;
     private int indexTab = 0;
 
     private readonly WaitForEndOfFrame waitEndOfFrame = new();
@@ -85,6 +86,7 @@ public class MonsterShopManager : MonoBehaviour
             activeCards.Add(card);
         }
 
+        poolIsInitiated = true;
         OnRarityTabChanged(0);
     }
 
@@ -108,6 +110,9 @@ public class MonsterShopManager : MonoBehaviour
 
     public void RefreshItem()
     {
+        if (!poolIsInitiated)
+            return;
+
         rarityTabController.OnTabChanged?.Invoke(indexTab);
     }
 
