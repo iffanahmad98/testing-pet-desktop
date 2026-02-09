@@ -76,6 +76,8 @@ public class MonsterUIHandler
             monsterNameText.text = monsterController.MonsterData.name;
             monsterEvolStageText.text = $"Stage: {monsterController.evolutionLevel}";
         }
+
+       // Debug.Log ("Initialize Monster 2");
     }
 
     public void UpdateHungerDisplay(float hunger, bool showUI)
