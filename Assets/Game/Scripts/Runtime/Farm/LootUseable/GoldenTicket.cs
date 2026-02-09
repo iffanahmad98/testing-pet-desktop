@@ -10,6 +10,8 @@ public class GoldenTicket : LootUseable
     static int totalValue = 0;
     public override int TotalValue => totalValue;
     bool firstTime = false;
+    public static event Action OnCurrencyChangedRefreshEvent;
+
     public override void GetLoot(int value)
     {
         // Collect egg golden ticket is at index 14
@@ -18,6 +20,7 @@ public class GoldenTicket : LootUseable
         SaveSystem.PlayerConfig.goldenTicket = totalValue;
         Debug.Log ($"Golden Tickets saved : " + SaveSystem.PlayerConfig.goldenTicket);
         SaveLoot();
+      //  OnCurrencyChangedRefreshEvent?.Invoke (); (Gak dibutuhkan karena sudah refresh di HotelRandomLoot.cs)
     }
 
     public override void UsingLoot(int value)
@@ -25,6 +28,7 @@ public class GoldenTicket : LootUseable
         totalValue -= value;
         SaveSystem.PlayerConfig.goldenTicket = totalValue;
         SaveLoot();
+        OnCurrencyChangedRefreshEvent?.Invoke ();
     }
 
     public override void SaveLoot()
@@ -97,4 +101,7 @@ public class GoldenTicket : LootUseable
         }
     }
 
+    public static void AddCurrencyChangedRefreshEvent (Action value) { // HotelController.cs, FarmMainUI.cs
+        OnCurrencyChangedRefreshEvent += value;
+    }
 }

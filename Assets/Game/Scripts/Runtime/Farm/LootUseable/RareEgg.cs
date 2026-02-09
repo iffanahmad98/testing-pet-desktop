@@ -9,6 +9,7 @@ public class RareEgg : LootUseable
 
     static int totalValue = 0;
     public override int TotalValue => totalValue;
+    public static event Action OnCurrencyChangedRefreshEvent;
 
     bool firstTime = false;
     public override void GetLoot(int value)
@@ -16,6 +17,7 @@ public class RareEgg : LootUseable
         totalValue += value;
         SaveSystem.PlayerConfig.rareEgg = totalValue;
         SaveLoot();
+       // OnCurrencyChangedRefreshEvent?.Invoke (); (Gak dibutuhkan karena sudah refresh di HotelRandomLoot.cs)
     }
 
     public override void UsingLoot(int value)
@@ -23,6 +25,7 @@ public class RareEgg : LootUseable
         totalValue -= value;
         SaveSystem.PlayerConfig.rareEgg = totalValue;
         SaveLoot();
+        OnCurrencyChangedRefreshEvent?.Invoke ();
     }
 
     public override void SaveLoot()
@@ -85,4 +88,10 @@ public class RareEgg : LootUseable
             }
         }
     }
+
+    public static void AddCurrencyChangedRefreshEvent (Action value) { // HotelController.cs, FarmMainUI.cs
+        OnCurrencyChangedRefreshEvent += value;
+    }
+
+    
 }
