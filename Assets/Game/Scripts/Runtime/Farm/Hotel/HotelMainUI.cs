@@ -7,6 +7,7 @@ public class HotelMainUI : MonoBehaviour
     public Canvas mainCanvas;
     PlayerConfig playerConfig;
     [SerializeField] GoToPetScene gotoPetScene;
+    [SerializeField] HotelLocker hotelLocker;
     [Header ("Display UI")]
     public TMP_Text coinText;
     public TMP_Text goldenTicketText;
@@ -32,6 +33,7 @@ public class HotelMainUI : MonoBehaviour
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshGoldenTicket);
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshEgg);
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshHotelRoom);
+     hotelLocker.AddEventHotelRoom (RefreshHotelRoom);
      RefreshCoin ();
      RefreshGoldenTicket ();
      RefreshHotelGift ();

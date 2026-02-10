@@ -155,6 +155,8 @@ public class TooltipManager : MonoBehaviour
         tooltipWindow.SetActive(false);
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
+
+        if (currentCoroutine != null) {StopCoroutine (currentCoroutine); currentCoroutine = null;}
     }
 
     private void UpdatePosition()

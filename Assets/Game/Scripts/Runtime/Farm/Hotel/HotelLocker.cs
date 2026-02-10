@@ -8,7 +8,8 @@ public class HotelLocker : MonoBehaviour
 {  // semua setup data tetap disini, karena PlayerConfig sudah kebanyakan
  IPlayerHistory iPlayerHistory;
  PlayerConfig playerConfig;
- 
+ public event System.Action RefreshHotelController;
+
  public void StartSystem () { // HotelManager.cs
     iPlayerHistory = PlayerHistoryManager.instance;
     playerConfig = SaveSystem.PlayerConfig;
@@ -17,6 +18,7 @@ public class HotelLocker : MonoBehaviour
     iPlayerHistory.AddHotelRoomCompletedChanged (RefreshGiveOptionBuy);
     CoinManager.AddCoinChangedRefreshEvent (RefreshGiveOptionBuy);
     MonsterManager.instance.AddEventPetMonsterChanged (RefreshGiveOptionBuy);
+    RefreshHotelController?.Invoke ();
  }
  #region FirstTime
  void CheckFirstTime () {
@@ -62,4 +64,9 @@ public class HotelLocker : MonoBehaviour
     RefreshLock ();
   }
 
+  #region Event
+  public void AddEventHotelRoom (System.Action actionValue) { // HotelMainUI
+    RefreshHotelController += actionValue;
+  }  
+  #endregion  
 }

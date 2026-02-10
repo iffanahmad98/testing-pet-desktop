@@ -526,29 +526,66 @@ namespace MagicalGarden.Farm
             OnLoadEvent?.Invoke ();
         }
         public void SaveToJson()
-        { 
+        {
             var dataList = GetSaveDataList();
-            var wrapper = new PlantSaveWrapper { data = dataList, farmAreaIds = farmAreaIdsPurchased };
+            var wrapper = new PlantSaveWrapper
+            {
+                data = dataList,
+                farmAreaIds = farmAreaIdsPurchased
+            };
+
             string json = JsonUtility.ToJson(wrapper, true);
-            System.IO.File.WriteAllText(Application.persistentDataPath + "/plants.json", json);
+
+            string path = Application.persistentDataPath + "/plants.json";
+
+        #if UNITY_EDITOR
+            // Editor : plaintext
+            System.IO.File.WriteAllText(path, json);
+        #else
+            // Build : encrypted
+            string encrypted = CryptoHelper.Encrypt(json);
+            System.IO.File.WriteAllText(path, encrypted);
+        #endif
+
             Debug.Log("Tanaman disimpan ke file.");
         }
 
+
         public void LoadFromJson()
         {
-             
             string path = Application.persistentDataPath + "/plants.json";
-            // if (!System.IO.File.Exists(path)) return;
-            if (!System.IO.File.Exists(path)) {
-                SaveToJson ();
-              //  return;
+
+            // Jika file tidak ada → buat dulu
+            if (!System.IO.File.Exists(path))
+            {
+                SaveToJson();
+                return;
             }
 
-            string json = System.IO.File.ReadAllText(path);
+            string raw = System.IO.File.ReadAllText(path);
+
+            // Detect plaintext / encrypted
+            string trimmed = raw.TrimStart();
+            string json;
+
+            if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
+                json = raw; // plaintext
+            else
+                json = CryptoHelper.Decrypt(raw); // encrypted
+
             var wrapper = JsonUtility.FromJson<PlantSaveWrapper>(json);
+
+            // Jika data invalid → recreate
+            if (wrapper == null || wrapper.data == null)
+            {
+                SaveToJson();
+                return;
+            }
+
             LoadFromSaveData(wrapper.data, wrapper.farmAreaIds);
             Debug.Log("Tanaman berhasil dimuat dari file.");
         }
+
 #endregion
 #region Plant AI Service
     public Dictionary<Vector3Int, PlantController> GetPlants () {
