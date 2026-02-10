@@ -152,7 +152,7 @@ namespace MagicalGarden.Hotel
                         requestTimer += Time.deltaTime;
                     }
 
-                    if (requestTimer >= GetRandomTimeRequest () && !hasRequest) // sebelumnya !hasRequest
+                    if (requestTimer >= GetRandomTimeRequest () && !hasRequest)
                     {
                       //  GenerateRoomServiceRequest();
                         RandomGuestRequestType ();
@@ -540,7 +540,6 @@ namespace MagicalGarden.Hotel
             if (onProgressingRequest) return;
             if (npcService == NPCService.NPCHotel) {if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;}
             Debug.Log ("VALID 2");
-            AddServiceBackToPlains ();
             onProgressingRequest = true;
             
             // Stop countdown coroutine
@@ -573,7 +572,7 @@ namespace MagicalGarden.Hotel
 
             if (type == GuestRequestType.RoomService)
             {
-              //  Debug.Log ("VALID 3");
+                Debug.Log ("VALID 3");
                 // Log NPC cleaning dimulai
                 string roomName = gameObject.name;
                 Debug.Log($"🧹 [NPC CLEANING] Mengirim NPC untuk membersihkan kamar {roomName} milik {nameGuest}");
@@ -588,7 +587,7 @@ namespace MagicalGarden.Hotel
                 StartCoroutine (npcHotelService.NPCHotelCleaning());
             } else if (type == GuestRequestType.Food)
             {
-              //  Debug.Log ("VALID 4");
+                Debug.Log ("VALID 4");
                 // Log NPC cleaning dimulai
                 string roomName = gameObject.name;
                 Debug.Log($" [NPC Food] Mengirim NPC untuk mengantar makanan kamar {roomName} milik {nameGuest}");
@@ -599,7 +598,7 @@ namespace MagicalGarden.Hotel
             }
             else if (type == GuestRequestType.Gift)
             {
-              //  Debug.Log ("VALID 5");
+                Debug.Log ("VALID 5");
                 // Log NPC cleaning dimulai
                 string roomName = gameObject.name;
                 Debug.Log($"[NPC Gift] Mengirim NPC untuk memberikan hadiah ke kamar {roomName} milik {nameGuest}");
@@ -608,7 +607,7 @@ namespace MagicalGarden.Hotel
                 npcHotelService.AddFinishEventHappiness (IncreaseHappiness, GetGuestRequest(currentGuestRequestType).increaseHappiness);
                 StartCoroutine (npcHotelService.NPCHotelCleaning());
             }
-           // Debug.Log ("VALID 6");
+            Debug.Log ("VALID 6");
             // Hide buttons
             ResetRequestButtons();
             
@@ -634,7 +633,7 @@ namespace MagicalGarden.Hotel
             SetHappinessData ();
             hasRequest = false;
             onProgressingRequest = false;
-            RemoveServiceBackToPlains ();
+            
         }
 
         #endregion
@@ -716,7 +715,7 @@ namespace MagicalGarden.Hotel
 
         void InstantiateVfxClean () {
             
-         //   Debug.Log ("Vfx Clean");
+            Debug.Log ("Vfx Clean");
             vfxRay = GameObject.Instantiate (HotelManager.Instance.GetRayCleaningVfx ());
             vfxRay.transform.SetParent (this.transform);
             vfxRay.transform.localPosition = new Vector3 (0,0.7f,0);
@@ -726,7 +725,7 @@ namespace MagicalGarden.Hotel
         }
 
         void InstantiateVfxBuy () {
-        //    Debug.Log ("Vfx Buy");
+            Debug.Log ("Vfx Buy");
             GameObject buyRay = GameObject.Instantiate (buyHotelRay);
             buyRay.transform.SetParent (this.transform);
             buyRay.transform.localPosition = new Vector3 (0,1.5f,0);
@@ -1116,33 +1115,6 @@ namespace MagicalGarden.Hotel
         
         public bool GetIsLocked () { // hotelLocker
             return isLocked;
-        }
-        #endregion
-        #region BackToPlains
-        void AddServiceBackToPlains () {
-            BackToPlains.instance.AddHotelControllerServiceProgress (this);
-        }
-
-        void RemoveServiceBackToPlains () {
-            BackToPlains.instance.RemoveHotelControllerServiceProgress (this);
-        }
-
-        public void BackToPlainsEvent () { // BackToPlains.cs
-            if (currentRequestCountdown != null)
-            {
-                StopCoroutine(currentRequestCountdown);
-                currentRequestCountdown = null;
-            }
-
-            hasRequest = false;
-            onProgressingRequest = false;
-            HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
-            
-            requestTimer = 0f;
-            ResetRequestButtons();
-
-            
-          
         }
         #endregion
         #region Debug

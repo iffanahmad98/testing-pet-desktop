@@ -249,42 +249,35 @@ public static class SaveSystem
     {
         string path = Path.Combine(Application.persistentDataPath, SaveFileName);
 
-        if (!File.Exists(path))
+        if (File.Exists(path))
         {
-            CreateNewPlayerConfig();
-            return;
+            try
+            {
+                string json = File.ReadAllText(path);
+
+                _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json, _jsonSettings);
+
+                _playerConfig.SyncFromSerializable();
+                _playerConfig.SyncLootUseable();
+                _playerConfig.SyncGuestRequestData ();
+                
+                DataLoaded?.Invoke(_playerConfig);
+
+                Debug.Log("Game data loaded successfully");
+              
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Failed to load game data: " + e.Message);
+              //   CreateNewPlayerConfig();
+            }
         }
-
-        string raw = File.ReadAllText(path);
-
-        // detect plaintext atau encrypted (BERLAKU DI EDITOR DAN BUILD)
-        string trimmed = raw.TrimStart();
-        string json;
-
-        if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
-            json = raw; // plaintext
         else
-            json = CryptoHelper.Decrypt(raw); // encrypted
-
-        _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json, _jsonSettings);
-
-        if (_playerConfig == null)
         {
             CreateNewPlayerConfig();
-            return;
         }
-
-        _playerConfig.SyncFromSerializable();
-        _playerConfig.SyncLootUseable();
-        _playerConfig.SyncGuestRequestData();
-
-        DataLoaded?.Invoke(_playerConfig);
-
-        Debug.Log("Game data loaded successfully");
     }
 
-
-    /*
     private static void LoadUiConfig()
     {
         string path = Path.Combine(Application.persistentDataPath, UiDataSaveFileName);
@@ -293,14 +286,8 @@ public static class SaveSystem
         {
             try
             {
-              //  string json = File.ReadAllText(path);
-              string json = "";
-                 #if UNITY_EDITOR
-                json = File.ReadAllText(path);
-                #else
-                json = CryptoHelper.Decrypt(File.ReadAllText(path));
-                #endif
-                   
+                string json = File.ReadAllText(path);
+
                 _uiSaveData = JsonConvert.DeserializeObject<UISaveData>(json, _jsonSettings);
 
             }
@@ -316,37 +303,7 @@ public static class SaveSystem
             _uiSaveData = new();
         }
     }
-    */
-   private static void LoadUiConfig()
-    {
-        string path = Path.Combine(Application.persistentDataPath, UiDataSaveFileName);
 
-        if (!File.Exists(path))
-        {
-            Debug.Log("UI save not found. Create new.");
-            _uiSaveData = new UISaveData();
-            return;
-        }
-
-        string raw = File.ReadAllText(path);
-
-        // detect plaintext / encrypted (BERLAKU DI EDITOR DAN BUILD)
-        string trimmed = raw.TrimStart();
-        string json;
-
-        if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
-            json = raw; // plaintext
-        else
-            json = CryptoHelper.Decrypt(raw); // encrypted
-
-        _uiSaveData = JsonConvert.DeserializeObject<UISaveData>(json, _jsonSettings);
-
-        if (_uiSaveData == null)
-        {
-            Debug.LogWarning("UI save invalid. Create new.");
-            _uiSaveData = new UISaveData();
-        }
-    }
 
     private static readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
     {
@@ -364,13 +321,8 @@ public static class SaveSystem
 
             string json = JsonConvert.SerializeObject(_playerConfig, _jsonSettings);
 
-            // File.WriteAllText(path, json);
-            #if UNITY_EDITOR
             File.WriteAllText(path, json);
-            #else
-            File.WriteAllText(path, CryptoHelper.Encrypt(json));
-            #endif
-            
+
             Debug.Log("Game data saved successfully");
             // Debug.Log("After sync: " + PlayerConfig.listPetMonsterHotelData.Count);
         }
@@ -388,12 +340,7 @@ public static class SaveSystem
         {
             string json = JsonConvert.SerializeObject(_uiSaveData, _jsonSettings);
 
-            // File.WriteAllText(path, json);
-            #if UNITY_EDITOR
             File.WriteAllText(path, json);
-            #else
-            File.WriteAllText(path, CryptoHelper.Encrypt(json));
-            #endif
 
             Debug.Log("Ui Save Data is saved successfully");
             // Debug.Log("After sync: " + PlayerConfig.listPetMonsterHotelData.Count);

@@ -153,11 +153,8 @@ public class TooltipManager : MonoBehaviour
     public void HideInstant()
     { // this, SceneLoadManager, HotelGiftHandler
         tooltipWindow.SetActive(false);
-        
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
-        
-        if (currentCoroutine != null) {StopCoroutine (currentCoroutine); currentCoroutine = null;}
     }
 
     private void UpdatePosition()
