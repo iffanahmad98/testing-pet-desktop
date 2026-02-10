@@ -1,6 +1,6 @@
-using UnityEngine;
+using DG.Tweening;
 using TMPro;
-using MagicalGarden.Farm;
+using UnityEngine;
 
 /// <summary>
 /// Display coin UI untuk FarmGame scene
@@ -10,6 +10,12 @@ public class CoinDisplayUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI mainCoinText;
     [SerializeField] private TextMeshProUGUI shopCoinText;
+    [SerializeField] private TextMeshProUGUI coinDifferentText;
+
+    private int cacheCoinsValue;
+    private int lastCoinDisplay;
+
+    private Tweener tween;
 
     void Awake()
     {
@@ -58,15 +64,44 @@ public class CoinDisplayUI : MonoBehaviour
 
         //int coins = MagicalGarden.Farm.CoinManager.Instance.coins;
 
+        if(tween != null && tween.IsPlaying())
+        {
+            mainCoinText.text = lastCoinDisplay.ToString();
+            shopCoinText.text = lastCoinDisplay.ToString();
+            tween.Kill();
+        }
+
+        lastCoinDisplay = cacheCoinsValue;  //In case tween not completed
+
         int coins = CoinManager.Coins;
+        cacheCoinsValue = coins;
         Debug.Log($"Update Coin = {coins}");
+
+        int cointDifferent = coins - lastCoinDisplay;
         
-        string displayText = coins >= 1000000 ? "999999+" : coins.ToString();
+        coinDifferentText.gameObject.SetActive(true);
+        coinDifferentText.text = cointDifferent > 0? $"+{cointDifferent}" : cointDifferent.ToString();
+        coinDifferentText.color = cointDifferent > 0? Color.green : Color.red;
+        coinDifferentText.rectTransform.anchoredPosition = new Vector2(330f, coinDifferentText.rectTransform.anchoredPosition.y);
+        coinDifferentText.rectTransform.DOAnchorPosX(340f, 0.2f);
 
-        if (mainCoinText != null)
-            mainCoinText.text = displayText;
+        int coinDisplay = lastCoinDisplay;
 
-        if (shopCoinText != null)
-            shopCoinText.text = displayText;
+        if (mainCoinText != null && shopCoinText != null)
+        {
+            tween = DOTween.To(() => coinDisplay, x => coinDisplay = x, coins, 1.5f).SetEase(Ease.OutSine).OnUpdate(() =>
+            {
+                mainCoinText.text = coinDisplay.ToString();
+                shopCoinText.text = coinDisplay.ToString();
+            }).OnComplete(() =>
+            {
+                string displayText = coins >= 1000000 ? "999999+" : coins.ToString();
+
+                mainCoinText.text = displayText;
+                shopCoinText.text = displayText;
+                coinDifferentText.gameObject.SetActive(false);
+                lastCoinDisplay = coins;
+            });
+        }
     }
 }

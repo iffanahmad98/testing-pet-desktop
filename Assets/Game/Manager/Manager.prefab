@@ -237,6 +237,7 @@ GameObject:
   - component: {fileID: 5686940728437541436}
   - component: {fileID: 2080779024412686163}
   - component: {fileID: 2333563077610859547}
+  - component: {fileID: 3655832515347529756}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -334,6 +335,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCoinText: {fileID: 0}
   shopCoinText: {fileID: 0}
+--- !u!114 &3655832515347529756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1330516261618121772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 287ad6df83631bd4cb7be35b707b37dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1352211846966270471
 GameObject:
   m_ObjectHideFlags: 0
@@ -1438,6 +1451,7 @@ MonoBehaviour:
   buyImage: {fileID: 0}
   coinImage: {fileID: 0}
   grayscaleMaterial: {fileID: 2100000, guid: 98b711fb8bf78d64b942aa43effc1e1f, type: 2}
+  openEggClip: {fileID: 0}
 --- !u!1 &7238920729631015023
 GameObject:
   m_ObjectHideFlags: 0
