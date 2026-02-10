@@ -20,6 +20,7 @@ public partial class TutorialManager
     private float _plainStepShownTime;
     private readonly HashSet<Button> _plainNextButtonsHooked = new();
     private Coroutine _plainNextDelayRoutine;
+    private Coroutine _plainNextClickDelayRoutine;
     [Header("Hotel Tutorial Panels")]
     [SerializeField] private List<HotelTutorialPanelStep> hotelTutorials = new List<HotelTutorialPanelStep>();
     private int _hotelPanelIndex = -1;

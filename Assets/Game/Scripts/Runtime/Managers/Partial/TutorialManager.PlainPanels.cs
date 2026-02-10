@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
 using static CoinType;
+using System.Collections;
 
 public partial class TutorialManager
 {
@@ -105,11 +106,14 @@ public partial class TutorialManager
 
             if (firstConfig.handPointerSequence != null)
             {
+                Debug.Log("[PlainTutorial] StartHandPointerPlainSubTutorial()");
                 StartHandPointerPlainSubTutorial(firstStep);
             }
             else
             {
+                Debug.Log("[PlainTutorial] UpdatePlainStepNextButtonsInteractable()");
                 UpdatePlainStepNextButtonsInteractable();
+                SetupPlainNextClickDelay(firstConfig);
             }
         }
         else
@@ -153,6 +157,12 @@ public partial class TutorialManager
 
             if (currentStep != null && currentStep.panelRoot != null)
                 currentStep.panelRoot.SetActive(false);
+            var previousNextButton = GetPlainStepNextButton(currentStep);
+            if (previousNextButton != null)
+            {
+                previousNextButton.interactable = false;
+                previousNextButton.gameObject.SetActive(false);
+            }
 
             HideRightClickMouseHint();
             UpdateTutorialMonsterMovementForPlainStep(null);
@@ -233,6 +243,7 @@ public partial class TutorialManager
             {
                 Debug.Log("[PlainTutorial] UpdatePlainStepNextButtonsInteractable()");
                 UpdatePlainStepNextButtonsInteractable();
+                SetupPlainNextClickDelay(nextConfig);
             }
         }
         else
@@ -252,6 +263,63 @@ public partial class TutorialManager
 
         btn.onClick.RemoveListener(RequestNextPlainPanel);
         btn.onClick.AddListener(RequestNextPlainPanel);
+    }
+
+    private IEnumerator EnablePlainNextButtonAfterDelay(float delay, int stepIndex)
+    {
+        if (delay <= 0f)
+            yield break;
+
+        yield return new WaitForSeconds(delay);
+
+        if (_currentMode != TutorialMode.Plain)
+            yield break;
+
+        if (stepIndex < 0 || stepIndex >= plainTutorials.Count)
+            yield break;
+
+        if (_plainPanelIndex != stepIndex)
+            yield break;
+
+        var step = plainTutorials[stepIndex];
+        if (step == null || step.config == null)
+            yield break;
+
+        var config = step.config;
+        if (config.useFoodDropAsNext || config.usePoopCleanAsNext)
+            yield break;
+
+        var btn = GetPlainStepNextButton(step);
+        if (btn == null)
+            yield break;
+
+        btn.interactable = true;
+
+        if (_tutorialNextButton != null && btn == _tutorialNextButton)
+        {
+            _tutorialNextButton.gameObject.SetActive(true);
+            _tutorialNextButton.interactable = true;
+        }
+    }
+
+    private void SetupPlainNextClickDelay(PlainTutorialStepConfig config)
+    {
+        if (config == null)
+            return;
+
+        if (_plainNextClickDelayRoutine != null)
+        {
+            StopCoroutine(_plainNextClickDelayRoutine);
+            _plainNextClickDelayRoutine = null;
+        }
+
+        if (config.minNextClickDelay <= 0f)
+            return;
+
+        if (config.useFoodDropAsNext || config.usePoopCleanAsNext)
+            return;
+
+        _plainNextClickDelayRoutine = StartCoroutine(EnablePlainNextButtonAfterDelay(config.minNextClickDelay, _plainPanelIndex));
     }
 
 
@@ -281,6 +349,7 @@ public partial class TutorialManager
 
     private void ApplyTutorialMonsterPoopForPlainStep(PlainTutorialPanelStep step)
     {
+        Debug.Log("ApplyTutorialMonsterPoopForPlainStep ENTER");
         var config = step != null ? step.config : null;
         if (_tutorialMonsterController == null || config == null)
             return;

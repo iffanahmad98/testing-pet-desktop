@@ -217,7 +217,6 @@ public partial class TutorialManager
 
                 if (config.usePoopCleanAsNext)
                 {
-                    TryHandlePoopCleanProgress();
                     return;
                 }
             }
