@@ -27,7 +27,9 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
 
     private RectTransform _canvasRect;
     private RectTransform _target;
+    private Transform _worldTarget;
     private Vector2 _offset;
+    private Vector3 _worldOffset;
     private Vector2 _velocity;
     private float _swayTime;
     private Canvas _pointerCanvas;
@@ -81,6 +83,8 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
         if (target == null)
             return;
 
+        _worldTarget = null;
+
         if (_target == target && pointerRect != null && pointerRect.gameObject.activeSelf)
         {
             _offset = offset;
@@ -97,9 +101,26 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
         _swayTime = 0f;
     }
 
+    public void PointToWorld(Transform worldTarget, Vector3 worldOffset)
+    {
+        if (worldTarget == null)
+            return;
+
+        _target = null;
+        _worldTarget = worldTarget;
+        _worldOffset = worldOffset;
+
+        if (pointerRect == null || _canvasRect == null || rootCanvas == null)
+            return;
+
+        pointerRect.gameObject.SetActive(true);
+        _swayTime = 0f;
+    }
+
     public void Hide()
     {
         _target = null;
+        _worldTarget = null;
         if (pointerRect != null)
         {
             pointerRect.gameObject.SetActive(false);
@@ -108,14 +129,24 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
 
     private void LateUpdate()
     {
-        if (_target == null || pointerRect == null || _canvasRect == null || rootCanvas == null)
+        if ((_target == null && _worldTarget == null) || pointerRect == null || _canvasRect == null || rootCanvas == null)
             return;
 
         var cam = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay
             ? null
             : rootCanvas.worldCamera;
 
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(cam, _target.position);
+        Vector3 worldPos;
+        if (_target != null)
+        {
+            worldPos = _target.position;
+        }
+        else
+        {
+            worldPos = _worldTarget.position + _worldOffset;
+        }
+
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(cam, worldPos);
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, screenPos, cam, out var localPoint))
         {
             _swayTime += Time.deltaTime;

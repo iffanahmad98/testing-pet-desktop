@@ -13,6 +13,11 @@ public class ClickableObject : MonoBehaviour
     public float hoverScaleMultiplier = 1.1f;
     public float scaleSpeed = 5f;
 
+    [Header("Tutorial (Optional)")]
+    public string tutorialId;
+
+    public event System.Action<ClickableObject> OnClicked;
+
     private Vector3 originalScale;
     private bool isHovered = false;
 
@@ -48,6 +53,8 @@ public class ClickableObject : MonoBehaviour
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
         ShowMenu();
+
+        OnClicked?.Invoke(this);
     }
 
     public void ShowMenu()

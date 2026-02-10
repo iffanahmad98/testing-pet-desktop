@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c664816a13a867d498dd0dac59194c2c, type: 3}
-  m_Name: Step 1
+  m_Name: Step 2
   m_EditorClassIdentifier: 
-  usePointer: 0
+  usePointer: 1
   useNextButtonAsPointerTarget: 0
+  useClickableObjectAsPointerTarget: 1
   pointerOffset: {x: 0, y: 0}
-  nextButtonName: NextButtonHotel
+  nextButtonName: 
+  useClickableObjectAsNext: 1
+  clickableObjectId: 22
   handPointerSequence: {fileID: 0}

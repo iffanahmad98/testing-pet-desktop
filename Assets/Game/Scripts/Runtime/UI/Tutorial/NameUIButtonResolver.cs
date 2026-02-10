@@ -5,6 +5,9 @@ public sealed class NameUIButtonResolver : IUIButtonResolver
 {
     public Button Resolve(TutorialManager manager, HandPointerSubStep step)
     {
-        return manager.GetButtonByName(step.ButtonKey);
+        if (manager == null || step == null)
+            return null;
+
+        return manager.ResolveHotelButtonByName(step.ButtonKey);
     }
 }

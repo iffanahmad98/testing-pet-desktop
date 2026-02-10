@@ -372,4 +372,30 @@ public partial class TutorialManager
             return null;
         return _uiButtonsCache[index];
     }
+
+    public Button ResolveHotelButtonByName(string buttonName)
+    {
+        if (string.IsNullOrEmpty(buttonName))
+            return null;
+
+        if (_currentMode == TutorialMode.Hotel &&
+            hotelTutorials != null &&
+            _hotelPanelIndex >= 0 &&
+            _hotelPanelIndex < hotelTutorials.Count)
+        {
+            var step = hotelTutorials[_hotelPanelIndex];
+            if (step != null && step.panelRoot != null)
+            {
+                var buttons = step.panelRoot.GetComponentsInChildren<Button>(true);
+                for (int i = 0; i < buttons.Length; i++)
+                {
+                    var btn = buttons[i];
+                    if (btn != null && btn.gameObject.name == buttonName)
+                        return btn;
+                }
+            }
+        }
+
+        return GetButtonByName(buttonName);
+    }
 }

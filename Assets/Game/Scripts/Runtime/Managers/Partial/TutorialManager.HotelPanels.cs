@@ -5,11 +5,17 @@ using DG.Tweening;
 
 public partial class TutorialManager
 {
+    private ClickableObject _currentHotelClickableNextTarget;
 
     public void ShowNextHotelPanel()
     {
+        Debug.Log($"[HotelTutorial] ShowNextHotelPanel ENTER | index={_hotelPanelIndex} | total={hotelTutorials?.Count ?? 0} | mode={_currentMode}");
+
         if (hotelTutorials == null || hotelTutorials.Count == 0)
+        {
+            Debug.LogWarning("[HotelTutorial] ABORT: hotelTutorials null / empty");
             return;
+        }
 
         if (_hotelPanelIndex < 0)
         {
@@ -25,11 +31,18 @@ public partial class TutorialManager
                 currentStep.panelRoot.SetActive(false);
         }
 
+        if (_currentHotelClickableNextTarget != null)
+        {
+            _currentHotelClickableNextTarget.OnClicked -= HandleHotelClickableNextClicked;
+            _currentHotelClickableNextTarget = null;
+        }
+
         _hotelPanelIndex++;
         Debug.Log($"TutorialManager: moving to hotel panel index {_hotelPanelIndex}");
 
         if (_hotelPanelIndex >= hotelTutorials.Count)
         {
+            Debug.Log("[HotelTutorial] FINISHED: no more hotelTutorials steps");
             MarkHotelTutorialCompleted();
             RestoreUIManagerButtonsInteractable();
             gameObject.SetActive(false);
@@ -40,6 +53,8 @@ public partial class TutorialManager
         var nextConfig = nextStep != null ? nextStep.config : null;
         if (nextStep != null && nextStep.panelRoot != null && nextConfig != null)
         {
+            Debug.Log($"[HotelTutorial] Showing NEXT panel | index={_hotelPanelIndex} | panel={nextStep.panelRoot.name} | handPointer={(nextConfig.handPointerSequence != null)}");
+
             PlayHotelPanelShowAnimation(nextStep.panelRoot);
             _hotelStepShownTime = Time.time;
             if (nextConfig.handPointerSequence != null)
@@ -49,7 +64,11 @@ public partial class TutorialManager
             else
             {
                 UpdateHotelStepNextButtonsInteractable();
+                UpdatePointerForHotelStep(nextStep);
             }
+
+            EnsureHotelNextButtonListenerForStep(nextStep);
+            SetupHotelClickableNextForStep(nextStep);
         }
     }
 
@@ -69,13 +88,6 @@ public partial class TutorialManager
 
             if (step.panelRoot != null)
                 step.panelRoot.SetActive(false);
-
-            var nextButton = GetHotelStepNextButton(step);
-            if (nextButton != null)
-            {
-                nextButton.onClick.RemoveListener(ShowNextHotelPanel);
-                nextButton.onClick.AddListener(ShowNextHotelPanel);
-            }
         }
 
         _hotelPanelIndex = 0;
@@ -83,6 +95,7 @@ public partial class TutorialManager
         var firstConfig = firstStep != null ? firstStep.config : null;
         if (firstStep != null && firstStep.panelRoot != null && firstConfig != null)
         {
+            Debug.Log($"[HotelTutorial] Showing FIRST panel | index={_hotelPanelIndex} | panel={firstStep.panelRoot.name} | handPointer={(firstConfig.handPointerSequence != null)}");
             PlayHotelPanelShowAnimation(firstStep.panelRoot);
             _hotelStepShownTime = Time.time;
             if (firstConfig.handPointerSequence != null)
@@ -92,7 +105,10 @@ public partial class TutorialManager
             else
             {
                 UpdateHotelStepNextButtonsInteractable();
+                UpdatePointerForHotelStep(firstStep);
             }
+            EnsureHotelNextButtonListenerForStep(firstStep);
+            SetupHotelClickableNextForStep(firstStep);
         }
     }
 
@@ -110,6 +126,17 @@ public partial class TutorialManager
             return;
         }
 
+        if (config != null && config.useClickableObjectAsPointerTarget)
+        {
+            var clickable = ResolveHotelClickableObject(config);
+            if (clickable != null)
+            {
+                var t = clickable.transform;
+                pointer.PointToWorld(t, config.pointerOffset);
+                return;
+            }
+        }
+
         if (config != null && config.useNextButtonAsPointerTarget)
         {
             var btn = GetHotelStepNextButton(step);
@@ -125,6 +152,25 @@ public partial class TutorialManager
         }
 
         pointer.Hide();
+    }
+
+    private ClickableObject ResolveHotelClickableObject(HotelTutorialStepConfig config)
+    {
+        if (config == null)
+            return null;
+
+        if (string.IsNullOrEmpty(config.clickableObjectId))
+            return null;
+
+        var all = Object.FindObjectsOfType<ClickableObject>(true);
+        for (int i = 0; i < all.Length; i++)
+        {
+            var c = all[i];
+            if (c != null && string.Equals(c.tutorialId, config.clickableObjectId, System.StringComparison.Ordinal))
+                return c;
+        }
+
+        return null;
     }
 
     private void PlayHotelPanelShowAnimation(GameObject panel)
@@ -161,28 +207,6 @@ public partial class TutorialManager
         if (hotelTutorials == null || hotelTutorials.Count == 0)
             return;
 
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
-        {
-            CacheAllButtonsForHotelMode();
-        }
-
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
-            return;
-
-        for (int i = 0; i < hotelTutorials.Count; i++)
-        {
-            var step = hotelTutorials[i];
-            var config = step != null ? step.config : null;
-            if (step == null || config == null)
-                continue;
-
-            var btn = GetButtonByName(config.nextButtonName);
-            if (btn == null)
-                continue;
-
-            btn.interactable = false;
-        }
-
         if (_hotelPanelIndex < 0 || _hotelPanelIndex >= hotelTutorials.Count)
             return;
 
@@ -191,7 +215,10 @@ public partial class TutorialManager
         if (currentStep == null || currentConfig == null)
             return;
 
-        var currentBtn = GetButtonByName(currentConfig.nextButtonName);
+        if (currentConfig.useClickableObjectAsNext)
+            return;
+
+        var currentBtn = ResolveHotelButtonByName(currentConfig.nextButtonName);
         if (currentBtn == null)
             return;
 
@@ -207,13 +234,16 @@ public partial class TutorialManager
         if (config == null)
             return null;
 
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        if (step.panelRoot != null)
         {
-            CacheAllButtonsForHotelMode();
+            var buttons = step.panelRoot.GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                var btn = buttons[i];
+                if (btn != null && btn.gameObject.name == config.nextButtonName)
+                    return btn;
+            }
         }
-
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
-            return null;
 
         return GetButtonByName(config.nextButtonName);
     }
@@ -228,5 +258,84 @@ public partial class TutorialManager
                 return btn;
         }
         return null;
+    }
+
+    private void EnsureHotelNextButtonListenerForStep(HotelTutorialPanelStep step)
+    {
+        if (step == null)
+            return;
+
+        var config = step.config;
+        if (config == null || string.IsNullOrEmpty(config.nextButtonName))
+            return;
+
+        if (config.useClickableObjectAsNext)
+            return;
+
+        var btn = GetHotelStepNextButton(step);
+        if (btn == null)
+        {
+            Debug.LogWarning($"[HotelTutorial] EnsureHotelNextButtonListenerForStep: next button '{config.nextButtonName}' NOT FOUND for panel '{step.panelRoot?.name ?? "NULL"}'");
+            return;
+        }
+
+        btn.onClick.RemoveListener(HandleHotelNextButtonClicked);
+        btn.onClick.RemoveListener(ShowNextHotelPanel);
+        btn.onClick.AddListener(HandleHotelNextButtonClicked);
+
+        Debug.Log($"[HotelTutorial] Hooked next button '{btn.gameObject.name}' for panel '{step.panelRoot.name}'");
+    }
+
+    private void HandleHotelNextButtonClicked()
+    {
+        Debug.Log($"[HotelTutorial] Next button CLICKED | index={_hotelPanelIndex} | mode={_currentMode}");
+        ShowNextHotelPanel();
+    }
+
+    private void SetupHotelClickableNextForStep(HotelTutorialPanelStep step)
+    {
+        if (step == null)
+            return;
+
+        var config = step.config;
+        if (config == null || !config.useClickableObjectAsNext)
+            return;
+
+        var clickable = ResolveHotelClickableObject(config);
+        if (clickable == null)
+        {
+            Debug.LogWarning($"[HotelTutorial] SetupHotelClickableNextForStep: ClickableObject with id '{config.clickableObjectId}' not found.");
+            return;
+        }
+
+        _currentHotelClickableNextTarget = clickable;
+        _currentHotelClickableNextTarget.OnClicked -= HandleHotelClickableNextClicked;
+        _currentHotelClickableNextTarget.OnClicked += HandleHotelClickableNextClicked;
+
+        Debug.Log($"[HotelTutorial] Hooked ClickableObject '{clickable.gameObject.name}' (id={config.clickableObjectId}) as NEXT trigger.");
+    }
+
+    private void HandleHotelClickableNextClicked(ClickableObject clickable)
+    {
+        if (_currentMode != TutorialMode.Hotel)
+            return;
+
+        if (hotelTutorials == null || hotelTutorials.Count == 0)
+            return;
+
+        if (_hotelPanelIndex < 0 || _hotelPanelIndex >= hotelTutorials.Count)
+            return;
+
+        var step = hotelTutorials[_hotelPanelIndex];
+        var config = step != null ? step.config : null;
+        if (config == null || !config.useClickableObjectAsNext)
+            return;
+
+        if (string.IsNullOrEmpty(config.clickableObjectId) ||
+            !string.Equals(clickable.tutorialId, config.clickableObjectId, System.StringComparison.Ordinal))
+            return;
+
+        Debug.Log($"[HotelTutorial] ClickableObject NEXT CLICKED | id={clickable.tutorialId} | index={_hotelPanelIndex}");
+        ShowNextHotelPanel();
     }
 }
