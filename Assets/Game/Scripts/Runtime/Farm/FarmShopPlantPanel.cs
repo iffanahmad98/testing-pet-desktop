@@ -37,6 +37,13 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         public MagicalGarden.Inventory.ItemData itemDataSO;
     }
 
+    FarmTutorial _tutorial;
+
+    private void Awake()
+    {
+        _tutorial = Object.FindFirstObjectByType<FarmTutorial>(FindObjectsInactive.Include);
+    }
+
     void Start()
     {
         playerConfig = SaveSystem.PlayerConfig;
@@ -117,6 +124,9 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         itemCard.priceText.text = itemCard.itemDataSO.price.ToString();
         itemCard.cloneCard.gameObject.SetActive(true);
         itemCard.buyButton.onClick.AddListener(() => OnBuyItem(itemCard));
+
+        if (itemCard.buyButton != null && _tutorial != null)
+            _tutorial.RegisterBuyButton(itemCard.title.text, itemCard.buyButton);
     }
 
     void ShowAllInstantiatedAllItems()
@@ -172,6 +182,9 @@ public class FarmShopPlantPanel : FarmShopPanelBase
             playerConfig.AddItemFarm(dataSO.itemId, 1);
             CoinManager.SpendCoins(dataSO.price);
             SaveSystem.SaveAll();
+
+            if (_tutorial != null)
+                _tutorial.CountSeedBought();
         }
 
         itemCard.cloneCard.transform.DOKill();
