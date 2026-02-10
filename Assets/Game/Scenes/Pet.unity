@@ -11735,17 +11735,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52d8c229d26d4474e938c34fbfe06a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &199404408 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4548256911299861989, guid: f1cf3e4410b33db4b816084c7d7aefac, type: 3}
-  m_PrefabInstance: {fileID: 6179323813835396282}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &206177072
 GameObject:
   m_ObjectHideFlags: 0
@@ -49122,17 +49111,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1200371959 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5403577651555473269, guid: f1cf3e4410b33db4b816084c7d7aefac, type: 3}
-  m_PrefabInstance: {fileID: 6179323813835396282}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1214077974
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -56607,27 +56585,11 @@ PrefabInstance:
     - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: 'manualUIButtonExtras.Array.data[2]'
       value: 
-      objectReference: {fileID: 1200371959}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: 'manualUIButtonExtras.Array.data[3]'
-      value: 
-      objectReference: {fileID: 199404408}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: 'manualUIButtonExtras.Array.data[0]'
-      value: 
-      objectReference: {fileID: 1520883319}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: 'manualUIButtonExtras.Array.data[1]'
-      value: 
-      objectReference: {fileID: 222343067}
-    - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
-      propertyPath: 'manualUIButtonExtras.Array.data[2]'
-      value: 
       objectReference: {fileID: 684213444}
     - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: 'manualUIButtonExtras.Array.data[3]'
       value: 
-      objectReference: {fileID: 1553665614}
+      objectReference: {fileID: 0}
     - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: simpleTutorialPanels.Array.data[8].usePoopCleanAsNext
       value: 0
@@ -61989,17 +61951,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1549711053}
   m_CullTransparentMesh: 1
---- !u!114 &1553665614 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4548256911299861989, guid: f1cf3e4410b33db4b816084c7d7aefac, type: 3}
-  m_PrefabInstance: {fileID: 6179323813835396282}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1559900039
 GameObject:
   m_ObjectHideFlags: 0
@@ -73985,7 +73936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e99c05bf5b0f9747a4942e2d76e21b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableTopMost: 1
+  enableTopMost: 0
   enableClickThrough: 1
 --- !u!114 &1851037291
 MonoBehaviour:
@@ -103096,7 +103047,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 370639384078260188, guid: b947eaeb3e22eaf4fb426cbbf0bbf3e5, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1555.9496
+      value: -1555.9501
       objectReference: {fileID: 0}
     - target: {fileID: 441392463486605042, guid: b947eaeb3e22eaf4fb426cbbf0bbf3e5, type: 3}
       propertyPath: m_Pivot.x
