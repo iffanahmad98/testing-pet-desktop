@@ -197,12 +197,23 @@ public partial class TutorialManager
 
     private void DisableUIManagerButtonsForTutorial()
     {
-        if (_currentMode != TutorialMode.Plain)
-            return;
-
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        if (_currentMode == TutorialMode.Plain)
         {
-            CacheUIButtonsFromUIManager();
+            if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+            {
+                CacheUIButtonsFromUIManager();
+            }
+        }
+        else if (_currentMode == TutorialMode.Hotel)
+        {
+            if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+            {
+                CacheAllButtonsForHotelMode();
+            }
+        }
+        else
+        {
+            return;
         }
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
@@ -214,7 +225,10 @@ public partial class TutorialManager
             if (btn == null)
                 continue;
 
-            if (IsTutorialControlButton(btn))
+            if (_currentMode == TutorialMode.Plain && IsTutorialControlButton(btn))
+                continue;
+
+            if (_currentMode == TutorialMode.Hotel && IsHotelTutorialControlButton(btn))
                 continue;
 
             btn.interactable = false;
@@ -223,9 +237,6 @@ public partial class TutorialManager
 
     private void RestoreUIManagerButtonsInteractable()
     {
-        if (_currentMode != TutorialMode.Plain)
-            return;
-
         if (_uiButtonsCache == null || _uiButtonsInteractableCache == null)
             return;
 
@@ -265,6 +276,32 @@ public partial class TutorialManager
                 if (config != null && config.nextButtonIndex >= 0 &&
                     _uiButtonsCache != null && config.nextButtonIndex < _uiButtonsCache.Length &&
                     _uiButtonsCache[config.nextButtonIndex] == btn)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsHotelTutorialControlButton(Button btn)
+    {
+        if (btn == null)
+            return false;
+
+        if (btn == skipTutorialButton)
+            return true;
+
+        if (hotelTutorials != null)
+        {
+            for (int i = 0; i < hotelTutorials.Count; i++)
+            {
+                var hotelStep = hotelTutorials[i];
+                var config = hotelStep != null ? hotelStep.config : null;
+                if (config == null)
+                    continue;
+
+                if (!string.IsNullOrEmpty(config.nextButtonName) &&
+                    btn.gameObject.name == config.nextButtonName)
                     return true;
             }
         }

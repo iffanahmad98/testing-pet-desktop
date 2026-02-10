@@ -21,6 +21,7 @@ public partial class TutorialManager
     private readonly HashSet<Button> _plainNextButtonsHooked = new();
     private Coroutine _plainNextDelayRoutine;
     private Coroutine _plainNextClickDelayRoutine;
+    private Coroutine _plainFoodDropDelayRoutine;
     [Header("Hotel Tutorial Panels")]
     [SerializeField] private List<HotelTutorialPanelStep> hotelTutorials = new List<HotelTutorialPanelStep>();
     private int _hotelPanelIndex = -1;
@@ -130,6 +131,8 @@ public partial class TutorialManager
 
         placementManager.OnFoodPlacementConfirmed += OnFoodPlacementConfirmed;
         _isSubscribedToPlacementManager = true;
+
+        Debug.Log("TutorialManager: Subscribed to PlacementManager.OnFoodPlacementConfirmed");
     }
 
     [System.Serializable]
@@ -260,14 +263,23 @@ public partial class TutorialManager
         }
 
         int required = config.requiredFoodDropCount <= 0 ? 1 : config.requiredFoodDropCount;
-
         float delay = config.minFoodDropDelay > 0f ? config.minFoodDropDelay : 5f;
-        if (Time.time - _plainStepShownTime < delay)
-            return;
+        float elapsed = Time.time - _plainStepShownTime;
 
         if (_foodDropCountForCurrentStep < required)
         {
             Debug.Log($"TutorialManager: food-drop progress pending (count={_foodDropCountForCurrentStep}/{required})");
+            return;
+        }
+
+        if (elapsed < delay)
+        {
+            float remaining = delay - elapsed;
+            if (_plainFoodDropDelayRoutine == null)
+            {
+                Debug.Log($"TutorialManager: food-drop count reached, waiting remaining delay {remaining:F2}s");
+                _plainFoodDropDelayRoutine = StartCoroutine(FoodDropNextAfterDelayRoutine(remaining, _plainPanelIndex));
+            }
             return;
         }
 
@@ -311,6 +323,45 @@ public partial class TutorialManager
         }
 
         Debug.Log("TutorialManager: TryHandlePoopCleanProgress -> calling RequestNextPlainPanel");
+        RequestNextPlainPanel();
+    }
+
+    private IEnumerator FoodDropNextAfterDelayRoutine(float remainingDelay, int stepIndex)
+    {
+        if (remainingDelay > 0f)
+        {
+            yield return new WaitForSeconds(remainingDelay);
+        }
+        else
+        {
+            yield return null;
+        }
+
+        _plainFoodDropDelayRoutine = null;
+
+        if (_currentMode != TutorialMode.Plain)
+            yield break;
+
+        if (plainTutorials == null || plainTutorials.Count == 0)
+            yield break;
+
+        if (stepIndex < 0 || stepIndex >= plainTutorials.Count)
+            yield break;
+
+        if (_plainPanelIndex != stepIndex)
+            yield break;
+
+        var step = plainTutorials[stepIndex];
+        var config = step != null ? step.config : null;
+        if (config == null || !config.useFoodDropAsNext)
+            yield break;
+
+        int required = config.requiredFoodDropCount <= 0 ? 1 : config.requiredFoodDropCount;
+        if (_foodDropCountForCurrentStep < required)
+            yield break;
+
+        Debug.Log("TutorialManager: food-drop delay satisfied, requesting next plain panel");
+        CancelFoodPlacementIfAny();
         RequestNextPlainPanel();
     }
 

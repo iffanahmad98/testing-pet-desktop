@@ -200,29 +200,34 @@ public partial class TutorialManager
         SetHandPointerSequenceButtonsInteractable(false);
 
         CancelHandPointerSubTutorial();
-
-        if (plainTutorials != null &&
-            _plainPanelIndex >= 0 &&
-            _plainPanelIndex < plainTutorials.Count)
+        if (_currentMode == TutorialMode.Plain)
         {
-            var currentPlainStep = plainTutorials[_plainPanelIndex];
-            var config = currentPlainStep != null ? currentPlainStep.config : null;
-            if (config != null)
+            if (plainTutorials != null &&
+                _plainPanelIndex >= 0 &&
+                _plainPanelIndex < plainTutorials.Count)
             {
-                if (config.useFoodDropAsNext)
+                var currentPlainStep = plainTutorials[_plainPanelIndex];
+                var config = currentPlainStep != null ? currentPlainStep.config : null;
+                if (config != null)
                 {
-                    TryHandleFoodDropProgress(false);
-                    return;
-                }
+                    if (config.useFoodDropAsNext)
+                    {
+                        return;
+                    }
 
-                if (config.usePoopCleanAsNext)
-                {
-                    return;
+                    if (config.usePoopCleanAsNext)
+                    {
+                        return;
+                    }
                 }
             }
-        }
 
-        ShowNextPlainPanel();
+            ShowNextPlainPanel();
+        }
+        else if (_currentMode == TutorialMode.Hotel)
+        {
+            ShowNextHotelPanel();
+        }
     }
 
     private void UpdateCurrentHandPointerOffsetRealtime()

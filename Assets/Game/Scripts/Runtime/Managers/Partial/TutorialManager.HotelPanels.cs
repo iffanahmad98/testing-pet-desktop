@@ -31,6 +31,7 @@ public partial class TutorialManager
         if (_hotelPanelIndex >= hotelTutorials.Count)
         {
             MarkHotelTutorialCompleted();
+            RestoreUIManagerButtonsInteractable();
             gameObject.SetActive(false);
             return;
         }
@@ -162,7 +163,7 @@ public partial class TutorialManager
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
         {
-            CacheUIButtonsFromUIManager();
+            CacheAllButtonsForHotelMode();
         }
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
@@ -208,7 +209,7 @@ public partial class TutorialManager
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
         {
-            CacheUIButtonsFromUIManager();
+            CacheAllButtonsForHotelMode();
         }
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)

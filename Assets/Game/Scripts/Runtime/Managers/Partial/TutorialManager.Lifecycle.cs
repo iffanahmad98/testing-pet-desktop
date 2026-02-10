@@ -4,7 +4,6 @@ using UnityEngine;
 
 public partial class TutorialManager
 {
-
     private void OnEnable()
     {
         CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
@@ -104,19 +103,40 @@ public partial class TutorialManager
     {
         yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
 
-        if (!ShouldRunPlainTutorialOnStart())
+        TrySubscribePlacementManager();
+
+        if (_currentMode == TutorialMode.Plain)
+        {
+            if (!ShouldRunPlainTutorialOnStart())
+            {
+                gameObject.SetActive(false);
+                yield break;
+            }
+
+            GrantTutorialStartItemsIfNeeded();
+
+            DisableUIManagerButtonsForTutorial();
+            SpawnTutorialMonsterIfNeeded();
+            TrySubscribeMonsterPoopClean();
+            StartPlainTutorialSequence();
+            ShowSkipButtonAnimated();
+        }
+        else if (_currentMode == TutorialMode.Hotel)
+        {
+            if (!ShouldRunHotelTutorialOnStart())
+            {
+                gameObject.SetActive(false);
+                yield break;
+            }
+
+            DisableUIManagerButtonsForTutorial();
+            StartHotelTutorialSequence();
+            ShowSkipButtonAnimated();
+        }
+        else
         {
             gameObject.SetActive(false);
-            yield break;
         }
-
-        GrantTutorialStartItemsIfNeeded();
-
-        DisableUIManagerButtonsForTutorial();
-        SpawnTutorialMonsterIfNeeded();
-        TrySubscribeMonsterPoopClean();
-        StartPlainTutorialSequence();
-        ShowSkipButtonAnimated();
     }
 
     private bool ShouldRunPlainTutorialOnStart()
@@ -127,6 +147,16 @@ public partial class TutorialManager
         }
 
         return plainTutorials != null && plainTutorials.Count > 0;
+    }
+
+    private bool ShouldRunHotelTutorialOnStart()
+    {
+        if (IsHotelTutorialAlreadyCompleted())
+        {
+            return false;
+        }
+
+        return hotelTutorials != null && hotelTutorials.Count > 0;
     }
 
     public bool HasAnyPending()
@@ -170,6 +200,28 @@ public partial class TutorialManager
         }
         _plainPanelIndex = -1;
 
+        if (_plainNextDelayRoutine != null)
+        {
+            StopCoroutine(_plainNextDelayRoutine);
+            _plainNextDelayRoutine = null;
+        }
+
+        if (_plainNextClickDelayRoutine != null)
+        {
+            StopCoroutine(_plainNextClickDelayRoutine);
+            _plainNextClickDelayRoutine = null;
+        }
+
+        if (_plainFoodDropDelayRoutine != null)
+        {
+            StopCoroutine(_plainFoodDropDelayRoutine);
+            _plainFoodDropDelayRoutine = null;
+        }
+
+        _foodDropCountForCurrentStep = 0;
+
+        CancelHandPointerSubTutorial();
+
         if (_tutorialMonsterController != null)
         {
             _tutorialMonsterController.SetInteractionsDisabledByTutorial(false);
@@ -203,6 +255,8 @@ public partial class TutorialManager
         }
         _hotelPanelIndex = -1;
         MarkHotelTutorialCompleted();
+        RestoreUIManagerButtonsInteractable();
+        CancelHandPointerSubTutorial();
         HidePointerIfAny();
 
         gameObject.SetActive(false);
