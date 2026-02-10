@@ -18,6 +18,7 @@ public class MonsterCatalogueListUI : MonoBehaviour
     private Queue<GameObject> itemPool = new Queue<GameObject>();
     private List<GameObject> activeItems = new List<GameObject>();
     private MonsterCatalogueItemUI currentSelectedItem;
+    private GridLayoutGroup gridLayout;
 
     void Awake()
     {
@@ -27,6 +28,13 @@ public class MonsterCatalogueListUI : MonoBehaviour
     private void Start()
     {
         monsterManager = ServiceLocator.Get<MonsterManager>();
+        gridLayout = scrollRect != null ? scrollRect.content.GetComponent<GridLayoutGroup>() : null;
+        if (gridLayout != null)
+        {
+            gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
+            gridLayout.childAlignment = TextAnchor.UpperLeft;
+        }
         InitializeItemPool();
         //RefreshCatalogue();
         

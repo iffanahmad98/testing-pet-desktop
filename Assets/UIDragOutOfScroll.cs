@@ -19,11 +19,12 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private Transform originalParent;
     private int originalSiblingIndex;
 
-    private GameObject placeholder;     // supaya layout list tidak “bolong/geser liar”
+    private GameObject placeholder;     // supaya layout list tidak ï¿½bolong/geser liarï¿½
     private Vector2 pointerOffset;      // biar item tidak loncat ke center pointer
 
     private PlayerConfig playerConfig;
     private Vector3 originalScale;
+    private int lastHoveredGameAreaIndex = -1;
 
     void Awake()
     {
@@ -43,6 +44,7 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
         originalScale = transform.localScale;
         originalParent = transform.parent;
         originalSiblingIndex = transform.GetSiblingIndex();
+        lastHoveredGameAreaIndex = -1;
 
         // Placeholder untuk menjaga posisi di LayoutGroup (Content biasanya pakai Vertical/Grid Layout)
         placeholder = new GameObject($"{name}_placeholder", typeof(RectTransform), typeof(LayoutElement));
@@ -89,6 +91,8 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
         rt.anchoredPosition = localPointerPos + pointerOffset;
 
+        UpdateHoveredGameAreaSelection(eventData);
+
         // Cek apakah sedang hover di atas tempat yg bisa drop
         var viewport = sourceScroll && sourceScroll.viewport
             ? sourceScroll.viewport
@@ -114,7 +118,19 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         float scaleMultiplier = 1.1f;
         float tweenTime = 0.15f;
-        int destinationAreaIndex = SaveSystem.LoadActiveGameAreaIndex();
+        int destinationAreaIndex = mCatalogueUI != null ? mCatalogueUI.GetSelectedGameAreaIndex() : -1;
+        if (destinationAreaIndex < 0)
+        {
+            destinationAreaIndex = SaveSystem.LoadActiveGameAreaIndex();
+        }
+
+        if (mCatalogueUI == null || mCatalogueUI.gameAreaButtons == null ||
+            destinationAreaIndex < 0 || destinationAreaIndex >= mCatalogueUI.gameAreaButtons.Length ||
+            mCatalogueUI.gameAreaButtons[destinationAreaIndex] == null)
+        {
+            return;
+        }
+
         var buttonTransform = mCatalogueUI.gameAreaButtons[destinationAreaIndex].transform;
         Vector3 baseScale = buttonTransform.localScale;
 
@@ -124,13 +140,58 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
             .SetEase(Ease.OutQuad).SetLoops(2, LoopType.Yoyo);
     }
 
+    private void UpdateHoveredGameAreaSelection(PointerEventData eventData)
+    {
+        if (mCatalogueUI == null || mCatalogueUI.gameAreaButtons == null)
+        {
+            return;
+        }
+
+        int hoveredIndex = -1;
+        for (int i = 0; i < mCatalogueUI.gameAreaButtons.Length; i++)
+        {
+            Button button = mCatalogueUI.gameAreaButtons[i];
+            if (button == null || !button.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            RectTransform buttonRect = button.transform as RectTransform;
+            if (buttonRect == null)
+            {
+                continue;
+            }
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                buttonRect, eventData.position, eventData.pressEventCamera))
+            {
+                hoveredIndex = i;
+                break;
+            }
+        }
+
+        if (hoveredIndex == -1)
+        {
+            lastHoveredGameAreaIndex = -1;
+            return;
+        }
+
+        if (hoveredIndex == lastHoveredGameAreaIndex)
+        {
+            return;
+        }
+
+        lastHoveredGameAreaIndex = hoveredIndex;
+        mCatalogueUI.SetSelectedGameAreaButton(hoveredIndex, false);
+    }
+
     public void OnEndDrag(PointerEventData eventData)
     {
         if (sourceScroll) sourceScroll.enabled = true;
         cg.blocksRaycasts = true;
         transform.localScale = originalScale;
 
-        // === Deteksi “keluar dari wilayah Scroll View” ===
+        // === Deteksi ï¿½keluar dari wilayah Scroll Viewï¿½ ===
         // Umumnya yang dimaksud adalah keluar dari VIEWPORT (area yang kelihatan)
         var viewport = sourceScroll && sourceScroll.viewport
             ? sourceScroll.viewport

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Spine.Unity;
+using DG.Tweening;
 
 public class PomodoroUI : MonoBehaviour
 {
@@ -151,6 +152,7 @@ public class PomodoroUI : MonoBehaviour
         if (pomodoroPanel != null)
         {
             pomodoroPanel.SetActive(true);
+            pomodoroPanel.transform.DOPunchScale(new Vector2(0.05f, 0.05f), 0.3f, 5);
         }
 
         // Hide mini UI when main panel opens
@@ -258,22 +260,11 @@ public class PomodoroUI : MonoBehaviour
 
         if (pomodoroPanel != null)
         {
-            RectTransform panelRect = pomodoroPanel.GetComponent<RectTransform>();
-            if (panelRect != null)
+            pomodoroPanel.transform.DOScale(isMinimized ? new Vector3(0.7f, 0.7f, 1f) : Vector3.one, 0.2f).SetEase(Ease.OutCirc).OnComplete(() =>
             {
-                if (isMinimized)
-                {
-                    // Minimize: set scale to 0.7:0.7
-                    panelRect.localScale = new Vector3(0.7f, 0.7f, 1f);
-                    Debug.Log("MinMax button clicked - Panel minimized to scale 0.7:0.7");
-                }
-                else
-                {
-                    // Maximize: set scale to 1:1 (full screen)
-                    panelRect.localScale = new Vector3(1f, 1f, 1f);
-                    Debug.Log("MinMax button clicked - Panel maximized to scale 1:1");
-                }
-            }
+                pomodoroPanel.transform.localScale = isMinimized ? new Vector3(0.7f, 0.7f, 1f) : Vector3.one;
+            });
+            
         }
     }
 
@@ -281,7 +272,14 @@ public class PomodoroUI : MonoBehaviour
     {
         if (pomodoroPanel != null)
         {
-            pomodoroPanel.SetActive(false);
+            pomodoroPanel.transform.DOScale(new Vector2(0.1f, 0.1f), 0.5f).SetEase(Ease.InBack).OnComplete(()=> 
+            { 
+                pomodoroPanel.SetActive(false);
+
+                pomodoroPanel.transform.localScale = isMinimized? new Vector3(0.7f, 0.7f, 1f) : Vector3.one;
+                Debug.Log("MinMax button clicked - Panel minimized to scale 0.7:0.7");
+                
+            });
         }
 
         // Show mini UI when main panel closes

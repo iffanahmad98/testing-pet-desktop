@@ -668,8 +668,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5028455121082010249}
   m_HandleRect: {fileID: 7475548218514290167}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.7561901
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1470,8 +1470,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.7024, y: -55.101}
-  m_SizeDelta: {x: 547.3894, y: 706.2}
+  m_AnchoredPosition: {x: 3.7024, y: -60.353565}
+  m_SizeDelta: {x: 547.3894, y: 695.6949}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5089954760265432452
 CanvasRenderer:
@@ -2866,6 +2866,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 2038595532692988231}
+        m_TargetAssemblyTypeName: CreditsMenu, Assembly-CSharp
+        m_MethodName: PlayClickAudio
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!1 &5021420099346942352
 GameObject:
   m_ObjectHideFlags: 0
@@ -3136,6 +3148,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2038595532692988231}
+        m_TargetAssemblyTypeName: CreditsMenu, Assembly-CSharp
+        m_MethodName: PlayClickAudio
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -5152,8 +5176,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 196, y: 333}
-  m_SizeDelta: {x: 70, y: 70}
+  m_AnchoredPosition: {x: 202, y: 318}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5597223358612282326
 CanvasRenderer:
@@ -5525,6 +5549,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3afd7f404717f54439dc3ee6f9ea4ade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cGroup: {fileID: 2286530651016977502}
   versionTxt: {fileID: 1782443054055465237}
 --- !u!1 &8369011527283191984
 GameObject:

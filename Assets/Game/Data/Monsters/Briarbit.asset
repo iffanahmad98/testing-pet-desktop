@@ -16,11 +16,14 @@ MonoBehaviour:
   id: briarbit
   description: 
   tooltipData: {fileID: 0}
+  requirementTipDataSO: {fileID: 0}
   monsterRequirements:
   - anyTypeMonster: 1
     monsterType: 0
     minimumRequirements: 0
-  eatingOffset: []
+  eatingOffset:
+  - {x: -33.6, y: 70}
+  - {x: -33.6, y: 70}
   monType: 0
   poopType: 1
   moveSpd: 120

@@ -647,13 +647,12 @@ public static class SaveSystem
     #region  Facility Operations
     public static bool IsFacilityOwned(string facilityID)
     {
-        bool hasFacility = GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
+        //bool hasFacility = GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
         var facilityToCheck = GetPlayerConfig().ownedFacilities.FirstOrDefault(f => f.facilityID == facilityID);
 
         if (facilityToCheck != null)
         {
             var areaIndex = facilityToCheck.areasOwnFacility.IndexOf(GetPlayerConfig().lastGameAreaIndex);
-
             return areaIndex > -1;
         }
 
@@ -690,9 +689,16 @@ public static class SaveSystem
     {
         var config = GetPlayerConfig();
 
-        // Check if already owned
-        if (config.ownedFacilities.Any(f => f.facilityID == facilityID))
-            return;
+        for (int i = 0; i < config.ownedFacilities.Count; i++) 
+        {
+            int temp = i;
+
+            if (config.ownedFacilities[temp].facilityID == facilityID)
+            {
+                config.ownedFacilities[temp].AddAreaOwnership(config.lastGameAreaIndex);
+                return;
+            }
+        }
 
         // Add to owned facilities with 0 cooldown (for free toggle facilities)
         var ownedFacility = new OwnedFacilityData(facilityID, 0f);
