@@ -530,10 +530,18 @@ namespace MagicalGarden.Farm
             var dataList = GetSaveDataList();
             var wrapper = new PlantSaveWrapper { data = dataList, farmAreaIds = farmAreaIdsPurchased };
             string json = JsonUtility.ToJson(wrapper, true);
+            // System.IO.File.WriteAllText(Application.persistentDataPath + "/plants.json", json);
+
+            #if UNITY_EDITOR
             System.IO.File.WriteAllText(Application.persistentDataPath + "/plants.json", json);
+            #else
+            System.IO.File.WriteAllText(Application.persistentDataPath + "/plants.json", CryptoHelper.Encrypt(json));
+            #endif
+
             Debug.Log("Tanaman disimpan ke file.");
         }
 
+        /*
         public void LoadFromJson()
         {
              
@@ -544,11 +552,55 @@ namespace MagicalGarden.Farm
               //  return;
             }
 
-            string json = System.IO.File.ReadAllText(path);
+            // string json = System.IO.File.ReadAllText(path);
+            string json = "";
+            #if UNITY_EDITOR
+            json = System.IO.File.ReadAllText(path);
+            #else
+            json = CryptoHelper.Decrypt(System.IO.File.ReadAllText(path));
+            #endif
+            
             var wrapper = JsonUtility.FromJson<PlantSaveWrapper>(json);
             LoadFromSaveData(wrapper.data, wrapper.farmAreaIds);
             Debug.Log("Tanaman berhasil dimuat dari file.");
         }
+        */
+        public void LoadFromJson()
+        {
+            string path = Application.persistentDataPath + "/plants.json";
+
+            // jika file tidak ada -> buat dulu
+            if (!System.IO.File.Exists(path))
+            {
+                SaveToJson();
+                return;
+            }
+
+            string raw = System.IO.File.ReadAllText(path);
+
+            // detect plaintext / encrypted (BERLAKU DI EDITOR DAN BUILD)
+            string trimmed = raw.TrimStart();
+            string json;
+
+            if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
+                json = raw; // plaintext
+            else
+                json = CryptoHelper.Decrypt(raw); // encrypted
+
+            var wrapper = JsonUtility.FromJson<PlantSaveWrapper>(json);
+
+            // jika deserialize gagal -> recreate save
+            if (wrapper == null || wrapper.data == null)
+            {
+                SaveToJson();
+                return;
+            }
+
+            LoadFromSaveData(wrapper.data, wrapper.farmAreaIds);
+            Debug.Log("Tanaman berhasil dimuat dari file.");
+        }
+
+
 #endregion
 #region Plant AI Service
     public Dictionary<Vector3Int, PlantController> GetPlants () {
