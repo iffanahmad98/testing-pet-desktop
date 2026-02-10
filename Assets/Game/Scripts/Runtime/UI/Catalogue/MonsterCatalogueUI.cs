@@ -28,6 +28,7 @@ public class MonsterCatalogueUI : MonoBehaviour
     public Button AddGameAreaBtn;
     public GameObject gameAreaButtonPrefab;
     private Button seletectedGameAreaButton;
+    private int selectedGameAreaIndex = -1;
     private int maxAreaVisible = 5;
     private float gameAreaHeight = 100;
     public RectTransform scrollViewContent;
@@ -611,13 +612,39 @@ public class MonsterCatalogueUI : MonoBehaviour
     {
         // Logic for when a game area button is clicked
         Debug.Log($"selected Game Area button at index {index} clicked.");
+        SetSelectedGameAreaButton(index, true);
+    }
+
+    public void SetSelectedGameAreaButton(int index, bool notifyList)
+    {
+        if (gameAreaButtons == null || index < 0 || index >= gameAreaButtons.Length)
+        {
+            return;
+        }
+
+        Button targetButton = gameAreaButtons[index];
+        if (targetButton == null)
+        {
+            return;
+        }
+
+        if (seletectedGameAreaButton == targetButton && selectedGameAreaIndex == index)
+        {
+            return;
+        }
 
         // Clear previous selection
         ClearGameAreaButtonSelection();
 
         // Set new selection
-        seletectedGameAreaButton = gameAreaButtons[index];
-        HighlightSelectedGameAreaButton(gameAreaButtons[index]);
+        seletectedGameAreaButton = targetButton;
+        selectedGameAreaIndex = index;
+        HighlightSelectedGameAreaButton(targetButton);
+
+        if (!notifyList)
+        {
+            return;
+        }
 
         MonsterCatalogueListUI catalogueListUI = GetComponentInChildren<MonsterCatalogueListUI>();
         if (catalogueListUI != null)
@@ -628,6 +655,11 @@ public class MonsterCatalogueUI : MonoBehaviour
         {
             Debug.LogError("MonsterCatalogueListUI component not found in children.");
         }
+    }
+
+    public int GetSelectedGameAreaIndex()
+    {
+        return selectedGameAreaIndex;
     }
 
     private void ClearGameAreaButtonSelection()
@@ -641,6 +673,7 @@ public class MonsterCatalogueUI : MonoBehaviour
             }
         }
         seletectedGameAreaButton = null;
+        selectedGameAreaIndex = -1;
     }
 
     private void HighlightSelectedGameAreaButton(Button button)

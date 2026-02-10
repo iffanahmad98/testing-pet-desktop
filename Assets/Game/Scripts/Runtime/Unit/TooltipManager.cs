@@ -151,7 +151,7 @@ public class TooltipManager : MonoBehaviour
     }
 
     public void HideInstant()
-    { // this, SceneLoadManager
+    { // this, SceneLoadManager, HotelGiftHandler
         tooltipWindow.SetActive(false);
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
@@ -184,6 +184,10 @@ public class TooltipManager : MonoBehaviour
     #region RequirementTipClick2d
     public void AddToolTipClick2d (TooltipTriggerWorld requirement) {
         listToolTipTriggerWorld.Add (requirement);
+    }
+
+    public void RemoveToolTipClick2d (TooltipTriggerWorld requirement) {
+        listToolTipTriggerWorld.Remove (requirement);
     }
 
     public void ShowAllRequirementTipClick2d () { // HotelShop.cs

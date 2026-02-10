@@ -58,7 +58,11 @@ public class MonsterVisualHandler
         if (_controller?.MonsterData?.CardIcon == null) return;
 
         int iconIndex = evolutionLevel - 1;
-
+        if (iconIndex <0) {
+            Debug.Log ("Monster baru beri iconIndexnya -1 jadi langsung ubah ke 0 (Sementara) ");
+            iconIndex = 0;
+        }
+        
         if (iconIndex >= 0 && iconIndex < _controller.MonsterData.CardIcon.Length)
         {
             _currentIcon = _controller.MonsterData.CardIcon[iconIndex];

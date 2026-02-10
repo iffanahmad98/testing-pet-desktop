@@ -9,6 +9,7 @@ public class HotelGift
 
     static int totalValue = 0;
     public int TotalValue => totalValue;
+    public static event Action OnCurrencyChangedRefreshEvent;
 
     public void GetLoot(int value)
     {
@@ -16,6 +17,7 @@ public class HotelGift
         SaveSystem.PlayerConfig.hotelGift = totalValue;
         Debug.Log ($"Hotel Gift saved : " + SaveSystem.PlayerConfig.hotelGift);
         SaveLoot();
+       // OnCurrencyChangedRefreshEvent?.Invoke (); HotelGiftHandler.cs
     }
 
     public void UsingLoot(int value)
@@ -23,6 +25,7 @@ public class HotelGift
         totalValue -= value;
         SaveSystem.PlayerConfig.hotelGift = totalValue;
         SaveLoot();
+        OnCurrencyChangedRefreshEvent?.Invoke ();
     }
 
     public void SaveLoot()
@@ -55,5 +58,9 @@ public class HotelGift
 
     public int GetCurrency () {
         return SaveSystem.PlayerConfig.hotelGift;
+    }
+
+    public static void AddCurrencyChangedRefreshEvent (Action value) { // HotelController.cs, FarmMainUI.cs
+        OnCurrencyChangedRefreshEvent += value;
     }
 }

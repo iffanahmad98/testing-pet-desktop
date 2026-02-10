@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
-using System.Linq;
 
 /// <summary>
 /// Comprehensive setup manager handling game area, audio, and language settings
@@ -321,8 +321,12 @@ public class SettingsManager : MonoBehaviour
     public void AdjustUIScale(float delta)
     {
         if (canvasScaler == null || canvasScaler.scaleFactor <= 0.7f || canvasScaler.scaleFactor > 1.1f) return;
-        uiScale = Mathf.Clamp(uiScale + delta, 0.2f, 2f);
-        canvasScaler.scaleFactor = uiScale;
+        uiScale = Mathf.Clamp(uiScale + delta, 0.8f, 1.1f);
+        
+        float newX = 1920 / uiScale;
+        float newY = 1080 / uiScale;
+
+        canvasScaler.referenceResolution = new Vector2(newX, newY);
     }
 
     public void ResetUIScale()
@@ -333,7 +337,13 @@ public class SettingsManager : MonoBehaviour
     public void UpdateUIScale(float value)
     {
         if (canvasScaler != null)
-            canvasScaler.scaleFactor = value;
+        {
+            uiScale = value;
+            float newX = 1920 / value;
+            float newY = 1080 / value;
+
+            canvasScaler.referenceResolution = new Vector2(newX, newY);
+        }
     }
     
     // Pet scaling methods

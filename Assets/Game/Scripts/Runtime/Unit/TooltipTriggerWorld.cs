@@ -24,4 +24,8 @@ public class TooltipTriggerWorld : MonoBehaviour
     {
         TooltipManager.Instance.EndHover();
     }
+
+    void OnDestroy (){
+        TooltipManager.Instance.RemoveToolTipClick2d (this);
+    }
 }
