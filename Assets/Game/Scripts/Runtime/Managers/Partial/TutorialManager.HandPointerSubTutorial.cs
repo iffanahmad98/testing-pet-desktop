@@ -6,8 +6,33 @@ public partial class TutorialManager
     private bool _isRunningHandPointerSubTutorial;
     private int _handPointerSubStepIndex = -1;
     private HandPointerTutorialSequenceSO _activeHandPointerSubTutorial;
+    private IUIButtonResolver _buttonResolver;
     private Button _currentHandPointerTargetButton;
     private RectTransform _currentHandPointerTargetRect;
+
+    private void CancelHandPointerSubTutorial()
+    {
+        _isRunningHandPointerSubTutorial = false;
+
+        var pointer = ServiceLocator.Get<ITutorialPointer>();
+        if (pointer != null)
+        {
+            pointer.Hide();
+        }
+
+        if (_currentHandPointerTargetButton != null)
+        {
+            _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
+            _currentHandPointerTargetButton = null;
+        }
+
+        _currentHandPointerTargetRect = null;
+    }
+
+    private void InitHandPointerResolver()
+    {
+        _buttonResolver = Create(_currentMode);
+    }
     private void SetHandPointerSequenceButtonsInteractable(bool interactable)
     {
         if (_activeHandPointerSubTutorial == null ||
@@ -15,28 +40,28 @@ public partial class TutorialManager
             _activeHandPointerSubTutorial.steps.Count == 0)
             return;
 
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        if (_buttonResolver == null)
         {
-            CacheUIButtonsFromUIManager();
+            InitHandPointerResolver();
+            if (_buttonResolver == null)
+                return;
         }
-
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
-            return;
 
         for (int i = 0; i < _activeHandPointerSubTutorial.steps.Count; i++)
         {
             var subStep = _activeHandPointerSubTutorial.steps[i];
-            if (subStep == null || subStep.uiButtonIndex < 0 || subStep.uiButtonIndex >= _uiButtonsCache.Length)
+            if (subStep == null)
                 continue;
 
-            var btn = _uiButtonsCache[subStep.uiButtonIndex];
+            var btn = _buttonResolver.Resolve(this, subStep);
             if (btn == null)
                 continue;
 
             btn.interactable = interactable;
         }
     }
-    private void StartHandPointerSubTutorial(PlainTutorialPanelStep plainStep)
+
+    private void StartHandPointerPlainSubTutorial(PlainTutorialPanelStep plainStep)
     {
         var config = plainStep != null ? plainStep.config : null;
         if (config == null || config.handPointerSequence == null)
@@ -50,7 +75,44 @@ public partial class TutorialManager
         _handPointerSubStepIndex = 0;
         _isRunningHandPointerSubTutorial = true;
 
+        if (_buttonResolver == null)
+        {
+            InitHandPointerResolver();
+        }
+
         ApplyCurrentHandPointerSubStep();
+
+        if (!_isRunningHandPointerSubTutorial)
+        {
+            UpdatePlainStepNextButtonsInteractable();
+        }
+    }
+
+    private void StartHandPointerHotelSubTutorial(HotelTutorialPanelStep hotelStep)
+    {
+        var config = hotelStep != null ? hotelStep.config : null;
+        if (config == null || config.handPointerSequence == null)
+            return;
+
+        var sequence = config.handPointerSequence;
+        if (sequence.steps == null || sequence.steps.Count == 0)
+            return;
+
+        _activeHandPointerSubTutorial = sequence;
+        _handPointerSubStepIndex = 0;
+        _isRunningHandPointerSubTutorial = true;
+
+        if (_buttonResolver == null)
+        {
+            InitHandPointerResolver();
+        }
+
+        ApplyCurrentHandPointerSubStep();
+
+        if (!_isRunningHandPointerSubTutorial)
+        {
+            UpdateHotelStepNextButtonsInteractable();
+        }
     }
 
     private void ApplyCurrentHandPointerSubStep()
@@ -58,53 +120,57 @@ public partial class TutorialManager
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
             return;
 
-        if (_handPointerSubStepIndex < 0 || _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
-            return;
-
-        var pointer = ServiceLocator.Get<ITutorialPointer>();
-        if (pointer == null)
+        if (_handPointerSubStepIndex < 0 ||
+            _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
             return;
 
         var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
-
-        Button targetButton = null;
-
-        if (step.uiButtonIndex >= 0)
+        if (step == null)
         {
-            if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
-            {
-                CacheUIButtonsFromUIManager();
-            }
+            CancelHandPointerSubTutorial();
+            return;
+        }
 
-            if (_uiButtonsCache != null && step.uiButtonIndex < _uiButtonsCache.Length)
+        if (_buttonResolver == null)
+        {
+            InitHandPointerResolver();
+            if (_buttonResolver == null)
             {
-                targetButton = _uiButtonsCache[step.uiButtonIndex];
+                CancelHandPointerSubTutorial();
+                return;
             }
         }
 
+        var targetButton = _buttonResolver.Resolve(this, step);
         if (targetButton == null)
+        {
+            CancelHandPointerSubTutorial();
             return;
+        }
 
         var rect = targetButton.transform as RectTransform;
         if (rect == null)
+        {
+            CancelHandPointerSubTutorial();
             return;
+        }
 
-        if (!targetButton.gameObject.activeSelf)
-            targetButton.gameObject.SetActive(true);
-
+        targetButton.gameObject.SetActive(true);
         targetButton.interactable = true;
 
         if (_currentHandPointerTargetButton != null)
-        {
             _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
-        }
 
         _currentHandPointerTargetButton = targetButton;
-        _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
         _currentHandPointerTargetButton.onClick.AddListener(OnHandPointerTargetClicked);
 
         _currentHandPointerTargetRect = rect;
-        pointer.PointTo(rect, step.pointerOffset);
+
+        var pointer = ServiceLocator.Get<ITutorialPointer>();
+        if (pointer != null)
+        {
+            pointer.PointTo(rect, step.pointerOffset);
+        }
     }
 
     private void OnHandPointerTargetClicked()
@@ -112,8 +178,6 @@ public partial class TutorialManager
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
             return;
 
-        // Saat pindah ke sub-step berikutnya, matikan interaksi
-        // pada tombol target sebelumnya.
         if (_currentHandPointerTargetButton != null)
         {
             _currentHandPointerTargetButton.interactable = false;
@@ -133,25 +197,9 @@ public partial class TutorialManager
 
     private void EndHandPointerSubTutorial()
     {
-        // Setelah sequence selesai, semua tombol yang pernah
-        // dipakai sebagai target hand pointer dibuat non-interactable.
         SetHandPointerSequenceButtonsInteractable(false);
 
-        _isRunningHandPointerSubTutorial = false;
-
-        var pointer = ServiceLocator.Get<ITutorialPointer>();
-        if (pointer != null)
-        {
-            pointer.Hide();
-        }
-
-        if (_currentHandPointerTargetButton != null)
-        {
-            _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
-            _currentHandPointerTargetButton = null;
-        }
-
-        _currentHandPointerTargetRect = null;
+        CancelHandPointerSubTutorial();
 
         if (plainTutorials != null &&
             _plainPanelIndex >= 0 &&
@@ -163,18 +211,12 @@ public partial class TutorialManager
             {
                 if (config.useFoodDropAsNext)
                 {
-                    // For food-drop steps, defer progression to TryHandleFoodDropProgress
-                    // so it can re-check count & delay instead of forcing Next here.
                     TryHandleFoodDropProgress(false);
                     return;
                 }
 
                 if (config.usePoopCleanAsNext)
                 {
-                    // For poop-clean steps, delegate to TryHandlePoopCleanProgress
-                    // so that progression still goes through the centralized logic
-                    // (which will call RequestNextPlainPanel).
-                    TryHandlePoopCleanProgress();
                     return;
                 }
             }

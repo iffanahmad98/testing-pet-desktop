@@ -4,6 +4,7 @@ using UnityEngine;
 
 public partial class TutorialManager
 {
+
     private void OnEnable()
     {
         CoinController.OnAnyPlayerCollected += OnCoinCollectedByPlayer;
@@ -65,7 +66,7 @@ public partial class TutorialManager
     private void Awake()
     {
         GlobalSkipTutorialButton = skipTutorialButton;
-        CacheUIButtonsFromUIManager();
+        // CacheUIButtonsFromUIManager();
 
         HideAllTutorialPanels();
         if (skipTutorialButton != null)
@@ -101,7 +102,7 @@ public partial class TutorialManager
 
     private IEnumerator Start()
     {
-        yield return new WaitUntil(()=> SaveSystem.IsLoadFinished);
+        yield return new WaitUntil(() => SaveSystem.IsLoadFinished);
 
         if (!ShouldRunPlainTutorialOnStart())
         {
@@ -113,6 +114,7 @@ public partial class TutorialManager
 
         DisableUIManagerButtonsForTutorial();
         SpawnTutorialMonsterIfNeeded();
+        TrySubscribeMonsterPoopClean();
         StartPlainTutorialSequence();
         ShowSkipButtonAnimated();
     }

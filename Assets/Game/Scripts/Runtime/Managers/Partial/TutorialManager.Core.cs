@@ -12,12 +12,15 @@ public partial class TutorialManager
     [SerializeField] private TutorialMode _currentMode = TutorialMode.Plain;
     private enum TutorialMode { Plain, Hotel }
 
+    [SerializeField] private GameObject Hotel;
+
     [Header("Plain Tutorial Panels")]
     [SerializeField] private List<PlainTutorialPanelStep> plainTutorials = new List<PlainTutorialPanelStep>();
     private int _plainPanelIndex = -1;
     private float _plainStepShownTime;
     private readonly HashSet<Button> _plainNextButtonsHooked = new();
     private Coroutine _plainNextDelayRoutine;
+    private Coroutine _plainNextClickDelayRoutine;
     [Header("Hotel Tutorial Panels")]
     [SerializeField] private List<HotelTutorialPanelStep> hotelTutorials = new List<HotelTutorialPanelStep>();
     private int _hotelPanelIndex = -1;
@@ -69,6 +72,13 @@ public partial class TutorialManager
         monsterManager.OnPoopCleaned += OnPoopCleanedByPlayer;
         _isSubscribedToMonsterPoopClean = true;
         Debug.Log("TutorialManager: Subscribed to MonsterManager.OnPoopCleaned");
+    }
+
+    private static IUIButtonResolver Create(TutorialMode mode)
+    {
+        return mode == TutorialMode.Plain
+            ? new IndexUIButtonResolver()
+            : new NameUIButtonResolver();
     }
 
     private bool HaveGivenTutorialStartItems()
@@ -391,6 +401,11 @@ public partial class TutorialManager
 
     private void RequestNextPlainPanel()
     {
+        Debug.Log(
+    $"[PlainTutorial] RequestNextPlainPanel CALLED | " +
+    $"mode={_currentMode} | index={_plainPanelIndex} | " +
+    $"handPointerRunning={_isRunningHandPointerSubTutorial}"
+);
         if (plainTutorials != null &&
             _plainPanelIndex >= 0 &&
             _plainPanelIndex < plainTutorials.Count)
@@ -405,12 +420,19 @@ public partial class TutorialManager
         }
 
         if (_isRunningHandPointerSubTutorial)
+        {
+            Debug.LogWarning("[PlainTutorial] BLOCKED: HandPointerSubTutorial masih running");
             return;
+        }
 
         if (plainTutorials == null || plainTutorials.Count == 0)
         {
             if (_plainNextDelayRoutine != null)
                 return;
+
+            Debug.Log(
+                $"[PlainTutorial] Starting next delay coroutine | step={_plainPanelIndex}"
+            );
 
             _plainNextDelayRoutine = StartCoroutine(SimpleNextDelayRoutine(0f));
             return;
@@ -452,6 +474,7 @@ public partial class TutorialManager
 
     private IEnumerator SimpleNextDelayRoutine(float delay)
     {
+        Debug.Log($"[PlainTutorial] SimpleNextDelayRoutine START | delay={delay}");
         if (delay > 0f)
         {
             yield return new WaitForSeconds(delay);
@@ -460,6 +483,7 @@ public partial class TutorialManager
         {
             yield return null;
         }
+        Debug.Log("[PlainTutorial] SimpleNextDelayRoutine END → ShowNextPlainPanel()");
         _plainNextDelayRoutine = null;
         ShowNextPlainPanel();
     }
