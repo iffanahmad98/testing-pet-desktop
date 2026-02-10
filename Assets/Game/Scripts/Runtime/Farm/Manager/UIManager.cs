@@ -61,36 +61,51 @@ namespace MagicalGarden.Farm
             UpdateUI();
         }
 
-        public void FertilizeUIToogle()
+        public void FertilizeUIToogle(bool isActive)
         {
-            ToggleUI(fertizerUI);
+            if(isActive) 
+                ToggleUIActive(fertizerUI);
+            else
+                ToggleUIDisable(fertizerUI);
         }
         public void ShopUIToogle()
         {
             DisableAllUI ();
             FarmShop.instance.OnDisplay ();
         }
-        public void GuestUIToogle()
+        public void GuestUIToogle(bool isActive)
         {
-            ToggleUI(guestUI);
+            if(isActive)
+                ToggleUIActive(guestUI);
+            else
+                ToggleUIDisable(guestUI);
         }
-        public void InventoryUIToogle()
+        public void InventoryUIToogle(bool isActive)
         {
-            ToggleUI(inventoryUI);
+            if(isActive)
+                ToggleUIActive(inventoryUI);
+            else
+                ToggleUIDisable(inventoryUI);
         }
-        private void ToggleUI(GameObject targetUI)
+        private void ToggleUIActive(GameObject targetUI)
         {
-            // Debug.LogError("dsdsa");
-            // bool isActive = targetUI.activeSelf;
             DisableAllUI ();
-            // Matikan semua UI
-           
-            // Jika sebelumnya tidak aktif, nyalakan yang diklik
-            // if (!isActive)
-            // {
+
             targetUI.SetActive(true);
-            // }
+            targetUI.transform.DOPunchScale(new Vector2(0.05f, 0.05f), 0.3f, 5);
+            
         }
+
+        private void ToggleUIDisable(GameObject targetUI)
+        {
+            targetUI.transform.DOScale(new Vector2(0.1f, 0.1f), 0.5f).SetEase(Ease.InBack).OnComplete(() =>
+            {
+                targetUI.SetActive(false);
+                targetUI.transform.localScale = new Vector3(1.4f, 1.4f, 1f);
+            });
+
+        }
+
         private void OnDestroy()
         {
             if (PlantManager.Instance != null)

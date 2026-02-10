@@ -83,13 +83,13 @@ public class CoinDisplayUI : MonoBehaviour
         coinDifferentText.text = cointDifferent > 0? $"+{cointDifferent}" : cointDifferent.ToString();
         coinDifferentText.color = cointDifferent > 0? Color.green : Color.red;
         coinDifferentText.rectTransform.anchoredPosition = new Vector2(330f, coinDifferentText.rectTransform.anchoredPosition.y);
-        coinDifferentText.rectTransform.DOAnchorPosX(340f, 0.2f);
+        coinDifferentText.rectTransform.DOAnchorPosX(345f, 0.2f);
 
         int coinDisplay = lastCoinDisplay;
 
         if (mainCoinText != null && shopCoinText != null)
         {
-            tween = DOTween.To(() => coinDisplay, x => coinDisplay = x, coins, 1.5f).SetEase(Ease.OutSine).OnUpdate(() =>
+            tween = DOTween.To(() => coinDisplay, x => coinDisplay = x, coins, 1f).SetEase(Ease.OutSine).OnUpdate(() =>
             {
                 mainCoinText.text = coinDisplay.ToString();
                 shopCoinText.text = coinDisplay.ToString();
