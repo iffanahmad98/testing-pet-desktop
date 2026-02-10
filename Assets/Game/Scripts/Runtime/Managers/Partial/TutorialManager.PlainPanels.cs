@@ -35,6 +35,8 @@ public partial class TutorialManager
             return;
         }
 
+        Debug.Log($"[PlainTutorial] Jumlah step plain = {plainTutorials.Count}");
+
         if (_tutorialMonsterController != null)
         {
             _tutorialMonsterController.SetInteractionsDisabledByTutorial(true);
@@ -44,10 +46,20 @@ public partial class TutorialManager
         {
             var step = plainTutorials[i];
             if (step == null)
+            {
+                Debug.LogWarning($"[PlainTutorial] Step index {i} null, dilewati.");
                 continue;
+            }
 
             if (step.panelRoot != null)
+            {
+                Debug.Log($"[PlainTutorial] Step index {i} panelRoot = {step.panelRoot.name}");
                 step.panelRoot.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning($"[PlainTutorial] Step index {i} tidak punya panelRoot.");
+            }
 
             var nextButton = GetPlainStepNextButton(step);
             if (nextButton != null)
@@ -56,7 +68,16 @@ public partial class TutorialManager
                 {
                     _plainNextButtonsHooked.Add(nextButton);
                     nextButton.onClick.AddListener(RequestNextPlainPanel);
+                    Debug.Log($"[PlainTutorial] Hook RequestNextPlainPanel ke nextButton '{nextButton.gameObject.name}' untuk step index {i}.");
                 }
+                else
+                {
+                    Debug.Log($"[PlainTutorial] Next button '{nextButton.gameObject.name}' untuk step index {i} sudah pernah di-hook, dilewati.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[PlainTutorial] Next button untuk step index {i} tidak ditemukan (mungkin nextButtonIndex tidak valid).");
             }
         }
 
@@ -65,6 +86,7 @@ public partial class TutorialManager
         var firstConfig = firstStep != null ? firstStep.config : null;
         if (firstStep != null && firstStep.panelRoot != null && firstConfig != null)
         {
+            Debug.Log($"[PlainTutorial] Menampilkan firstStep index={_plainPanelIndex}, panel={firstStep.panelRoot.name}");
             PlayPlainPanelShowAnimation(firstStep.panelRoot);
             _plainStepShownTime = Time.time;
             _foodDropCountForCurrentStep = 0;
@@ -79,6 +101,8 @@ public partial class TutorialManager
             ApplyTutorialMonsterPoopForPlainStep(firstStep);
             ShowMonsterInfoForPlainStep(firstStep);
 
+            EnsurePlainNextButtonListenerForStep(firstStep);
+
             if (firstConfig.handPointerSequence != null)
             {
                 StartHandPointerPlainSubTutorial(firstStep);
@@ -87,6 +111,10 @@ public partial class TutorialManager
             {
                 UpdatePlainStepNextButtonsInteractable();
             }
+        }
+        else
+        {
+            Debug.LogWarning($"[PlainTutorial] firstStep atau config atau panelRoot null (firstStep null = {firstStep == null}, panelRoot null = {firstStep?.panelRoot == null}, config null = {firstConfig == null}).");
         }
     }
 
@@ -194,6 +222,8 @@ public partial class TutorialManager
             ApplyTutorialMonsterPoopForPlainStep(nextStep);
             ShowMonsterInfoForPlainStep(nextStep);
 
+            EnsurePlainNextButtonListenerForStep(nextStep);
+
             if (nextConfig.handPointerSequence != null)
             {
                 Debug.Log("[PlainTutorial] StartHandPointerPlainSubTutorial()");
@@ -209,6 +239,19 @@ public partial class TutorialManager
         {
             Debug.LogWarning("[PlainTutorial] NEXT STEP INVALID (step / panel / config null)");
         }
+    }
+
+    private void EnsurePlainNextButtonListenerForStep(PlainTutorialPanelStep step)
+    {
+        if (step == null)
+            return;
+
+        var btn = GetPlainStepNextButton(step);
+        if (btn == null)
+            return;
+
+        btn.onClick.RemoveListener(RequestNextPlainPanel);
+        btn.onClick.AddListener(RequestNextPlainPanel);
     }
 
 

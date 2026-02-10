@@ -122,8 +122,9 @@ public partial class TutorialManager
     private void Awake()
     {
         GlobalSkipTutorialButton = skipTutorialButton;
-        CacheUIButtonsFromUIManager();
+        // CacheUIButtonsFromUIManager();
         CacheAllButtonsForHotelMode();
+        InitHandPointerResolver();
 
         HideAllTutorialPanels();
         if (skipTutorialButton != null)

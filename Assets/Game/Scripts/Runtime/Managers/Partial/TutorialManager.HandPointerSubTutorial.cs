@@ -10,11 +10,29 @@ public partial class TutorialManager
     private Button _currentHandPointerTargetButton;
     private RectTransform _currentHandPointerTargetRect;
 
+    private void CancelHandPointerSubTutorial()
+    {
+        _isRunningHandPointerSubTutorial = false;
+
+        var pointer = ServiceLocator.Get<ITutorialPointer>();
+        if (pointer != null)
+        {
+            pointer.Hide();
+        }
+
+        if (_currentHandPointerTargetButton != null)
+        {
+            _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
+            _currentHandPointerTargetButton = null;
+        }
+
+        _currentHandPointerTargetRect = null;
+    }
+
     private void InitHandPointerResolver()
     {
         _buttonResolver = Create(_currentMode);
     }
-
     private void SetHandPointerSequenceButtonsInteractable(bool interactable)
     {
         if (_activeHandPointerSubTutorial == null ||
@@ -22,13 +40,12 @@ public partial class TutorialManager
             _activeHandPointerSubTutorial.steps.Count == 0)
             return;
 
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        if (_buttonResolver == null)
         {
-            CacheUIButtonsFromUIManager();
+            InitHandPointerResolver();
+            if (_buttonResolver == null)
+                return;
         }
-
-        if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
-            return;
 
         for (int i = 0; i < _activeHandPointerSubTutorial.steps.Count; i++)
         {
@@ -36,22 +53,14 @@ public partial class TutorialManager
             if (subStep == null)
                 continue;
 
-            Button btn = null;
-            if (_currentMode == TutorialMode.Plain)
-            {
-                if (subStep.uiButtonIndex < 0 || subStep.uiButtonIndex >= _uiButtonsCache.Length)
-                    continue;
-                btn = _uiButtonsCache[subStep.uiButtonIndex];
-            }
-            else if (_currentMode == TutorialMode.Hotel)
-            {
-                btn = GetButtonByName(subStep.ButtonKey);
-            }
+            var btn = _buttonResolver.Resolve(this, subStep);
             if (btn == null)
                 continue;
+
             btn.interactable = interactable;
         }
     }
+
     private void StartHandPointerPlainSubTutorial(PlainTutorialPanelStep plainStep)
     {
         var config = plainStep != null ? plainStep.config : null;
@@ -66,7 +75,17 @@ public partial class TutorialManager
         _handPointerSubStepIndex = 0;
         _isRunningHandPointerSubTutorial = true;
 
+        if (_buttonResolver == null)
+        {
+            InitHandPointerResolver();
+        }
+
         ApplyCurrentHandPointerSubStep();
+
+        if (!_isRunningHandPointerSubTutorial)
+        {
+            UpdatePlainStepNextButtonsInteractable();
+        }
     }
 
     private void StartHandPointerHotelSubTutorial(HotelTutorialPanelStep hotelStep)
@@ -83,7 +102,17 @@ public partial class TutorialManager
         _handPointerSubStepIndex = 0;
         _isRunningHandPointerSubTutorial = true;
 
+        if (_buttonResolver == null)
+        {
+            InitHandPointerResolver();
+        }
+
         ApplyCurrentHandPointerSubStep();
+
+        if (!_isRunningHandPointerSubTutorial)
+        {
+            UpdateHotelStepNextButtonsInteractable();
+        }
     }
 
     private void ApplyCurrentHandPointerSubStep()
@@ -91,21 +120,40 @@ public partial class TutorialManager
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
             return;
 
-        if (_handPointerSubStepIndex < 0 || _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
-            return;
-
-        var pointer = ServiceLocator.Get<ITutorialPointer>();
-        if (pointer == null)
+        if (_handPointerSubStepIndex < 0 ||
+            _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
             return;
 
         var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
+        if (step == null)
+        {
+            CancelHandPointerSubTutorial();
+            return;
+        }
+
+        if (_buttonResolver == null)
+        {
+            InitHandPointerResolver();
+            if (_buttonResolver == null)
+            {
+                CancelHandPointerSubTutorial();
+                return;
+            }
+        }
+
         var targetButton = _buttonResolver.Resolve(this, step);
         if (targetButton == null)
+        {
+            CancelHandPointerSubTutorial();
             return;
+        }
 
         var rect = targetButton.transform as RectTransform;
         if (rect == null)
+        {
+            CancelHandPointerSubTutorial();
             return;
+        }
 
         targetButton.gameObject.SetActive(true);
         targetButton.interactable = true;
@@ -117,14 +165,19 @@ public partial class TutorialManager
         _currentHandPointerTargetButton.onClick.AddListener(OnHandPointerTargetClicked);
 
         _currentHandPointerTargetRect = rect;
-        pointer.PointTo(rect, step.pointerOffset);
-    }
 
+        var pointer = ServiceLocator.Get<ITutorialPointer>();
+        if (pointer != null)
+        {
+            pointer.PointTo(rect, step.pointerOffset);
+        }
+    }
 
     private void OnHandPointerTargetClicked()
     {
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
             return;
+
         if (_currentHandPointerTargetButton != null)
         {
             _currentHandPointerTargetButton.interactable = false;
@@ -146,21 +199,7 @@ public partial class TutorialManager
     {
         SetHandPointerSequenceButtonsInteractable(false);
 
-        _isRunningHandPointerSubTutorial = false;
-
-        var pointer = ServiceLocator.Get<ITutorialPointer>();
-        if (pointer != null)
-        {
-            pointer.Hide();
-        }
-
-        if (_currentHandPointerTargetButton != null)
-        {
-            _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
-            _currentHandPointerTargetButton = null;
-        }
-
-        _currentHandPointerTargetRect = null;
+        CancelHandPointerSubTutorial();
 
         if (plainTutorials != null &&
             _plainPanelIndex >= 0 &&

@@ -71,6 +71,7 @@ public partial class TutorialManager
 
     public void CacheUIButtonsFromUIManager()
     {
+        Debug.Log("[PlainTutorial] CacheUIButtonsFromUIManager CALLED");
         var list = new List<Button>();
         void Add(Button b)
         {
@@ -129,6 +130,7 @@ public partial class TutorialManager
         }
 
         _uiButtonsCache = list.ToArray();
+        Debug.Log($"[PlainTutorial] UIButtonCache BUILT: {_uiButtonsCache.Length} button(s)");
         _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
         for (int i = 0; i < _uiButtonsCache.Length; i++)
         {
@@ -273,25 +275,43 @@ public partial class TutorialManager
     private Button GetPlainStepNextButton(PlainTutorialPanelStep step)
     {
         if (step == null)
+        {
+            Debug.LogError("[PlainTutorial] GetNextButton: step NULL");
             return null;
+        }
 
         var config = step.config;
         if (config == null)
+        {
+            Debug.LogError("[PlainTutorial] GetNextButton: config NULL");
             return null;
+        }
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
         {
+            Debug.Log("[PlainTutorial] UIButtonCache empty → rebuilding");
             CacheUIButtonsFromUIManager();
         }
 
         if (_uiButtonsCache == null || _uiButtonsCache.Length == 0)
+        {
+            Debug.LogError("[PlainTutorial] UIButtonCache STILL EMPTY");
             return null;
+        }
 
         if (config.nextButtonIndex < 0 || config.nextButtonIndex >= _uiButtonsCache.Length)
+        {
+            Debug.LogError(
+                $"[PlainTutorial] INVALID nextButtonIndex={config.nextButtonIndex}, cacheSize={_uiButtonsCache.Length}"
+            );
             return null;
+        }
 
-        return _uiButtonsCache[config.nextButtonIndex];
+        var btn = _uiButtonsCache[config.nextButtonIndex];
+        Debug.Log($"[PlainTutorial] NextButton RESOLVED: {btn.name}");
+        return btn;
     }
+
 
     public void DebugLogAssignNextButton(PlainTutorialPanelStep step, Button btn)
     {
