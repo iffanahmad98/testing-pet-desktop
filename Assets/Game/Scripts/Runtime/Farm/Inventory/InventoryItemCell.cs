@@ -19,6 +19,14 @@ namespace MagicalGarden.Inventory
         [Header ("Crop")]
         private OwnedItemData ownedItemData;
         private ItemDataSO itemDataSO;
+
+        private FarmTutorial _tutorial;
+
+        private void Awake()
+        {
+            _tutorial = Object.FindFirstObjectByType<FarmTutorial>(FindObjectsInactive.Include);
+        }
+
         public void SetSlot(InventoryItem item)
         {
             currentItem = item;
@@ -29,6 +37,9 @@ namespace MagicalGarden.Inventory
             gameObject.SetActive(true);
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(OnClick);
+
+            if (button != null && _tutorial != null)
+                _tutorial.RegisterBuyButton(nameText.text, button);
         }
 
         public void ClearSlot()
@@ -60,6 +71,7 @@ namespace MagicalGarden.Inventory
                     case ItemType.MonsterSeed:
                         TileManager.Instance.SetActionSeed(currentItem.itemData);
                         CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
+                        _tutorial.SelectSeedToSow();
                         break;
                     case ItemType.Fertilizer:
                         TileManager.Instance.SetActionFertilizer(currentItem.itemData);
