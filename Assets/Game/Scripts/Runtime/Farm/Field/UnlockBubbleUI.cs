@@ -56,7 +56,8 @@ namespace MagicalGarden.Farm
                 PlantManager.Instance.PurchaseFarmArea (block.numberId); 
                 Debug.Log (" Block Id : " + block.numberId);
                 InstantiateVfxPurchase ();
-                Destroy(gameObject); // Remove the bubble
+               // Destroy(gameObject); // Remove the bubble
+               this.gameObject.SetActive (false);
             }
             else
             {
