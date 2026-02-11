@@ -254,6 +254,8 @@ public class FarmShopMonsterPanel : FarmShopPanelBase
             int totalHired = playerConfig.GetHiredFarmFacilityData(dataSO.id).hired;
             if (dataSO.IsHiredEligible(totalHired))
             {
+                MonsterManager.instance.audio.PlaySFX("buy");
+
                 playerConfig.AddHiredFarmFacilityData(dataSO.id, 1);
                 CoinManager.SpendCoins(dataSO.price);
                 SaveSystem.SaveAll();

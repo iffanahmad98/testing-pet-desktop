@@ -21,6 +21,7 @@ public class PomodoroUI : MonoBehaviour
 
     [Header("Control Buttons")]
     [SerializeField] private Button pumpkinButton;
+    [SerializeField] private Button miniPumpkinButton;
     [SerializeField] private Button playButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button skipButton;
@@ -110,6 +111,9 @@ public class PomodoroUI : MonoBehaviour
         if (pumpkinButton != null)
             pumpkinButton.onClick.AddListener(OnPumpkinButtonClicked);
 
+        if (miniPumpkinButton != null)
+            miniPumpkinButton.onClick.AddListener(OnMiniPumpkinButtonClicked);
+
         if (playButton != null)
             playButton.onClick.AddListener(OnPlayButtonClicked);
 
@@ -131,6 +135,9 @@ public class PomodoroUI : MonoBehaviour
         if (pumpkinButton != null)
             pumpkinButton.onClick.RemoveListener(OnPumpkinButtonClicked);
 
+        if (miniPumpkinButton != null)
+            miniPumpkinButton.onClick.RemoveListener(OnMiniPumpkinButtonClicked);
+
         if (playButton != null)
             playButton.onClick.RemoveListener(OnPlayButtonClicked);
 
@@ -149,6 +156,8 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnPumpkinButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (pomodoroPanel != null)
         {
             pomodoroPanel.SetActive(true);
@@ -164,10 +173,17 @@ public class PomodoroUI : MonoBehaviour
         Debug.Log("Pumpkin button clicked - Opening Pomodoro Panel");
     }
 
+    private void OnMiniPumpkinButtonClicked()
+    {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+    }
+
     private void OnPlayButtonClicked()
     {
         if (phaseManager == null)
             return;
+
+        MonsterManager.instance.audio.PlaySFX("button_click");
 
         isPlaying = !isPlaying;
 
@@ -221,6 +237,8 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnRestartButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (phaseManager != null)
         {
             phaseManager.StopTimer();
@@ -235,6 +253,8 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnSkipButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (phaseManager != null)
         {
             phaseManager.AdvanceToNextPhase();
@@ -256,6 +276,8 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnMinMaxButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         isMinimized = !isMinimized;
 
         if (pomodoroPanel != null)
@@ -270,6 +292,8 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnCloseButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (pomodoroPanel != null)
         {
             pomodoroPanel.transform.DOScale(new Vector2(0.1f, 0.1f), 0.5f).SetEase(Ease.InBack).OnComplete(()=> 
