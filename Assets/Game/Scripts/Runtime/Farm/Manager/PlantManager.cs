@@ -250,9 +250,19 @@ namespace MagicalGarden.Farm
             InventoryManager.Instance.RemoveAssistant (itemdata);
             
             TileManager.Instance.tilemapFertilizer.SetTile(cellPosition, TileManager.Instance.tileFertilizer);
+            // Debug.Log ("Fertilizer : " + InventoryManager.Instance.HasAssistant(itemdata));
+            /*
             if (!InventoryManager.Instance.HasItem(itemdata, 1))
             {
                 CursorIconManager.Instance.HideSeedIcon();
+            }
+            */
+
+            if (InventoryManager.Instance.HasAssistant(itemdata) == 0)
+            {
+                Debug.Log ("Fertilizer Hide");
+                CursorIconManager.Instance.HideSeedIconFertilizer();
+                TileManager.Instance.ResetAction ();
             }
 
             SaveToJson ();

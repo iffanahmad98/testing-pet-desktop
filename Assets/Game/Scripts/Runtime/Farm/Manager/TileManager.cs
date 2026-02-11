@@ -234,7 +234,7 @@ namespace MagicalGarden.Manager
         }
 
         public void ResetAction()
-        {
+        { // PlantManager
             currentAction = TileAction.None;
         }
 

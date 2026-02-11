@@ -15,7 +15,7 @@ namespace MagicalGarden.Farm
         Sprite currentSprite;
 
         private RectTransform iconRect;
-
+        bool hideFertilizerIcon = false;
         void Awake()
         {
             Instance = this;
@@ -33,6 +33,7 @@ namespace MagicalGarden.Farm
 
         public void ShowSeedIcon(Sprite icon)
         {
+            Debug.Log ("Fertilizer Show");
             seedIconImage.sprite = icon;
             seedIconImage.gameObject.SetActive(true);
         }
@@ -59,6 +60,13 @@ namespace MagicalGarden.Farm
             seedIconImage.gameObject.SetActive(false);
         }
 
+        public void HideSeedIconFertilizer ()
+        { // PlantManager.cs
+            hideFertilizerIcon = true;
+            seedIconImage.sprite = null;
+            seedIconImage.gameObject.SetActive(false);
+        }
+
         public void PlayPourAnimation(string animationStateName)
         {
             if (pourAnimPrefab == null) return;
@@ -80,7 +88,11 @@ namespace MagicalGarden.Farm
         }
         void RestoreSeedIcon()
         {
-            ShowSeedIcon(currentSprite);
+            if (hideFertilizerIcon) {
+                hideFertilizerIcon = false;
+            } else {
+                ShowSeedIcon(currentSprite);
+            }
         }
     }
 }
