@@ -214,6 +214,7 @@ public class MonsterShopManager : MonoBehaviour
                 OnMonsterSelected(card);
 
                 MonsterManager.instance.audio.PlaySFX("buy");
+                MonsterManager.instance.SaveAllMonsters();
             }
             else
             {
