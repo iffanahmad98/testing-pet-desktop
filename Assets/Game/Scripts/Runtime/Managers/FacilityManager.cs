@@ -37,6 +37,9 @@ public class FacilityManager : MonoBehaviour
     {
         // Initialize Pumpkin Facility state based on saved data
         InitializePumpkinFacilityState();
+
+        ServiceLocator.Get<MonsterManager>().pumpkinObjects.Add(timeKeeperNormalObject.transform);
+        ServiceLocator.Get<MonsterManager>().pumpkinObjects.Add(timeKeeperAdvanceObject.transform);
     }
 
     /// <summary>
