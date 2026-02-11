@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 
 public class HotelShop : MonoBehaviour
 {
@@ -53,36 +54,43 @@ public class HotelShop : MonoBehaviour
     }
 
    // ClickableShopHotel :
-   public void OnShopUI () {
+   public void OnShopUI () 
+    {
       
-      ShowEvent?.Invoke ();
-      iCameraDragLocker.AddLockedBy (this.gameObject);
-      UIWorldManager.Instance.OnBackgroundOutside ();
-      hotelShopUI.gameObject.SetActive (true);
-      hotelShopUI.transform.localScale = new Vector3 (1,1,1);
-      OnShopMenu ("GiftExchangeMenu");
+        ShowEvent?.Invoke ();
+        iCameraDragLocker.AddLockedBy (this.gameObject);
+        //UIWorldManager.Instance.OnBackgroundOutside ();
+        hotelShopUI.gameObject.SetActive (true);
+        hotelShopUI.transform.DOPunchScale(new Vector2(0.05f, 0.05f), 0.3f, 5).
+            OnComplete(()=>hotelShopUI.transform.localScale = Vector3.one);
+        OnShopMenu ("GiftExchangeMenu");
 
-      RectTransform worldRect = worldCanvas.GetComponent<RectTransform>();
-   RectTransform shopRect = hotelShopUI.GetComponent<RectTransform>();
+        //RectTransform worldRect = worldCanvas.GetComponent<RectTransform>();
+        //  RectTransform shopRect = hotelShopUI.GetComponent<RectTransform>();
 
-      HotelMainUI.instance.Hide ();
-   /*
-   Debug.LogError(
-      "UI SHOP Scale: " + hotelShopUI.transform.localScale +
-      " | Canvas Scale: " + worldCanvas.transform.localScale +
-      " | Canvas Size: " + worldRect.rect.width + "x" + worldRect.rect.height +
-      " | UI Size: " + shopRect.rect.width + "x" + shopRect.rect.height
-   );
-   */
+        HotelMainUI.instance.Hide ();
+    /*
+    Debug.LogError(
+        "UI SHOP Scale: " + hotelShopUI.transform.localScale +
+        " | Canvas Scale: " + worldCanvas.transform.localScale +
+        " | Canvas Size: " + worldRect.rect.width + "x" + worldRect.rect.height +
+        " | UI Size: " + shopRect.rect.width + "x" + shopRect.rect.height
+    );
+    */
    }
 
-   public void OffShopUI () {
-      HideEvent?.Invoke ();
-      iCameraDragLocker.RemoveLockedBy (this.gameObject);
-      UIWorldManager.Instance.OffBackgroundOutside ();
-      hotelShopUI.gameObject.SetActive (false);
+   public void OffShopUI () 
+   {
+        HideEvent?.Invoke ();
+        iCameraDragLocker.RemoveLockedBy (this.gameObject);
+        //UIWorldManager.Instance.OffBackgroundOutside ();
 
-      HotelMainUI.instance.Show ();
+        hotelShopUI.transform.DOScale(new Vector2(0.1f, 0.1f), 0.4f).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            hotelShopUI.gameObject.SetActive (false);
+            hotelShopUI.transform.localScale = Vector3.one;
+            HotelMainUI.instance.Show ();
+        });
    }
 
    
