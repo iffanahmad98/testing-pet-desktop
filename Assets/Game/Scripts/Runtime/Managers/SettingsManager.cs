@@ -59,7 +59,7 @@ public class SettingsManager : MonoBehaviour
     private const float DEFAULT_FOOD_SCALE = 1f;
     private const float DEFAULT_POOP_SCALE = 1f;
     private const float DEFAULT_PET_PIVOT_Y = 1.140f;
-    private const float MIN_PET_SCALE = 0.25f;
+    private const float MIN_PET_SCALE = 0.5f;
     private const float MAX_PET_SCALE = 1.5f;
     private const float MIN_PET_PIVOT_Y = 0.3f;
     private const float MAX_PET_PIVOT_Y = 1.7f;
@@ -273,8 +273,8 @@ public class SettingsManager : MonoBehaviour
         gameArea.sizeDelta = size;
 
         UpdatePetScaleFromGameAreaWidth();
-        UpdateFoodScaleFromGameAreaWidth();
-        UpdatePoopScaleFromGameAreaWidth();
+        UpdateFoodScaleFromGameAreaHeight();
+        UpdatePoopScaleFromGameAreaHeight();
         SnapPoopsToGroundIfMinHeight();
 
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
@@ -313,9 +313,9 @@ public class SettingsManager : MonoBehaviour
         pos.y = currentBottom + (value * gameArea.pivot.y);
         gameArea.anchoredPosition = pos;
 
-        UpdatePetScaleFromGameAreaWidth();
-        UpdateFoodScaleFromGameAreaWidth();
-        UpdatePoopScaleFromGameAreaWidth();
+        UpdatePetScaleFromGameAreaHeight();
+        UpdateFoodScaleFromGameAreaHeight();
+        UpdatePoopScaleFromGameAreaHeight();
         SnapPoopsToGroundIfMinHeight();
 
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
@@ -349,46 +349,58 @@ public class SettingsManager : MonoBehaviour
         gameArea.anchoredPosition = pos;
     }
 
-    private void UpdatePetScaleFromGameAreaWidth()
+    private void UpdateFoodScaleFromGameAreaHeight()
     {
         if (gameArea == null) return;
 
-        float widthRatio = gameArea.sizeDelta.x / DEFAULT_GAME_AREA_WIDTH;
-        float targetScale = DEFAULT_PET_SCALE * widthRatio;
-        UpdatePetScale(targetScale);
-    }
-
-    private void UpdateFoodScaleFromGameAreaWidth()
-    {
-        if (gameArea == null) return;
-
-        float targetScale = GetFoodScaleFromGameAreaWidth();
+        float targetScale = GetFoodScaleFromGameAreaHeight();
         ApplyFoodScaleToAllFoods(targetScale);
     }
 
-    private float GetFoodScaleFromGameAreaWidth()
+    private float GetFoodScaleFromGameAreaHeight()
     {
-        if (gameArea == null) return DEFAULT_FOOD_SCALE;
-
-        float widthRatio = gameArea.sizeDelta.x / DEFAULT_GAME_AREA_WIDTH;
-        float targetScale = DEFAULT_FOOD_SCALE * widthRatio;
-        return Mathf.Clamp(targetScale, MIN_PET_SCALE, MAX_PET_SCALE);
+        return GetScaleFromGameAreaDimensions(DEFAULT_FOOD_SCALE);
     }
 
-    private void UpdatePoopScaleFromGameAreaWidth()
+    private void UpdatePetScaleFromGameAreaHeight()
+    {
+        UpdatePetScaleFromGameAreaDimensions();
+    }
+    private void UpdatePetScaleFromGameAreaWidth()
+    {
+        UpdatePetScaleFromGameAreaDimensions();
+    }
+
+    private void UpdatePetScaleFromGameAreaDimensions()
     {
         if (gameArea == null) return;
 
-        float targetScale = GetPoopScaleFromGameAreaWidth();
+        float widthRatio = gameArea.sizeDelta.x / DEFAULT_GAME_AREA_WIDTH;
+        float heightRatio = gameArea.sizeDelta.y / DEFAULT_GAME_AREA_HEIGHT;
+        float targetScale = DEFAULT_PET_SCALE * Mathf.Min(widthRatio, heightRatio);
+        UpdatePetScale(targetScale);
+    }
+
+    private void UpdatePoopScaleFromGameAreaHeight()
+    {
+        if (gameArea == null) return;
+
+        float targetScale = GetPoopScaleFromGameAreaHeight();
         ApplyPoopScaleToAllPoops(targetScale);
     }
 
-    private float GetPoopScaleFromGameAreaWidth()
+    private float GetPoopScaleFromGameAreaHeight()
     {
-        if (gameArea == null) return DEFAULT_POOP_SCALE;
+        return GetScaleFromGameAreaDimensions(DEFAULT_POOP_SCALE);
+    }
+
+    private float GetScaleFromGameAreaDimensions(float defaultScale)
+    {
+        if (gameArea == null) return defaultScale;
 
         float widthRatio = gameArea.sizeDelta.x / DEFAULT_GAME_AREA_WIDTH;
-        float targetScale = DEFAULT_POOP_SCALE * widthRatio;
+        float heightRatio = gameArea.sizeDelta.y / DEFAULT_GAME_AREA_HEIGHT;
+        float targetScale = defaultScale * Mathf.Min(widthRatio, heightRatio);
         return Mathf.Clamp(targetScale, MIN_PET_SCALE, MAX_PET_SCALE);
     }
 
@@ -409,7 +421,7 @@ public class SettingsManager : MonoBehaviour
     {
         if (food == null) return;
 
-        float scale = GetFoodScaleFromGameAreaWidth();
+        float scale = GetFoodScaleFromGameAreaHeight();
         food.transform.localScale = Vector3.one * scale;
     }
 
@@ -439,7 +451,7 @@ public class SettingsManager : MonoBehaviour
     {
         if (poop == null) return;
 
-        float scale = GetPoopScaleFromGameAreaWidth();
+        float scale = GetPoopScaleFromGameAreaHeight();
         var rectTransform = poop.GetComponent<RectTransform>();
         poop.transform.localScale = Vector3.one * scale;
 
