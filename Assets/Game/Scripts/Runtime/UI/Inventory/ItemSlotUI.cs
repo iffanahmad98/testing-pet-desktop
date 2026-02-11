@@ -70,7 +70,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         // preserve aspect is different per category
         if (data.category == ItemType.Food)
         {
-            if (iconImage.sprite.texture.Size().x > iconImage.sprite.texture.Size().y)
+            if (iconImage.sprite.texture.width > iconImage.sprite.texture.height)
                 iconImage.preserveAspect = false;
             else
                 iconImage.preserveAspect = true;
