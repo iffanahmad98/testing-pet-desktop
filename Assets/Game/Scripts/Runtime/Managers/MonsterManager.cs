@@ -53,6 +53,7 @@ public class MonsterManager : MonoBehaviour
     public List<FoodController> activeFoods = new List<FoodController>();
 
     public event System.Action<FoodController> OnFoodSpawned;
+    public event System.Action<PoopController> OnPoopSpawned;
     public List<MedicineController> activeMedicines = new List<MedicineController>();
     public List<Transform> pumpkinObjects = new List<Transform>(); // Pumpkin objects for sorting
     public List<Transform> listDecorations = new List<Transform>();
@@ -403,6 +404,13 @@ public class MonsterManager : MonoBehaviour
     {
         // Create a list of all objects that need depth sorting (monsters, poops, coins, pumpkins)
         var allObjectsForSorting = new List<Transform>();
+        bool forcePoopsBehind = false;
+
+        var settingsManager = ServiceLocator.Get<SettingsManager>();
+        if (settingsManager != null && gameAreaRT != null)
+        {
+            forcePoopsBehind = gameAreaRT.sizeDelta.y <= settingsManager.GetMinGameAreaHeight() + 0.01f;
+        }
 
         // Add monsters
         allObjectsForSorting.AddRange(activeMonsters
@@ -441,8 +449,26 @@ public class MonsterManager : MonoBehaviour
         if (allObjectsForSorting.Count <= 1) return;
 
         // Sort by Y position (higher Y = lower sibling index, appears behind)
-        allObjectsForSorting.Sort((a, b) =>
-            b.position.y.CompareTo(a.position.y));
+        if (forcePoopsBehind)
+        {
+            allObjectsForSorting.Sort((a, b) =>
+            {
+                bool aIsPoop = a != null && a.TryGetComponent<PoopController>(out _);
+                bool bIsPoop = b != null && b.TryGetComponent<PoopController>(out _);
+
+                if (aIsPoop != bIsPoop)
+                {
+                    return aIsPoop ? -1 : 1;
+                }
+
+                return b.position.y.CompareTo(a.position.y);
+            });
+        }
+        else
+        {
+            allObjectsForSorting.Sort((a, b) =>
+                b.position.y.CompareTo(a.position.y));
+        }
 
         // Update sibling indices
         for (int i = 0; i < allObjectsForSorting.Count; i++)
@@ -662,8 +688,10 @@ public class MonsterManager : MonoBehaviour
             : gameAreaRT;
 
         SetupPooledObject(poop, parentTransform, finalPos);
-        poop.GetComponent<PoopController>().Initialize(type);
-        activePoops.Add(poop.GetComponent<PoopController>());
+        var poopCtrl = poop.GetComponent<PoopController>();
+        poopCtrl.Initialize(type);
+        activePoops.Add(poopCtrl);
+        OnPoopSpawned?.Invoke(poopCtrl);
         return poop;
     }
 

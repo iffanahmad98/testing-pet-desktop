@@ -57,11 +57,13 @@ public class SettingsManager : MonoBehaviour
     private const float DEFAULT_UI_SCALE = 1f;
     private const float DEFAULT_PET_SCALE = 1f;
     private const float DEFAULT_FOOD_SCALE = 1f;
+    private const float DEFAULT_POOP_SCALE = 1f;
     private const float DEFAULT_PET_PIVOT_Y = 1.140f;
     private const float MIN_PET_SCALE = 0.25f;
     private const float MAX_PET_SCALE = 1.5f;
     private const float MIN_PET_PIVOT_Y = 0.3f;
     private const float MAX_PET_PIVOT_Y = 1.7f;
+    private const float POOP_GROUND_PADDING = -5f;
     private const float MONSTER_BOUNDS_PADDING = 50f;
     private float maxScreenWidth;
     private float maxScreenHeight;
@@ -108,6 +110,7 @@ public class SettingsManager : MonoBehaviour
         if (gameManager != null)
         {
             gameManager.OnFoodSpawned += ApplyCurrentFoodScaleToFood;
+            gameManager.OnPoopSpawned += ApplyCurrentPoopScaleToPoop;
         }
 
         // Discover all savable modules in scene
@@ -124,6 +127,7 @@ public class SettingsManager : MonoBehaviour
         if (gameManager != null)
         {
             gameManager.OnFoodSpawned -= ApplyCurrentFoodScaleToFood;
+            gameManager.OnPoopSpawned -= ApplyCurrentPoopScaleToPoop;
         }
         ServiceLocator.Unregister<SettingsManager>();
     }
@@ -200,6 +204,9 @@ public class SettingsManager : MonoBehaviour
         LoadSavedSettings();
 
         RegisterGameAreaCallbacks();
+
+        ResetUISize();
+
     }
 
     #region Callback Registration
@@ -267,6 +274,8 @@ public class SettingsManager : MonoBehaviour
 
         UpdatePetScaleFromGameAreaWidth();
         UpdateFoodScaleFromGameAreaWidth();
+        UpdatePoopScaleFromGameAreaWidth();
+        SnapPoopsToGroundIfMinHeight();
 
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
@@ -281,6 +290,10 @@ public class SettingsManager : MonoBehaviour
         OnGameAreaChanged?.Invoke();
     }
 
+    private void ResetUISize()
+    {
+        canvasScaler.referenceResolution = new Vector2(1920 / 0.85f, 1080 / 0.85f);
+    }
     public void UpdateGameAreaHeight(float value)
     {
         if (gameArea == null) return;
@@ -302,6 +315,8 @@ public class SettingsManager : MonoBehaviour
 
         UpdatePetScaleFromGameAreaWidth();
         UpdateFoodScaleFromGameAreaWidth();
+        UpdatePoopScaleFromGameAreaWidth();
+        SnapPoopsToGroundIfMinHeight();
 
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
@@ -360,6 +375,23 @@ public class SettingsManager : MonoBehaviour
         return Mathf.Clamp(targetScale, MIN_PET_SCALE, MAX_PET_SCALE);
     }
 
+    private void UpdatePoopScaleFromGameAreaWidth()
+    {
+        if (gameArea == null) return;
+
+        float targetScale = GetPoopScaleFromGameAreaWidth();
+        ApplyPoopScaleToAllPoops(targetScale);
+    }
+
+    private float GetPoopScaleFromGameAreaWidth()
+    {
+        if (gameArea == null) return DEFAULT_POOP_SCALE;
+
+        float widthRatio = gameArea.sizeDelta.x / DEFAULT_GAME_AREA_WIDTH;
+        float targetScale = DEFAULT_POOP_SCALE * widthRatio;
+        return Mathf.Clamp(targetScale, MIN_PET_SCALE, MAX_PET_SCALE);
+    }
+
     private void ApplyFoodScaleToAllFoods(float scale)
     {
         if (gameManager?.activeFoods == null) return;
@@ -381,10 +413,80 @@ public class SettingsManager : MonoBehaviour
         food.transform.localScale = Vector3.one * scale;
     }
 
+    private void ApplyPoopScaleToAllPoops(float scale)
+    {
+        if (gameManager?.activePoops == null) return;
+
+        foreach (var poop in gameManager.activePoops)
+        {
+            if (poop != null)
+            {
+                var rectTransform = poop.GetComponent<RectTransform>();
+                poop.transform.localScale = Vector3.one * scale;
+
+                if (IsGameAreaAtMinHeight() && rectTransform != null)
+                {
+                    rectTransform.anchoredPosition = new Vector2(
+                        rectTransform.anchoredPosition.x,
+                        GetPoopFloorY(rectTransform)
+                    );
+                }
+            }
+        }
+    }
+
+    private void ApplyCurrentPoopScaleToPoop(PoopController poop)
+    {
+        if (poop == null) return;
+
+        float scale = GetPoopScaleFromGameAreaWidth();
+        var rectTransform = poop.GetComponent<RectTransform>();
+        poop.transform.localScale = Vector3.one * scale;
+
+        if (IsGameAreaAtMinHeight() && rectTransform != null)
+        {
+            rectTransform.anchoredPosition = new Vector2(
+                rectTransform.anchoredPosition.x,
+                GetPoopFloorY(rectTransform)
+            );
+        }
+    }
+
+    private void SnapPoopsToGroundIfMinHeight()
+    {
+        if (!IsGameAreaAtMinHeight() || gameManager?.activePoops == null) return;
+
+        foreach (var poop in gameManager.activePoops)
+        {
+            if (poop == null) continue;
+
+            var rectTransform = poop.GetComponent<RectTransform>();
+            if (rectTransform == null) continue;
+
+            rectTransform.anchoredPosition = new Vector2(
+                rectTransform.anchoredPosition.x,
+                GetPoopFloorY(rectTransform)
+            );
+        }
+    }
+
+    private bool IsGameAreaAtMinHeight()
+    {
+        return gameArea != null && gameArea.sizeDelta.y <= MIN_SIZE + 0.01f;
+    }
+
+    private float GetPoopFloorY(RectTransform poopRect)
+    {
+        if (gameArea == null || poopRect == null) return 0f;
+
+        float poopHalfHeight = (poopRect.rect.height * poopRect.localScale.y) / 2f;
+        return -gameArea.sizeDelta.y / 2f + poopHalfHeight + POOP_GROUND_PADDING;
+    }
+
     public void AdjustUIScale(float delta)
     {
         if (canvasScaler == null || canvasScaler.scaleFactor <= 0.7f || canvasScaler.scaleFactor > 1.1f) return;
-        uiScale = Mathf.Clamp(uiScale + delta, 0.8f, 1.1f);
+        uiScale = Mathf.Clamp(uiScale + delta, 0.8f, 0.85f);
 
         float newX = 1920 / uiScale;
         float newY = 1080 / uiScale;
@@ -533,7 +635,12 @@ public class SettingsManager : MonoBehaviour
 
             // Determine Y position based on game area height
             float newY;
-            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            if (gameArea.sizeDelta.y <= MIN_SIZE + 0.01f)
+            {
+                // Keep poop on the ground when height is at minimum
+                newY = boundsMin.y;
+            }
+            else if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
             {
                 // Random Y within ground area when height is above half
                 newY = Random.Range(boundsMin.y, boundsMax.y);
@@ -963,7 +1070,7 @@ public class SettingsManager : MonoBehaviour
                 // Center Y when height is below or equal to half
                 newY = (boundsMin.y + boundsMax.y) / 2f;
             }
-
+            
             Vector2 newPos = new Vector2(
                 Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
                 newY
