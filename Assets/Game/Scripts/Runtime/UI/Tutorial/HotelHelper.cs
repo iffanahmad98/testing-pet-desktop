@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class HelperHote : MonoBehaviour
+public class HotelHelper : MonoBehaviour
 {
 
     public void Awake()
     {
-        SceneFocusManager.SetFocusTarget(SceneFocusManager.FocusTarget.Hotel);
-        SceneLoadManager.Instance.SetUIEqualsFocus("Hotel");
+       // SceneFocusManager.SetFocusTarget(SceneFocusManager.FocusTarget.Hotel);
+      //  SceneLoadManager.Instance.SetUIEqualsFocus("Hotel");
     }
 
 }
