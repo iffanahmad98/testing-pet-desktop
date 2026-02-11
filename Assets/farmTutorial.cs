@@ -66,7 +66,7 @@ public class FarmTutorial : MonoBehaviour
     private void ExecuteTutorialAtStep(int step = 0)
     {
         // step is an index number
-        if (stepData.Length < tutorialStepIndex)
+        if (tutorialStepIndex >= stepData.Length)
         {
             Debug.LogWarning("Step is bigger than the stepData array");
             return;
@@ -167,6 +167,7 @@ public class FarmTutorial : MonoBehaviour
 
     public void EnableOnly(MenuBtn which)
     {
+        Debug.Log($"Enable only {which}");
         foreach (var kv in _btn)
             if (kv.Value) kv.Value.interactable = (kv.Key == which);
     }
@@ -185,7 +186,7 @@ public class FarmTutorial : MonoBehaviour
 
     public void CountSeedBought()
     {
-        if (!stepData[tutorialStepIndex].isBuySeeds) return;
+        // if (!stepData[tutorialStepIndex].isBuySeeds) return;
 
         _totalSeedBought += 1;
         if (_totalSeedBought == stepData[tutorialStepIndex].seedBuyRequirement - 1)
