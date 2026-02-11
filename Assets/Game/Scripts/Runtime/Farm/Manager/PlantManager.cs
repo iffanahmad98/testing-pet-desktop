@@ -260,7 +260,7 @@ namespace MagicalGarden.Farm
 
             if (InventoryManager.Instance.HasAssistant(itemdata) == 0)
             {
-                Debug.Log ("Fertilizer Hide");
+             //   Debug.Log ("Fertilizer Hide");
                 CursorIconManager.Instance.HideSeedIconFertilizer();
                 TileManager.Instance.ResetAction ();
             }
@@ -568,8 +568,9 @@ namespace MagicalGarden.Farm
             // Jika file tidak ada → buat dulu
             if (!System.IO.File.Exists(path))
             {
-                SaveToJson();
-                return;
+               // SaveToJson();
+               // return;
+                SaveToJson ();
             }
 
             string raw = System.IO.File.ReadAllText(path);

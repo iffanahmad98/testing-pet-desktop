@@ -33,7 +33,7 @@ namespace MagicalGarden.Farm
 
         public void ShowSeedIcon(Sprite icon)
         {
-            Debug.Log ("Fertilizer Show");
+          //  Debug.Log ("Fertilizer Show");
             seedIconImage.sprite = icon;
             seedIconImage.gameObject.SetActive(true);
         }
