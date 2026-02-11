@@ -29,7 +29,7 @@ public class CoinDisplayUI : MonoBehaviour
         // {
         //     UpdateCoinText();
         // }
-
+        CoinManager.AddCoinChangedRefreshEvent (UpdateCoinText);
         UpdateCoinText();
     }
 

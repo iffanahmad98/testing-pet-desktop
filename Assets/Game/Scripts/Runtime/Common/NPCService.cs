@@ -100,7 +100,16 @@ namespace MagicalGarden.AI
             List<Vector2Int> path = FindPathNearest(currentTile, destination);
             if (path == null || path.Count < 2)
             {
-                Debug.LogWarning("No valid path found!");
+                // Debug.LogWarning("No valid path found!");
+               
+                Debug.LogError("No valid path found! Posisi terlalu nempel" + destination);
+                // Ini Tambahan Sementara :
+                isCollectingGift = false;
+                isServingRoom = false;
+              //  RemovePlantControllerNPCTargeting();
+                isOverridingState = false;
+                stateLoopCoroutine = StartCoroutine(StateLoop());
+                // ====== END
                 yield break;
             }
 
