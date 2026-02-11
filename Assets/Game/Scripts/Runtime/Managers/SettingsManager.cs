@@ -452,7 +452,7 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
-    private void SnapPoopsToGroundIfMinHeight()
+    public void SnapPoopsToGroundIfMinHeight()
     {
         if (!IsGameAreaAtMinHeight() || gameManager?.activePoops == null) return;
 
