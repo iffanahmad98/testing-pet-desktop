@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandler, IUIButtonSource
 {
     [Header("UI References")]
@@ -55,7 +56,12 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
 
         // preserve aspect is different per category
         if (data.category == ItemType.Food)
-            itemIcon.preserveAspect = false;
+        {
+            if (itemIcon.sprite.texture.Size().x > itemIcon.sprite.texture.Size().y)
+                itemIcon.preserveAspect = false;
+            else
+                itemIcon.preserveAspect = true;
+        }
         else if (data.category == ItemType.Medicine)
             itemIcon.preserveAspect = true;
 
