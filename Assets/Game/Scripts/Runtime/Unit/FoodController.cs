@@ -35,6 +35,11 @@ public class FoodController : MonoBehaviour, IPointerDownHandler, IDragHandler, 
         gravityForce = Physics2D.gravity.y * gravityScale;
     }
 
+    private void OnEnable()
+    {
+        transform.localScale = Vector3.one;
+    }
+
     public void Initialize(ItemDataSO data, RectTransform groundRect = null)
     {
         itemData = data;

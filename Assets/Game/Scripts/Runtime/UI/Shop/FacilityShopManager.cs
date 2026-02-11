@@ -252,7 +252,6 @@ public class FacilityShopManager : MonoBehaviour
                 RefreshFacilityCards();
                 OnFacilitySelected(card);
 
-                Debug.LogWarning("Use Pumpkin Facility");
                 return;
             }
 
