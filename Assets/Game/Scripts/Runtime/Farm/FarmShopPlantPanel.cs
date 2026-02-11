@@ -179,6 +179,8 @@ public class FarmShopPlantPanel : FarmShopPanelBase
         MagicalGarden.Inventory.ItemData dataSO = itemCard.itemDataSO;
         if (dataSO.IsEligible())
         {
+            MonsterManager.instance.audio.PlaySFX("buy");
+
             playerConfig.AddItemFarm(dataSO.itemId, 1);
             CoinManager.SpendCoins(dataSO.price);
             SaveSystem.SaveAll();
