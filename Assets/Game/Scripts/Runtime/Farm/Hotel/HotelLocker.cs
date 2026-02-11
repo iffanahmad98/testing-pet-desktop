@@ -9,7 +9,7 @@ public class HotelLocker : MonoBehaviour
  IPlayerHistory iPlayerHistory;
  PlayerConfig playerConfig;
  public event System.Action RefreshHotelController;
-
+    
  public void StartSystem () { // HotelManager.cs
     iPlayerHistory = PlayerHistoryManager.instance;
     playerConfig = SaveSystem.PlayerConfig;
@@ -62,6 +62,7 @@ public class HotelLocker : MonoBehaviour
         playerConfig.listIdHotelOpen.Add (hotelController.idHotel);
     }
     RefreshLock ();
+    RefreshHotelController?.Invoke ();
   }
 
   #region Event
