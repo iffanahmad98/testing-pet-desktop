@@ -25,6 +25,10 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
     [Tooltip("Sorting order tinggi supaya pointer selalu di depan tanpa perlu mengubah hierarki.")]
     [SerializeField] private int sortingOrderOnTop = 5000;
 
+    [Header("Debug World Target Offset")]
+    [Tooltip("Offset tambahan untuk worldTarget yang bisa diatur realtime di inspector (untuk debug/tuning).")]
+    [SerializeField] private Vector3 debugWorldOffset = Vector3.zero;
+
     private RectTransform _canvasRect;
     private RectTransform _target;
     private Transform _worldTarget;
@@ -40,6 +44,7 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
         {
             rootCanvas = GetComponentInParent<Canvas>();
         }
+
 
         if (rootCanvas != null)
         {
@@ -85,6 +90,11 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
 
         _worldTarget = null;
 
+        if (pointerRect != null)
+        {
+            pointerRect.gameObject.SetActive(true);
+        }
+
         if (_target == target && pointerRect != null && pointerRect.gameObject.activeSelf)
         {
             _offset = offset;
@@ -97,71 +107,125 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
         if (pointerRect == null || _canvasRect == null || rootCanvas == null)
             return;
 
-        pointerRect.gameObject.SetActive(true);
         _swayTime = 0f;
     }
 
     public void PointToWorld(Transform worldTarget, Vector3 worldOffset)
     {
+        Debug.Log("Hotel Tutorial : Pointoworld called" + (worldTarget != null ? worldTarget.name : "null"));
         if (worldTarget == null)
             return;
-
+        Debug.Log("Hotel Tutorial : Pointoworld execute");
         _target = null;
         _worldTarget = worldTarget;
         _worldOffset = worldOffset;
 
-        if (pointerRect == null || _canvasRect == null || rootCanvas == null)
-            return;
+        if (pointerRect != null)
+        {
+            pointerRect.gameObject.SetActive(true);
+            Debug.Log("Hotel Tutorial : Pointer activated");
+        }
 
-        pointerRect.gameObject.SetActive(true);
+        if (pointerRect == null || _canvasRect == null || rootCanvas == null)
+        {
+            Debug.LogWarning("[TutorialHandPointer] PointToWorld gagal: pointerRect atau canvas belum siap.");
+            return;
+        }
+        Debug.Log("Hotel Tutorial : Pointer and Canvas ready");
         _swayTime = 0f;
     }
 
     public void Hide()
     {
+        Debug.Log("Hotel Tutorial : Hide called");
         _target = null;
         _worldTarget = null;
         if (pointerRect != null)
         {
+            Debug.Log("Hotel Tutorial : Pointer deactivated");
             pointerRect.gameObject.SetActive(false);
         }
     }
 
     private void LateUpdate()
     {
-        if ((_target == null && _worldTarget == null) || pointerRect == null || _canvasRect == null || rootCanvas == null)
+        if ((_target == null && _worldTarget == null) ||
+            pointerRect == null ||
+            _canvasRect == null ||
+            rootCanvas == null)
             return;
 
-        var cam = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay
-            ? null
-            : rootCanvas.worldCamera;
+        Vector2 localPoint;
 
-        Vector3 worldPos;
+        // =============================
+        // UI TARGET (RectTransform)
+        // =============================
         if (_target != null)
         {
-            worldPos = _target.position;
+            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, _target.position);
+
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _canvasRect,
+                    screenPos,
+                    null,
+                    out localPoint))
+                return;
+        }
+        // =============================
+        // WORLD TARGET (Transform)
+        // =============================
+        else if (_worldTarget != null)
+        {
+            Camera worldCam = Camera.main;
+
+            if (worldCam == null)
+                return;
+
+
+            Vector3 worldPos = _worldTarget.position + _worldOffset + debugWorldOffset;
+            Vector3 screenPos3D = worldCam.WorldToScreenPoint(worldPos);
+
+            if (screenPos3D.z < 0)
+            {
+                pointerRect.gameObject.SetActive(false);
+                return;
+            }
+
+            Vector2 screenPos = screenPos3D;
+
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _canvasRect,
+                    screenPos,
+                    null,
+                    out localPoint))
+                return;
         }
         else
         {
-            worldPos = _worldTarget.position + _worldOffset;
+            return;
         }
 
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(cam, worldPos);
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, screenPos, cam, out var localPoint))
+        // =============================
+        // SWAY ANIMATION
+        // =============================
+        _swayTime += Time.deltaTime;
+
+        float baseDir = -1f;
+        if (Mathf.Abs(_offset.x) > 0.01f)
         {
-            _swayTime += Time.deltaTime;
-
-            float baseDir = -1f;
-            if (Mathf.Abs(_offset.x) > 0.01f)
-            {
-                baseDir = -Mathf.Sign(_offset.x);
-            }
-
-            float sway = Mathf.Sin(_swayTime * swaySpeed) * swayAmplitude;
-            Vector2 swayOffset = new Vector2(sway * baseDir, 0f);
-
-            Vector2 desired = localPoint + _offset + swayOffset;
-            pointerRect.anchoredPosition = Vector2.SmoothDamp(pointerRect.anchoredPosition, desired, ref _velocity, followSmoothTime);
+            baseDir = -Mathf.Sign(_offset.x);
         }
+
+        float sway = Mathf.Sin(_swayTime * swaySpeed) * swayAmplitude;
+        Vector2 swayOffset = new Vector2(sway * baseDir, 0f);
+
+        Vector2 desired = localPoint + _offset + swayOffset;
+
+        pointerRect.anchoredPosition = Vector2.SmoothDamp(
+            pointerRect.anchoredPosition,
+            desired,
+            ref _velocity,
+            followSmoothTime);
     }
+
 }

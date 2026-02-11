@@ -110,6 +110,7 @@ public partial class TutorialManager
             if (!ShouldRunPlainTutorialOnStart())
             {
                 gameObject.SetActive(false);
+                Destroy(gameObject);
                 yield break;
             }
 
@@ -126,8 +127,12 @@ public partial class TutorialManager
             if (!ShouldRunHotelTutorialOnStart())
             {
                 gameObject.SetActive(false);
+                Destroy(gameObject);
                 yield break;
             }
+
+            // Lock camera untuk hotel tutorial
+            LockCameraForTutorial();
 
             DisableUIManagerButtonsForTutorial();
             StartHotelTutorialSequence();

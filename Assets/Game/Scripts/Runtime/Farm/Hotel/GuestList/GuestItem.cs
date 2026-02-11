@@ -24,6 +24,9 @@ namespace MagicalGarden.Hotel
         public GameObject confirmBtn;
         public GameObject declineBtn;
 
+        public string GuestType => guest?.type;
+        public string GuestName => guest?.guestName;
+
         public void Setup(GuestRequest guest)
         {
             this.guest = guest;
@@ -47,8 +50,8 @@ namespace MagicalGarden.Hotel
 
             declineBtn.GetComponent<Button>().onClick.AddListener(() =>
             {
-                HandleGuestDecline ();
-               // Destroy(gameObject);
+                HandleGuestDecline();
+                // Destroy(gameObject);
             });
             if (guest.IsVIPGuest())
             {
@@ -56,7 +59,8 @@ namespace MagicalGarden.Hotel
                 confirmBtn.SetActive(true);
                 vipObject.SetActive(true);
                 regObject.SetActive(false);
-            }else
+            }
+            else
             {
                 checkInBtn.SetActive(true);
                 confirmBtn.SetActive(false);
@@ -68,7 +72,8 @@ namespace MagicalGarden.Hotel
 
         private void HandleGuestCheckIn()
         {
-            if (HotelManager.Instance.IsCanAssign ()) {
+            if (HotelManager.Instance.IsCanAssign())
+            {
                 // Confirm guest is at index 15
                 MonsterManager.instance.audio.PlayFarmSFX(15);
                 HotelManager.Instance.AssignGuestToAvailableRoom(guest);
@@ -76,11 +81,12 @@ namespace MagicalGarden.Hotel
             }
         }
 
-        private void HandleGuestDecline () {
+        private void HandleGuestDecline()
+        {
             // Decline guest ias at index 16
             MonsterManager.instance.audio.PlayFarmSFX(16);
-             HotelManager.Instance.DeclineGuest(guest);
-            Destroy (gameObject);
+            HotelManager.Instance.DeclineGuest(guest);
+            Destroy(gameObject);
         }
     }
 }

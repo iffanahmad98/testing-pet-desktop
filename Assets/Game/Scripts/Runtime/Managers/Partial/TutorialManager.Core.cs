@@ -1,4 +1,3 @@
-// Core fields, enums, and shared logic
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +12,9 @@ public partial class TutorialManager
     private enum TutorialMode { Plain, Hotel }
 
     [SerializeField] private GameObject Hotel;
+
+    [Header("Camera Control")]
+    [SerializeField] private MagicalGarden.Farm.CameraDragMove cameraController;
 
     [Header("Plain Tutorial Panels")]
     [SerializeField] private List<PlainTutorialPanelStep> plainTutorials = new List<PlainTutorialPanelStep>();
@@ -38,6 +40,7 @@ public partial class TutorialManager
 
     public Button[] _uiButtonsCache;
     private bool[] _uiButtonsInteractableCache;
+    private bool[] _uiButtonsActiveCache;
 
     [Header("Tutorial Monster")]
     [SerializeField] private MonsterDataSO briabitTutorialData;
@@ -184,6 +187,8 @@ public partial class TutorialManager
             config.hotelTutorial = true;
             SaveSystem.SaveAll();
         }
+
+        UnlockCameraAfterTutorial();
     }
 
     private bool IsPlainTutorialSkipped()
@@ -538,4 +543,43 @@ public partial class TutorialManager
         _plainNextDelayRoutine = null;
         ShowNextPlainPanel();
     }
+
+    #region Camera Control Integration
+    private void LockCameraForTutorial()
+    {
+        if (cameraController != null)
+        {
+            cameraController.LockForTutorial();
+            Debug.Log("[TutorialManager] Camera locked for hotel tutorial");
+        }
+        else
+        {
+            // Fallback: find camera controller in scene
+            cameraController = FindObjectOfType<MagicalGarden.Farm.CameraDragMove>();
+            if (cameraController != null)
+            {
+                cameraController.LockForTutorial();
+                Debug.Log("[TutorialManager] Camera locked for hotel tutorial (via FindObjectOfType)");
+            }
+            else
+            {
+                Debug.LogWarning("[TutorialManager] CameraDragMove not found, cannot lock camera");
+            }
+        }
+    }
+
+    private void UnlockCameraAfterTutorial()
+    {
+        if (cameraController != null)
+        {
+            cameraController.UnlockAfterTutorial();
+            Debug.Log("[TutorialManager] Camera unlocked after hotel tutorial");
+        }
+        else
+        {
+            Debug.LogWarning("[TutorialManager] CameraDragMove reference is null, cannot unlock camera");
+        }
+    }
+
+    #endregion
 }

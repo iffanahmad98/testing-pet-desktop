@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21602a64789f7e84d8feada91fe75df7, type: 3}
-  m_Name: HandPointerTutorialSequence Sample
+  m_Script: {fileID: 11500000, guid: c664816a13a867d498dd0dac59194c2c, type: 3}
+  m_Name: Step 5
   m_EditorClassIdentifier: 
-  steps:
-  - uiButtonIndex: 0
-    ButtonKey: 
-    pointerOffset: {x: 0, y: 0}
+  usePointer: 0
+  useNextButtonAsPointerTarget: 0
+  pointerOffset: {x: 0, y: 0}
+  nextButtonName: NextButtonHotel
+  handPointerSequence: {fileID: 0}

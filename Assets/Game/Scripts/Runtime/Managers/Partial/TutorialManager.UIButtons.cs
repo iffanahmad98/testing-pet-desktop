@@ -20,9 +20,11 @@ public partial class TutorialManager
             return;
 
         var previousInteractables = _uiButtonsInteractableCache;
+        var previousActives = _uiButtonsActiveCache;
 
         _uiButtonsCache = null;
         _uiButtonsInteractableCache = null;
+        _uiButtonsActiveCache = null;
         _hasLoggedUIButtonCache = false;
 
         CacheUIButtonsFromUIManager();
@@ -45,6 +47,25 @@ public partial class TutorialManager
             _uiButtonsInteractableCache = merged;
         }
 
+        if (previousActives != null && _uiButtonsCache != null)
+        {
+            var mergedActive = new bool[_uiButtonsCache.Length];
+            for (int i = 0; i < _uiButtonsCache.Length; i++)
+            {
+                if (i < previousActives.Length)
+                {
+                    mergedActive[i] = previousActives[i];
+                }
+                else
+                {
+                    var btn = _uiButtonsCache[i];
+                    mergedActive[i] = btn != null && btn.gameObject.activeSelf;
+                }
+            }
+
+            _uiButtonsActiveCache = mergedActive;
+        }
+
         Debug.Log("[TutorialManager] RebuildUIButtonCache dipanggil.");
     }
     private void CacheAllButtonsForHotelMode()
@@ -61,10 +82,12 @@ public partial class TutorialManager
         }
         _uiButtonsCache = list.ToArray();
         _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
+        _uiButtonsActiveCache = new bool[_uiButtonsCache.Length];
         for (int i = 0; i < _uiButtonsCache.Length; i++)
         {
             var btn = _uiButtonsCache[i];
             _uiButtonsInteractableCache[i] = btn != null && btn.interactable;
+            _uiButtonsActiveCache[i] = btn != null && btn.gameObject.activeSelf;
         }
         Debug.Log($"[TutorialManager] CacheAllButtonsForHotelMode: {_uiButtonsCache.Length} button(s) cached for hotel mode.");
     }
@@ -132,10 +155,12 @@ public partial class TutorialManager
         _uiButtonsCache = list.ToArray();
         Debug.Log($"[PlainTutorial] UIButtonCache BUILT: {_uiButtonsCache.Length} button(s)");
         _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
+        _uiButtonsActiveCache = new bool[_uiButtonsCache.Length];
         for (int i = 0; i < _uiButtonsCache.Length; i++)
         {
             var btn = _uiButtonsCache[i];
             _uiButtonsInteractableCache[i] = btn != null && btn.interactable;
+            _uiButtonsActiveCache[i] = btn != null && btn.gameObject.activeSelf;
         }
 
         LogUIButtonCacheOnce();
@@ -247,6 +272,12 @@ public partial class TutorialManager
             if (btn != null)
             {
                 btn.interactable = _uiButtonsInteractableCache[i];
+
+                // Restore active state juga
+                if (_uiButtonsActiveCache != null && i < _uiButtonsActiveCache.Length)
+                {
+                    btn.gameObject.SetActive(_uiButtonsActiveCache[i]);
+                }
             }
         }
 
@@ -257,6 +288,7 @@ public partial class TutorialManager
 
         _uiButtonsCache = null;
         _uiButtonsInteractableCache = null;
+        _uiButtonsActiveCache = null;
     }
 
     private bool IsTutorialControlButton(Button btn)

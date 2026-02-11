@@ -23,12 +23,20 @@ public partial class TutorialManager
             return;
         }
 
+        Button previousNextButton = null;
         if (_hotelPanelIndex < hotelTutorials.Count)
         {
             var currentStep = hotelTutorials[_hotelPanelIndex];
             var currentConfig = currentStep != null ? currentStep.config : null;
             if (currentStep != null && currentStep.panelRoot != null)
                 currentStep.panelRoot.SetActive(false);
+
+            if (currentConfig != null &&
+                !currentConfig.useClickableObjectAsNext &&
+                !string.IsNullOrEmpty(currentConfig.nextButtonName))
+            {
+                previousNextButton = GetHotelStepNextButton(currentStep);
+            }
         }
 
         if (_currentHotelClickableNextTarget != null)
@@ -51,6 +59,27 @@ public partial class TutorialManager
 
         var nextStep = hotelTutorials[_hotelPanelIndex];
         var nextConfig = nextStep != null ? nextStep.config : null;
+
+        Button nextStepButton = null;
+        if (nextConfig != null &&
+            !nextConfig.useClickableObjectAsNext &&
+            !string.IsNullOrEmpty(nextConfig.nextButtonName))
+        {
+            nextStepButton = GetHotelStepNextButton(nextStep);
+        }
+
+        if (previousNextButton != null)
+        {
+            previousNextButton.interactable = false;
+            previousNextButton.gameObject.SetActive(false);
+        }
+
+        if (nextStepButton != null)
+        {
+            nextStepButton.gameObject.SetActive(true);
+            nextStepButton.interactable = true;
+        }
+
         if (nextStep != null && nextStep.panelRoot != null && nextConfig != null)
         {
             Debug.Log($"[HotelTutorial] Showing NEXT panel | index={_hotelPanelIndex} | panel={nextStep.panelRoot.name} | handPointer={(nextConfig.handPointerSequence != null)}");
@@ -116,7 +145,10 @@ public partial class TutorialManager
     {
         var pointer = ServiceLocator.Get<ITutorialPointer>();
         if (pointer == null)
+        {
+            Debug.LogWarning("[HotelTutorial] UpdatePointerForHotelStep: ITutorialPointer tidak ditemukan di ServiceLocator.");
             return;
+        }
         var config = step != null ? step.config : null;
 
         bool wantsPointer = config != null && config.usePointer;
@@ -132,8 +164,13 @@ public partial class TutorialManager
             if (clickable != null)
             {
                 var t = clickable.transform;
+                Debug.Log($"[HotelTutorial] UpdatePointerForHotelStep: PointToWorld ke ClickableObject '{clickable.gameObject.name}' dengan id='{config.clickableObjectId}'");
                 pointer.PointToWorld(t, config.pointerOffset);
                 return;
+            }
+            else
+            {
+                Debug.LogWarning($"[HotelTutorial] UpdatePointerForHotelStep: ClickableObject dengan id='{config.clickableObjectId}' tidak ditemukan untuk pointer.");
             }
         }
 
@@ -159,14 +196,21 @@ public partial class TutorialManager
         if (config == null)
             return null;
 
-        if (string.IsNullOrEmpty(config.clickableObjectId))
+        return ResolveHotelClickableObjectById(config.clickableObjectId);
+    }
+
+    private ClickableObject ResolveHotelClickableObjectById(string clickableObjectId)
+    {
+        Debug.Log($"[HotelTutorial] Resolving ClickableObject for id '{clickableObjectId}'");
+        if (string.IsNullOrEmpty(clickableObjectId))
             return null;
 
+        Debug.Log($"[HotelTutorial] Resolving ClickableObject: searching all ClickableObjects in scene for id '{clickableObjectId}'");
         var all = Object.FindObjectsOfType<ClickableObject>(true);
         for (int i = 0; i < all.Length; i++)
         {
             var c = all[i];
-            if (c != null && string.Equals(c.tutorialId, config.clickableObjectId, System.StringComparison.Ordinal))
+            if (c != null && string.Equals(c.tutorialId, clickableObjectId, System.StringComparison.Ordinal))
                 return c;
         }
 
