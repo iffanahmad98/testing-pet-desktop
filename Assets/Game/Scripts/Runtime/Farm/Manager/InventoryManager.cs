@@ -240,6 +240,11 @@ namespace MagicalGarden.Inventory
             playerConfig.RemoveItemFarm (itemData.itemId, 1, true);
         }
 
+        public int HasAssistant (ItemData itemData) {
+            Debug.Log ("Fertilizer " + itemData.itemId);
+            return playerConfig.GetItemFarmAmount (itemData.itemId);
+        }
+
         public void AddAssistant (ItemData itemData) {// PlantManager.cs (kalau add langsung dari situ dia error sendiri.)
             Debug.Log ("Add Assistant : " + itemData.name + itemData.harvestConfig.itemDataSO.ItemId);
             ItemDataSO itemDataSO = itemData.harvestConfig.itemDataSO;
