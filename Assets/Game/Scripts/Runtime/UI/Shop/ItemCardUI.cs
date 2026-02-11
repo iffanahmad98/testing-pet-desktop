@@ -57,7 +57,8 @@ public class ItemCardUI : MonoBehaviour, IPointerClickHandler, IPointerExitHandl
         // preserve aspect is different per category
         if (data.category == ItemType.Food)
         {
-            if (itemIcon.sprite.texture.Size().x > itemIcon.sprite.texture.Size().y)
+            Debug.Log($"{itemNameText.text} width and height: {itemIcon.sprite.texture.width} & {itemIcon.sprite.texture.height}");
+            if (itemIcon.sprite.texture.width > itemIcon.sprite.texture.height)
                 itemIcon.preserveAspect = false;
             else
                 itemIcon.preserveAspect = true;
