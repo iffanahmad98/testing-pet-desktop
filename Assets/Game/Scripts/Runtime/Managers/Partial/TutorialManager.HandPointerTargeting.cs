@@ -139,21 +139,16 @@ public partial class TutorialManager
         protected void SetupButtonTarget(Button button, RectTransform rect, System.Action onClickCallback)
         {
             Debug.Log($"[SetupButtonTarget] Setting up button target - button='{button.name}', rect='{rect.name}'");
-            // Generic case: tutorial fully owns the button behaviour
             button.gameObject.SetActive(true);
             button.interactable = true;
 
-            if (Context.CurrentButton != null && Context.CurrentButton == button)
+            if (Context.CurrentButton != null)
             {
                 Context.CurrentButton.onClick.RemoveListener(Manager.OnHandPointerTargetClicked);
             }
 
             Context.CurrentButton = button;
-
-            // Disable components that might interfere with button clicks
             DisableClickInterference(button);
-
-            // Setup button listeners with enhanced protection (clear existing)
             ConfigureButtonListeners(button);
 
             Context.CurrentRect = rect;
@@ -237,13 +232,18 @@ public partial class TutorialManager
 
         private void ConfigureButtonListeners(Button button)
         {
+            if (Manager._currentMode == TutorialMode.Plain)
+            {
+                var tutorialListenerPlain = new UnityEngine.Events.UnityAction(Manager.OnHandPointerTargetClicked);
+                button.onClick.AddListener(tutorialListenerPlain);
+                return;
+            }
+
             button.onClick.RemoveAllListeners();
 
-            // Add tutorial listener
             var tutorialListener = new UnityEngine.Events.UnityAction(Manager.OnHandPointerTargetClicked);
             button.onClick.AddListener(tutorialListener);
 
-            // Add to enhanced protection system with automatic restoration
             TutorialManager.AddProtectedButton(button, Manager.OnHandPointerTargetClicked);
         }
 

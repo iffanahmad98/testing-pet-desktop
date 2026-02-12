@@ -77,7 +77,6 @@ public partial class TutorialManager
         if (!_protectedButtons.ContainsKey(button))
         {
             _protectedButtons[button] = new TutorialButtonProtection(button, tutorialListener);
-            _protectedButtons[button].StartMonitoring();
         }
     }
 
@@ -483,9 +482,6 @@ public partial class TutorialManager
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         if (monsterManager == null)
             return;
-
-        // If there is already an active monster, just use it as the
-        // tutorial target instead of spawning a new one.
         if (monsterManager.activeMonsters != null && monsterManager.activeMonsters.Count > 0)
         {
             var existing = monsterManager.activeMonsters[0];
@@ -498,8 +494,6 @@ public partial class TutorialManager
             return;
         }
 
-        // Avoid spawning an extra tutorial monster if the player already owns
-        // any monsters in their save data (prevents duplicate monsters on load).
         var config = SaveSystem.PlayerConfig;
         bool hasOwnedMonsters = config != null && config.ownedMonsters != null && config.ownedMonsters.Count > 0;
         if (hasOwnedMonsters)
