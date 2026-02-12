@@ -27,35 +27,45 @@ public static class SaveSystem
 
     public static void Initialize()
     {
-        LoadPlayerConfig();
-        LoadUiConfig();
-        _sessionStartTime = DateTime.Now;
+            LoadPlayerConfig();
+            LoadUiConfig();
+            _sessionStartTime = DateTime.Now;
 
-        Debug.Log($"Last login time: {_playerConfig.lastLoginTime}");
-        // Handle first-time login
-        if (_playerConfig.lastLoginTime == default)
-        {
-            _playerConfig.lastLoginTime = DateTime.Now;
-        }
+            Debug.Log($"Last login time: {_playerConfig.lastLoginTime}");
+            // Handle first-time login
+            if (_playerConfig.lastLoginTime == default)
+            {
+                _playerConfig.lastLoginTime = DateTime.Now;
+            }
 
-        // Check for time cheating
-        CheckTimeDiscrepancy();
+            // Check for time cheating
+            CheckTimeDiscrepancy();
 
-        IsLoadFinished = true;
+            IsLoadFinished = true;
 
-        Debug.Log("IsFinished Load Save Data");
+            Debug.Log("IsFinished Load Save Data");
     }
 
     // Save all data when application pauses/quits
     public static void SaveAll()
     {
+        if (!DemoCanvas.Instance.IsDemo ()) {
         UpdatePlayTime();
         SavePlayerConfig();
         SaveUiConfig();
+        } else {
+            if (!DemoCanvas.Instance.onClearing) {
+                UpdatePlayTime();
+                SavePlayerConfig();
+                SaveUiConfig();
+            }
+        }
     }
+
 
     public static void SaveMon(MonsterSaveData data)
     {
+        if (isReset) {return;}
         if (data == null || string.IsNullOrEmpty(data.monsterId))
         {
             Debug.LogWarning("Tried to save null or invalid monster data.");
@@ -137,9 +147,10 @@ public static class SaveSystem
 
 
     public static void Flush() => PlayerPrefs.Save();
-
+    public static bool isReset = false;
     public static void ResetSaveData()
     {
+        isReset = true;
         CoinManager.Coins = 10000;
         SavePoop(0);
         _playerConfig.ClearAllMonsterData();
@@ -245,8 +256,8 @@ public static class SaveSystem
     #endregion
 
     #region File Operations
-    private static void LoadPlayerConfig()
-    {
+    public static void LoadPlayerConfig()
+    { // DemoCanvas.cs
         string path = Path.Combine(Application.persistentDataPath, SaveFileName);
 
         // Jika file tidak ada → buat baru
@@ -286,8 +297,8 @@ public static class SaveSystem
     }
 
 
-    private static void LoadUiConfig()
-    {
+    public static void LoadUiConfig()
+    { // DemoCanvas.cs
         string path = Path.Combine(Application.persistentDataPath, UiDataSaveFileName);
 
         // 1. Jika file tidak ada → buat data baru
@@ -412,8 +423,8 @@ public static class SaveSystem
 
 
 
-    private static void CreateNewPlayerConfig()
-    {
+    public static void CreateNewPlayerConfig()
+    { // this, DemoCanvas.cs
         _playerConfig = new PlayerConfig();
         _playerConfig.lastLoginTime = DateTime.Now;
         _playerConfig.gameAreas.Add(new GameAreaData

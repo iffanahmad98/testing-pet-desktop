@@ -80,6 +80,11 @@ public class PlayerConfig
         }
     }
 
+    public void ResetFirstLoginTime () { // DemoCanvas.cs
+        firstLoginTime = MagicalGarden.Manager.TimeManager.Instance.realCurrentTime;
+        SaveSystem.SaveAll ();
+    }
+
     public DateTime LoadFirstLoginTime () { // DemoCanvas.cs
         return firstLoginTime;
     }
