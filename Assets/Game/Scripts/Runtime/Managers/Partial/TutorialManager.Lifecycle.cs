@@ -236,8 +236,6 @@ public partial class TutorialManager
         HideRightClickMouseHint();
         HidePointerIfAny();
         RestoreUIManagerButtonsInteractable();
-
-        Destroy(gameObject);
     }
 
     public void SkipHotelTutorial()

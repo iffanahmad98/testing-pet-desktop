@@ -38,9 +38,11 @@ public partial class TutorialManager
     [Header("Global UI References")]
     [SerializeField] private Button skipTutorialButton;
 
-    public Button[] _uiButtonsCache;
+    private Button[] _uiButtonsCache;
     private bool[] _uiButtonsInteractableCache;
     private bool[] _uiButtonsActiveCache;
+
+    public GameObject[] gotohotel;
 
     [Header("Tutorial Monster")]
     [SerializeField] private MonsterDataSO briabitTutorialData;
@@ -262,6 +264,12 @@ public partial class TutorialManager
         {
             config.plaintutorial = true;
             SaveSystem.SaveAll();
+        }
+        Destroy(gameObject);
+        foreach (GameObject item in gotohotel)
+        {
+            if (item != null)
+                item.SetActive(true);
         }
     }
 
