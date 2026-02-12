@@ -482,6 +482,24 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
+    public void SnapFoodToGroundIfMinHeight()
+    {
+        if (!IsGameAreaAtMinHeight() || gameManager?.activeFoods == null) return;
+
+        foreach (var food in gameManager.activeFoods)
+        {
+            if (food == null) continue;
+
+            var rectTransform = food.GetComponent<RectTransform>();
+            if (rectTransform == null) continue;
+
+            rectTransform.anchoredPosition = new Vector2(
+                rectTransform.anchoredPosition.x,
+                GetPoopFloorY(rectTransform)
+            );
+        }
+    }
+
     private bool IsGameAreaAtMinHeight()
     {
         return gameArea != null && gameArea.sizeDelta.y <= MIN_SIZE + 0.01f;
@@ -875,7 +893,7 @@ public class SettingsManager : MonoBehaviour
         #endregion
     }
 
-    private void RepositionFoodsAfterScaling()
+    public void RepositionFoodsAfterScaling()
     {
         if (gameManager?.activeFoods == null) return;
 
@@ -1040,7 +1058,7 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
-    private void RepositionPoopsAfterScaling()
+    public void RepositionPoopsAfterScaling()
     {
         if (gameManager?.activePoops == null) return;
 
@@ -1162,7 +1180,7 @@ public class SettingsManager : MonoBehaviour
 
         // Reposition poop after reverting all changes
         RepositionPoopsAfterScaling();
-
+        RepositionFoodsAfterScaling();
         foreach (var module in savableSettingsModules)
             module.RevertSettings();
 
