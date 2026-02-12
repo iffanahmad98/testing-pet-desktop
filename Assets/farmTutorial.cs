@@ -15,6 +15,9 @@ public enum MenuBtn { None,
     PlantShopButton,
     MonsterShopButton,
     BuySeedButton,
+    FertilizerTab,
+    SeedTab,
+    HarvestTab,
     All }
 
 public class FarmTutorial : MonoBehaviour
@@ -52,6 +55,9 @@ public class FarmTutorial : MonoBehaviour
         _btn[MenuBtn.Setting] = holder.Find("Btn_Setting")?.GetComponent<Button>();
         _btn[MenuBtn.PlantShopButton] = FindButtonIncludeInactive("plantShopButton");
         _btn[MenuBtn.MonsterShopButton] = FindButtonIncludeInactive("monsterShopButton");
+        _btn[MenuBtn.FertilizerTab] = FindButtonIncludeInactive("ButtonFertilizer");
+        _btn[MenuBtn.SeedTab] = FindButtonIncludeInactive("ButtonSeed");
+        _btn[MenuBtn.HarvestTab] = FindButtonIncludeInactive("ButtonHarvest");
 
         LockAll();
         ExecuteTutorialAtStep();
@@ -66,9 +72,9 @@ public class FarmTutorial : MonoBehaviour
     private void ExecuteTutorialAtStep(int step = 0)
     {
         // step is an index number
-        if (stepData.Length < tutorialStepIndex)
+        if (tutorialStepIndex >= stepData.Length)
         {
-            Debug.LogWarning("Step is bigger than the stepData array");
+            Debug.LogError("Step is bigger than the stepData array");
             return;
         }
 
@@ -109,6 +115,16 @@ public class FarmTutorial : MonoBehaviour
         HookTutorialAdvance(_btn[currentStep.enabledButton]);
         if (currentStep.enabledButton == MenuBtn.All) UnlockAll();
 
+        CheckBuySeed(currentStep);
+
+        if (currentStep.isSelectSeed)
+        {
+            UnhookTutorialAdvance();
+        }
+    }
+
+    private void CheckBuySeed(FarmTutorialStepData currentStep)
+    {
         if (currentStep.isBuySeeds)
         {
             UnhookTutorialAdvance();
@@ -167,6 +183,7 @@ public class FarmTutorial : MonoBehaviour
 
     public void EnableOnly(MenuBtn which)
     {
+        Debug.Log($"Enable only {which}");
         foreach (var kv in _btn)
             if (kv.Value) kv.Value.interactable = (kv.Key == which);
     }
@@ -185,14 +202,13 @@ public class FarmTutorial : MonoBehaviour
 
     public void CountSeedBought()
     {
-        if (!stepData[tutorialStepIndex].isBuySeeds) return;
+        // if (!stepData[tutorialStepIndex].isBuySeeds) return;
 
         _totalSeedBought += 1;
         if (_totalSeedBought == stepData[tutorialStepIndex].seedBuyRequirement - 1)
         {
             // buat tombol ini jadi HookTutorialAdvance supaya bisa lanjut tutorial kalau klik sekali lagi
             HookTutorialAdvance(_btn[MenuBtn.BuySeedButton]);
-            // HookTutorialAdvance(GetBuyButton(stepData[tutorialStepIndex].seedName));
         }
 
         if (stepData[tutorialStepIndex].seedBuyRequirement == 1)
@@ -217,6 +233,12 @@ public class FarmTutorial : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void SelectSeedToSow()
+    {
+        // Pemain klik tombol seed, lanjut ke langkah berikutnya
+        OnNextButtonClicked();
     }
 
     public void RegisterBuyButton(string itemId, Button btn)

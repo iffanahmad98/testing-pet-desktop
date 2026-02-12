@@ -266,10 +266,42 @@ public class MonsterVisualHandler
 
        //  Debug.Log ("Poop rectTransform.position Y : " + poopRect.anchoredPosition);
       // memberi batas maximum Poop ke -70
-        if (poopRect.anchoredPosition.y > (-70 - 12)) { // -12 merupakan offset dari poop.
-            poopRect.anchoredPosition = new Vector2 (poopRect.anchoredPosition.x, -70f);
-          //  this.RectTransform.anchoredPosition = new Vector2 (this.rectTransform.anchoredPosition.x, -120f);
+        if (poopRect != null)
+        {
+            var settingsManager = ServiceLocator.Get<SettingsManager>();
+            var monsterManager = ServiceLocator.Get<MonsterManager>();
+            float minHeight = settingsManager != null ? settingsManager.GetMinGameAreaHeight() : 0f;
+
+            if (monsterManager != null && monsterManager.gameAreaRT != null &&
+                monsterManager.gameAreaRT.sizeDelta.y <= minHeight + 0.01f)
+            {
+                float floorY = GetPoopFloorY(poopRect);
+                if (poopRect.anchoredPosition.y > floorY)
+                {
+                    poopRect.anchoredPosition = new Vector2(poopRect.anchoredPosition.x, floorY);
+                }
+            }
+            else if (poopRect.anchoredPosition.y > (-70 - 12)) // -12 merupakan offset dari poop.
+            {
+                poopRect.anchoredPosition = new Vector2(poopRect.anchoredPosition.x, -70f);
+              //  this.RectTransform.anchoredPosition = new Vector2 (this.rectTransform.anchoredPosition.x, -120f);
+            }
         }
+    }
+
+    private float GetPoopFloorY(RectTransform poopRect)
+    {
+        var monsterManager = ServiceLocator.Get<MonsterManager>();
+        if (monsterManager == null || monsterManager.gameAreaRT == null || poopRect == null)
+        {
+            return poopRect != null ? poopRect.anchoredPosition.y : 0f;
+        }
+
+        Vector2 size = monsterManager.gameAreaRT.sizeDelta;
+        float poopHalfHeight = poopRect.rect.height / 2f;
+        const float PADDING = 10f;
+
+        return -size.y / 2f + poopHalfHeight + PADDING;
     }
 
     private Vector2 CalculateSafeSlideDirection(Vector2 startPosition)

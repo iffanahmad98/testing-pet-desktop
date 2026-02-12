@@ -15,6 +15,7 @@ namespace MagicalGarden.AI
         int finishEventValue;
         public Action rewardEvent;
         string codeEvent = "";
+        bool enableEvent = false;
         protected override IEnumerator HandleState(string stateName)
         {
             switch (stateName)
@@ -35,6 +36,14 @@ namespace MagicalGarden.AI
             base.Start();
             stateLoopCoroutine = StartCoroutine(StateLoop());
             HotelManager.Instance.AddNPCHotelAvailable (this);
+        }
+
+        void OnEnable () {
+            if (enableEvent) {
+            enableEvent = false;
+            stateLoopCoroutine = StartCoroutine(StateLoop());
+            }
+
         }
 
         public void AddFinishEventHappiness(Action<int> callback, int value)
@@ -231,13 +240,18 @@ namespace MagicalGarden.AI
             return path;
         }
         
-        #region StopMovement
-        // 
+         #region BackToPlains
+
         public void StopMovement () {
-            SetAnimation("idle");
+           // SetAnimation("idle");
+            enableEvent =true;
+           // SetAnimation("idle");
             isOverridingState = false;
             GetComponent<MeshRenderer>().enabled = true;
             stateLoopCoroutine = StartCoroutine(StateLoop());
+            if (stateLoopCoroutine != null) StopCoroutine(stateLoopCoroutine);
+            // StartNewCoroutine(StateLoop());
+            
 
             HotelManager.Instance.AddNPCHotelAvailable (this);
         }

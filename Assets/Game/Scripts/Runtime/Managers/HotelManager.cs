@@ -53,7 +53,7 @@ namespace MagicalGarden.Manager
         [Header("Management")]
         public List<HotelController> listHotelControllerHasRequest = new List<HotelController>();
         public List<HotelController> listHotelControllerHasReward = new List<HotelController>();
-
+        public event Action HotelEventClaimCoin;
         [Tooltip("NPC Service")]
         public List<NPCService> listNPCService = new List<NPCService>();
 
@@ -61,6 +61,7 @@ namespace MagicalGarden.Manager
         PlayerConfig playerConfig;
         bool firstTimeCheckGenerateQuest = false;
         bool firstTimeRefresh = false;
+
         private void Awake()
         {
             if (Instance == null)
@@ -642,6 +643,8 @@ namespace MagicalGarden.Manager
             {
                 RefreshAllMovementRoboShroom(hotelController); // mencegahBug (stuck isServing)
             }
+
+            HotelEventClaimCoin?.Invoke ();
         }
 
         public bool IsHasHotelReward()
@@ -776,6 +779,19 @@ namespace MagicalGarden.Manager
             foreach (HotelController hotel in hotelControllers)
             {
                 if (hotel.IsOccupied)
+                {
+                    total++;
+                }
+            }
+            return total;
+        }
+
+        public int GetTotalHotelControllerOccupiedAndHoldReward()
+        { // HotelMainUI.cs
+            int total = 0;
+            foreach (HotelController hotel in hotelControllers)
+            {
+                if (hotel.IsOccupied || hotel.holdReward)
                 {
                     total++;
                 }
@@ -947,7 +963,10 @@ namespace MagicalGarden.Manager
         }
         #endregion
 
-
+        public void AddHotelEventClaimCoin (System.Action eventValue)
+        { // HotelMainUI.cs
+            HotelEventClaimCoin += eventValue;
+        }
     }
 
     [Serializable]

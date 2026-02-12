@@ -25,6 +25,11 @@ public class FacilityManager : MonoBehaviour
     private Dictionary<string, float> lastUsedTime = new Dictionary<string, float>();
     private Dictionary<string, Coroutine> activeCooldownCoroutines = new Dictionary<string, Coroutine>();
 
+    private DateTime endTimeForTimeKeeperNormal;
+    private Coroutine cooldownRoutine;
+    private DateTime endTimeForTimeKeeperPro;
+    private Coroutine cooldownRoutinePro;
+
     private void Awake()
     {
         ServiceLocator.Register(this);
@@ -37,6 +42,97 @@ public class FacilityManager : MonoBehaviour
     {
         // Initialize Pumpkin Facility state based on saved data
         InitializePumpkinFacilityState();
+
+        ServiceLocator.Get<MonsterManager>().pumpkinObjects.Add(timeKeeperNormalObject.transform);
+        ServiceLocator.Get<MonsterManager>().pumpkinObjects.Add(timeKeeperAdvanceObject.transform);
+
+        StartCoroutine(CheckTimeKeeperNormalStillCooldown());
+        StartCoroutine(CheckTimeKeeperProStillCooldown());
+    }
+
+    private IEnumerator CheckTimeKeeperProStillCooldown()
+    {
+        yield return new WaitForSeconds(0.2f);
+        endTimeForTimeKeeperPro = SaveSystem.GetEndTimeKeeperPro();
+        if (endTimeForTimeKeeperPro > DateTime.Now)
+        {
+            // Time keeper pro is still cooldown.
+
+            SaveSystem.SetTimeKeeperProStillCooldown(true);
+            if (timeKeeperAdvanceObject != null)
+            {
+                // show the time keeper pro object
+                timeKeeperAdvanceObject.SetActive(true);
+            }
+
+            OnTimeKeeperStateChanged?.Invoke();
+            // mulai coroutine nunggu sampai cooldown selesai
+            if (cooldownRoutinePro != null) StopCoroutine(cooldownRoutinePro);
+            cooldownRoutinePro = StartCoroutine(CoWaitTimeKeeperProCooldown());
+        }
+    }
+
+    private IEnumerator CoWaitTimeKeeperProCooldown()
+    {
+        // Akan otomatis langsung selesai kalau app sempat ditutup/pause dan waktunya sudah lewat
+        yield return new WaitUntil(() => DateTime.Now >= endTimeForTimeKeeperPro);
+
+        cooldownRoutinePro = null;
+        ActivateTimeKeeperProAgain();
+    }
+
+    private void ActivateTimeKeeperProAgain()
+    {
+        if (timeKeeperAdvanceObject != null)
+        {
+            timeKeeperAdvanceObject.SetActive(false);
+        }
+
+        SaveSystem.SetTimeKeeperProStillCooldown(false);
+        OnTimeKeeperStateChanged?.Invoke(); // Notify state change
+    }
+
+    private IEnumerator CheckTimeKeeperNormalStillCooldown()
+    {
+        yield return new WaitForSeconds(0.2f);
+        endTimeForTimeKeeperNormal = SaveSystem.GetEndTimeKeeperNormal();
+        if (endTimeForTimeKeeperNormal > DateTime.Now)
+        {
+            // Time keeper normal is still on cooldown.
+
+            SaveSystem.SetTimeKeeperNormalStillCooldown(true);
+            if (timeKeeperNormalObject != null)
+            {
+                // show the time keeper normal object
+                timeKeeperNormalObject.SetActive(true);
+            }
+
+            OnTimeKeeperStateChanged?.Invoke(); // Notify state change
+            // mulai coroutine nunggu sampai cooldown selesai
+            if (cooldownRoutine != null) StopCoroutine(cooldownRoutine);
+            cooldownRoutine = StartCoroutine(CoWaitTimeKeeperNormalCooldown());
+        }
+    }
+
+    private IEnumerator CoWaitTimeKeeperNormalCooldown()
+    {
+        // Akan otomatis langsung selesai kalau app sempat ditutup/pause dan waktunya sudah lewat
+        yield return new WaitUntil(() => DateTime.Now >= endTimeForTimeKeeperNormal);
+
+        cooldownRoutine = null;
+        ActivateTimeKeeperNormalAgain();
+    }
+
+    private void ActivateTimeKeeperNormalAgain()
+    {
+        if (timeKeeperNormalObject != null)
+        {
+            // hide the time keeper normal object
+            timeKeeperNormalObject.SetActive(false);
+        }
+
+        SaveSystem.SetTimeKeeperNormalStillCooldown(false);
+        OnTimeKeeperStateChanged?.Invoke(); // Notify state change
     }
 
     /// <summary>
@@ -133,6 +229,12 @@ public class FacilityManager : MonoBehaviour
                 }
                 activeCooldownCoroutines[facilityID] = StartCoroutine(HandleTimeKeeperCooldown(facilityID, timeKeeperAdvanceObject));
 
+                var timeKeeperProStartTime = DateTime.Now;
+                var timeKeeperPro = GetFacilityByID(facilityID);
+                var timeKeeperProEndTime = timeKeeperProStartTime.AddSeconds(timeKeeperPro.cooldownSeconds);
+
+                SaveSystem.SaveEndTimeKeeperPro(timeKeeperProEndTime);
+
                 // Apply time skip effect: +24 hours for evolution and coins
                 var monsterManagerAdvance = ServiceLocator.Get<MonsterManager>();
                 if (monsterManagerAdvance != null)
@@ -149,6 +251,12 @@ public class FacilityManager : MonoBehaviour
                     StopCoroutine(activeCooldownCoroutines[facilityID]);
                 }
                 activeCooldownCoroutines[facilityID] = StartCoroutine(HandleTimeKeeperCooldown(facilityID, timeKeeperNormalObject));
+
+                var timeKeeperNormalStartTime = DateTime.Now;
+                var timeKeeperNormal = GetFacilityByID(facilityID);
+                var timeKeeperNormalEndTime = timeKeeperNormalStartTime.AddSeconds(timeKeeperNormal.cooldownSeconds);
+                
+                SaveSystem.SaveEndTimeKeeperNormal(timeKeeperNormalEndTime);
 
                 // Apply time skip effect: +6 hours for evolution and coins
                 var monsterManager = ServiceLocator.Get<MonsterManager>();
@@ -237,6 +345,30 @@ public class FacilityManager : MonoBehaviour
         var facility = GetFacilityByID(facilityID);
         if (facility == null) return 0f;
 
+        if (facilityID == "F3" && SaveSystem.IsTimeKeeperNormalStillCooldown())
+        {
+            // time keeper normal special cooldown between sessions
+
+            DateTime curTime = DateTime.Now;
+            DateTime endTime = SaveSystem.GetEndTimeKeeperNormal();
+
+            float remainingSecondsF = Mathf.Max(0f, (float)(endTime - curTime).TotalSeconds);
+
+            return remainingSecondsF;
+        }
+
+        if (facilityID == "F2" && SaveSystem.IsTimeKeeperProStillCooldown())
+        {
+            // time keeper pro special cooldown between sessions
+
+            DateTime curTime = DateTime.Now;
+            DateTime endTime = SaveSystem.GetEndTimeKeeperPro();
+
+            float remainingSecondsF = Mathf.Max(0f, (float)(endTime - curTime).TotalSeconds);
+
+            return remainingSecondsF;
+        }
+
         if (!lastUsedTime.ContainsKey(facilityID))
             return 0f;
 
@@ -307,6 +439,22 @@ public class FacilityManager : MonoBehaviour
     // Public method to check if this specific facility is on its own cooldown (not blocked by another)
     public bool IsOnOwnCooldown(string facilityID)
     {
+        if (facilityID == "F3")
+        {
+            if (SaveSystem.IsTimeKeeperNormalStillCooldown() == false)
+                return IsOnCooldown(facilityID);
+
+            return true;
+        }
+
+        if (facilityID == "F2")
+        {
+            if (SaveSystem.IsTimeKeeperProStillCooldown() == false)
+                return IsOnCooldown(facilityID);
+
+            return true;
+        }
+
         return IsOnCooldown(facilityID);
     }
 

@@ -540,6 +540,7 @@ namespace MagicalGarden.Hotel
             if (onProgressingRequest) return;
             if (npcService == NPCService.NPCHotel) {if (!HotelManager.Instance.CheckNPCHotelAvailable ()) return;}
             Debug.Log ("VALID 2");
+            AddServiceBackToPlains ();
             onProgressingRequest = true;
             
             // Stop countdown coroutine
@@ -633,7 +634,7 @@ namespace MagicalGarden.Hotel
             SetHappinessData ();
             hasRequest = false;
             onProgressingRequest = false;
-            
+            RemoveServiceBackToPlains ();
         }
 
         #endregion
@@ -1116,6 +1117,31 @@ namespace MagicalGarden.Hotel
         public bool GetIsLocked () { // hotelLocker
             return isLocked;
         }
+         #endregion
+        #region BackToPlains
+        void AddServiceBackToPlains () {
+            BackToPlains.instance.AddHotelControllerServiceProgress (this);
+        }
+
+        void RemoveServiceBackToPlains () {
+            BackToPlains.instance.RemoveHotelControllerServiceProgress (this);
+        }
+
+        public void BackToPlainsEvent () { // BackToPlains.cs
+            if (currentRequestCountdown != null)
+            {
+                StopCoroutine(currentRequestCountdown);
+                currentRequestCountdown = null;
+            }
+
+            hasRequest = false;
+            onProgressingRequest = false;
+            HotelManager.Instance.RemoveHotelControllerHasRequest (this, false);
+            
+            requestTimer = 0f;
+            ResetRequestButtons();
+        }
+            
         #endregion
         #region Debug
         public void SetTimePaused (bool value) { // HotelManager.cs = true, this = false.

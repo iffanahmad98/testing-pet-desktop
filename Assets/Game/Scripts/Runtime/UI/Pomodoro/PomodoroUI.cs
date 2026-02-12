@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Spine.Unity;
+using DG.Tweening;
 
 public class PomodoroUI : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class PomodoroUI : MonoBehaviour
 
     [Header("Control Buttons")]
     [SerializeField] private Button pumpkinButton;
+    [SerializeField] private Button miniPumpkinButton;
     [SerializeField] private Button playButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button skipButton;
@@ -109,6 +111,9 @@ public class PomodoroUI : MonoBehaviour
         if (pumpkinButton != null)
             pumpkinButton.onClick.AddListener(OnPumpkinButtonClicked);
 
+        if (miniPumpkinButton != null)
+            miniPumpkinButton.onClick.AddListener(OnMiniPumpkinButtonClicked);
+
         if (playButton != null)
             playButton.onClick.AddListener(OnPlayButtonClicked);
 
@@ -130,6 +135,9 @@ public class PomodoroUI : MonoBehaviour
         if (pumpkinButton != null)
             pumpkinButton.onClick.RemoveListener(OnPumpkinButtonClicked);
 
+        if (miniPumpkinButton != null)
+            miniPumpkinButton.onClick.RemoveListener(OnMiniPumpkinButtonClicked);
+
         if (playButton != null)
             playButton.onClick.RemoveListener(OnPlayButtonClicked);
 
@@ -148,9 +156,12 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnPumpkinButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (pomodoroPanel != null)
         {
             pomodoroPanel.SetActive(true);
+            pomodoroPanel.transform.DOPunchScale(new Vector2(0.05f, 0.05f), 0.3f, 5);
         }
 
         // Hide mini UI when main panel opens
@@ -162,10 +173,17 @@ public class PomodoroUI : MonoBehaviour
         Debug.Log("Pumpkin button clicked - Opening Pomodoro Panel");
     }
 
+    private void OnMiniPumpkinButtonClicked()
+    {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+    }
+
     private void OnPlayButtonClicked()
     {
         if (phaseManager == null)
             return;
+
+        MonsterManager.instance.audio.PlaySFX("button_click");
 
         isPlaying = !isPlaying;
 
@@ -219,6 +237,8 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnRestartButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (phaseManager != null)
         {
             phaseManager.StopTimer();
@@ -233,6 +253,8 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnSkipButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (phaseManager != null)
         {
             phaseManager.AdvanceToNextPhase();
@@ -254,34 +276,34 @@ public class PomodoroUI : MonoBehaviour
 
     private void OnMinMaxButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         isMinimized = !isMinimized;
 
         if (pomodoroPanel != null)
         {
-            RectTransform panelRect = pomodoroPanel.GetComponent<RectTransform>();
-            if (panelRect != null)
+            pomodoroPanel.transform.DOScale(isMinimized ? new Vector3(0.7f, 0.7f, 1f) : Vector3.one, 0.2f).SetEase(Ease.OutCirc).OnComplete(() =>
             {
-                if (isMinimized)
-                {
-                    // Minimize: set scale to 0.7:0.7
-                    panelRect.localScale = new Vector3(0.7f, 0.7f, 1f);
-                    Debug.Log("MinMax button clicked - Panel minimized to scale 0.7:0.7");
-                }
-                else
-                {
-                    // Maximize: set scale to 1:1 (full screen)
-                    panelRect.localScale = new Vector3(1f, 1f, 1f);
-                    Debug.Log("MinMax button clicked - Panel maximized to scale 1:1");
-                }
-            }
+                pomodoroPanel.transform.localScale = isMinimized ? new Vector3(0.7f, 0.7f, 1f) : Vector3.one;
+            });
+            
         }
     }
 
     private void OnCloseButtonClicked()
     {
+        MonsterManager.instance.audio.PlaySFX("button_click");
+
         if (pomodoroPanel != null)
         {
-            pomodoroPanel.SetActive(false);
+            pomodoroPanel.transform.DOScale(new Vector2(0.1f, 0.1f), 0.5f).SetEase(Ease.InBack).OnComplete(()=> 
+            { 
+                pomodoroPanel.SetActive(false);
+
+                pomodoroPanel.transform.localScale = isMinimized? new Vector3(0.7f, 0.7f, 1f) : Vector3.one;
+                Debug.Log("MinMax button clicked - Panel minimized to scale 0.7:0.7");
+                
+            });
         }
 
         // Show mini UI when main panel closes

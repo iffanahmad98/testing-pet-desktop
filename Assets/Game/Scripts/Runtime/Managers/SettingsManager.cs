@@ -25,7 +25,7 @@ public class SettingsManager : MonoBehaviour
     public Button uiSizeIncreaseButton;
     public Button uiSizeDecreaseButton;
     public Button uiSizeResetButton;
-    
+
     [Header("Pet Size")]
     public Button petSizeIncreaseButton;
     public Button petSizeDecreaseButton;
@@ -56,11 +56,14 @@ public class SettingsManager : MonoBehaviour
     private const float DEFAULT_GAME_AREA_HEIGHT = 1080f;
     private const float DEFAULT_UI_SCALE = 1f;
     private const float DEFAULT_PET_SCALE = 1f;
+    private const float DEFAULT_FOOD_SCALE = 1f;
+    private const float DEFAULT_POOP_SCALE = 1f;
     private const float DEFAULT_PET_PIVOT_Y = 1.140f;
-    private const float MIN_PET_SCALE = 0.25f;
+    private const float MIN_PET_SCALE = 0.5f;
     private const float MAX_PET_SCALE = 1.5f;
     private const float MIN_PET_PIVOT_Y = 0.3f;
     private const float MAX_PET_PIVOT_Y = 1.7f;
+    private const float POOP_GROUND_PADDING = -5f;
     private const float MONSTER_BOUNDS_PADDING = 50f;
     private float maxScreenWidth;
     private float maxScreenHeight;
@@ -104,17 +107,28 @@ public class SettingsManager : MonoBehaviour
         InitializeGameAreaSettings();
         InitializeLanguageSettings();
 
+        if (gameManager != null)
+        {
+            gameManager.OnFoodSpawned += ApplyCurrentFoodScaleToFood;
+            gameManager.OnPoopSpawned += ApplyCurrentPoopScaleToPoop;
+        }
+
         // Discover all savable modules in scene
         savableSettingsModules.AddRange(
             FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISettingsSavable>()
         );
 
-        
+
     }
 
     private void OnDestroy()
     {
         UnregisterAllCallbacks();
+        if (gameManager != null)
+        {
+            gameManager.OnFoodSpawned -= ApplyCurrentFoodScaleToFood;
+            gameManager.OnPoopSpawned -= ApplyCurrentPoopScaleToPoop;
+        }
         ServiceLocator.Unregister<SettingsManager>();
     }
 
@@ -190,6 +204,9 @@ public class SettingsManager : MonoBehaviour
         LoadSavedSettings();
 
         RegisterGameAreaCallbacks();
+
+        ResetUISize();
+
     }
 
     #region Callback Registration
@@ -200,24 +217,24 @@ public class SettingsManager : MonoBehaviour
         horizontalPositionControl.onValueChanged += UpdateGameAreaHorizontalPosition;
         verticalPositionControl.onValueChanged += UpdateGameAreaVerticalPosition;
     }
-    
+
     private void RegisterButtonCallbacks()
     {
         // UI Scale buttons
         uiSizeIncreaseButton.onClick.AddListener(() => AdjustUIScale(0.05f));
         uiSizeDecreaseButton.onClick.AddListener(() => AdjustUIScale(-0.05f));
         uiSizeResetButton.onClick.AddListener(() => ResetUIScale());
-        
+
         // Pet Scale buttons
         if (petSizeIncreaseButton != null)
-            petSizeIncreaseButton.onClick.AddListener(() => {AdjustPetScale(0.05f); AdjustPetPivotY(0.012f);});
+            petSizeIncreaseButton.onClick.AddListener(() => { AdjustPetScale(0.05f); AdjustPetPivotY(0.012f); });
 
         if (petSizeDecreaseButton != null)
-            petSizeDecreaseButton.onClick.AddListener(() => {AdjustPetScale(-0.05f); AdjustPetPivotY(-0.012f);});
+            petSizeDecreaseButton.onClick.AddListener(() => { AdjustPetScale(-0.05f); AdjustPetPivotY(-0.012f); });
 
         if (petSizeResetButton != null)
-            petSizeResetButton.onClick.AddListener(() => {ResetPetScale(); ResetPetPivotY();});
-            
+            petSizeResetButton.onClick.AddListener(() => { ResetPetScale(); ResetPetPivotY(); });
+
         // Other buttons
         saveButton.onClick.AddListener(OnSaveSettings);
         cancelButton.onClick.AddListener(OnCancelSettings);
@@ -230,14 +247,14 @@ public class SettingsManager : MonoBehaviour
         uiSizeIncreaseButton.onClick.RemoveAllListeners();
         uiSizeDecreaseButton.onClick.RemoveAllListeners();
         uiSizeResetButton.onClick.RemoveAllListeners();
-        
+
         if (petSizeIncreaseButton != null)
             petSizeIncreaseButton.onClick.RemoveAllListeners();
         if (petSizeDecreaseButton != null)
             petSizeDecreaseButton.onClick.RemoveAllListeners();
         if (petSizeResetButton != null)
             petSizeResetButton.onClick.RemoveAllListeners();
-            
+
         saveButton.onClick.RemoveAllListeners();
         cancelButton.onClick.RemoveAllListeners();
         newGameButton.onClick.RemoveAllListeners();
@@ -255,6 +272,11 @@ public class SettingsManager : MonoBehaviour
         size.x = value;
         gameArea.sizeDelta = size;
 
+        UpdatePetScaleFromGameAreaWidth();
+        UpdateFoodScaleFromGameAreaHeight();
+        UpdatePoopScaleFromGameAreaHeight();
+        SnapPoopsToGroundIfMinHeight();
+
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
             RepositionMonstersAfterScaling();
@@ -268,6 +290,10 @@ public class SettingsManager : MonoBehaviour
         OnGameAreaChanged?.Invoke();
     }
 
+    private void ResetUISize()
+    {
+        canvasScaler.referenceResolution = new Vector2(1920 / 0.85f, 1080 / 0.85f);
+    }
     public void UpdateGameAreaHeight(float value)
     {
         if (gameArea == null) return;
@@ -286,6 +312,11 @@ public class SettingsManager : MonoBehaviour
         Vector2 pos = gameArea.anchoredPosition;
         pos.y = currentBottom + (value * gameArea.pivot.y);
         gameArea.anchoredPosition = pos;
+
+        UpdatePetScaleFromGameAreaHeight();
+        UpdateFoodScaleFromGameAreaHeight();
+        UpdatePoopScaleFromGameAreaHeight();
+        SnapPoopsToGroundIfMinHeight();
 
         if (Time.time - _lastRepositionTime > REPOSITION_COOLDOWN)
         {
@@ -308,7 +339,7 @@ public class SettingsManager : MonoBehaviour
         pos.x = value;
         gameArea.anchoredPosition = pos;
     }
-    
+
     public void UpdateGameAreaVerticalPosition(float value)
     {
         if (gameArea == null) return;
@@ -318,11 +349,157 @@ public class SettingsManager : MonoBehaviour
         gameArea.anchoredPosition = pos;
     }
 
+    private void UpdateFoodScaleFromGameAreaHeight()
+    {
+        if (gameArea == null) return;
+
+        float targetScale = GetFoodScaleFromGameAreaHeight();
+        ApplyFoodScaleToAllFoods(targetScale);
+    }
+
+    private float GetFoodScaleFromGameAreaHeight()
+    {
+        return GetScaleFromGameAreaDimensions(DEFAULT_FOOD_SCALE);
+    }
+
+    private void UpdatePetScaleFromGameAreaHeight()
+    {
+        UpdatePetScaleFromGameAreaDimensions();
+    }
+    private void UpdatePetScaleFromGameAreaWidth()
+    {
+        UpdatePetScaleFromGameAreaDimensions();
+    }
+
+    private void UpdatePetScaleFromGameAreaDimensions()
+    {
+        if (gameArea == null) return;
+
+        float widthRatio = gameArea.sizeDelta.x / DEFAULT_GAME_AREA_WIDTH;
+        float heightRatio = gameArea.sizeDelta.y / DEFAULT_GAME_AREA_HEIGHT;
+        float targetScale = DEFAULT_PET_SCALE * Mathf.Min(widthRatio, heightRatio);
+        UpdatePetScale(targetScale);
+    }
+
+    private void UpdatePoopScaleFromGameAreaHeight()
+    {
+        if (gameArea == null) return;
+
+        float targetScale = GetPoopScaleFromGameAreaHeight();
+        ApplyPoopScaleToAllPoops(targetScale);
+    }
+
+    private float GetPoopScaleFromGameAreaHeight()
+    {
+        return GetScaleFromGameAreaDimensions(DEFAULT_POOP_SCALE);
+    }
+
+    private float GetScaleFromGameAreaDimensions(float defaultScale)
+    {
+        if (gameArea == null) return defaultScale;
+
+        float widthRatio = gameArea.sizeDelta.x / DEFAULT_GAME_AREA_WIDTH;
+        float heightRatio = gameArea.sizeDelta.y / DEFAULT_GAME_AREA_HEIGHT;
+        float targetScale = defaultScale * Mathf.Min(widthRatio, heightRatio);
+        return Mathf.Clamp(targetScale, MIN_PET_SCALE, MAX_PET_SCALE);
+    }
+
+    private void ApplyFoodScaleToAllFoods(float scale)
+    {
+        if (gameManager?.activeFoods == null) return;
+
+        foreach (var food in gameManager.activeFoods)
+        {
+            if (food != null)
+            {
+                food.transform.localScale = Vector3.one * scale;
+            }
+        }
+    }
+
+    private void ApplyCurrentFoodScaleToFood(FoodController food)
+    {
+        if (food == null) return;
+
+        float scale = GetFoodScaleFromGameAreaHeight();
+        food.transform.localScale = Vector3.one * scale;
+    }
+
+    private void ApplyPoopScaleToAllPoops(float scale)
+    {
+        if (gameManager?.activePoops == null) return;
+
+        foreach (var poop in gameManager.activePoops)
+        {
+            if (poop != null)
+            {
+                var rectTransform = poop.GetComponent<RectTransform>();
+                poop.transform.localScale = Vector3.one * scale;
+
+                if (IsGameAreaAtMinHeight() && rectTransform != null)
+                {
+                    rectTransform.anchoredPosition = new Vector2(
+                        rectTransform.anchoredPosition.x,
+                        GetPoopFloorY(rectTransform)
+                    );
+                }
+            }
+        }
+    }
+
+    private void ApplyCurrentPoopScaleToPoop(PoopController poop)
+    {
+        if (poop == null) return;
+
+        float scale = GetPoopScaleFromGameAreaHeight();
+        var rectTransform = poop.GetComponent<RectTransform>();
+        poop.transform.localScale = Vector3.one * scale;
+
+        if (IsGameAreaAtMinHeight() && rectTransform != null)
+        {
+            rectTransform.anchoredPosition = new Vector2(
+                rectTransform.anchoredPosition.x,
+                GetPoopFloorY(rectTransform)
+            );
+        }
+    }
+
+    public void SnapPoopsToGroundIfMinHeight()
+    {
+        if (!IsGameAreaAtMinHeight() || gameManager?.activePoops == null) return;
+
+        foreach (var poop in gameManager.activePoops)
+        {
+            if (poop == null) continue;
+
+            var rectTransform = poop.GetComponent<RectTransform>();
+            if (rectTransform == null) continue;
+
+            rectTransform.anchoredPosition = new Vector2(
+                rectTransform.anchoredPosition.x,
+                GetPoopFloorY(rectTransform)
+            );
+        }
+    }
+
+    private bool IsGameAreaAtMinHeight()
+    {
+        return gameArea != null && gameArea.sizeDelta.y <= MIN_SIZE + 0.01f;
+    }
+
+    private float GetPoopFloorY(RectTransform poopRect)
+    {
+        if (gameArea == null || poopRect == null) return 0f;
+
+        float poopHalfHeight = (poopRect.rect.height * poopRect.localScale.y) / 2f;
+        return -gameArea.sizeDelta.y / 2f + poopHalfHeight + POOP_GROUND_PADDING;
+    }
+
     public void AdjustUIScale(float delta)
     {
         if (canvasScaler == null || canvasScaler.scaleFactor <= 0.7f || canvasScaler.scaleFactor > 1.1f) return;
-        uiScale = Mathf.Clamp(uiScale + delta, 0.8f, 1.1f);
-        
+        uiScale = Mathf.Clamp(uiScale + delta, 0.8f, 0.85f);
+
         float newX = 1920 / uiScale;
         float newY = 1080 / uiScale;
 
@@ -345,7 +522,7 @@ public class SettingsManager : MonoBehaviour
             canvasScaler.referenceResolution = new Vector2(newX, newY);
         }
     }
-    
+
     // Pet scaling methods
     public void AdjustPetScale(float delta)
     {
@@ -384,7 +561,7 @@ public class SettingsManager : MonoBehaviour
     private void ApplyPetScaleToAllMonsters()
     {
         if (gameManager?.activeMonsters == null) return;
-        
+
         foreach (var monster in gameManager.activeMonsters)
         {
             if (monster != null)
@@ -411,7 +588,7 @@ public class SettingsManager : MonoBehaviour
             }
         }
     }
-    
+
     public void ApplyCurrentPetScaleToMonster(MonsterController monster)
     {
         if (monster != null)
@@ -470,7 +647,12 @@ public class SettingsManager : MonoBehaviour
 
             // Determine Y position based on game area height
             float newY;
-            if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
+            if (gameArea.sizeDelta.y <= MIN_SIZE + 0.01f)
+            {
+                // Keep poop on the ground when height is at minimum
+                newY = boundsMin.y;
+            }
+            else if (gameArea.sizeDelta.y > initialGameAreaHeight / 2f)
             {
                 // Random Y within ground area when height is above half
                 newY = Random.Range(boundsMin.y, boundsMax.y);
@@ -900,7 +1082,7 @@ public class SettingsManager : MonoBehaviour
                 // Center Y when height is below or equal to half
                 newY = (boundsMin.y + boundsMax.y) / 2f;
             }
-
+            
             Vector2 newPos = new Vector2(
                 Mathf.Clamp(currentPos.x, boundsMin.x, boundsMax.x),
                 newY
@@ -923,7 +1105,7 @@ public class SettingsManager : MonoBehaviour
         savedUIScale = PlayerPrefs.GetFloat("UIScale", DEFAULT_UI_SCALE);
         savedPetScale = PlayerPrefs.GetFloat("PetScale", DEFAULT_PET_SCALE);
         savedLanguageIndex = PlayerPrefs.GetInt("Language", 0);
-        
+
         Debug.Log($"Loaded settings: Width={savedGameAreaWidth}, Height={savedGameAreaHeight}, X={savedGameAreaX}, Y={savedGameAreaY}, UIScale={savedUIScale}, LanguageIndex={savedLanguageIndex}");
 
         // Apply values to game area and UI
@@ -955,11 +1137,11 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetFloat("GameAreaY", gameArea.anchoredPosition.y);
         PlayerPrefs.SetFloat("UIScale", uiScale);
         PlayerPrefs.SetFloat("PetScale", petScale);
-       // PlayerPrefs.SetInt("Language", languageDropdown.value); ada error sementara saya tutup (elvan)
-        
+        // PlayerPrefs.SetInt("Language", languageDropdown.value); ada error sementara saya tutup (elvan)
+
         foreach (var module in savableSettingsModules)
             module.SaveSettings(); // Save each module's settings
-            
+
         PlayerPrefs.Save();
     }
 
@@ -992,7 +1174,7 @@ public class SettingsManager : MonoBehaviour
             module.SaveSettings(); // optionally save before new game
         // gameManager?.StartNewGame(); // Or your scene load logic
     }
-    
+
     private void OnClickCloseButton()
     {
         settingPanel.SetActive(false); // Hide settings panel

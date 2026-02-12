@@ -19,6 +19,8 @@ public class FarmTutorialStepData : MonoBehaviour
     public int seedBuyRequirement = 0;
     public string panelNameToClose = string.Empty;
 
+    public bool isSelectSeed = false;
+
     public void WriteInstruction(TextMeshProUGUI titleText, TextMeshProUGUI bodyText)
     {
         titleText.text = title;

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using MagicalGarden.Farm;
+using DG.Tweening;
 
 public class FarmShop : MonoBehaviour {
 
@@ -23,21 +24,35 @@ public class FarmShop : MonoBehaviour {
     void Start() {
         farmMonsterPanel.FarmShop = this;
         farmPlantPanel.FarmShop = this;
-        OffDisplay ();
+        //OffDisplay ();
+        shopPanel.gameObject.SetActive(false);
     }
 
     // UIManager.cs :
     public void OnDisplay() {
         LoadListener ();
         shopPanel.gameObject.SetActive(true);
-      //  MagicalGarden.Farm.UIManager.Instance.HideUIFarmBar ();
+        //  MagicalGarden.Farm.UIManager.Instance.HideUIFarmBar ();
+        shopPanel.transform.DOPunchScale(new Vector2(0.05f, 0.05f), 0.3f, 5);
         ShowSpecificPanel (PanelType.Monster);
     }
 
     // UIManager.cs :
-    public void OffDisplay() {
-        shopPanel.gameObject.SetActive(false);
-       // MagicalGarden.Farm.UIManager.Instance.ShowUIFarmBar ();
+    public void OffDisplay(bool instant = true) {
+
+        if(instant)
+        {
+            shopPanel.gameObject.SetActive(false);
+            return;
+        }
+
+        shopPanel.transform.DOScale(new Vector2(0.1f, 0.1f), 0.5f).SetEase(Ease.InBack).OnComplete(() =>
+        {
+            shopPanel.gameObject.SetActive(false);
+            shopPanel.transform.localScale = Vector3.one;
+        });
+
+        // MagicalGarden.Farm.UIManager.Instance.ShowUIFarmBar ();
     }
 
     void ShowSpecificPanel (PanelType panelType) {
@@ -62,7 +77,7 @@ public class FarmShop : MonoBehaviour {
             farmMonsterButton.onClick.AddListener(() => ShowSpecificPanel(PanelType.Monster));
             farmPlantButton.onClick.AddListener(() => ShowSpecificPanel(PanelType.Plant));
 
-            closeButton.onClick.AddListener (() => OffDisplay());
+            closeButton.onClick.AddListener (() => OffDisplay(false));
         }
     }
     #endregion

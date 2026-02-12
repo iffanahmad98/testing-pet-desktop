@@ -7,6 +7,7 @@ public class HotelMainUI : MonoBehaviour
     public Canvas mainCanvas;
     PlayerConfig playerConfig;
     [SerializeField] GoToPetScene gotoPetScene;
+    [SerializeField] HotelLocker hotelLocker;
     [Header ("Display UI")]
     public TMP_Text coinText;
     public TMP_Text goldenTicketText;
@@ -32,6 +33,8 @@ public class HotelMainUI : MonoBehaviour
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshGoldenTicket);
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshEgg);
      DebugTimeController.instance.AddLateDebuggingEvent (RefreshHotelRoom);
+     hotelLocker.AddEventHotelRoom (RefreshHotelRoom);
+     MagicalGarden.Manager.HotelManager.Instance.AddHotelEventClaimCoin (RefreshHotelRoom);
      RefreshCoin ();
      RefreshGoldenTicket ();
      RefreshHotelGift ();
@@ -71,7 +74,7 @@ public class HotelMainUI : MonoBehaviour
     #region HotelRoom
 
     public void RefreshHotelRoom () { // HotelController.cs, HotelManager.cs (Setelah load Coroutine)
-       hotelRoomText.text = MagicalGarden.Manager.HotelManager.Instance.GetTotalHotelControllerOccupied ().ToString () + " / " + playerConfig.listIdHotelOpen.Count.ToString ();
+       hotelRoomText.text = MagicalGarden.Manager.HotelManager.Instance.GetTotalHotelControllerOccupiedAndHoldReward ().ToString () + " / " + playerConfig.listIdHotelOpen.Count.ToString ();
     }
 
     #endregion

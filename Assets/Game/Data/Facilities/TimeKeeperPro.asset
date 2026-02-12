@@ -20,7 +20,7 @@ MonoBehaviour:
     10s cooldown after use\n\u2022 Can\u2019t be used while simulation is being calculated.
     Can\u2019t be used together with other one-time consumables (ex: Magic Shovel)
     \nDaily Limit: Max total fast-forward 48 hours per 24h real-time."
-  price: 60
+  price: 600
   thumbnail: {fileID: 21300000, guid: 8e22bd5f562db9f4baa5d4bbfcfacc57, type: 3}
   animatorController: {fileID: 9100000, guid: 0d77d5ba082cd524ea47c7e34118edc0, type: 2}
   monsterRequirements:
@@ -28,5 +28,5 @@ MonoBehaviour:
     monsterType: 0
     minimumRequirements: 8
   requirementTipDataSO: {fileID: 11400000, guid: effcf5e833027a74fa085da1d8989848, type: 2}
-  cooldownSeconds: 10
+  cooldownSeconds: 3600
   isFreeToggleFacility: 0

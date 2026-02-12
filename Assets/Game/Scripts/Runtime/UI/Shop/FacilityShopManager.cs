@@ -95,10 +95,10 @@ public class FacilityShopManager : MonoBehaviour
             FacilityCardUI card = cardObj.GetComponent<FacilityCardUI>();
 
             card.SetupNPC(npcDatabases.monsters[temp]);
-            card.OnSelected = OnFacilitySelected;
-            card.OnUseClicked = OnFacilityUse;
-            card.OnBuyClicked = OnFacilityBuy;
-            card.OnCancelClicked = OnFacilityCancel;
+            card.OnSelected = OnNPCSelected;
+            card.OnUseClicked = OnNPCUse;
+            card.OnBuyClicked = OnNPCBuy;
+            card.OnCancelClicked = OnNPCCancel;
 
             if (SaveSystem.UiSaveData.FacilityShopCards.Count < facilities.allFacilities.Count + npcDatabases.monsters.Count)
                 SaveSystem.UiSaveData.FacilityShopCards.Add(new()
@@ -138,6 +138,7 @@ public class FacilityShopManager : MonoBehaviour
 
     private void WaitRefreshFacilityCards(bool eligibleBuyVfx = false)
     {
+        //StopAllCoroutines();
 
         foreach (var card in activeCards)
         {
@@ -183,13 +184,16 @@ public class FacilityShopManager : MonoBehaviour
             }
         }
 
-        if (activeCards[0].FacilityData != null)
+        if(selectedCard == null)
         {
-            OnFacilitySelected(activeCards[0]);
-        }
-        else if (activeCards[0].npc != null)
-        {
-            OnNPCSelected(activeCards[0]);
+            if (activeCards[0].FacilityData != null)
+            {
+                OnFacilitySelected(activeCards[0]);
+            }
+            else if (activeCards[0].npc != null)
+            {
+                OnNPCSelected(activeCards[0]);
+            }
         }
     }
 
@@ -247,6 +251,7 @@ public class FacilityShopManager : MonoBehaviour
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Applied '{facility.facilityName}'!");
                 RefreshFacilityCards();
                 OnFacilitySelected(card);
+
                 return;
             }
 

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Collections;
 using DG.Tweening;
+using Unity.VisualScripting;
 
 public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -68,7 +69,12 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         // preserve aspect is different per category
         if (data.category == ItemType.Food)
-            iconImage.preserveAspect = false;
+        {
+            if (iconImage.sprite.texture.width > iconImage.sprite.texture.height)
+                iconImage.preserveAspect = false;
+            else
+                iconImage.preserveAspect = true;
+        }
         else if (data.category == ItemType.Medicine)
             iconImage.preserveAspect = true;
     }

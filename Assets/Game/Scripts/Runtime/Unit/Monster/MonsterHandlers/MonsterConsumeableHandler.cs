@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using DG.Tweening;
 
 public class MonsterConsumableHandler
 {
@@ -176,7 +177,10 @@ public class MonsterConsumableHandler
     {
         Transform pos = ((MonoBehaviour)item).GetComponent<Transform>();
 
-        pos.position = targetPos.position;
+        pos.SetParent(targetPos);
+        pos.SetAsLastSibling();
+        pos.localScale = new Vector3(0.8f, 0.8f, 1);
+        pos.GetComponent<RectTransform>().DOAnchorPos(Vector3.zero, 0.1f);
     }
 
     private void ClearConsumable()

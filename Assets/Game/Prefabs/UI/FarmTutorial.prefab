@@ -394,6 +394,7 @@ MonoBehaviour:
   minimumCost: 0
   seedBuyRequirement: 0
   panelNameToClose: 
+  isSelectSeed: 0
 --- !u!1 &3006129976925886134
 GameObject:
   m_ObjectHideFlags: 0
@@ -575,13 +576,75 @@ MonoBehaviour:
   scrollTo: {x: 0, y: 0}
   isNextButtonActive: 0
   showHandPointer: 1
-  handPosition: {x: 640, y: 200}
+  handPosition: {x: 640, y: 90}
   enabledButton: 0
   isBuySeeds: 1
   seedName: Banana Seed
   minimumCost: 250
   seedBuyRequirement: 8
   panelNameToClose: 
+  isSelectSeed: 0
+--- !u!1 &4192747719702320353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7828219658291045235}
+  - component: {fileID: 8308232230299848485}
+  m_Layer: 5
+  m_Name: Step 3_3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7828219658291045235
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4192747719702320353}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8308232230299848485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4192747719702320353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Plant the pattern!
+  body: Select the banana seed
+  scrollTo: {x: 0, y: 0}
+  isNextButtonActive: 0
+  showHandPointer: 1
+  handPosition: {x: 650, y: 100}
+  enabledButton: 0
+  isBuySeeds: 0
+  seedName: Banana Seed
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 1
 --- !u!1 &4852730191368269426
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,6 +706,68 @@ MonoBehaviour:
   minimumCost: 0
   seedBuyRequirement: 0
   panelNameToClose: 
+  isSelectSeed: 0
+--- !u!1 &5154098189212789789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4044606162386231974}
+  - component: {fileID: 7087567453483377310}
+  m_Layer: 5
+  m_Name: Step 3_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4044606162386231974
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5154098189212789789}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7087567453483377310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5154098189212789789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Plant the pattern!
+  body: Select the seed tab
+  scrollTo: {x: 0, y: 0}
+  isNextButtonActive: 0
+  showHandPointer: 1
+  handPosition: {x: 650, y: 280}
+  enabledButton: 11
+  isBuySeeds: 0
+  seedName: Monster Seed
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: FarmShopUI (Shop Panel)
+  isSelectSeed: 0
 --- !u!1 &5573190775076435284
 GameObject:
   m_ObjectHideFlags: 0
@@ -703,6 +828,7 @@ MonoBehaviour:
   minimumCost: 150
   seedBuyRequirement: 1
   panelNameToClose: FarmShopUI (Shop Panel)
+  isSelectSeed: 0
 --- !u!1 &6049151751113195987
 GameObject:
   m_ObjectHideFlags: 0
@@ -838,6 +964,7 @@ MonoBehaviour:
   minimumCost: 0
   seedBuyRequirement: 0
   panelNameToClose: 
+  isSelectSeed: 0
 --- !u!1 &6889236276505283003
 GameObject:
   m_ObjectHideFlags: 0
@@ -1020,6 +1147,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6986269366948372431}
   m_CullTransparentMesh: 1
+--- !u!1 &7030313314639747078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1348458373151082396}
+  - component: {fileID: 1361016073199315866}
+  m_Layer: 5
+  m_Name: Step 3_4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1348458373151082396
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7030313314639747078}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1361016073199315866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7030313314639747078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Plant the pattern!
+  body: Plant 8 seeds on the farm
+  scrollTo: {x: 0, y: 0}
+  isNextButtonActive: 0
+  showHandPointer: 0
+  handPosition: {x: 650, y: 100}
+  enabledButton: 0
+  isBuySeeds: 0
+  seedName: Banana Seed
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 0
 --- !u!1 &7209455747364558681
 GameObject:
   m_ObjectHideFlags: 0
@@ -1031,7 +1219,7 @@ GameObject:
   - component: {fileID: 8226635818467082135}
   - component: {fileID: 3869289237796194623}
   m_Layer: 5
-  m_Name: Step 3
+  m_Name: Step 3_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1073,13 +1261,14 @@ MonoBehaviour:
   scrollTo: {x: 0, y: 0}
   isNextButtonActive: 0
   showHandPointer: 1
-  handPosition: {x: 350, y: -420}
+  handPosition: {x: 250, y: -420}
   enabledButton: 4
-  isBuySeeds: 1
+  isBuySeeds: 0
   seedName: Monster Seed
   minimumCost: 150
   seedBuyRequirement: 1
   panelNameToClose: FarmShopUI (Shop Panel)
+  isSelectSeed: 0
 --- !u!1 &8289075417614132660
 GameObject:
   m_ObjectHideFlags: 0
@@ -1116,6 +1305,9 @@ RectTransform:
   - {fileID: 4188088060305369212}
   - {fileID: 262616918978608244}
   - {fileID: 8226635818467082135}
+  - {fileID: 4044606162386231974}
+  - {fileID: 7828219658291045235}
+  - {fileID: 1348458373151082396}
   m_Father: {fileID: 4510318437293829968}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1147,6 +1339,9 @@ MonoBehaviour:
   - {fileID: 5388303896597765339}
   - {fileID: 3820411288069603506}
   - {fileID: 3869289237796194623}
+  - {fileID: 7087567453483377310}
+  - {fileID: 8308232230299848485}
+  - {fileID: 1361016073199315866}
 --- !u!1 &8311643281399974558
 GameObject:
   m_ObjectHideFlags: 0

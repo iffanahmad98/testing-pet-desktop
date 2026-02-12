@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,35 +28,45 @@ public static class SaveSystem
 
     public static void Initialize()
     {
-        LoadPlayerConfig();
-        LoadUiConfig();
-        _sessionStartTime = DateTime.Now;
+            LoadPlayerConfig();
+            LoadUiConfig();
+            _sessionStartTime = DateTime.Now;
 
-        Debug.Log($"Last login time: {_playerConfig.lastLoginTime}");
-        // Handle first-time login
-        if (_playerConfig.lastLoginTime == default)
-        {
-            _playerConfig.lastLoginTime = DateTime.Now;
-        }
+            Debug.Log($"Last login time: {_playerConfig.lastLoginTime}");
+            // Handle first-time login
+            if (_playerConfig.lastLoginTime == default)
+            {
+                _playerConfig.lastLoginTime = DateTime.Now;
+            }
 
-        // Check for time cheating
-        CheckTimeDiscrepancy();
+            // Check for time cheating
+            CheckTimeDiscrepancy();
 
-        IsLoadFinished = true;
+            IsLoadFinished = true;
 
-        Debug.Log("IsFinished Load Save Data");
+            Debug.Log("IsFinished Load Save Data");
     }
 
     // Save all data when application pauses/quits
     public static void SaveAll()
     {
+        if (!DemoCanvas.Instance.IsDemo ()) {
         UpdatePlayTime();
         SavePlayerConfig();
         SaveUiConfig();
+        } else {
+            if (!DemoCanvas.Instance.onClearing) {
+                UpdatePlayTime();
+                SavePlayerConfig();
+                SaveUiConfig();
+            }
+        }
     }
+
 
     public static void SaveMon(MonsterSaveData data)
     {
+        if (isReset) {return;}
         if (data == null || string.IsNullOrEmpty(data.monsterId))
         {
             Debug.LogWarning("Tried to save null or invalid monster data.");
@@ -88,6 +99,52 @@ public static class SaveSystem
     {
         _playerConfig.SetAllMonsterIDs(ids);
         SavePlayerConfig();
+    }
+
+    public static void SaveEndTimeKeeperPro(DateTime endTime)
+    {
+        _playerConfig.timeKeeperProEndTime = endTime;
+        SavePlayerConfig();
+    }
+
+    public static DateTime GetEndTimeKeeperPro()
+    {
+        if (_playerConfig.timeKeeperProEndTime == null) return DateTime.Now;
+
+        return _playerConfig.timeKeeperProEndTime;
+    }
+
+    public static void SetTimeKeeperProStillCooldown(bool val)
+    {
+        _playerConfig.isTimeKeeperProCooldown = val;
+    }
+
+    public static bool IsTimeKeeperProStillCooldown()
+    {
+        return _playerConfig.isTimeKeeperProCooldown;
+    }
+
+    public static void SaveEndTimeKeeperNormal(DateTime endTime)
+    {
+        _playerConfig.timeKeeperNormalEndTime = endTime;
+        SavePlayerConfig();
+    }
+
+    public static DateTime GetEndTimeKeeperNormal()
+    {
+        if (_playerConfig.timeKeeperNormalEndTime == null) return DateTime.Now;
+
+        return _playerConfig.timeKeeperNormalEndTime;
+    }
+
+    public static void SetTimeKeeperNormalStillCooldown(bool val)
+    {
+        _playerConfig.isTimeKeeperNormalCooldown = val;
+    }
+
+    public static bool IsTimeKeeperNormalStillCooldown()
+    {
+        return _playerConfig.isTimeKeeperNormalCooldown;
     }
 
     public static List<string> LoadMonIDs()
@@ -137,10 +194,11 @@ public static class SaveSystem
 
 
     public static void Flush() => PlayerPrefs.Save();
-
+    public static bool isReset = false;
     public static void ResetSaveData()
     {
-        CoinManager.Coins = 10000;
+        isReset = true;
+        CoinManager.Coins = 10;
         SavePoop(0);
         _playerConfig.ClearAllMonsterData();
         _playerConfig.ClearAllNPCMonsterData();
@@ -245,64 +303,88 @@ public static class SaveSystem
     #endregion
 
     #region File Operations
-    private static void LoadPlayerConfig()
-    {
+    public static void LoadPlayerConfig()
+    { // DemoCanvas.cs
         string path = Path.Combine(Application.persistentDataPath, SaveFileName);
 
-        if (File.Exists(path))
-        {
-            try
-            {
-                string json = File.ReadAllText(path);
-
-                _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json, _jsonSettings);
-
-                _playerConfig.SyncFromSerializable();
-                _playerConfig.SyncLootUseable();
-                _playerConfig.SyncGuestRequestData ();
-                
-                DataLoaded?.Invoke(_playerConfig);
-
-                Debug.Log("Game data loaded successfully");
-              
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Failed to load game data: " + e.Message);
-              //   CreateNewPlayerConfig();
-            }
-        }
-        else
+        // Jika file tidak ada → buat baru
+        if (!File.Exists(path))
         {
             CreateNewPlayerConfig();
+            return;
         }
+
+        string raw = File.ReadAllText(path);
+
+        // Detect plaintext / encrypted
+        string trimmed = raw.TrimStart();
+        string json;
+
+        if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
+            json = raw; // plaintext
+        else
+            json = CryptoHelper.Decrypt(raw); // encrypted
+
+        _playerConfig = JsonConvert.DeserializeObject<PlayerConfig>(json, _jsonSettings);
+
+        // Jika gagal deserialize → buat baru
+        if (_playerConfig == null)
+        {
+            CreateNewPlayerConfig();
+            return;
+        }
+
+        _playerConfig.SyncFromSerializable();
+        _playerConfig.SyncLootUseable();
+        _playerConfig.SyncGuestRequestData();
+
+        DataLoaded?.Invoke(_playerConfig);
+
+        Debug.Log("Game data loaded successfully");
     }
 
-    private static void LoadUiConfig()
-    {
+
+    public static void LoadUiConfig()
+    { // DemoCanvas.cs
         string path = Path.Combine(Application.persistentDataPath, UiDataSaveFileName);
 
-        if (File.Exists(path))
+        // 1. Jika file tidak ada → buat data baru
+        if (!File.Exists(path))
         {
-            try
-            {
-                string json = File.ReadAllText(path);
+            Debug.Log("UI save not found. Create new.");
+            _uiSaveData = new UISaveData();
+            return;
+        }
 
-                _uiSaveData = JsonConvert.DeserializeObject<UISaveData>(json, _jsonSettings);
+        // 2. Read file
+        string raw = File.ReadAllText(path);
 
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Failed to load UI Config: " + e.Message);
-                _uiSaveData = new();
-            }
+        // 3. Auto-detect plaintext / encrypted (EDITOR & BUILD)
+        string trimmed = raw.TrimStart();
+        string json;
+
+        if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
+        {
+            // plaintext JSON
+            json = raw;
         }
         else
         {
-            Debug.LogError("Path not exist. Create new Ui Save Data");
-            _uiSaveData = new();
+            // encrypted
+            json = CryptoHelper.Decrypt(raw);
+        }
+
+        // 4. Deserialize
+        _uiSaveData = JsonConvert.DeserializeObject<UISaveData>(json, _jsonSettings);
+
+        // 5. Jika gagal → buat baru
+        if (_uiSaveData == null)
+        {
+            Debug.LogWarning("UI save invalid. Create new.");
+            _uiSaveData = new UISaveData();
         }
     }
+
 
 
     private static readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
@@ -311,6 +393,7 @@ public static class SaveSystem
         Converters = { new Vector3Converter(), new TimeSpanConverter() } // vector3, TimeSpan
     };
 
+    /*
     private static void SavePlayerConfig()
     {
         string path = Path.Combine(Application.persistentDataPath, SaveFileName);
@@ -331,19 +414,53 @@ public static class SaveSystem
             Debug.LogError("Failed to save game data: " + e.Message);
         }
     }
+    */
+    private static void SavePlayerConfig()
+    {
+        string path = Path.Combine(Application.persistentDataPath, SaveFileName);
+
+        try
+        {
+            _playerConfig.SyncToSerializable();
+
+            string json = JsonConvert.SerializeObject(_playerConfig, _jsonSettings);
+
+    #if UNITY_EDITOR
+            // Editor : simpan plaintext
+            File.WriteAllText(path, json);
+    #else
+            // Build : simpan encrypted
+            string encrypted = CryptoHelper.Encrypt(json);
+            File.WriteAllText(path, encrypted);
+    #endif
+
+            Debug.Log("Game data saved successfully");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to save game data: " + e.Message);
+        }
+    }
+
 
     private static void SaveUiConfig()
     {
         string path = Path.Combine(Application.persistentDataPath, UiDataSaveFileName);
-        // Debug.Log("Before sync: " + PlayerConfig.listPetMonsterHotelData.Count);
+
         try
         {
             string json = JsonConvert.SerializeObject(_uiSaveData, _jsonSettings);
 
+    #if UNITY_EDITOR
+            // Editor : simpan plaintext
             File.WriteAllText(path, json);
+    #else
+            // Build : simpan encrypted
+            string encrypted = CryptoHelper.Encrypt(json);
+            File.WriteAllText(path, encrypted);
+    #endif
 
             Debug.Log("Ui Save Data is saved successfully");
-            // Debug.Log("After sync: " + PlayerConfig.listPetMonsterHotelData.Count);
         }
         catch (Exception e)
         {
@@ -352,8 +469,9 @@ public static class SaveSystem
     }
 
 
-    private static void CreateNewPlayerConfig()
-    {
+
+    public static void CreateNewPlayerConfig()
+    { // this, DemoCanvas.cs
         _playerConfig = new PlayerConfig();
         _playerConfig.lastLoginTime = DateTime.Now;
         _playerConfig.gameAreas.Add(new GameAreaData
@@ -647,13 +765,12 @@ public static class SaveSystem
     #region  Facility Operations
     public static bool IsFacilityOwned(string facilityID)
     {
-        bool hasFacility = GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
+        //bool hasFacility = GetPlayerConfig().ownedFacilities.Any(f => f.facilityID == facilityID);
         var facilityToCheck = GetPlayerConfig().ownedFacilities.FirstOrDefault(f => f.facilityID == facilityID);
 
         if (facilityToCheck != null)
         {
             var areaIndex = facilityToCheck.areasOwnFacility.IndexOf(GetPlayerConfig().lastGameAreaIndex);
-
             return areaIndex > -1;
         }
 
@@ -690,9 +807,16 @@ public static class SaveSystem
     {
         var config = GetPlayerConfig();
 
-        // Check if already owned
-        if (config.ownedFacilities.Any(f => f.facilityID == facilityID))
-            return;
+        for (int i = 0; i < config.ownedFacilities.Count; i++) 
+        {
+            int temp = i;
+
+            if (config.ownedFacilities[temp].facilityID == facilityID)
+            {
+                config.ownedFacilities[temp].AddAreaOwnership(config.lastGameAreaIndex);
+                return;
+            }
+        }
 
         // Add to owned facilities with 0 cooldown (for free toggle facilities)
         var ownedFacility = new OwnedFacilityData(facilityID, 0f);
