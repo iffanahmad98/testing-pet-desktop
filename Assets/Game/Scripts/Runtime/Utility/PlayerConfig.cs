@@ -21,6 +21,8 @@ public class PlayerConfig
 
     public string lastLoginTimeString;
     public string totalPlayTimeString;
+    
+    public DateTime firstLoginTime; // used for demo purpose
 
     [NonSerialized] public DateTime lastLoginTime;
     [NonSerialized] public TimeSpan totalPlayTime;
@@ -70,6 +72,17 @@ public class PlayerConfig
     public event System.Action<OwnedItemFarmData, int> eventRemoveItemFarmData;
 
     public List<FertilizerMachineData> fertilizerMachineDatas = new();
+    public void SaveFirstLoginTime () { // DemoCanvas.cs
+        if (firstLoginTime == default) {
+            Debug.Log ("Save First Login time");
+            firstLoginTime = MagicalGarden.Manager.TimeManager.Instance.realCurrentTime;
+            SaveSystem.SaveAll ();
+        }
+    }
+
+    public DateTime LoadFirstLoginTime () { // DemoCanvas.cs
+        return firstLoginTime;
+    }
     // Serialization Sync
     public void SyncToSerializable()
     {
