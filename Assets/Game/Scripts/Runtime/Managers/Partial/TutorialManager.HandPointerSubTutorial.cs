@@ -63,6 +63,8 @@ public partial class TutorialManager
             _targetingContext.HidePointer();
             _targetingContext.ClearCurrentTargets();
         }
+
+        UnlockGuestScrollForTutorial();
     }
 
     #endregion
@@ -130,6 +132,7 @@ public partial class TutorialManager
         _isRunningHandPointerSubTutorial = true;
 
         InitializeHandPointerSystem();
+        LockGuestScrollForTutorial();
 
         return true;
     }
@@ -146,16 +149,20 @@ public partial class TutorialManager
     private void ApplyCurrentHandPointerSubStep()
     {
         if (!ValidateSubTutorialState())
+        {
+            Debug.LogWarning($"[HandPointerTutorial] Failed validation - cancelling tutorial");
             return;
+        }
 
         var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
         if (step == null)
         {
+            Debug.LogWarning($"[HandPointerTutorial] Step at index {_handPointerSubStepIndex} is null");
             CancelHandPointerSubTutorial();
             return;
         }
 
-        // Chain of Responsibility pattern: find first handler that can handle this step
+        // Find handler that can process this step
         foreach (var handler in _targetHandlers)
         {
             if (handler.CanHandle(step))
@@ -163,15 +170,30 @@ public partial class TutorialManager
                 bool success = handler.Apply(step, OnHandPointerTargetClicked);
                 if (!success)
                 {
+                    Debug.LogWarning($"[HandPointerTutorial] Handler '{handler.GetType().Name}' failed to apply step");
                     CancelHandPointerSubTutorial();
                 }
                 return;
             }
         }
 
-        // If no handler can handle the step, cancel
-        Debug.LogWarning("[HotelTutorial] HandPointerSub: No handler found for current step configuration.");
+        Debug.LogWarning($"[HandPointerTutorial] No handler found for step - {GetStepInfo(step)}");
         CancelHandPointerSubTutorial();
+    }
+
+    private string GetStepInfo(HandPointerSubStep step)
+    {
+        if (step.useGuestItemCheckInButton)
+            return "Type=GuestItemCheckIn";
+        if (step.useHotelRoomTarget)
+            return $"Type=HotelRoom, GuestTypeFilter='{step.hotelRoomGuestTypeFilter}'";
+        if (step.useClickableObjectTarget)
+            return $"Type=ClickableObject, ID='{step.clickableObjectId}'";
+        if (!string.IsNullOrEmpty(step.ButtonKey))
+            return $"Type=UIButton, ButtonKey='{step.ButtonKey}'";
+        if (step.uiButtonIndex >= 0)
+            return $"Type=UIButton, Index={step.uiButtonIndex}";
+        return "Type=Unknown";
     }
 
     private bool ValidateSubTutorialState()
@@ -194,14 +216,44 @@ public partial class TutorialManager
         OnHandPointerTargetClicked();
     }
 
-    private void OnHandPointerTargetClicked()
+    // Dipanggil eksplisit dari GuestItem ketika tombol check-in ditekan,
+    // supaya step tutorial tetap maju walaupun listener UI tidak terpasang dengan benar.
+    public void NotifyGuestItemCheckInClicked()
     {
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
             return;
 
+        if (_handPointerSubStepIndex < 0 || _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
+            return;
+
+        var currentStep = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
+        if (currentStep == null || !currentStep.useGuestItemCheckInButton)
+            return;
+
+        OnHandPointerTargetClicked();
+    }
+
+    private void OnHandPointerTargetClicked()
+    {
+        Debug.Log($"[HandPointerTutorial] OnHandPointerTargetClicked - Advancing tutorial");
+
+        if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
+        {
+            Debug.Log("[HandPointerTutorial] Tutorial is not running - ignoring click");
+            return;
+        }
+
         if (_targetingContext?.CurrentButton != null)
         {
             _targetingContext.CurrentButton.interactable = false;
+        }
+
+        if (_targetingContext?.PostClickAction != null)
+        {
+            Debug.Log("[HandPointerTutorial] Executing PostClickAction");
+            var postAction = _targetingContext.PostClickAction;
+            _targetingContext.PostClickAction = null;
+            postAction.Invoke();
         }
 
         _handPointerSubStepIndex++;
@@ -209,9 +261,11 @@ public partial class TutorialManager
         if (_handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
         {
             EndHandPointerSubTutorial();
+            Debug.Log("[HandPointerTutorial] Sub-tutorial completed");
         }
         else
         {
+            Debug.Log("applycurrent");
             ApplyCurrentHandPointerSubStep();
         }
     }
@@ -232,6 +286,10 @@ public partial class TutorialManager
         else if (_currentMode == TutorialMode.Hotel)
         {
             ShowNextHotelPanel();
+        }
+        else
+        {
+            Debug.LogWarning($"[HandPointerTutorial] Unknown mode {_currentMode}");
         }
     }
 
@@ -267,6 +325,24 @@ public partial class TutorialManager
 
         var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
         _targetingContext.Pointer.PointTo(_targetingContext.CurrentRect, step.pointerOffset);
+    }
+
+    private void LockGuestScrollForTutorial()
+    {
+        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+        if (hotelManager != null)
+        {
+            hotelManager.LockGuestListScroll();
+        }
+    }
+
+    private void UnlockGuestScrollForTutorial()
+    {
+        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+        if (hotelManager != null)
+        {
+            hotelManager.UnlockGuestListScroll();
+        }
     }
 
     #endregion

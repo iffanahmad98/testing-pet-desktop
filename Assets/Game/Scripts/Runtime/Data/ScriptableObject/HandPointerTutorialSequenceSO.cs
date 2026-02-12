@@ -24,14 +24,8 @@ public class HandPointerSubStep
     public string clickableObjectId;
 
     [Header("Optional GuestItem Button Target")]
-    [Tooltip("Jika true, step ini akan menarget check-in button dari GuestItem dengan guest name tertentu.")]
+    [Tooltip("Jika true, step ini akan menarget check-in button dari GuestItem pertama di scroll view (paling atas).")]
     public bool useGuestItemCheckInButton;
-
-    [Tooltip("Nama guest (guestName) yang GuestItem-nya akan ditarget. Contoh: 'Koaliarus'.")]
-    public string guestNameFilter;
-
-    [Tooltip("Type guest (Fire, Water, Earth, dll.) untuk filter lebih spesifik. Kosongkan untuk pilih random dari nama yang sama.")]
-    public string guestTypeFilter;
 
     [Header("Optional Hotel Room Target")]
     [Tooltip("Jika true, step ini akan menarget HotelController yang sedang ada guest-nya (IsOccupied=true), dipilih secara random.")]

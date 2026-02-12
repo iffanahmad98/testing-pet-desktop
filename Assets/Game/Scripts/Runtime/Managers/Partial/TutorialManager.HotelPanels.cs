@@ -293,14 +293,31 @@ public partial class TutorialManager
     }
     public Button GetButtonByName(string buttonName)
     {
-        if (string.IsNullOrEmpty(buttonName) || _uiButtonsCache == null)
+        if (string.IsNullOrEmpty(buttonName))
+        {
+            Debug.LogWarning("[HandPointerTutorial] GetButtonByName: buttonName is null or empty");
             return null;
+        }
+
+        if (_uiButtonsCache == null)
+        {
+            Debug.LogWarning("[HandPointerTutorial] GetButtonByName: _uiButtonsCache is null");
+            return null;
+        }
+
+        Debug.Log($"[HandPointerTutorial] GetButtonByName: Searching for '{buttonName}' in cache of {_uiButtonsCache.Length} buttons");
+
         for (int i = 0; i < _uiButtonsCache.Length; i++)
         {
             var btn = _uiButtonsCache[i];
             if (btn != null && btn.gameObject.name == buttonName)
+            {
+                Debug.Log($"[HandPointerTutorial] GetButtonByName: Button FOUND at index {i} - name='{btn.name}', active={btn.gameObject.activeSelf}, interactable={btn.interactable}");
                 return btn;
+            }
         }
+
+        Debug.LogWarning($"[HandPointerTutorial] GetButtonByName: Button '{buttonName}' NOT FOUND in cache of {_uiButtonsCache.Length} buttons");
         return null;
     }
 

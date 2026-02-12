@@ -15,7 +15,7 @@ namespace MagicalGarden.Hotel
         public TextMeshProUGUI descPartyText;
         public TextMeshProUGUI descPriceText;
         public TextMeshProUGUI descTimeText;
-        private GuestRequest guest;
+        public GuestRequest guest;
 
         [Header("Type")]
         public GameObject vipObject;
@@ -29,6 +29,8 @@ namespace MagicalGarden.Hotel
 
         public void Setup(GuestRequest guest)
         {
+            Debug.Log($"[GuestItem] Setup called for guest '{guest.guestName}' - StackTrace: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
+
             this.guest = guest;
             guestIcon.sprite = guest.icon;
             titleText.text = guest.guestName;
@@ -36,23 +38,56 @@ namespace MagicalGarden.Hotel
             descPriceText.text = guest.price.ToString();
             descTimeText.text = guest.GetStayDurationString();
 
-            checkInBtn.GetComponent<Button>().onClick.RemoveAllListeners();
-            confirmBtn.GetComponent<Button>().onClick.RemoveAllListeners();
-            declineBtn.GetComponent<Button>().onClick.RemoveAllListeners();
-            checkInBtn.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                HandleGuestCheckIn();
-            });
-            confirmBtn.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                HandleGuestCheckIn();
-            });
+            var checkInButton = checkInBtn.GetComponent<Button>();
+            var confirmButton = confirmBtn.GetComponent<Button>();
+            var declineButton = declineBtn.GetComponent<Button>();
 
-            declineBtn.GetComponent<Button>().onClick.AddListener(() =>
+            // Check if buttons are protected by tutorial system
+            bool checkInProtected = TutorialManager.IsButtonProtectedByTutorial(checkInButton);
+            bool confirmProtected = TutorialManager.IsButtonProtectedByTutorial(confirmButton);
+            bool declineProtected = TutorialManager.IsButtonProtectedByTutorial(declineButton);
+
+            Debug.Log($"[GuestItem] Setup: Button protection status - checkIn={checkInProtected}, confirm={confirmProtected}, decline={declineProtected} | checkInBtnID={checkInButton.GetInstanceID()}");
+
+            // Only modify listeners if not protected by tutorial
+            if (!checkInProtected)
             {
-                HandleGuestDecline();
-                // Destroy(gameObject);
-            });
+                checkInButton.onClick.RemoveAllListeners();
+                checkInButton.onClick.AddListener(() =>
+                {
+                    HandleGuestCheckIn();
+                });
+            }
+            else
+            {
+                Debug.Log("[GuestItem] Setup: checkInBtn is protected by tutorial, skipping listener setup");
+            }
+
+            if (!confirmProtected)
+            {
+                confirmButton.onClick.RemoveAllListeners();
+                confirmButton.onClick.AddListener(() =>
+                {
+                    HandleGuestCheckIn();
+                });
+            }
+            else
+            {
+                Debug.Log("[GuestItem] Setup: confirmBtn is protected by tutorial, skipping listener setup");
+            }
+
+            if (!declineProtected)
+            {
+                declineButton.onClick.RemoveAllListeners();
+                declineButton.onClick.AddListener(() =>
+                {
+                    HandleGuestDecline();
+                });
+            }
+            else
+            {
+                Debug.Log("[GuestItem] Setup: declineBtn is protected by tutorial, skipping listener setup");
+            }
             if (guest.IsVIPGuest())
             {
                 checkInBtn.SetActive(false);
@@ -72,12 +107,33 @@ namespace MagicalGarden.Hotel
 
         private void HandleGuestCheckIn()
         {
-            if (HotelManager.Instance.IsCanAssign())
+            Debug.Log($"[GuestItem] HandleGuestCheckIn invoked for guest '{guest?.guestName}'");
+
+            var hotelManager = HotelManager.Instance;
+            if (hotelManager == null)
             {
+                Debug.LogError("[GuestItem] HandleGuestCheckIn aborted: HotelManager.Instance is null");
+                return;
+            }
+
+            if (hotelManager.IsCanAssign())
+            {
+                Debug.Log("[GuestItem] IsCanAssign == true, assigning guest to room");
+
                 // Confirm guest is at index 15
                 MonsterManager.instance.audio.PlayFarmSFX(15);
-                HotelManager.Instance.AssignGuestToAvailableRoom(guest);
+                hotelManager.AssignGuestToAvailableRoom(guest);
+                Debug.Log("[GuestItem] Guest assigned, destroying GuestItem gameObject");
                 Destroy(gameObject);
+                var tutorialManager = UnityEngine.Object.FindObjectOfType<TutorialManager>();
+                if (tutorialManager != null)
+                {
+                    tutorialManager.NotifyGuestItemCheckInClicked();
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GuestItem] IsCanAssign == false, cannot assign guest now");
             }
         }
 

@@ -61,6 +61,105 @@ public partial class TutorialManager
 
     public static Button GlobalSkipTutorialButton { get; private set; }
 
+    // Enhanced button protection system with automatic restoration
+    private static readonly Dictionary<Button, TutorialButtonProtection> _protectedButtons = new Dictionary<Button, TutorialButtonProtection>();
+
+    public static bool IsButtonProtectedByTutorial(Button button)
+    {
+        return button != null && _protectedButtons.ContainsKey(button);
+    }
+
+    private static void AddProtectedButton(Button button, System.Action tutorialListener)
+    {
+        Debug.Log($"[TutorialProtection] Adding protected button '{button?.name}'");
+        if (button == null || tutorialListener == null) return;
+
+        if (!_protectedButtons.ContainsKey(button))
+        {
+            _protectedButtons[button] = new TutorialButtonProtection(button, tutorialListener);
+            _protectedButtons[button].StartMonitoring();
+        }
+    }
+
+    private static void RemoveProtectedButton(Button button)
+    {
+        if (button != null && _protectedButtons.TryGetValue(button, out var protection))
+        {
+            protection.StopMonitoring();
+            _protectedButtons.Remove(button);
+        }
+    }
+
+    private class TutorialButtonProtection
+    {
+        private readonly Button _button;
+        private readonly System.Action _tutorialListener;
+        private UnityEngine.Coroutine _monitorCoroutine;
+
+        public TutorialButtonProtection(Button button, System.Action tutorialListener)
+        {
+            _button = button;
+            _tutorialListener = tutorialListener;
+        }
+
+        public void StartMonitoring()
+        {
+            if (_monitorCoroutine == null && _button != null)
+            {
+                var instance = UnityEngine.Object.FindObjectOfType<TutorialManager>();
+                if (instance != null)
+                {
+                    _monitorCoroutine = instance.StartCoroutine(MonitorAndRestoreListener());
+                }
+            }
+        }
+
+        public void StopMonitoring()
+        {
+            if (_monitorCoroutine != null)
+            {
+                var instance = UnityEngine.Object.FindObjectOfType<TutorialManager>();
+                if (instance != null)
+                {
+                    instance.StopCoroutine(_monitorCoroutine);
+                }
+                _monitorCoroutine = null;
+            }
+        }
+
+        private System.Collections.IEnumerator MonitorAndRestoreListener()
+        {
+            while (_button != null)
+            {
+                yield return new UnityEngine.WaitForSeconds(0.1f);
+
+                // Check if tutorial listener still exists
+                if (!HasTutorialListener())
+                {
+                    Debug.LogWarning($"[TutorialProtection] Listener removed from '{_button.name}'! Restoring...");
+                    RestoreListener();
+                }
+            }
+        }
+
+        private bool HasTutorialListener()
+        {
+            if (_button?.onClick == null) return false;
+
+            var listenerCount = _button.onClick.GetPersistentEventCount();
+            return listenerCount > 0;
+        }
+
+        private void RestoreListener()
+        {
+            if (_button?.onClick != null && _tutorialListener != null)
+            {
+                _button.onClick.RemoveAllListeners();
+                _button.onClick.AddListener(() => _tutorialListener.Invoke());
+            }
+        }
+    }
+
     private bool _isSubscribedToPlacementManager;
     private bool _isSubscribedToMonsterPoopClean;
 

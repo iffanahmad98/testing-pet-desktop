@@ -23,23 +23,38 @@ public partial class TutorialManager
             return null;
         }
 
-        public static GuestItem FindGuestItem(string guestName, string guestType)
+        public static GuestItem FindGuestItem()
         {
-            if (string.IsNullOrEmpty(guestName))
-                return null;
-
-            var allGuestItems = Object.FindObjectsOfType<GuestItem>(true);
-            Debug.Log($"[HotelTutorial] Searching for GuestItem with guestName='{guestName}' | guestType='{guestType}' | Total GuestItems found: {allGuestItems.Length}");
-
-            var candidates = FilterGuestItems(allGuestItems, guestName, guestType);
-
-            if (candidates.Count == 0)
+            var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+            if (hotelManager == null)
             {
-                Debug.LogWarning($"[HotelTutorial] No matching GuestItem found with guestName='{guestName}' and guestType='{guestType}'");
+                Debug.LogWarning("[HotelTutorial] HotelManager.Instance is null, cannot find GuestItem");
                 return null;
             }
 
-            return SelectRandomOrFirst(candidates, string.IsNullOrEmpty(guestType), "GuestItem", guestName, guestType);
+            var content = hotelManager.GetGuestListContent();
+            if (content == null || content.childCount == 0)
+            {
+                Debug.LogWarning("[HotelTutorial] Guest list content is empty or null");
+                return null;
+            }
+
+            var firstChild = content.GetChild(0);
+            if (firstChild == null)
+            {
+                Debug.LogWarning("[HotelTutorial] First child of guest list content is null");
+                return null;
+            }
+
+            var guestItem = firstChild.GetComponent<GuestItem>();
+            if (guestItem == null)
+            {
+                Debug.LogWarning($"[HotelTutorial] First child '{firstChild.name}' does not have GuestItem component");
+                return null;
+            }
+
+            Debug.Log($"[HotelTutorial] Found first GuestItem: '{guestItem.GuestName}' (type={guestItem.GuestType})");
+            return guestItem;
         }
 
         public static HotelController FindRandomOccupiedHotelRoom(string guestTypeFilter)
@@ -63,38 +78,6 @@ public partial class TutorialManager
         }
 
         #region Private Helper Methods
-
-        private static List<GuestItem> FilterGuestItems(GuestItem[] allItems, string guestName, string guestType)
-        {
-            var candidates = new List<GuestItem>();
-
-            foreach (var item in allItems)
-            {
-                if (!IsValidGuestItem(item, guestName))
-                    continue;
-
-                if (!string.IsNullOrEmpty(guestType) && item.GuestType != guestType)
-                {
-                    Debug.Log($"[HotelTutorial] Skipping GuestItem: name matches but type mismatch (expected={guestType}, actual={item.GuestType})");
-                    continue;
-                }
-
-                candidates.Add(item);
-            }
-
-            return candidates;
-        }
-
-        private static bool IsValidGuestItem(GuestItem item, string guestName)
-        {
-            if (item == null || !item.gameObject.activeInHierarchy)
-                return false;
-
-            if (item.titleText == null)
-                return false;
-
-            return item.titleText.text == guestName;
-        }
 
         private static List<HotelController> FilterOccupiedHotelRooms(HotelController[] allHotels, string guestTypeFilter)
         {
@@ -123,19 +106,6 @@ public partial class TutorialManager
                 return false;
 
             return hotel.IsOccupied;
-        }
-
-        private static T SelectRandomOrFirst<T>(List<T> candidates, bool selectRandom, string typeName, string name, string type)
-        {
-            if (selectRandom)
-            {
-                int randomIndex = UnityEngine.Random.Range(0, candidates.Count);
-                Debug.Log($"[HotelTutorial] Found {candidates.Count} {typeName} candidates, selecting random index {randomIndex}");
-                return candidates[randomIndex];
-            }
-
-            Debug.Log($"[HotelTutorial] Found matching {typeName}: '{name}' (type={type})");
-            return candidates[0];
         }
 
         #endregion

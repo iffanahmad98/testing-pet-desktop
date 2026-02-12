@@ -237,7 +237,7 @@ public partial class TutorialManager
         HidePointerIfAny();
         RestoreUIManagerButtonsInteractable();
 
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     public void SkipHotelTutorial()
@@ -264,6 +264,6 @@ public partial class TutorialManager
         CancelHandPointerSubTutorial();
         HidePointerIfAny();
 
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }

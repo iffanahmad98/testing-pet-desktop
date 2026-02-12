@@ -407,27 +407,55 @@ public partial class TutorialManager
 
     public Button ResolveHotelButtonByName(string buttonName)
     {
+        Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Searching for button with name '{buttonName}'");
+
         if (string.IsNullOrEmpty(buttonName))
+        {
+            Debug.LogWarning("[HandPointerTutorial] ResolveHotelButtonByName: buttonName is null or empty");
             return null;
+        }
 
         if (_currentMode == TutorialMode.Hotel &&
             hotelTutorials != null &&
             _hotelPanelIndex >= 0 &&
             _hotelPanelIndex < hotelTutorials.Count)
         {
+            Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Searching in current hotel panel (index={_hotelPanelIndex})");
             var step = hotelTutorials[_hotelPanelIndex];
             if (step != null && step.panelRoot != null)
             {
                 var buttons = step.panelRoot.GetComponentsInChildren<Button>(true);
+                Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Found {buttons.Length} buttons in panel '{step.panelRoot.name}'");
                 for (int i = 0; i < buttons.Length; i++)
                 {
                     var btn = buttons[i];
                     if (btn != null && btn.gameObject.name == buttonName)
+                    {
+                        Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Button FOUND in hotel panel - name='{btn.name}', index={i}, active={btn.gameObject.activeSelf}, interactable={btn.interactable}");
                         return btn;
+                    }
                 }
+                Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Button '{buttonName}' NOT FOUND in hotel panel, trying global cache");
+            }
+            else
+            {
+                Debug.LogWarning("[HandPointerTutorial] ResolveHotelButtonByName: Hotel step or panelRoot is null");
             }
         }
+        else
+        {
+            Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Not in hotel mode or invalid panel index, trying global cache. Mode={_currentMode}, PanelIndex={_hotelPanelIndex}");
+        }
 
-        return GetButtonByName(buttonName);
+        var result = GetButtonByName(buttonName);
+        if (result != null)
+        {
+            Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Button FOUND in global cache - name='{result.name}'");
+        }
+        else
+        {
+            Debug.LogWarning($"[HandPointerTutorial] ResolveHotelButtonByName: Button '{buttonName}' NOT FOUND anywhere");
+        }
+        return result;
     }
 }
