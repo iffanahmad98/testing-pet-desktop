@@ -125,6 +125,7 @@ public class BoardSign : MonoBehaviour, IUIButtonSource
 
         float minHeight = settingsManager.GetMinGameAreaHeight();
         settingsManager.UpdateGameAreaHeight(minHeight);
+        settingsManager.SnapPoopsToGroundIfMinHeight();
 
         Debug.Log($"Game area height set to minimum: {minHeight}");
     }
