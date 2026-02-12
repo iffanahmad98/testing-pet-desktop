@@ -974,18 +974,53 @@ public class MonsterManager : MonoBehaviour
     // Helper method to move monster to different area
     public void MoveMonsterToArea(string monsterID, int targetAreaIndex)
     {
+        if (string.IsNullOrEmpty(monsterID))
+        {
+            Debug.LogWarning("MoveMonsterToArea called with empty monsterID.");
+            return;
+        }
+
         var monster = activeMonsters.Find(m => m.monsterID == monsterID);
+        var playerConfig = SaveSystem.PlayerConfig ?? SaveSystem.GetPlayerConfig();
+        if (playerConfig == null)
+        {
+            Debug.LogWarning("MoveMonsterToArea aborted because PlayerConfig is null.");
+            return;
+        }
+        bool moved = false;
+
         if (monster != null)
         {
             // Update the monster's area in save data
-            SaveSystem.PlayerConfig.SetMonsterGameArea(monsterID, targetAreaIndex);
+            playerConfig.SetMonsterGameArea(monsterID, targetAreaIndex);
+            moved = true;
 
             // If moving to different area than current, remove from active list
             if (targetAreaIndex != currentGameAreaIndex)
             {
                 DespawnToPool(monster.gameObject);
             }
+        }
+        else
+        {
+            // Allow moving even when the monster is not active in the current scene
+            int beforeArea = playerConfig.ownedMonsters.Find(m => m.instanceId == monsterID)?.gameAreaId ?? -1;
+            if (beforeArea == -1)
+            {
+                Debug.LogWarning($"MoveMonsterToArea could not find monster data for ID: {monsterID}");
+                return;
+            }
 
+            if (beforeArea != targetAreaIndex)
+            {
+                playerConfig.SetMonsterGameArea(monsterID, targetAreaIndex);
+            }
+
+            moved = true;
+        }
+
+        if (moved)
+        {
             SaveSystem.SaveAll();
         }
     }

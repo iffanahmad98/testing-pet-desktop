@@ -324,6 +324,10 @@ public class PlayerConfig
         {
             monster.gameAreaId = toArea;
         }
+        else
+        {
+            Debug.Log("Monster is Null");
+        }
     }
 
     public int GetMonsterCountForGameArea(int gameAreaIndex)
