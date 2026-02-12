@@ -6,7 +6,7 @@ using UnityEngine;
 [Serializable]
 public class PlayerConfig
 {
-    public int coins = 10000;
+    public int coins = 10;
     public int poops = 0;
     public int lastGameAreaIndex = 0; // Default to first game area
     public int maxGameArea = 1; // Tracks the highest game area index created
