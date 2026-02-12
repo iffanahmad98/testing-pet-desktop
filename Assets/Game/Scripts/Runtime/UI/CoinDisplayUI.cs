@@ -29,7 +29,7 @@ public class CoinDisplayUI : MonoBehaviour
         // {
         //     UpdateCoinText();
         // }
-
+        CoinManager.AddCoinChangedRefreshEvent (UpdateCoinText);
         UpdateCoinText();
     }
 
@@ -78,13 +78,16 @@ public class CoinDisplayUI : MonoBehaviour
         Debug.Log($"Update Coin = {coins}");
 
         int cointDifferent = coins - lastCoinDisplay;
+
+        if (cointDifferent == 0)
+            return;
         
         coinDifferentText.gameObject.SetActive(true);
-        coinDifferentText.text = cointDifferent > 0? $"+{cointDifferent}" : cointDifferent.ToString();
-        coinDifferentText.color = cointDifferent > 0? Color.green : Color.red;
+        coinDifferentText.text = cointDifferent > 0 ? $"+{cointDifferent}" : cointDifferent.ToString();
+        coinDifferentText.color = cointDifferent > 0 ? Color.green : Color.red;
         coinDifferentText.rectTransform.anchoredPosition = new Vector2(330f, coinDifferentText.rectTransform.anchoredPosition.y);
         coinDifferentText.rectTransform.DOAnchorPosX(345f, 0.2f);
-
+        
         int coinDisplay = lastCoinDisplay;
 
         if (mainCoinText != null && shopCoinText != null)

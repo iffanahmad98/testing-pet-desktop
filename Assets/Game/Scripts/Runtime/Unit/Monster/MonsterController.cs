@@ -673,7 +673,7 @@ public class MonsterController : MonoBehaviour, IPointerClickHandler, IPointerEn
         var eatingOffset = monsterData.eatingOffset[evolutionLevel];
 
         if (eatingOffset != null)
-            eatingPos.transform.localPosition = new Vector2(eatingOffset.x, eatingOffset.y);
+            eatingPos.GetComponent<RectTransform>().anchoredPosition = new Vector2(eatingOffset.x, eatingOffset.y);
     }
 
     public void SetRandomTarget()
