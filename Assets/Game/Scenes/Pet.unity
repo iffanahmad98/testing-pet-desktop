@@ -10572,6 +10572,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &35868598 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4548256911299861989, guid: f1cf3e4410b33db4b816084c7d7aefac, type: 3}
+  m_PrefabInstance: {fileID: 6179323813835396282}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &37498012 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6538334251868079379, guid: 944ba18c8be6bfd4cbaea9bf7bbe1513, type: 3}
@@ -51991,7 +52002,7 @@ PrefabInstance:
     - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: 'manualUIButtonExtras.Array.data[3]'
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 35868598}
     - target: {fileID: 8784001177110100788, guid: 2f1f589026fa2474087e8c6c3387d864, type: 3}
       propertyPath: simpleTutorialPanels.Array.data[8].usePoopCleanAsNext
       value: 0
@@ -69371,7 +69382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e99c05bf5b0f9747a4942e2d76e21b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableTopMost: 0
+  enableTopMost: 1
   enableClickThrough: 1
 --- !u!114 &1851037291
 MonoBehaviour:
