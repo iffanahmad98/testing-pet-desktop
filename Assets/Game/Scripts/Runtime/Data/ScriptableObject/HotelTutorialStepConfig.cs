@@ -19,4 +19,12 @@ public class HotelTutorialStepConfig : ScriptableObject
 
     [Header("Hand Pointer Sub Tutorial")]
     public HandPointerTutorialSequenceSO handPointerSequence;
+
+    [Header("Camera Follow After Check-In")]
+    public bool focusCameraOnLastCheckedInGuestRoom;
+
+    public float cameraFocusDuration = 1.5f;
+
+    [Header("Hotel Gift Tutorial")]
+    public bool spawnTutorialGiftFromLastAssignedHotelRoom;
 }

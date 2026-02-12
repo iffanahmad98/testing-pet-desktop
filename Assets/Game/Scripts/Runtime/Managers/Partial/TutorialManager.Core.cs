@@ -66,6 +66,9 @@ public partial class TutorialManager
     // Enhanced button protection system with automatic restoration
     private static readonly Dictionary<Button, TutorialButtonProtection> _protectedButtons = new Dictionary<Button, TutorialButtonProtection>();
 
+    // Routine khusus untuk kamera hotel yang fokus ke kamar/monster setelah check-in
+    private Coroutine _hotelMonsterCameraRoutine;
+
     public static bool IsButtonProtectedByTutorial(Button button)
     {
         return button != null && _protectedButtons.ContainsKey(button);
@@ -265,7 +268,6 @@ public partial class TutorialManager
             config.plaintutorial = true;
             SaveSystem.SaveAll();
         }
-        Destroy(gameObject);
         foreach (GameObject item in gotohotel)
         {
             if (item != null)

@@ -33,4 +33,11 @@ public class HandPointerSubStep
 
     [Tooltip("(Opsional) Filter berdasarkan type guest di hotel room. Kosongkan untuk pilih random dari semua occupied room.")]
     public string hotelRoomGuestTypeFilter;
+
+    [Header("Optional Last Assigned Hotel Room Target (Hotel Mode Only)")]
+    [Tooltip("Jika true, step ini akan menarget HotelController yang terakhir dipakai untuk check-in guest (LastAssignedRoom di HotelManager) dan menunjuknya di world space.")]
+    public bool useLastAssignedHotelRoomTarget;
+
+    [Header("Optional Hotel Gift Target (Hotel Mode Only)")]
+    public bool useHotelGiftTarget;
 }

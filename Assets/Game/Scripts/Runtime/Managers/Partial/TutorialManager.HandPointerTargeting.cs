@@ -265,6 +265,110 @@ public partial class TutorialManager
         }
 
     }
+    private class LastAssignedHotelRoomTargetHandler : HandPointerTargetHandler
+    {
+        public LastAssignedHotelRoomTargetHandler(TutorialManager manager, HandPointerTargetingContext context)
+            : base(manager, context) { }
+
+        public override bool CanHandle(HandPointerSubStep step)
+        {
+            return step.useLastAssignedHotelRoomTarget && Manager._currentMode == TutorialMode.Hotel;
+        }
+
+        public override bool Apply(HandPointerSubStep step, System.Action onClickCallback)
+        {
+            var hotelRoom = HandPointerTargetFinder.FindLastAssignedHotelRoom();
+            if (hotelRoom == null)
+            {
+                Debug.LogWarning("[HotelTutorial] HandPointerSub: LastAssignedHotelRoom tidak ditemukan atau belum ada guest yang check-in.");
+                return false;
+            }
+
+            // Prioritaskan integrasi dengan ClickableObjectHotel (right-click buka info kamar)
+            // sehingga tutorial maju ketika pemain benar-benar membuka detail hotel.
+            var clickableHotel = hotelRoom.GetComponent<ClickableObjectHotel>();
+            if (clickableHotel != null)
+            {
+                System.Action handler = null;
+                handler = () =>
+                {
+                    // Pastikan hanya terpanggil sekali untuk step ini.
+                    clickableHotel.OnInfoShown -= handler;
+                    onClickCallback?.Invoke();
+                };
+                clickableHotel.OnInfoShown += handler;
+
+                // Ketika step memakai last assigned hotel room sebagai target,
+                // anggap klik ke kamar (open info) inilah "Next" untuk panel hotel ini,
+                // jadi sembunyikan tombol Next UI-nya supaya pemain diarahkan ke kamar.
+                Manager.HideCurrentHotelNextButtonForLastAssignedRoomStep();
+            }
+            else
+            {
+                // Fallback ke ClickableObject biasa jika tersedia.
+                var clickable = hotelRoom.GetComponent<ClickableObject>();
+                if (clickable != null)
+                {
+                    SetupClickableTarget(clickable, onClickCallback);
+                    Manager.HideCurrentHotelNextButtonForLastAssignedRoomStep();
+                }
+                else
+                {
+                    Debug.LogWarning($"[HotelTutorial] HandPointerSub: HotelController '{hotelRoom.gameObject.name}' tidak memiliki ClickableObjectHotel maupun ClickableObject.");
+                }
+            }
+
+            if (Context.Pointer != null)
+            {
+                Debug.Log($"[HotelTutorial] HandPointerSub: PointToWorld ke LAST HotelController '{hotelRoom.gameObject.name}' (guest={hotelRoom.nameGuest}, type={hotelRoom.typeGuest}) dengan offset {step.pointerOffset}.");
+                Context.Pointer.PointToWorld(hotelRoom.transform, step.pointerOffset);
+            }
+
+            return true;
+        }
+    }
+
+    private class HotelGiftTargetHandler : HandPointerTargetHandler
+    {
+        public HotelGiftTargetHandler(TutorialManager manager, HandPointerTargetingContext context)
+            : base(manager, context) { }
+
+        public override bool CanHandle(HandPointerSubStep step)
+        {
+            return step.useHotelGiftTarget && Manager._currentMode == TutorialMode.Hotel;
+        }
+
+        public override bool Apply(HandPointerSubStep step, System.Action onClickCallback)
+        {
+            var giftItem = HandPointerTargetFinder.FindLatestHotelGiftItem();
+            if (giftItem == null)
+            {
+                Debug.LogWarning("[HotelTutorial] HandPointerSub: Tidak ada GiftItem hotel yang tersedia untuk target tutorial.");
+                return false;
+            }
+
+            System.Action handler = null;
+            handler = () =>
+            {
+                giftItem.OnGiftOpened -= handler;
+                onClickCallback?.Invoke();
+            };
+            giftItem.OnGiftOpened += handler;
+
+            // Anggap klaim gift ini sebagai "Next" untuk panel hotel,
+            // jadi sembunyikan tombol Next UI supaya fokus ke gift.
+            Manager.HideCurrentHotelNextButtonForLastAssignedRoomStep();
+
+            if (Context.Pointer != null)
+            {
+                Debug.Log($"[HotelTutorial] HandPointerSub: PointToWorld ke GiftItem '{giftItem.gameObject.name}' dengan offset {step.pointerOffset}.");
+                Context.Pointer.PointToWorld(giftItem.transform, step.pointerOffset);
+            }
+
+            return true;
+        }
+    }
+
     private class HotelRoomTargetHandler : HandPointerTargetHandler
     {
         public HotelRoomTargetHandler(TutorialManager manager, HandPointerTargetingContext context)

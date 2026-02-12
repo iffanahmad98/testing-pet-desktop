@@ -86,6 +86,11 @@ public partial class TutorialManager
 
             PlayHotelPanelShowAnimation(nextStep.panelRoot);
             _hotelStepShownTime = Time.time;
+
+            // Jika step ini mengaktifkan tutorial gift, spawn gift dari kamar terakhir
+            // yang dipakai check-in sebelum memulai sub-tutorial/pointer.
+            TrySpawnTutorialGiftForCurrentStep();
+
             if (nextConfig.handPointerSequence != null)
             {
                 StartHandPointerHotelSubTutorial(nextStep);
@@ -94,6 +99,7 @@ public partial class TutorialManager
             {
                 UpdateHotelStepNextButtonsInteractable();
                 UpdatePointerForHotelStep(nextStep);
+                TryStartHotelCameraFollowForCurrentStep();
             }
 
             EnsureHotelNextButtonListenerForStep(nextStep);
@@ -127,6 +133,11 @@ public partial class TutorialManager
             Debug.Log($"[HotelTutorial] Showing FIRST panel | index={_hotelPanelIndex} | panel={firstStep.panelRoot.name} | handPointer={(firstConfig.handPointerSequence != null)}");
             PlayHotelPanelShowAnimation(firstStep.panelRoot);
             _hotelStepShownTime = Time.time;
+
+            // Jika step ini mengaktifkan tutorial gift, spawn gift dari kamar terakhir
+            // yang dipakai check-in sebelum memulai sub-tutorial/pointer.
+            TrySpawnTutorialGiftForCurrentStep();
+
             if (firstConfig.handPointerSequence != null)
             {
                 StartHandPointerHotelSubTutorial(firstStep);
@@ -135,6 +146,10 @@ public partial class TutorialManager
             {
                 UpdateHotelStepNextButtonsInteractable();
                 UpdatePointerForHotelStep(firstStep);
+
+                // Untuk step hotel pertama tanpa hand pointer sequence,
+                // cek apakah perlu fokus kamera (dan lanjut otomatis setelah durasi).
+                TryStartHotelCameraFollowForCurrentStep();
             }
             EnsureHotelNextButtonListenerForStep(firstStep);
             SetupHotelClickableNextForStep(firstStep);
@@ -217,6 +232,154 @@ public partial class TutorialManager
         return null;
     }
 
+    private bool TrySpawnTutorialGiftForCurrentStep()
+    {
+        if (hotelTutorials == null || hotelTutorials.Count == 0)
+            return false;
+
+        if (_hotelPanelIndex < 0 || _hotelPanelIndex >= hotelTutorials.Count)
+            return false;
+
+        var currentStep = hotelTutorials[_hotelPanelIndex];
+        var config = currentStep != null ? currentStep.config : null;
+
+        if (config == null || !config.spawnTutorialGiftFromLastAssignedHotelRoom)
+            return false;
+
+        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+        if (hotelManager == null)
+        {
+            Debug.LogWarning("[HotelTutorial] TrySpawnTutorialGiftForCurrentStep: HotelManager.Instance is null");
+            return false;
+        }
+
+        var lastRoom = hotelManager.LastAssignedRoom;
+        if (lastRoom == null)
+        {
+            Debug.LogWarning("[HotelTutorial] TrySpawnTutorialGiftForCurrentStep: LastAssignedRoom is null (belum ada guest yang check-in)");
+            return false;
+        }
+
+        var gift = lastRoom.SpawnTutorialGift();
+        if (gift == null)
+            return false;
+
+        Debug.Log($"[HotelTutorial] Tutorial gift spawned at room '{lastRoom.gameObject.name}' for step index={_hotelPanelIndex}.");
+        return true;
+    }
+    private bool TryStartHotelCameraFollowForCurrentStep()
+    {
+        Debug.Log("=== CHECK HOTEL CAMERA FOLLOW ===");
+        if (hotelTutorials == null || hotelTutorials.Count == 0)
+        {
+            Debug.LogWarning("HotelTutorial ❌ NULL");
+            return false;
+        }
+
+
+        if (_hotelPanelIndex < 0 || _hotelPanelIndex >= hotelTutorials.Count)
+            return false;
+
+        var currentStep = hotelTutorials[_hotelPanelIndex];
+        var config = currentStep != null ? currentStep.config : null;
+        if (config == null || !config.focusCameraOnLastCheckedInGuestRoom)
+        {
+            Debug.LogWarning("Config ❌ NULL");
+            Debug.LogWarning("focus camera on last : " + config.focusCameraOnLastCheckedInGuestRoom);
+            Debug.LogWarning("config " + config);
+            return false;
+        }
+
+        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+        if (hotelManager == null)
+        {
+            Debug.LogWarning("[HotelTutorial] TryStartHotelCameraFollowForCurrentStep: HotelManager.Instance is null");
+            return false;
+        }
+
+        var lastRoom = hotelManager.LastAssignedRoom;
+        if (lastRoom == null)
+        {
+            Debug.LogWarning("[HotelTutorial] TryStartHotelCameraFollowForCurrentStep: LastAssignedRoom is null");
+            return false;
+        }
+
+        if (_hotelMonsterCameraRoutine != null)
+        {
+            Debug.LogWarning("LastAssignedRoom ❌ NULL");
+            StopCoroutine(_hotelMonsterCameraRoutine);
+        }
+
+        float duration = config.cameraFocusDuration;
+        if (duration <= 0f)
+        {
+            return false;
+        }
+
+        _hotelMonsterCameraRoutine = StartCoroutine(HotelCameraFollowRoomRoutine(lastRoom.transform, duration));
+        return true;
+    }
+
+    private System.Collections.IEnumerator HotelCameraFollowRoomRoutine(Transform roomTransform, float duration)
+    {
+        if (roomTransform == null)
+        {
+            _hotelMonsterCameraRoutine = null;
+            yield break;
+        }
+
+        if (cameraController == null)
+        {
+            cameraController = Object.FindObjectOfType<MagicalGarden.Farm.CameraDragMove>();
+        }
+
+        if (cameraController != null)
+        {
+            cameraController.FocusOnTarget(roomTransform.position, 4f, duration, isHotel: true);
+        }
+        else
+        {
+            Debug.LogWarning("[HotelTutorial] HotelCameraFollowRoomRoutine: CameraDragMove not found, cannot focus camera");
+        }
+
+        if (duration > 0f)
+        {
+            yield return new WaitForSeconds(duration);
+        }
+        else
+        {
+            yield return null;
+        }
+
+        _hotelMonsterCameraRoutine = null;
+
+        // Setelah durasi fokus kamera selesai, otomatis lanjut ke step hotel berikutnya,
+        // selama kita masih berada di mode tutorial hotel.
+        if (_currentMode == TutorialMode.Hotel)
+        {
+            Debug.Log("[HotelTutorial] Camera focus duration ended, moving to next hotel panel.");
+            ShowNextHotelPanel();
+        }
+    }
+
+    private void LockGuestScrollForTutorial()
+    {
+        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+        if (hotelManager != null)
+        {
+            hotelManager.LockGuestListScroll();
+        }
+    }
+
+    private void UnlockGuestScrollForTutorial()
+    {
+        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+        if (hotelManager != null)
+        {
+            hotelManager.UnlockGuestListScroll();
+        }
+    }
+
     private void PlayHotelPanelShowAnimation(GameObject panel)
     {
         if (panel == null)
@@ -267,6 +430,29 @@ public partial class TutorialManager
             return;
 
         currentBtn.interactable = true;
+    }
+
+    private void HideCurrentHotelNextButtonForLastAssignedRoomStep()
+    {
+        if (hotelTutorials == null || hotelTutorials.Count == 0)
+            return;
+
+        if (_hotelPanelIndex < 0 || _hotelPanelIndex >= hotelTutorials.Count)
+            return;
+
+        var currentStep = hotelTutorials[_hotelPanelIndex];
+        var currentConfig = currentStep != null ? currentStep.config : null;
+        if (currentStep == null || currentConfig == null)
+            return;
+        if (currentConfig.useClickableObjectAsNext)
+            return;
+
+        var btn = GetHotelStepNextButton(currentStep);
+        if (btn == null)
+            return;
+
+        btn.interactable = false;
+        btn.gameObject.SetActive(false);
     }
 
     private Button GetHotelStepNextButton(HotelTutorialPanelStep step)

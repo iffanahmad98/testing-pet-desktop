@@ -36,6 +36,8 @@ public partial class TutorialManager
         {
             _targetHandlers = new List<HandPointerTargetHandler>
             {
+                new LastAssignedHotelRoomTargetHandler(this, _targetingContext),
+                new HotelGiftTargetHandler(this, _targetingContext),
                 new HotelRoomTargetHandler(this, _targetingContext),
                 new GuestItemCheckInTargetHandler(this, _targetingContext),
                 new ClickableObjectTargetHandler(this, _targetingContext),
@@ -185,6 +187,10 @@ public partial class TutorialManager
     {
         if (step.useGuestItemCheckInButton)
             return "Type=GuestItemCheckIn";
+        if (step.useLastAssignedHotelRoomTarget)
+            return "Type=LastAssignedHotelRoom";
+        if (step.useHotelGiftTarget)
+            return "Type=HotelGift";
         if (step.useHotelRoomTarget)
             return $"Type=HotelRoom, GuestTypeFilter='{step.hotelRoomGuestTypeFilter}'";
         if (step.useClickableObjectTarget)
@@ -285,6 +291,7 @@ public partial class TutorialManager
         }
         else if (_currentMode == TutorialMode.Hotel)
         {
+
             ShowNextHotelPanel();
         }
         else
@@ -325,24 +332,6 @@ public partial class TutorialManager
 
         var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
         _targetingContext.Pointer.PointTo(_targetingContext.CurrentRect, step.pointerOffset);
-    }
-
-    private void LockGuestScrollForTutorial()
-    {
-        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
-        if (hotelManager != null)
-        {
-            hotelManager.LockGuestListScroll();
-        }
-    }
-
-    private void UnlockGuestScrollForTutorial()
-    {
-        var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
-        if (hotelManager != null)
-        {
-            hotelManager.UnlockGuestListScroll();
-        }
     }
 
     #endregion

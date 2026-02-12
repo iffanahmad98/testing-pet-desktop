@@ -10,22 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 21602a64789f7e84d8feada91fe75df7, type: 3}
-  m_Name: HandPointerTutorialSequence Guest
+  m_Name: HandPointerTutorialSequence Gift
   m_EditorClassIdentifier: 
   steps:
   - uiButtonIndex: 0
     ButtonKey: 
-    pointerOffset: {x: 100, y: 0}
-    useClickableObjectTarget: 0
-    clickableObjectId: 
-    useGuestItemCheckInButton: 1
-    useHotelRoomTarget: 0
-    hotelRoomGuestTypeFilter: 
-  - uiButtonIndex: 0
-    ButtonKey: ExitBtnGuest
-    pointerOffset: {x: 73, y: 0}
+    pointerOffset: {x: 0, y: 0}
     useClickableObjectTarget: 0
     clickableObjectId: 
     useGuestItemCheckInButton: 0
     useHotelRoomTarget: 0
     hotelRoomGuestTypeFilter: 
+    useLastAssignedHotelRoomTarget: 0
+    useHotelGiftTarget: 1

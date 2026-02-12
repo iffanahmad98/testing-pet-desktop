@@ -33,6 +33,8 @@ namespace MagicalGarden.Gift
         // Internal
         private bool isOpened = false;
 
+        public System.Action OnGiftOpened;
+
         void Awake()
         {
             // No initialization needed
@@ -89,14 +91,17 @@ namespace MagicalGarden.Gift
                 Debug.LogWarning("GiftItem: Reward table tidak di-assign atau kosong!");
             }
 
+            // Beri tahu listener (misalnya tutorial) bahwa gift sudah dibuka.
+            OnGiftOpened?.Invoke();
+
             // Auto destroy jika enabled
             if (autoDestroyAfterOpen)
             {
-               // Destroy(gameObject, destroyDelay);
+                // Destroy(gameObject, destroyDelay);
             }
 
-            HotelGiftHandler.instance.ClaimGift (this, true);
-            Destroy (this.gameObject);
+            HotelGiftHandler.instance.ClaimGift(this, true);
+            Destroy(this.gameObject);
         }
 
         /// <summary>
@@ -303,9 +308,10 @@ namespace MagicalGarden.Gift
         }
 
         #region NPCRoboShroom
-        public void OpenGiftByNPC () {
-            HotelGiftHandler.instance.ClaimGift (this, false);
-            Destroy (this.gameObject);
+        public void OpenGiftByNPC()
+        {
+            HotelGiftHandler.instance.ClaimGift(this, false);
+            Destroy(this.gameObject);
         }
         #endregion
 #if UNITY_EDITOR

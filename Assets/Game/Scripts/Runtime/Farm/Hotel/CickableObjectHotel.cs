@@ -11,6 +11,7 @@ namespace MagicalGarden.Hotel
         [Header("Hover Effect")]
         public float hoverScaleMultiplier = 1.1f;
         public float scaleSpeed = 5f;
+        public System.Action OnInfoShown;
 
         private Vector3 originalScale;
         private bool isHovered = false;
@@ -20,7 +21,7 @@ namespace MagicalGarden.Hotel
         private bool justOpenedThisFrame = false;
         private static ClickableObjectHotel currentOpenMenuHotel;
 
-         // [Header ("Hotel Gift")]
+        // [Header ("Hotel Gift")]
         private void Start()
         {
             originalScale = transform.localScale;
@@ -40,9 +41,13 @@ namespace MagicalGarden.Hotel
                 if (col != null && col.gameObject == gameObject && hotelController.IsOccupied)
                 {
                     Farm.UIManager.Instance.ShowHotelInfo(hotelController, mouseWorldPos);
+
+                    OnInfoShown?.Invoke();
                 }
-            } else if (Input.GetMouseButtonDown (0) && isHovered) {
-                hotelController.ClickableFulFillRequest ();
+            }
+            else if (Input.GetMouseButtonDown(0) && isHovered)
+            {
+                hotelController.ClickableFulFillRequest();
             }
         }
 

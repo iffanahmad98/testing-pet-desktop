@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using MagicalGarden.Hotel;
+using MagicalGarden.Manager;
+using MagicalGarden.Gift;
 
 public partial class TutorialManager
 {
@@ -25,7 +27,7 @@ public partial class TutorialManager
 
         public static GuestItem FindGuestItem()
         {
-            var hotelManager = MagicalGarden.Manager.HotelManager.Instance;
+            var hotelManager = HotelManager.Instance;
             if (hotelManager == null)
             {
                 Debug.LogWarning("[HotelTutorial] HotelManager.Instance is null, cannot find GuestItem");
@@ -55,6 +57,60 @@ public partial class TutorialManager
 
             Debug.Log($"[HotelTutorial] Found first GuestItem: '{guestItem.GuestName}' (type={guestItem.GuestType})");
             return guestItem;
+        }
+
+        public static GiftItem FindLatestHotelGiftItem()
+        {
+            var handler = HotelGiftHandler.instance;
+            if (handler == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindLatestHotelGiftItem: HotelGiftHandler.instance is null");
+                return null;
+            }
+
+            var list = handler.GetListHotelGift();
+            if (list == null || list.Count == 0)
+            {
+                Debug.LogWarning("[HotelTutorial] FindLatestHotelGiftItem: listHotelGift kosong, belum ada gift di dunia");
+                return null;
+            }
+
+            var go = list[list.Count - 1];
+            if (go == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindLatestHotelGiftItem: GameObject gift terakhir adalah null");
+                return null;
+            }
+
+            var gift = go.GetComponent<GiftItem>();
+            if (gift == null)
+            {
+                Debug.LogWarning($"[HotelTutorial] FindLatestHotelGiftItem: GameObject '{go.name}' tidak memiliki GiftItem component");
+                return null;
+            }
+
+            Debug.Log($"[HotelTutorial] FindLatestHotelGiftItem: Menggunakan gift '{go.name}' sebagai target tutorial.");
+            return gift;
+        }
+
+        public static HotelController FindLastAssignedHotelRoom()
+        {
+            var hotelManager = HotelManager.Instance;
+            if (hotelManager == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindLastAssignedHotelRoom: HotelManager.Instance is null");
+                return null;
+            }
+
+            var lastRoom = hotelManager.LastAssignedRoom;
+            if (lastRoom == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindLastAssignedHotelRoom: LastAssignedRoom is null (belum ada guest yang check-in)");
+                return null;
+            }
+
+            Debug.Log($"[HotelTutorial] FindLastAssignedHotelRoom: Menggunakan kamar terakhir untuk check-in guest (idHotel={lastRoom.idHotel}, nameGuest='{lastRoom.nameGuest}', typeGuest='{lastRoom.typeGuest}')");
+            return lastRoom;
         }
 
         public static HotelController FindRandomOccupiedHotelRoom(string guestTypeFilter)

@@ -148,6 +148,8 @@ namespace MagicalGarden.Manager
             Instantiate(rayCleaningVfx, pos.position, Quaternion.identity);
             Destroy(currentCleaningVFX);
         }
+        public HotelController LastAssignedRoom { get; private set; }
+
         public void AssignGuestToAvailableRoom(GuestRequest guest)
         {
             List<HotelController> availableRooms = new List<HotelController>();
@@ -164,6 +166,8 @@ namespace MagicalGarden.Manager
             }
             int randomIndex = UnityEngine.Random.Range(0, availableRooms.Count);
             HotelController hotelController = availableRooms[randomIndex];
+
+            LastAssignedRoom = hotelController;
             hotelController.CheckInToRoom(guest);
             Vector3 basePos = guestSpawnPoint.position;
 
@@ -644,7 +648,7 @@ namespace MagicalGarden.Manager
                 RefreshAllMovementRoboShroom(hotelController); // mencegahBug (stuck isServing)
             }
 
-            HotelEventClaimCoin?.Invoke ();
+            HotelEventClaimCoin?.Invoke();
         }
 
         public bool IsHasHotelReward()
@@ -963,7 +967,7 @@ namespace MagicalGarden.Manager
         }
         #endregion
 
-        public void AddHotelEventClaimCoin (System.Action eventValue)
+        public void AddHotelEventClaimCoin(System.Action eventValue)
         { // HotelMainUI.cs
             HotelEventClaimCoin += eventValue;
         }
