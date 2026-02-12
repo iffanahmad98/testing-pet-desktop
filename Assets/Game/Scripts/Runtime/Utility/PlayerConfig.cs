@@ -60,6 +60,11 @@ public class PlayerConfig
     public DateTime lastRefreshTimeRareEggs;
     public DateTime lastGatchaTimeReset;
 
+    public DateTime timeKeeperNormalEndTime;
+    public bool isTimeKeeperNormalCooldown;
+    public DateTime timeKeeperProEndTime;
+    public bool isTimeKeeperProCooldown;
+
     public DateTime lastRefreshGenerateGuest;
     public List<GuestRequestData> listGuestRequestData = new List<GuestRequestData>();
     public DateTime lastRefreshTimeHotel;

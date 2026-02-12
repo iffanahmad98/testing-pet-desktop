@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -88,6 +89,52 @@ public static class SaveSystem
     {
         _playerConfig.SetAllMonsterIDs(ids);
         SavePlayerConfig();
+    }
+
+    public static void SaveEndTimeKeeperPro(DateTime endTime)
+    {
+        _playerConfig.timeKeeperProEndTime = endTime;
+        SavePlayerConfig();
+    }
+
+    public static DateTime GetEndTimeKeeperPro()
+    {
+        if (_playerConfig.timeKeeperProEndTime == null) return DateTime.Now;
+
+        return _playerConfig.timeKeeperProEndTime;
+    }
+
+    public static void SetTimeKeeperProStillCooldown(bool val)
+    {
+        _playerConfig.isTimeKeeperProCooldown = val;
+    }
+
+    public static bool IsTimeKeeperProStillCooldown()
+    {
+        return _playerConfig.isTimeKeeperProCooldown;
+    }
+
+    public static void SaveEndTimeKeeperNormal(DateTime endTime)
+    {
+        _playerConfig.timeKeeperNormalEndTime = endTime;
+        SavePlayerConfig();
+    }
+
+    public static DateTime GetEndTimeKeeperNormal()
+    {
+        if (_playerConfig.timeKeeperNormalEndTime == null) return DateTime.Now;
+
+        return _playerConfig.timeKeeperNormalEndTime;
+    }
+
+    public static void SetTimeKeeperNormalStillCooldown(bool val)
+    {
+        _playerConfig.isTimeKeeperNormalCooldown = val;
+    }
+
+    public static bool IsTimeKeeperNormalStillCooldown()
+    {
+        return _playerConfig.isTimeKeeperNormalCooldown;
     }
 
     public static List<string> LoadMonIDs()
