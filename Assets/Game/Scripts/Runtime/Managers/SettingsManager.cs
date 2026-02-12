@@ -1160,6 +1160,9 @@ public class SettingsManager : MonoBehaviour
         UpdateUIScale(savedUIScale);
         UpdatePetScale(savedPetScale);
 
+        // Reposition poop after reverting all changes
+        RepositionPoopsAfterScaling();
+
         foreach (var module in savableSettingsModules)
             module.RevertSettings();
 
