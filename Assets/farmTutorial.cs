@@ -1,4 +1,5 @@
 using DG.Tweening;
+using MagicalGarden.Farm;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -34,8 +35,10 @@ public class FarmTutorial : MonoBehaviour
     readonly Dictionary<string, Button> _buyButtons = new();
     Button _currentTutorialButton;
 
-    int _seedBuyRequirement = 8;
     int _totalSeedBought = 0;
+    int _totalSeedPlanted = 0;
+
+    CameraDragMove camDragMove;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -61,6 +64,8 @@ public class FarmTutorial : MonoBehaviour
 
         LockAll();
         ExecuteTutorialAtStep();
+
+        camDragMove = Object.FindFirstObjectByType<CameraDragMove>();
     }
 
     // Update is called once per frame
@@ -81,6 +86,7 @@ public class FarmTutorial : MonoBehaviour
         FarmTutorialStepData currentStep = stepData[step];
         currentStep.DeletePreviousStep(handPointer);
         _totalSeedBought = 0;
+        _totalSeedPlanted = 0;
 
         PrepareButtonsFor(currentStep);
 
@@ -118,6 +124,11 @@ public class FarmTutorial : MonoBehaviour
         CheckBuySeed(currentStep);
 
         if (currentStep.isSelectSeed)
+        {
+            UnhookTutorialAdvance();
+        }
+
+        if (currentStep.isPlantSeed)
         {
             UnhookTutorialAdvance();
         }
@@ -237,8 +248,52 @@ public class FarmTutorial : MonoBehaviour
 
     public void SelectSeedToSow()
     {
-        // Pemain klik tombol seed, lanjut ke langkah berikutnya
+        Debug.Log("Select seed to sow");
+
+        if (camDragMove == null)
+        {
+            Debug.Log("camDragMove is null");
+            return;
+        }
+
+        // set the camera to focus on the farm
+        camDragMove.FocusOnTarget(new Vector3(10.0f, 5.0f), 5);
         OnNextButtonClicked();
+    }
+
+    public bool CanPlantSeedsAt(Vector3Int cellPos)
+    {
+        var currentStep = stepData[tutorialStepIndex];
+        bool correctCell = false;
+
+        for (var i = 0; i < currentStep.seedPlantingPos.Length; i++)
+        {
+            var curPos = currentStep.seedPlantingPos[i];
+            if (curPos == cellPos)
+            {
+                correctCell = true; 
+                break;
+            }
+        }
+
+        if (correctCell)
+        {
+            _totalSeedPlanted += 1;
+            CountSeedPlanted();
+        }
+
+        return correctCell;
+    }
+
+    private void CountSeedPlanted()
+    {
+        var currentStep = stepData[tutorialStepIndex];
+
+        if (_totalSeedPlanted == currentStep.seedPlantRequirement)
+        {
+            // Sudah selesai planting, lanjut ke langkah berikutnya
+            OnNextButtonClicked();
+        }
     }
 
     public void RegisterBuyButton(string itemId, Button btn)

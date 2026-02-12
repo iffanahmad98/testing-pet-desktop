@@ -66,12 +66,12 @@ namespace MagicalGarden.Inventory
                     case ItemType.Seed:
                         TileManager.Instance.SetActionSeed(currentItem.itemData);
                         CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
-                        
-                        break;
+                        _tutorial.SelectSeedToSow();
+                    break;
                     case ItemType.MonsterSeed:
                         TileManager.Instance.SetActionSeed(currentItem.itemData);
                         CursorIconManager.Instance.ShowSeedIcon(currentItem.itemData.icon);
-                        _tutorial.SelectSeedToSow();
+                        
                         break;
                     case ItemType.Fertilizer:
                         TileManager.Instance.SetActionFertilizer(currentItem.itemData);

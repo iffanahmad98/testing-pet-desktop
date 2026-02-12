@@ -20,6 +20,9 @@ public class FarmTutorialStepData : MonoBehaviour
     public string panelNameToClose = string.Empty;
 
     public bool isSelectSeed = false;
+    public bool isPlantSeed = false;
+    public int seedPlantRequirement = 0;
+    public Vector3Int[] seedPlantingPos;
 
     public void WriteInstruction(TextMeshProUGUI titleText, TextMeshProUGUI bodyText)
     {
