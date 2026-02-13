@@ -72,10 +72,18 @@ public class HotelGiftHandler : MonoBehaviour
       //  uiIconTabBounce.Play ();
     }
 
-    void PlayLootBounce () {
-        Debug.Log ("Refresh Bounce " + HotelGift.instance.GetCurrency());
-        currentText.text = HotelGift.instance.GetCurrency().ToString ();
-        uiIconBounce.Play ();
+    void PlayLootBounce()
+    {
+        try
+        {
+            Debug.Log("Refresh Bounce " + HotelGift.instance.GetCurrency());
+            currentText.text = HotelGift.instance.GetCurrency().ToString();
+            uiIconBounce.Play();
+        }
+        catch (System.Exception)
+        {
+             currentText.text = HotelGift.instance.GetCurrency().ToString();
+        }
     }
 
     #region Claim Gift

@@ -650,7 +650,7 @@ public partial class TutorialManager
             if (btn == null)
                 continue;
 
-            if (_isRunningHandPointerSubTutorial && _currentHandPointerTargetButton == btn)
+            if (_isRunningHandPointerSubTutorial && _targetingContext?.CurrentButton == btn)
                 continue;
 
             btn.interactable = false;
@@ -683,7 +683,7 @@ public partial class TutorialManager
             }
         }
 
-        if (_isRunningHandPointerSubTutorial && _currentHandPointerTargetButton == currentBtn)
+        if (_isRunningHandPointerSubTutorial && _targetingContext?.CurrentButton == currentBtn)
         {
             currentBtn.interactable = true;
         }

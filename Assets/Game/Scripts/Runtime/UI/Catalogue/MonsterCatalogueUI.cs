@@ -27,8 +27,8 @@ public class MonsterCatalogueUI : MonoBehaviour
     public Button[] gameAreaButtons;
     public Button AddGameAreaBtn;
     public GameObject gameAreaButtonPrefab;
-    private Button seletectedGameAreaButton;
-    private int selectedGameAreaIndex = -1;
+    public Button seletectedGameAreaButton;
+    public int selectedGameAreaIndex = -1;
     private int maxAreaVisible = 5;
     private float gameAreaHeight = 100;
     public RectTransform scrollViewContent;
@@ -66,6 +66,8 @@ public class MonsterCatalogueUI : MonoBehaviour
         {
             StartCoroutine(InitializeAsync());
         }
+
+        ServiceLocator.Register(this);
     }
 
     private IEnumerator InitializeAsync()
@@ -491,7 +493,7 @@ public class MonsterCatalogueUI : MonoBehaviour
         Debug.Log($"Saving Game Area {index + 1} name: {name}");
     }
 
-    private void OnSwitchGameAreaButtonClicked()
+    public void OnSwitchGameAreaButtonClicked()
     {
         // Logic for Switch Game Area button click
         Debug.Log("Switch Game Area button clicked.");

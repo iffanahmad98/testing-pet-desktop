@@ -6,7 +6,7 @@ using UnityEngine;
 [Serializable]
 public class PlayerConfig
 {
-    public int coins = 10000;
+    public int coins = 10;
     public int poops = 0;
     public int lastGameAreaIndex = 0; // Default to first game area
     public int maxGameArea = 1; // Tracks the highest game area index created
@@ -21,6 +21,8 @@ public class PlayerConfig
 
     public string lastLoginTimeString;
     public string totalPlayTimeString;
+    
+    public DateTime firstLoginTime; // used for demo purpose
 
     [NonSerialized] public DateTime lastLoginTime;
     [NonSerialized] public TimeSpan totalPlayTime;
@@ -75,6 +77,22 @@ public class PlayerConfig
     public event System.Action<OwnedItemFarmData, int> eventRemoveItemFarmData;
 
     public List<FertilizerMachineData> fertilizerMachineDatas = new();
+    public void SaveFirstLoginTime () { // DemoCanvas.cs
+        if (firstLoginTime == default) {
+            Debug.Log ("Save First Login time");
+            firstLoginTime = MagicalGarden.Manager.TimeManager.Instance.realCurrentTime;
+            SaveSystem.SaveAll ();
+        }
+    }
+
+    public void ResetFirstLoginTime () { // DemoCanvas.cs
+        firstLoginTime = MagicalGarden.Manager.TimeManager.Instance.realCurrentTime;
+        SaveSystem.SaveAll ();
+    }
+
+    public DateTime LoadFirstLoginTime () { // DemoCanvas.cs
+        return firstLoginTime;
+    }
     // Serialization Sync
     public void SyncToSerializable()
     {
@@ -328,6 +346,10 @@ public class PlayerConfig
         if (monster != null)
         {
             monster.gameAreaId = toArea;
+        }
+        else
+        {
+            Debug.Log("Monster is Null");
         }
     }
 

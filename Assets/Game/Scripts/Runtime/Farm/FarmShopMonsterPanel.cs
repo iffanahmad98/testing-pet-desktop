@@ -301,8 +301,8 @@ public class FarmShopMonsterPanel : FarmShopPanelBase
                 {
                     itemCard.buyButton.interactable = false;
 
-                    itemCard.requirementTipClick.gameObject.SetActive (true);
-                    itemCard.requirementTipClick.dataSO = dataSO.GetRequirementTipData (totalHired);
+                    itemCard.requirementTipClick.gameObject.SetActive (false);
+                  //  itemCard.requirementTipClick.dataSO = dataSO.GetRequirementTipData (totalHired);
                 }
             }
             else

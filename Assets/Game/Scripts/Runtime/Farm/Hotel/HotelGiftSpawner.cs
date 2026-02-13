@@ -6,29 +6,55 @@ using System.Collections.Generic;
 // Attach with Hotel Controller
 public class HotelGiftSpawner : MonoBehaviour
 {
-   [SerializeField] GameObject hotelGift2dPrefab;
-   int chanceGiftDrop = 400;
-   GameObject cloneHotelGift;
-   public void OnSpawnGift (List<PetMonsterHotel> listPets) { // HotelController (Call when check out)
-   // Debug.Log ("Spawn Gift");
-     foreach (PetMonsterHotel pet in listPets) { 
-      int result = Random.Range (0,1000);
-      if (result < chanceGiftDrop) {
-        cloneHotelGift = GameObject.Instantiate (hotelGift2dPrefab);
-        cloneHotelGift.transform.SetParent (pet.transform);
-        cloneHotelGift.SetActive (true); 
-        cloneHotelGift.transform.localPosition = new Vector3 (0, -0.5f, -3.0f);
-        cloneHotelGift.transform.SetParent (null);
+  [SerializeField] GameObject hotelGift2dPrefab;
+  int chanceGiftDrop = 400;
+  GameObject cloneHotelGift;
+  public void OnSpawnGift(List<PetMonsterHotel> listPets)
+  { // HotelController (Call when check out)
+    // Debug.Log ("Spawn Gift");
+    foreach (PetMonsterHotel pet in listPets)
+    {
+      int result = Random.Range(0, 1000);
+      if (result < chanceGiftDrop)
+      {
+        cloneHotelGift = GameObject.Instantiate(hotelGift2dPrefab);
+        cloneHotelGift.transform.SetParent(pet.transform);
+        cloneHotelGift.SetActive(true);
+        cloneHotelGift.transform.localPosition = new Vector3(0, -0.5f, -3.0f);
+        cloneHotelGift.transform.SetParent(null);
 
-        HotelGiftHandler.instance.AddHotelGift (cloneHotelGift);
-        Debug.Log ("Spawn Gift Reward");
-      } else {
-        Debug.Log ("Not Spawn Gift Reward");
+        HotelGiftHandler.instance.AddHotelGift(cloneHotelGift);
+        Debug.Log("Spawn Gift Reward");
       }
-     }
-   }
+      else
+      {
+        Debug.Log("Not Spawn Gift Reward");
+      }
+    }
+  }
 
-   
+
+
+  public GameObject ForceSpawnGiftForTutorial()
+  {
+    if (hotelGift2dPrefab == null)
+    {
+      Debug.LogWarning("[HotelGiftSpawner] ForceSpawnGiftForTutorial: hotelGift2dPrefab belum di-assign.");
+      return null;
+    }
+
+    GameObject gift = GameObject.Instantiate(hotelGift2dPrefab);
+    gift.SetActive(true);
+    gift.transform.position = transform.position;
+
+    if (HotelGiftHandler.instance != null)
+    {
+      HotelGiftHandler.instance.AddHotelGift(gift);
+    }
+
+    Debug.Log("[HotelGiftSpawner] Spawn Tutorial Gift Reward");
+    return gift;
+  }
 
   /*
    public void ClaimGift () { // CickableObjectHotel (when click hotel object)
@@ -45,8 +71,9 @@ public class HotelGiftSpawner : MonoBehaviour
      HotelGiftHandler.instance.SpawnHotelGiftDisplay ();
    }
   */
-   bool IsAnyGiftable () { // check is anything gift or not before claim.
+  bool IsAnyGiftable()
+  { // check is anything gift or not before claim.
     return true;
-   } 
+  }
 
 }

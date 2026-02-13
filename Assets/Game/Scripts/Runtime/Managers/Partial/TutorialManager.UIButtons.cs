@@ -20,9 +20,11 @@ public partial class TutorialManager
             return;
 
         var previousInteractables = _uiButtonsInteractableCache;
+        var previousActives = _uiButtonsActiveCache;
 
         _uiButtonsCache = null;
         _uiButtonsInteractableCache = null;
+        _uiButtonsActiveCache = null;
         _hasLoggedUIButtonCache = false;
 
         CacheUIButtonsFromUIManager();
@@ -45,6 +47,25 @@ public partial class TutorialManager
             _uiButtonsInteractableCache = merged;
         }
 
+        if (previousActives != null && _uiButtonsCache != null)
+        {
+            var mergedActive = new bool[_uiButtonsCache.Length];
+            for (int i = 0; i < _uiButtonsCache.Length; i++)
+            {
+                if (i < previousActives.Length)
+                {
+                    mergedActive[i] = previousActives[i];
+                }
+                else
+                {
+                    var btn = _uiButtonsCache[i];
+                    mergedActive[i] = btn != null && btn.gameObject.activeSelf;
+                }
+            }
+
+            _uiButtonsActiveCache = mergedActive;
+        }
+
         Debug.Log("[TutorialManager] RebuildUIButtonCache dipanggil.");
     }
     private void CacheAllButtonsForHotelMode()
@@ -61,10 +82,12 @@ public partial class TutorialManager
         }
         _uiButtonsCache = list.ToArray();
         _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
+        _uiButtonsActiveCache = new bool[_uiButtonsCache.Length];
         for (int i = 0; i < _uiButtonsCache.Length; i++)
         {
             var btn = _uiButtonsCache[i];
             _uiButtonsInteractableCache[i] = btn != null && btn.interactable;
+            _uiButtonsActiveCache[i] = btn != null && btn.gameObject.activeSelf;
         }
         Debug.Log($"[TutorialManager] CacheAllButtonsForHotelMode: {_uiButtonsCache.Length} button(s) cached for hotel mode.");
     }
@@ -132,10 +155,12 @@ public partial class TutorialManager
         _uiButtonsCache = list.ToArray();
         Debug.Log($"[PlainTutorial] UIButtonCache BUILT: {_uiButtonsCache.Length} button(s)");
         _uiButtonsInteractableCache = new bool[_uiButtonsCache.Length];
+        _uiButtonsActiveCache = new bool[_uiButtonsCache.Length];
         for (int i = 0; i < _uiButtonsCache.Length; i++)
         {
             var btn = _uiButtonsCache[i];
             _uiButtonsInteractableCache[i] = btn != null && btn.interactable;
+            _uiButtonsActiveCache[i] = btn != null && btn.gameObject.activeSelf;
         }
 
         LogUIButtonCacheOnce();
@@ -247,6 +272,12 @@ public partial class TutorialManager
             if (btn != null)
             {
                 btn.interactable = _uiButtonsInteractableCache[i];
+
+                // Restore active state juga
+                if (_uiButtonsActiveCache != null && i < _uiButtonsActiveCache.Length)
+                {
+                    btn.gameObject.SetActive(_uiButtonsActiveCache[i]);
+                }
             }
         }
 
@@ -257,6 +288,7 @@ public partial class TutorialManager
 
         _uiButtonsCache = null;
         _uiButtonsInteractableCache = null;
+        _uiButtonsActiveCache = null;
     }
 
     private bool IsTutorialControlButton(Button btn)
@@ -371,5 +403,59 @@ public partial class TutorialManager
         if (_uiButtonsCache == null || index < 0 || index >= _uiButtonsCache.Length)
             return null;
         return _uiButtonsCache[index];
+    }
+
+    public Button ResolveHotelButtonByName(string buttonName)
+    {
+        Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Searching for button with name '{buttonName}'");
+
+        if (string.IsNullOrEmpty(buttonName))
+        {
+            Debug.LogWarning("[HandPointerTutorial] ResolveHotelButtonByName: buttonName is null or empty");
+            return null;
+        }
+
+        if (_currentMode == TutorialMode.Hotel &&
+            hotelTutorials != null &&
+            _hotelPanelIndex >= 0 &&
+            _hotelPanelIndex < hotelTutorials.Count)
+        {
+            Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Searching in current hotel panel (index={_hotelPanelIndex})");
+            var step = hotelTutorials[_hotelPanelIndex];
+            if (step != null && step.panelRoot != null)
+            {
+                var buttons = step.panelRoot.GetComponentsInChildren<Button>(true);
+                Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Found {buttons.Length} buttons in panel '{step.panelRoot.name}'");
+                for (int i = 0; i < buttons.Length; i++)
+                {
+                    var btn = buttons[i];
+                    if (btn != null && btn.gameObject.name == buttonName)
+                    {
+                        Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Button FOUND in hotel panel - name='{btn.name}', index={i}, active={btn.gameObject.activeSelf}, interactable={btn.interactable}");
+                        return btn;
+                    }
+                }
+                Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Button '{buttonName}' NOT FOUND in hotel panel, trying global cache");
+            }
+            else
+            {
+                Debug.LogWarning("[HandPointerTutorial] ResolveHotelButtonByName: Hotel step or panelRoot is null");
+            }
+        }
+        else
+        {
+            Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Not in hotel mode or invalid panel index, trying global cache. Mode={_currentMode}, PanelIndex={_hotelPanelIndex}");
+        }
+
+        var result = GetButtonByName(buttonName);
+        if (result != null)
+        {
+            Debug.Log($"[HandPointerTutorial] ResolveHotelButtonByName: Button FOUND in global cache - name='{result.name}'");
+        }
+        else
+        {
+            Debug.LogWarning($"[HandPointerTutorial] ResolveHotelButtonByName: Button '{buttonName}' NOT FOUND anywhere");
+        }
+        return result;
     }
 }

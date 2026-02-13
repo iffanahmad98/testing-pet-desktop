@@ -1,38 +1,78 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using MagicalGarden.Hotel;
 
 public partial class TutorialManager
 {
+    #region Fields
+
     private bool _isRunningHandPointerSubTutorial;
     private int _handPointerSubStepIndex = -1;
     private HandPointerTutorialSequenceSO _activeHandPointerSubTutorial;
     private IUIButtonResolver _buttonResolver;
-    private Button _currentHandPointerTargetButton;
-    private RectTransform _currentHandPointerTargetRect;
+
+    // Targeting context and handlers
+    private HandPointerTargetingContext _targetingContext;
+    private List<HandPointerTargetHandler> _targetHandlers;
+
+    #endregion
+
+    #region Lifecycle & State Management
+
+    private void InitializeHandPointerSystem()
+    {
+        if (_targetingContext == null)
+        {
+            _targetingContext = new HandPointerTargetingContext();
+        }
+
+        if (_buttonResolver == null)
+        {
+            _buttonResolver = Create(_currentMode);
+        }
+
+        if (_targetHandlers == null)
+        {
+            _targetHandlers = new List<HandPointerTargetHandler>
+            {
+                new LastAssignedHotelRoomTargetHandler(this, _targetingContext),
+                new HotelGiftTargetHandler(this, _targetingContext),
+                new HotelRoomTargetHandler(this, _targetingContext),
+                new GuestItemCheckInTargetHandler(this, _targetingContext),
+                new ClickableObjectTargetHandler(this, _targetingContext),
+                new UIButtonTargetHandler(this, _targetingContext, _buttonResolver)
+            };
+        }
+    }
 
     private void CancelHandPointerSubTutorial()
     {
         _isRunningHandPointerSubTutorial = false;
 
-        var pointer = ServiceLocator.Get<ITutorialPointer>();
-        if (pointer != null)
+        if (_targetingContext != null)
         {
-            pointer.Hide();
+            if (_targetingContext.CurrentButton != null)
+            {
+                _targetingContext.CurrentButton.onClick.RemoveListener(OnHandPointerTargetClicked);
+            }
+
+            if (_targetingContext.CurrentClickable != null)
+            {
+                _targetingContext.CurrentClickable.OnClicked -= OnHandPointerClickableTargetClicked;
+            }
+
+            _targetingContext.HidePointer();
+            _targetingContext.ClearCurrentTargets();
         }
 
-        if (_currentHandPointerTargetButton != null)
-        {
-            _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
-            _currentHandPointerTargetButton = null;
-        }
-
-        _currentHandPointerTargetRect = null;
+        UnlockGuestScrollForTutorial();
     }
 
-    private void InitHandPointerResolver()
-    {
-        _buttonResolver = Create(_currentMode);
-    }
+    #endregion
+
+    #region Sequence Control
+
     private void SetHandPointerSequenceButtonsInteractable(bool interactable)
     {
         if (_activeHandPointerSubTutorial == null ||
@@ -40,47 +80,30 @@ public partial class TutorialManager
             _activeHandPointerSubTutorial.steps.Count == 0)
             return;
 
-        if (_buttonResolver == null)
-        {
-            InitHandPointerResolver();
-            if (_buttonResolver == null)
-                return;
-        }
+        InitializeHandPointerSystem();
 
-        for (int i = 0; i < _activeHandPointerSubTutorial.steps.Count; i++)
+        if (_buttonResolver == null)
+            return;
+
+        foreach (var subStep in _activeHandPointerSubTutorial.steps)
         {
-            var subStep = _activeHandPointerSubTutorial.steps[i];
             if (subStep == null)
                 continue;
 
             var btn = _buttonResolver.Resolve(this, subStep);
-            if (btn == null)
-                continue;
-
-            btn.interactable = interactable;
+            if (btn != null)
+            {
+                btn.interactable = interactable;
+            }
         }
     }
 
     private void StartHandPointerPlainSubTutorial(PlainTutorialPanelStep plainStep)
     {
-        var config = plainStep != null ? plainStep.config : null;
-        if (config == null || config.handPointerSequence == null)
+        if (!ValidateAndInitializeSequence(plainStep?.config?.handPointerSequence))
             return;
 
-        var sequence = config.handPointerSequence;
-        if (sequence.steps == null || sequence.steps.Count == 0)
-            return;
-
-        _activeHandPointerSubTutorial = sequence;
-        _handPointerSubStepIndex = 0;
-        _isRunningHandPointerSubTutorial = true;
-
-        if (_buttonResolver == null)
-        {
-            InitHandPointerResolver();
-        }
-
-        ApplyCurrentHandPointerSubStep();
+        StartSubTutorialSequence();
 
         if (!_isRunningHandPointerSubTutorial)
         {
@@ -90,24 +113,10 @@ public partial class TutorialManager
 
     private void StartHandPointerHotelSubTutorial(HotelTutorialPanelStep hotelStep)
     {
-        var config = hotelStep != null ? hotelStep.config : null;
-        if (config == null || config.handPointerSequence == null)
+        if (!ValidateAndInitializeSequence(hotelStep?.config?.handPointerSequence))
             return;
 
-        var sequence = config.handPointerSequence;
-        if (sequence.steps == null || sequence.steps.Count == 0)
-            return;
-
-        _activeHandPointerSubTutorial = sequence;
-        _handPointerSubStepIndex = 0;
-        _isRunningHandPointerSubTutorial = true;
-
-        if (_buttonResolver == null)
-        {
-            InitHandPointerResolver();
-        }
-
-        ApplyCurrentHandPointerSubStep();
+        StartSubTutorialSequence();
 
         if (!_isRunningHandPointerSubTutorial)
         {
@@ -115,72 +124,142 @@ public partial class TutorialManager
         }
     }
 
+    private bool ValidateAndInitializeSequence(HandPointerTutorialSequenceSO sequence)
+    {
+        if (sequence == null || sequence.steps == null || sequence.steps.Count == 0)
+            return false;
+
+        _activeHandPointerSubTutorial = sequence;
+        _handPointerSubStepIndex = 0;
+        _isRunningHandPointerSubTutorial = true;
+
+        InitializeHandPointerSystem();
+        LockGuestScrollForTutorial();
+
+        return true;
+    }
+
+    private void StartSubTutorialSequence()
+    {
+        ApplyCurrentHandPointerSubStep();
+    }
+
+    #endregion
+
+    #region Step Application
+
     private void ApplyCurrentHandPointerSubStep()
     {
-        if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
+        if (!ValidateSubTutorialState())
+        {
+            Debug.LogWarning($"[HandPointerTutorial] Failed validation - cancelling tutorial");
             return;
-
-        if (_handPointerSubStepIndex < 0 ||
-            _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
-            return;
+        }
 
         var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
         if (step == null)
         {
+            Debug.LogWarning($"[HandPointerTutorial] Step at index {_handPointerSubStepIndex} is null");
             CancelHandPointerSubTutorial();
             return;
         }
 
-        if (_buttonResolver == null)
+        // Find handler that can process this step
+        foreach (var handler in _targetHandlers)
         {
-            InitHandPointerResolver();
-            if (_buttonResolver == null)
+            if (handler.CanHandle(step))
             {
-                CancelHandPointerSubTutorial();
+                bool success = handler.Apply(step, OnHandPointerTargetClicked);
+                if (!success)
+                {
+                    Debug.LogWarning($"[HandPointerTutorial] Handler '{handler.GetType().Name}' failed to apply step");
+                    CancelHandPointerSubTutorial();
+                }
                 return;
             }
         }
 
-        var targetButton = _buttonResolver.Resolve(this, step);
-        if (targetButton == null)
-        {
-            CancelHandPointerSubTutorial();
-            return;
-        }
-
-        var rect = targetButton.transform as RectTransform;
-        if (rect == null)
-        {
-            CancelHandPointerSubTutorial();
-            return;
-        }
-
-        targetButton.gameObject.SetActive(true);
-        targetButton.interactable = true;
-
-        if (_currentHandPointerTargetButton != null)
-            _currentHandPointerTargetButton.onClick.RemoveListener(OnHandPointerTargetClicked);
-
-        _currentHandPointerTargetButton = targetButton;
-        _currentHandPointerTargetButton.onClick.AddListener(OnHandPointerTargetClicked);
-
-        _currentHandPointerTargetRect = rect;
-
-        var pointer = ServiceLocator.Get<ITutorialPointer>();
-        if (pointer != null)
-        {
-            pointer.PointTo(rect, step.pointerOffset);
-        }
+        Debug.LogWarning($"[HandPointerTutorial] No handler found for step - {GetStepInfo(step)}");
+        CancelHandPointerSubTutorial();
     }
 
-    private void OnHandPointerTargetClicked()
+    private string GetStepInfo(HandPointerSubStep step)
+    {
+        if (step.useGuestItemCheckInButton)
+            return "Type=GuestItemCheckIn";
+        if (step.useLastAssignedHotelRoomTarget)
+            return "Type=LastAssignedHotelRoom";
+        if (step.useHotelGiftTarget)
+            return "Type=HotelGift";
+        if (step.useHotelRoomTarget)
+            return $"Type=HotelRoom, GuestTypeFilter='{step.hotelRoomGuestTypeFilter}'";
+        if (step.useClickableObjectTarget)
+            return $"Type=ClickableObject, ID='{step.clickableObjectId}'";
+        if (!string.IsNullOrEmpty(step.ButtonKey))
+            return $"Type=UIButton, ButtonKey='{step.ButtonKey}'";
+        if (step.uiButtonIndex >= 0)
+            return $"Type=UIButton, Index={step.uiButtonIndex}";
+        return "Type=Unknown";
+    }
+
+    private bool ValidateSubTutorialState()
+    {
+        if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
+            return false;
+
+        if (_handPointerSubStepIndex < 0 || _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
+            return false;
+
+        return true;
+    }
+
+    #endregion
+
+    #region Event Handlers
+
+    private void OnHandPointerClickableTargetClicked(ClickableObject clickable)
+    {
+        OnHandPointerTargetClicked();
+    }
+
+    // Dipanggil eksplisit dari GuestItem ketika tombol check-in ditekan,
+    // supaya step tutorial tetap maju walaupun listener UI tidak terpasang dengan benar.
+    public void NotifyGuestItemCheckInClicked()
     {
         if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
             return;
 
-        if (_currentHandPointerTargetButton != null)
+        if (_handPointerSubStepIndex < 0 || _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
+            return;
+
+        var currentStep = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
+        if (currentStep == null || !currentStep.useGuestItemCheckInButton)
+            return;
+
+        OnHandPointerTargetClicked();
+    }
+
+    private void OnHandPointerTargetClicked()
+    {
+        Debug.Log($"[HandPointerTutorial] OnHandPointerTargetClicked - Advancing tutorial");
+
+        if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
         {
-            _currentHandPointerTargetButton.interactable = false;
+            Debug.Log("[HandPointerTutorial] Tutorial is not running - ignoring click");
+            return;
+        }
+
+        if (_targetingContext?.CurrentButton != null)
+        {
+            _targetingContext.CurrentButton.interactable = false;
+        }
+
+        if (_targetingContext?.PostClickAction != null)
+        {
+            Debug.Log("[HandPointerTutorial] Executing PostClickAction");
+            var postAction = _targetingContext.PostClickAction;
+            _targetingContext.PostClickAction = null;
+            postAction.Invoke();
         }
 
         _handPointerSubStepIndex++;
@@ -188,65 +267,72 @@ public partial class TutorialManager
         if (_handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
         {
             EndHandPointerSubTutorial();
+            Debug.Log("[HandPointerTutorial] Sub-tutorial completed");
         }
         else
         {
+            Debug.Log("applycurrent");
             ApplyCurrentHandPointerSubStep();
         }
     }
 
+    #endregion
+
+    #region Completion & Cleanup
+
     private void EndHandPointerSubTutorial()
     {
         SetHandPointerSequenceButtonsInteractable(false);
-
         CancelHandPointerSubTutorial();
+
         if (_currentMode == TutorialMode.Plain)
         {
-            if (plainTutorials != null &&
-                _plainPanelIndex >= 0 &&
-                _plainPanelIndex < plainTutorials.Count)
-            {
-                var currentPlainStep = plainTutorials[_plainPanelIndex];
-                var config = currentPlainStep != null ? currentPlainStep.config : null;
-                if (config != null)
-                {
-                    if (config.useFoodDropAsNext)
-                    {
-                        return;
-                    }
-
-                    if (config.usePoopCleanAsNext)
-                    {
-                        return;
-                    }
-                }
-            }
-
-            ShowNextPlainPanel();
+            HandlePlainModeCompletion();
         }
         else if (_currentMode == TutorialMode.Hotel)
         {
+
             ShowNextHotelPanel();
+        }
+        else
+        {
+            Debug.LogWarning($"[HandPointerTutorial] Unknown mode {_currentMode}");
         }
     }
 
+    private void HandlePlainModeCompletion()
+    {
+        if (plainTutorials != null && _plainPanelIndex >= 0 && _plainPanelIndex < plainTutorials.Count)
+        {
+            var currentPlainStep = plainTutorials[_plainPanelIndex];
+            var config = currentPlainStep?.config;
+
+            if (config != null)
+            {
+                // Don't proceed if waiting for food drop or poop clean
+                if (config.useFoodDropAsNext || config.usePoopCleanAsNext)
+                    return;
+            }
+        }
+
+        ShowNextPlainPanel();
+    }
+
+    #endregion
+
+    #region Utility Methods
+
     private void UpdateCurrentHandPointerOffsetRealtime()
     {
-        if (!_isRunningHandPointerSubTutorial || _activeHandPointerSubTutorial == null)
+        if (!ValidateSubTutorialState())
             return;
 
-        if (_handPointerSubStepIndex < 0 ||
-            _handPointerSubStepIndex >= _activeHandPointerSubTutorial.steps.Count)
-            return;
-
-        if (_currentHandPointerTargetRect == null)
-            return;
-
-        var pointer = ServiceLocator.Get<ITutorialPointer>();
-        if (pointer == null)
+        if (_targetingContext?.CurrentRect == null || _targetingContext?.Pointer == null)
             return;
 
         var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
-        pointer.PointTo(_currentHandPointerTargetRect, step.pointerOffset);
+        _targetingContext.Pointer.PointTo(_targetingContext.CurrentRect, step.pointerOffset);
     }
+
+    #endregion
 }

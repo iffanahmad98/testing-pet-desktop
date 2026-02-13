@@ -25,12 +25,19 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
     [Tooltip("Sorting order tinggi supaya pointer selalu di depan tanpa perlu mengubah hierarki.")]
     [SerializeField] private int sortingOrderOnTop = 5000;
 
+    [Header("Debug World Target Offset")]
+    [Tooltip("Offset tambahan untuk worldTarget yang bisa diatur realtime di inspector (untuk debug/tuning).")]
+    [SerializeField] private Vector3 debugWorldOffset = Vector3.zero;
+
     private RectTransform _canvasRect;
     private RectTransform _target;
+    private Transform _worldTarget;
     private Vector2 _offset;
+    private Vector3 _worldOffset;
     private Vector2 _velocity;
     private float _swayTime;
     private Canvas _pointerCanvas;
+    private System.Func<RectTransform> _targetResolver;
 
     private void Awake()
     {
@@ -38,6 +45,7 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
         {
             rootCanvas = GetComponentInParent<Canvas>();
         }
+
 
         if (rootCanvas != null)
         {
@@ -66,6 +74,27 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
             _pointerCanvas.sortingOrder = sortingOrderOnTop;
 
             pointerRect.gameObject.SetActive(false);
+            
+            // Ensure hand pointer doesn't block raycasts to buttons underneath
+            var pointerImage = pointerRect.GetComponent<UnityEngine.UI.Image>();
+            if (pointerImage != null)
+            {
+                pointerImage.raycastTarget = false;
+                Debug.Log("[TutorialHandPointer] Awake: Set hand pointer raycastTarget = false to allow clicks through");
+            }
+            
+            var childImages = pointerRect.GetComponentsInChildren<UnityEngine.UI.Image>(true);
+            foreach (var img in childImages)
+            {
+                img.raycastTarget = false;
+            }
+            Debug.Log($"[TutorialHandPointer] Awake: Disabled raycastTarget on {childImages.Length} Image components");
+            var canvasGroup = pointerRect.GetComponent<UnityEngine.CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.blocksRaycasts = false;
+                Debug.Log("[TutorialHandPointer] Awake: Set CanvasGroup blocksRaycasts = false to allow clicks through");
+            }
         }
 
         ServiceLocator.Register<ITutorialPointer>(this);
@@ -78,11 +107,34 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
 
     public void PointTo(RectTransform target, Vector2 offset)
     {
+        Debug.Log($"[TutorialHandPointer] PointTo called - target={(target != null ? target.name : "null")}, offset={offset}, hasResolver={_targetResolver != null}");
+
         if (target == null)
+        {
+            Debug.LogWarning("[TutorialHandPointer] PointTo: target is null, aborting");
             return;
+        }
+
+        _worldTarget = null;
+
+        if (pointerRect != null)
+        {
+            if (pointerRect.parent != null && !pointerRect.parent.gameObject.activeInHierarchy)
+            {
+                Debug.LogWarning($"[TutorialHandPointer] PointTo: pointerRect parent is not active! Parent={pointerRect.parent.name}");
+            }
+
+            pointerRect.gameObject.SetActive(true);
+            Debug.Log($"[TutorialHandPointer] PointTo: pointerRect activated - activeSelf={pointerRect.gameObject.activeSelf}, activeInHierarchy={pointerRect.gameObject.activeInHierarchy}");
+        }
+        else
+        {
+            Debug.LogWarning("[TutorialHandPointer] PointTo: pointerRect is null!");
+        }
 
         if (_target == target && pointerRect != null && pointerRect.gameObject.activeSelf)
         {
+            Debug.Log("[TutorialHandPointer] PointTo: target unchanged, only updating offset");
             _offset = offset;
             return;
         }
@@ -91,46 +143,167 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
         _offset = offset;
 
         if (pointerRect == null || _canvasRect == null || rootCanvas == null)
+        {
+            Debug.LogWarning($"[TutorialHandPointer] PointTo: Missing references - pointerRect={pointerRect != null}, canvasRect={_canvasRect != null}, rootCanvas={rootCanvas != null}");
             return;
+        }
 
-        pointerRect.gameObject.SetActive(true);
+        Debug.Log($"[TutorialHandPointer] PointTo: Setup complete - _target={(_target != null ? _target.name : "null")}, offset={_offset}, hasResolver={_targetResolver != null}");
+        _swayTime = 0f;
+    }
+
+    public void PointTo(RectTransform target, Vector2 offset, System.Func<RectTransform> targetResolver)
+    {
+        Debug.Log($"[TutorialHandPointer] PointTo with resolver called - target={(target != null ? target.name : "null")}");
+        _targetResolver = targetResolver;
+        PointTo(target, offset);
+        Debug.Log($"[TutorialHandPointer] PointTo with resolver done - _target={(_target != null ? _target.name : "null")}, _targetResolver={_targetResolver != null}");
+    }
+
+    public void PointToWorld(Transform worldTarget, Vector3 worldOffset)
+    {
+        Debug.Log("Hotel Tutorial : Pointoworld called" + (worldTarget != null ? worldTarget.name : "null"));
+        if (worldTarget == null)
+            return;
+        Debug.Log("Hotel Tutorial : Pointoworld execute");
+        _target = null;
+        _worldTarget = worldTarget;
+        _worldOffset = worldOffset;
+
+        if (pointerRect != null)
+        {
+            pointerRect.gameObject.SetActive(true);
+            Debug.Log("Hotel Tutorial : Pointer activated");
+        }
+
+        if (pointerRect == null || _canvasRect == null || rootCanvas == null)
+        {
+            Debug.LogWarning("[TutorialHandPointer] PointToWorld gagal: pointerRect atau canvas belum siap.");
+            return;
+        }
+        Debug.Log("Hotel Tutorial : Pointer and Canvas ready");
         _swayTime = 0f;
     }
 
     public void Hide()
     {
+        Debug.Log("Hotel Tutorial : Hide called");
         _target = null;
+        _worldTarget = null;
+        _targetResolver = null;
         if (pointerRect != null)
         {
+            Debug.Log("Hotel Tutorial : Pointer deactivated");
             pointerRect.gameObject.SetActive(false);
         }
     }
 
     private void LateUpdate()
     {
-        if (_target == null || pointerRect == null || _canvasRect == null || rootCanvas == null)
-            return;
 
-        var cam = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay
-            ? null
-            : rootCanvas.worldCamera;
-
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(cam, _target.position);
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, screenPos, cam, out var localPoint))
+        if (pointerRect == null)
         {
-            _swayTime += Time.deltaTime;
+            return;
+        }
 
-            float baseDir = -1f;
-            if (Mathf.Abs(_offset.x) > 0.01f)
+        if (!pointerRect.gameObject.activeSelf)
+        {
+            return;
+        }
+
+        // Try to resolve target if resolver is available and target is null
+        if (_targetResolver != null && _target == null && _worldTarget == null)
+        {
+            _target = _targetResolver();
+            if (_target == null)
             {
-                baseDir = -Mathf.Sign(_offset.x);
+                return;
+            }
+        }
+
+        // Check if we have the necessary references
+        if ((_target == null && _worldTarget == null) ||
+            _canvasRect == null ||
+            rootCanvas == null)
+        {
+            return;
+        }
+
+        Vector2 localPoint;
+
+        // =============================
+        // UI TARGET (RectTransform)
+        // =============================
+        if (_target != null)
+        {
+            Camera cam = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : rootCanvas.worldCamera;
+            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(cam, _target.position);
+
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _canvasRect,
+                    screenPos,
+                    cam,
+                    out localPoint))
+            {
+                Debug.LogWarning($"[TutorialHandPointer] LateUpdate: ScreenPointToLocalPointInRectangle failed for target {_target.name}");
+                return;
+            }
+        }
+        // =============================
+        // WORLD TARGET (Transform)
+        // =============================
+        else if (_worldTarget != null)
+        {
+            Camera worldCam = Camera.main;
+
+            if (worldCam == null)
+                return;
+
+
+            Vector3 worldPos = _worldTarget.position + _worldOffset + debugWorldOffset;
+            Vector3 screenPos3D = worldCam.WorldToScreenPoint(worldPos);
+
+            if (screenPos3D.z < 0)
+            {
+                pointerRect.gameObject.SetActive(false);
+                return;
             }
 
-            float sway = Mathf.Sin(_swayTime * swaySpeed) * swayAmplitude;
-            Vector2 swayOffset = new Vector2(sway * baseDir, 0f);
+            Vector2 screenPos = screenPos3D;
 
-            Vector2 desired = localPoint + _offset + swayOffset;
-            pointerRect.anchoredPosition = Vector2.SmoothDamp(pointerRect.anchoredPosition, desired, ref _velocity, followSmoothTime);
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _canvasRect,
+                    screenPos,
+                    null,
+                    out localPoint))
+                return;
         }
+        else
+        {
+            return;
+        }
+
+        // =============================
+        // SWAY ANIMATION
+        // =============================
+        _swayTime += Time.deltaTime;
+
+        float baseDir = -1f;
+        if (Mathf.Abs(_offset.x) > 0.01f)
+        {
+            baseDir = -Mathf.Sign(_offset.x);
+        }
+
+        float sway = Mathf.Sin(_swayTime * swaySpeed) * swayAmplitude;
+        Vector2 swayOffset = new Vector2(sway * baseDir, 0f);
+
+        Vector2 desired = localPoint + _offset + swayOffset;
+
+        pointerRect.anchoredPosition = Vector2.SmoothDamp(
+            pointerRect.anchoredPosition,
+            desired,
+            ref _velocity,
+            followSmoothTime);
     }
+
 }

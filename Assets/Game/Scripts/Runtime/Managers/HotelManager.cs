@@ -36,8 +36,13 @@ namespace MagicalGarden.Manager
         [SerializeField] private GameObject prefabGuestItem;
         [SerializeField] private GameObject emptyGuest;
         [SerializeField] private Transform content;
+        [SerializeField] private ScrollRect guestListScrollRect;
         [SerializeField] public Transform objectGuestPool;
         private string[] types = { "Fire", "Water", "Earth", "Air", "Plant" };
+        private bool _isScrollLocked;
+        private float _originalScrollSensitivity;
+        private bool _originalVerticalScroll;
+        private bool _originalHorizontalScroll;
         public DateTime lastGeneratedDate;
         public List<Button> listBubbleRequest = new List<Button>();
 
@@ -143,6 +148,8 @@ namespace MagicalGarden.Manager
             Instantiate(rayCleaningVfx, pos.position, Quaternion.identity);
             Destroy(currentCleaningVFX);
         }
+        public HotelController LastAssignedRoom { get; private set; }
+
         public void AssignGuestToAvailableRoom(GuestRequest guest)
         {
             List<HotelController> availableRooms = new List<HotelController>();
@@ -159,6 +166,8 @@ namespace MagicalGarden.Manager
             }
             int randomIndex = UnityEngine.Random.Range(0, availableRooms.Count);
             HotelController hotelController = availableRooms[randomIndex];
+
+            LastAssignedRoom = hotelController;
             hotelController.CheckInToRoom(guest);
             Vector3 basePos = guestSpawnPoint.position;
 
@@ -639,7 +648,7 @@ namespace MagicalGarden.Manager
                 RefreshAllMovementRoboShroom(hotelController); // mencegahBug (stuck isServing)
             }
 
-            HotelEventClaimCoin?.Invoke ();
+            HotelEventClaimCoin?.Invoke();
         }
 
         public bool IsHasHotelReward()
@@ -795,8 +804,75 @@ namespace MagicalGarden.Manager
         }
 
         public List<HotelController> GetHotelControllers()
-        { // HotelLocker.cs
+        {
             return hotelControllers;
+        }
+
+        public Transform GetGuestListContent()
+        {
+            return content;
+        }
+
+        public void LockGuestListScroll()
+        {
+            if (_isScrollLocked)
+                return;
+
+            _isScrollLocked = true;
+
+            if (guestListScrollRect != null)
+            {
+                _originalScrollSensitivity = guestListScrollRect.scrollSensitivity;
+                _originalVerticalScroll = guestListScrollRect.vertical;
+                _originalHorizontalScroll = guestListScrollRect.horizontal;
+
+                guestListScrollRect.scrollSensitivity = 0f;
+                guestListScrollRect.vertical = false;
+                guestListScrollRect.horizontal = false;
+                guestListScrollRect.velocity = Vector2.zero;
+
+                Debug.Log("[HotelManager] Guest list scroll locked for tutorial");
+            }
+            else
+            {
+                var scrollRect = content?.GetComponentInParent<ScrollRect>();
+                if (scrollRect != null)
+                {
+                    guestListScrollRect = scrollRect;
+
+                    _originalScrollSensitivity = guestListScrollRect.scrollSensitivity;
+                    _originalVerticalScroll = guestListScrollRect.vertical;
+                    _originalHorizontalScroll = guestListScrollRect.horizontal;
+
+                    guestListScrollRect.scrollSensitivity = 0f;
+                    guestListScrollRect.vertical = false;
+                    guestListScrollRect.horizontal = false;
+                    guestListScrollRect.velocity = Vector2.zero;
+
+                    Debug.Log("[HotelManager] Guest list scroll locked for tutorial (via GetComponentInParent)");
+                }
+                else
+                {
+                    Debug.LogWarning("[HotelManager] ScrollRect not found for guest list");
+                }
+            }
+        }
+
+        public void UnlockGuestListScroll()
+        {
+            if (!_isScrollLocked)
+                return;
+
+            _isScrollLocked = false;
+
+            if (guestListScrollRect != null)
+            {
+                guestListScrollRect.scrollSensitivity = _originalScrollSensitivity;
+                guestListScrollRect.vertical = _originalVerticalScroll;
+                guestListScrollRect.horizontal = _originalHorizontalScroll;
+
+                Debug.Log("[HotelManager] Guest list scroll unlocked after tutorial");
+            }
         }
         #endregion
 
@@ -891,7 +967,7 @@ namespace MagicalGarden.Manager
         }
         #endregion
 
-        public void AddHotelEventClaimCoin (System.Action eventValue)
+        public void AddHotelEventClaimCoin(System.Action eventValue)
         { // HotelMainUI.cs
             HotelEventClaimCoin += eventValue;
         }

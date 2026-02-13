@@ -110,6 +110,7 @@ public partial class TutorialManager
             if (!ShouldRunPlainTutorialOnStart())
             {
                 gameObject.SetActive(false);
+                Destroy(gameObject);
                 yield break;
             }
 
@@ -126,8 +127,12 @@ public partial class TutorialManager
             if (!ShouldRunHotelTutorialOnStart())
             {
                 gameObject.SetActive(false);
+                Destroy(gameObject);
                 yield break;
             }
+
+            // Lock camera untuk hotel tutorial
+            LockCameraForTutorial();
 
             DisableUIManagerButtonsForTutorial();
             StartHotelTutorialSequence();
@@ -231,8 +236,8 @@ public partial class TutorialManager
         HideRightClickMouseHint();
         HidePointerIfAny();
         RestoreUIManagerButtonsInteractable();
+        Destroy(gameObject);
 
-        gameObject.SetActive(false);
     }
 
     public void SkipHotelTutorial()
@@ -259,6 +264,6 @@ public partial class TutorialManager
         CancelHandPointerSubTutorial();
         HidePointerIfAny();
 
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }

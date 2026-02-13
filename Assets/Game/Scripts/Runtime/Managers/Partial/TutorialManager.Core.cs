@@ -1,4 +1,3 @@
-// Core fields, enums, and shared logic
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +12,9 @@ public partial class TutorialManager
     private enum TutorialMode { Plain, Hotel }
 
     [SerializeField] private GameObject Hotel;
+
+    [Header("Camera Control")]
+    [SerializeField] private MagicalGarden.Farm.CameraDragMove cameraController;
 
     [Header("Plain Tutorial Panels")]
     [SerializeField] private List<PlainTutorialPanelStep> plainTutorials = new List<PlainTutorialPanelStep>();
@@ -36,8 +38,11 @@ public partial class TutorialManager
     [Header("Global UI References")]
     [SerializeField] private Button skipTutorialButton;
 
-    public Button[] _uiButtonsCache;
+    private Button[] _uiButtonsCache;
     private bool[] _uiButtonsInteractableCache;
+    private bool[] _uiButtonsActiveCache;
+
+    public GameObject[] gotohotel;
 
     [Header("Tutorial Monster")]
     [SerializeField] private MonsterDataSO briabitTutorialData;
@@ -57,6 +62,107 @@ public partial class TutorialManager
     private RectTransform _rightClickMouseHintInstance;
 
     public static Button GlobalSkipTutorialButton { get; private set; }
+
+    // Enhanced button protection system with automatic restoration
+    private static readonly Dictionary<Button, TutorialButtonProtection> _protectedButtons = new Dictionary<Button, TutorialButtonProtection>();
+
+    // Routine khusus untuk kamera hotel yang fokus ke kamar/monster setelah check-in
+    private Coroutine _hotelMonsterCameraRoutine;
+
+    public static bool IsButtonProtectedByTutorial(Button button)
+    {
+        return button != null && _protectedButtons.ContainsKey(button);
+    }
+
+    private static void AddProtectedButton(Button button, System.Action tutorialListener)
+    {
+        Debug.Log($"[TutorialProtection] Adding protected button '{button?.name}'");
+        if (button == null || tutorialListener == null) return;
+
+        if (!_protectedButtons.ContainsKey(button))
+        {
+            _protectedButtons[button] = new TutorialButtonProtection(button, tutorialListener);
+        }
+    }
+
+    private static void RemoveProtectedButton(Button button)
+    {
+        if (button != null && _protectedButtons.TryGetValue(button, out var protection))
+        {
+            protection.StopMonitoring();
+            _protectedButtons.Remove(button);
+        }
+    }
+
+    private class TutorialButtonProtection
+    {
+        private readonly Button _button;
+        private readonly System.Action _tutorialListener;
+        private UnityEngine.Coroutine _monitorCoroutine;
+
+        public TutorialButtonProtection(Button button, System.Action tutorialListener)
+        {
+            _button = button;
+            _tutorialListener = tutorialListener;
+        }
+
+        public void StartMonitoring()
+        {
+            if (_monitorCoroutine == null && _button != null)
+            {
+                var instance = UnityEngine.Object.FindObjectOfType<TutorialManager>();
+                if (instance != null)
+                {
+                    _monitorCoroutine = instance.StartCoroutine(MonitorAndRestoreListener());
+                }
+            }
+        }
+
+        public void StopMonitoring()
+        {
+            if (_monitorCoroutine != null)
+            {
+                var instance = UnityEngine.Object.FindObjectOfType<TutorialManager>();
+                if (instance != null)
+                {
+                    instance.StopCoroutine(_monitorCoroutine);
+                }
+                _monitorCoroutine = null;
+            }
+        }
+
+        private System.Collections.IEnumerator MonitorAndRestoreListener()
+        {
+            while (_button != null)
+            {
+                yield return new UnityEngine.WaitForSeconds(0.1f);
+
+                // Check if tutorial listener still exists
+                if (!HasTutorialListener())
+                {
+                    Debug.LogWarning($"[TutorialProtection] Listener removed from '{_button.name}'! Restoring...");
+                    RestoreListener();
+                }
+            }
+        }
+
+        private bool HasTutorialListener()
+        {
+            if (_button?.onClick == null) return false;
+
+            var listenerCount = _button.onClick.GetPersistentEventCount();
+            return listenerCount > 0;
+        }
+
+        private void RestoreListener()
+        {
+            if (_button?.onClick != null && _tutorialListener != null)
+            {
+                _button.onClick.RemoveAllListeners();
+                _button.onClick.AddListener(() => _tutorialListener.Invoke());
+            }
+        }
+    }
 
     private bool _isSubscribedToPlacementManager;
     private bool _isSubscribedToMonsterPoopClean;
@@ -162,6 +268,11 @@ public partial class TutorialManager
             config.plaintutorial = true;
             SaveSystem.SaveAll();
         }
+        foreach (GameObject item in gotohotel)
+        {
+            if (item != null)
+                item.SetActive(true);
+        }
     }
 
     private bool IsHotelTutorialAlreadyCompleted()
@@ -184,6 +295,8 @@ public partial class TutorialManager
             config.hotelTutorial = true;
             SaveSystem.SaveAll();
         }
+
+        UnlockCameraAfterTutorial();
     }
 
     private bool IsPlainTutorialSkipped()
@@ -379,9 +492,6 @@ public partial class TutorialManager
         var monsterManager = ServiceLocator.Get<MonsterManager>();
         if (monsterManager == null)
             return;
-
-        // If there is already an active monster, just use it as the
-        // tutorial target instead of spawning a new one.
         if (monsterManager.activeMonsters != null && monsterManager.activeMonsters.Count > 0)
         {
             var existing = monsterManager.activeMonsters[0];
@@ -394,8 +504,6 @@ public partial class TutorialManager
             return;
         }
 
-        // Avoid spawning an extra tutorial monster if the player already owns
-        // any monsters in their save data (prevents duplicate monsters on load).
         var config = SaveSystem.PlayerConfig;
         bool hasOwnedMonsters = config != null && config.ownedMonsters != null && config.ownedMonsters.Count > 0;
         if (hasOwnedMonsters)
@@ -538,4 +646,43 @@ public partial class TutorialManager
         _plainNextDelayRoutine = null;
         ShowNextPlainPanel();
     }
+
+    #region Camera Control Integration
+    private void LockCameraForTutorial()
+    {
+        if (cameraController != null)
+        {
+            cameraController.LockForTutorial();
+            Debug.Log("[TutorialManager] Camera locked for hotel tutorial");
+        }
+        else
+        {
+            // Fallback: find camera controller in scene
+            cameraController = FindObjectOfType<MagicalGarden.Farm.CameraDragMove>();
+            if (cameraController != null)
+            {
+                cameraController.LockForTutorial();
+                Debug.Log("[TutorialManager] Camera locked for hotel tutorial (via FindObjectOfType)");
+            }
+            else
+            {
+                Debug.LogWarning("[TutorialManager] CameraDragMove not found, cannot lock camera");
+            }
+        }
+    }
+
+    private void UnlockCameraAfterTutorial()
+    {
+        if (cameraController != null)
+        {
+            cameraController.UnlockAfterTutorial();
+            Debug.Log("[TutorialManager] Camera unlocked after hotel tutorial");
+        }
+        else
+        {
+            Debug.LogWarning("[TutorialManager] CameraDragMove reference is null, cannot unlock camera");
+        }
+    }
+
+    #endregion
 }

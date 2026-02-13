@@ -571,6 +571,18 @@ namespace MagicalGarden.Farm
             Debug.Log("Tanaman disimpan ke file.");
         }
 
+        public void CreateNewSave()
+        { // DemoCanvas.cs
+            string path = Application.persistentDataPath + "/plants.json";
+
+            if (System.IO.File.Exists(path))
+                System.IO.File.Delete(path);
+
+            plants.Clear();
+            farmAreaIdsPurchased.Clear();
+
+            SaveToJson();
+        }
 
         public void LoadFromJson()
         {

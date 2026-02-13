@@ -215,9 +215,14 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
                 $" dropped to area {SaveSystem.LoadActiveGameAreaIndex()} " +
                 $"from area {monsterItemUI.GetCatalogueMonsterData().gameAreaId}");
 
-            // Pindahkan monster ke area yg sedang aktif
-            playerConfig.MoveMonsterToGameArea(monsterItemUI.GetCatalogueMonsterData().monsterID, 
-                monsterItemUI.GetCatalogueMonsterData().gameAreaId, SaveSystem.LoadActiveGameAreaIndex());
+            // Pindahkan monster ke area yg dipilih user
+            int targetGameAreaIndex = ServiceLocator.Get<MonsterCatalogueUI>().GetSelectedGameAreaIndex();
+            
+            MonsterManager.instance.MoveMonsterToArea(
+                monsterItemUI.GetCatalogueMonsterData().monsterID,
+                targetGameAreaIndex
+            );
+            
 
             // refresh game area supaya monster yg tampil bener
             MonsterManager.instance.RefreshGameArea();
@@ -229,6 +234,7 @@ public class UIDragOutOfScroll : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
             // refresh catalog
             ServiceLocator.Get<MonsterCatalogueListUI>()?.RefreshCatalogue();
+            ServiceLocator.Get<MonsterCatalogueListUI>().OnGameAreaButtonClicked(ServiceLocator.Get<MonsterCatalogueUI>().GetSelectedGameAreaIndex());
         }
 
         if (placeholder) Destroy(placeholder);

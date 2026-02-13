@@ -29,6 +29,20 @@ public class MonsterCatalogueItemUI : MonoBehaviour, IPointerClickHandler
     private MonsterCatalogueListUI parentListUI;
     private bool isSelected;
 
+    private void Awake()
+    {
+        // Ensure UIDragOutOfScroll component exists
+        if (uiDragScript == null)
+        {
+            uiDragScript = GetComponent<UIDragOutOfScroll>();
+            if (uiDragScript == null)
+            {
+                uiDragScript = gameObject.AddComponent<UIDragOutOfScroll>();
+                Debug.LogWarning($"UIDragOutOfScroll component was missing on {gameObject.name}, added it automatically");
+            }
+        }
+    }
+
     public void SetupItem(CatalogueMonsterData _catalogueMonsterData, MonsterCatalogueItemType _itemType)
     {
         catalogueMonsterData = _catalogueMonsterData;
