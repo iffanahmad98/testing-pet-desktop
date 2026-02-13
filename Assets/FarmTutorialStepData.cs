@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.UI;
 
 public class FarmTutorialStepData : MonoBehaviour
@@ -7,6 +8,7 @@ public class FarmTutorialStepData : MonoBehaviour
     public string title;
     public string body;
     public Vector2 scrollTo;
+    public bool isScrolling = false;
 
     public bool isNextButtonActive = false;
     public bool showHandPointer = false;
@@ -23,6 +25,9 @@ public class FarmTutorialStepData : MonoBehaviour
     public bool isPlantSeed = false;
     public int seedPlantRequirement = 0;
     public Vector3Int[] seedPlantingPos;
+
+    public bool isCreateCompost = false;
+    public int poopRequirement = 0;
 
     public void WriteInstruction(TextMeshProUGUI titleText, TextMeshProUGUI bodyText)
     {

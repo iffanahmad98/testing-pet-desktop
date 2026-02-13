@@ -95,12 +95,15 @@ namespace MagicalGarden.Farm
             }
 
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
-            Debug.Log($"Cell position is {cellPosition}");
-            bool canTutorialPlantSeed = _tutorial.CanPlantSeedsAt(cellPosition);
-            if (!canTutorialPlantSeed)
+
+            if (_tutorial != null)
             {
-                Debug.Log("Posisi nanam biji salah");
-                return;
+                bool canTutorialPlantSeed = _tutorial.CanPlantSeedsAt(cellPosition);
+                if (!canTutorialPlantSeed)
+                {
+                    Debug.Log("Posisi nanam biji salah");
+                    return;
+                }
             }
 
             InventoryManager.Instance.RemoveAssistant (itemdata);

@@ -19,6 +19,10 @@ public enum MenuBtn { None,
     FertilizerTab,
     SeedTab,
     HarvestTab,
+    GardenCompost,
+    ManaNectar,
+    MoonlightPollen,
+    SpiritSap,
     All }
 
 public class FarmTutorial : MonoBehaviour
@@ -47,6 +51,11 @@ public class FarmTutorial : MonoBehaviour
         _totalSeedBought = 0;
         
         var holder = menuBar.Find("GameObject");
+        var gardenCompost = FindImageIncludeInactive("Fertilizer Machine Tab 1 (Garden Compost)").transform;
+        var manaNectar = FindImageIncludeInactive("Fertilizer Machine Tab 1 (Mana Nectar)").transform;
+        var moonlightPollen = FindImageIncludeInactive("Fertilizer Machine Tab 1 (Moonlight Pollen)").transform;
+        var spiritSap = FindImageIncludeInactive("Fertilizer Machine Tab 2 (Spirit Sap)").transform;
+
         if (!holder) holder = menuBar; // fallback kalau container "GameObject" tidak ada
 
         _btn[MenuBtn.None] = null;
@@ -61,6 +70,10 @@ public class FarmTutorial : MonoBehaviour
         _btn[MenuBtn.FertilizerTab] = FindButtonIncludeInactive("ButtonFertilizer");
         _btn[MenuBtn.SeedTab] = FindButtonIncludeInactive("ButtonSeed");
         _btn[MenuBtn.HarvestTab] = FindButtonIncludeInactive("ButtonHarvest");
+        _btn[MenuBtn.GardenCompost] = gardenCompost.Find("Create_enable")?.GetComponent<Button>();
+        _btn[MenuBtn.ManaNectar] = manaNectar.Find("Create_enable")?.GetComponent<Button>();
+        _btn[MenuBtn.MoonlightPollen] = moonlightPollen.Find("Create_enable")?.GetComponent<Button>();
+        _btn[MenuBtn.SpiritSap] = spiritSap.Find("Create_enable")?.GetComponent<Button>();
 
         LockAll();
         ExecuteTutorialAtStep();
@@ -82,6 +95,7 @@ public class FarmTutorial : MonoBehaviour
             Debug.LogError("Step is bigger than the stepData array");
             return;
         }
+        Debug.Log($"Tutorial step index: {tutorialStepIndex}");
 
         FarmTutorialStepData currentStep = stepData[step];
         currentStep.DeletePreviousStep(handPointer);
@@ -101,6 +115,11 @@ public class FarmTutorial : MonoBehaviour
             handPointer.transform.DOKill();
             handPointer.transform.DOMoveX(startingX + 20, 0.25f)
                 .SetEase(Ease.OutQuad).SetLoops(-1, LoopType.Yoyo);
+        }
+
+        if (currentStep.isScrolling)
+        {
+            camDragMove.FocusOnTarget(new Vector3(currentStep.scrollTo.x, currentStep.scrollTo.y), 5);
         }
     }
 
@@ -131,6 +150,24 @@ public class FarmTutorial : MonoBehaviour
         if (currentStep.isPlantSeed)
         {
             UnhookTutorialAdvance();
+        }
+
+        CheckPoop(currentStep);
+    }
+
+    private void CheckPoop(FarmTutorialStepData currentStep)
+    {
+        if (currentStep.isCreateCompost)
+        {
+            // cek apakah punya cukup poop
+            UnhookTutorialAdvance();
+            if (SaveSystem.LoadPoop() < currentStep.poopRequirement)
+            {
+                SaveSystem.SavePoop(currentStep.poopRequirement);
+                SaveSystem.Flush();
+
+                HookTutorialAdvance(_btn[currentStep.enabledButton]);
+            }
         }
     }
 
@@ -211,6 +248,19 @@ public class FarmTutorial : MonoBehaviour
             .FirstOrDefault(b => b.name == name && b.gameObject.scene.IsValid());
     }
 
+    Image FindImageIncludeInactive(string name)
+    {
+        return Object.FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+            .FirstOrDefault(b => b.name == name && b.gameObject.scene.IsValid());
+    }
+
+    public void FertilizerUIOpened()
+    {
+        // tampilan menu fertilizer dibuka
+        // langsung lanjut langkah berikutnya
+        OnNextButtonClicked();
+    }
+
     public void CountSeedBought()
     {
         // if (!stepData[tutorialStepIndex].isBuySeeds) return;
@@ -248,6 +298,9 @@ public class FarmTutorial : MonoBehaviour
 
     public void SelectSeedToSow()
     {
+        var currentStep = stepData[tutorialStepIndex];
+        if (currentStep.isSelectSeed == false) return;
+
         Debug.Log("Select seed to sow");
 
         if (camDragMove == null)
@@ -256,9 +309,15 @@ public class FarmTutorial : MonoBehaviour
             return;
         }
 
-        // set the camera to focus on the farm
-        camDragMove.FocusOnTarget(new Vector3(10.0f, 5.0f), 5);
         OnNextButtonClicked();
+
+        // set the camera to focus on the farm
+        
+        if (currentStep.isScrolling)
+        {
+            Debug.Log($"tutorial step index: {tutorialStepIndex}, scroll to: {currentStep.scrollTo}");
+            camDragMove.FocusOnTarget(new Vector3(currentStep.scrollTo.x, currentStep.scrollTo.y), 5);
+        }
     }
 
     public bool CanPlantSeedsAt(Vector3Int cellPos)
