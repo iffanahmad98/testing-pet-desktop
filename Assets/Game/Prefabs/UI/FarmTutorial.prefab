@@ -385,6 +385,7 @@ MonoBehaviour:
   title: This is the Farm Shop!
   body: This is the Shop. Buy Seeds and Monster Seeds here.
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 0
   showHandPointer: 1
   handPosition: {x: 390, y: -420}
@@ -395,6 +396,212 @@ MonoBehaviour:
   seedBuyRequirement: 0
   panelNameToClose: 
   isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
+--- !u!1 &1216055053582056025
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4600099156598913370}
+  - component: {fileID: 1299604764619554511}
+  m_Layer: 5
+  m_Name: Step 3_5
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4600099156598913370
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216055053582056025}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1299604764619554511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216055053582056025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Plant the pattern!
+  body: Select the monster seed
+  scrollTo: {x: 0, y: 0}
+  isScrolling: 0
+  isNextButtonActive: 0
+  showHandPointer: 1
+  handPosition: {x: 650, y: 100}
+  enabledButton: 0
+  isBuySeeds: 0
+  seedName: Monster Seed
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 1
+  isPlantSeed: 0
+  seedPlantRequirement: 1
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
+--- !u!1 &1415268689518030767
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8284929900743307464}
+  - component: {fileID: 6421060211944596901}
+  m_Layer: 5
+  m_Name: Step 5_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8284929900743307464
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1415268689518030767}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6421060211944596901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1415268689518030767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Don't forget to water!
+  body: Take care of your plants. Click the water button to water them
+  scrollTo: {x: -26, y: 5}
+  isScrolling: 0
+  isNextButtonActive: 0
+  showHandPointer: 0
+  handPosition: {x: 810, y: 165}
+  enabledButton: 2
+  isBuySeeds: 0
+  seedName: 
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 1
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 5
+--- !u!1 &2015649808932159634
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3239599820525233639}
+  - component: {fileID: 4021486014470098562}
+  m_Layer: 5
+  m_Name: Step 5_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3239599820525233639
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015649808932159634}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4021486014470098562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015649808932159634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Don't forget to water!
+  body: Now click on the farm tile to water them
+  scrollTo: {x: 10, y: 5}
+  isScrolling: 1
+  isNextButtonActive: 0
+  showHandPointer: 0
+  handPosition: {x: 810, y: 165}
+  enabledButton: 2
+  isBuySeeds: 0
+  seedName: 
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 1
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 5
 --- !u!1 &3006129976925886134
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,6 +730,73 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1 &3333754101370105634
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6396293225933405442}
+  - component: {fileID: 8859017776770313848}
+  m_Layer: 5
+  m_Name: Step 4_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6396293225933405442
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3333754101370105634}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8859017776770313848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3333754101370105634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Make fertilizer!
+  body: Click on the create button
+  scrollTo: {x: -26, y: 5}
+  isScrolling: 0
+  isNextButtonActive: 0
+  showHandPointer: 1
+  handPosition: {x: 840, y: 175}
+  enabledButton: 13
+  isBuySeeds: 0
+  seedName: 
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 1
+  seedPlantingPos: []
+  isCreateCompost: 1
+  poopRequirement: 11
 --- !u!1 &3911306857577362344
 GameObject:
   m_ObjectHideFlags: 0
@@ -574,6 +848,7 @@ MonoBehaviour:
   title: This is the Farm Shop!
   body: Buy 8 banana seeds
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 0
   showHandPointer: 1
   handPosition: {x: 640, y: 90}
@@ -584,6 +859,11 @@ MonoBehaviour:
   seedBuyRequirement: 8
   panelNameToClose: 
   isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &4192747719702320353
 GameObject:
   m_ObjectHideFlags: 0
@@ -635,6 +915,7 @@ MonoBehaviour:
   title: Plant the pattern!
   body: Select the banana seed
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 0
   showHandPointer: 1
   handPosition: {x: 650, y: 100}
@@ -645,6 +926,79 @@ MonoBehaviour:
   seedBuyRequirement: 1
   panelNameToClose: 
   isSelectSeed: 1
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
+--- !u!1 &4521513193945733426
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8220765872906353901}
+  - component: {fileID: 5179928874786714906}
+  m_Layer: 5
+  m_Name: Step 3_6
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8220765872906353901
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4521513193945733426}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5179928874786714906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4521513193945733426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Plant the pattern!
+  body: Plant the monster seed at the enter tile
+  scrollTo: {x: 0, y: 0}
+  isScrolling: 0
+  isNextButtonActive: 0
+  showHandPointer: 0
+  handPosition: {x: 650, y: 100}
+  enabledButton: 0
+  isBuySeeds: 0
+  seedName: Monster Seed
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 0
+  isPlantSeed: 1
+  seedPlantRequirement: 1
+  seedPlantingPos:
+  - {x: 12, y: 2, z: 0}
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &4852730191368269426
 GameObject:
   m_ObjectHideFlags: 0
@@ -697,6 +1051,7 @@ MonoBehaviour:
   body: Here are your main shortcuts. This button takes you to the Hotel, and this
     button takes you to the Farm.
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 1
   showHandPointer: 0
   handPosition: {x: 0, y: 0}
@@ -707,6 +1062,11 @@ MonoBehaviour:
   seedBuyRequirement: 0
   panelNameToClose: 
   isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &5154098189212789789
 GameObject:
   m_ObjectHideFlags: 0
@@ -758,6 +1118,7 @@ MonoBehaviour:
   title: Plant the pattern!
   body: Select the seed tab
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 0
   showHandPointer: 1
   handPosition: {x: 650, y: 280}
@@ -768,6 +1129,11 @@ MonoBehaviour:
   seedBuyRequirement: 1
   panelNameToClose: FarmShopUI (Shop Panel)
   isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &5573190775076435284
 GameObject:
   m_ObjectHideFlags: 0
@@ -819,6 +1185,7 @@ MonoBehaviour:
   title: This is the Farm Shop!
   body: Scroll down and buy 1 monster seed
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 0
   showHandPointer: 0
   handPosition: {x: 640, y: 200}
@@ -829,6 +1196,11 @@ MonoBehaviour:
   seedBuyRequirement: 1
   panelNameToClose: FarmShopUI (Shop Panel)
   isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &6049151751113195987
 GameObject:
   m_ObjectHideFlags: 0
@@ -955,6 +1327,7 @@ MonoBehaviour:
   title: This is the Farm Shop!
   body: Click on the plant tab
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 0
   showHandPointer: 1
   handPosition: {x: 640, y: 290}
@@ -965,6 +1338,78 @@ MonoBehaviour:
   seedBuyRequirement: 0
   panelNameToClose: 
   isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
+--- !u!1 &6471803773971660320
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 336755569027502739}
+  - component: {fileID: 4519116668063364258}
+  m_Layer: 5
+  m_Name: Step 4_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &336755569027502739
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6471803773971660320}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7585926465633074966}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4519116668063364258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6471803773971660320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37991f520217b249b0b470af45ab9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: Make fertilizer!
+  body: This is the Fertilizer Machine. Click on it to create a fertilizer
+  scrollTo: {x: -26, y: 5}
+  isScrolling: 1
+  isNextButtonActive: 0
+  showHandPointer: 1
+  handPosition: {x: 265, y: 95}
+  enabledButton: 0
+  isBuySeeds: 0
+  seedName: 
+  minimumCost: 150
+  seedBuyRequirement: 1
+  panelNameToClose: 
+  isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 1
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &6889236276505283003
 GameObject:
   m_ObjectHideFlags: 0
@@ -1196,8 +1641,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title: Plant the pattern!
-  body: Plant 8 seeds on the farm
-  scrollTo: {x: 0, y: 0}
+  body: Plant 8 seeds on the outer tiles of the farm
+  scrollTo: {x: 10, y: 5}
+  isScrolling: 1
   isNextButtonActive: 0
   showHandPointer: 0
   handPosition: {x: 650, y: 100}
@@ -1208,6 +1654,19 @@ MonoBehaviour:
   seedBuyRequirement: 1
   panelNameToClose: 
   isSelectSeed: 0
+  isPlantSeed: 1
+  seedPlantRequirement: 8
+  seedPlantingPos:
+  - {x: 13, y: 3, z: 0}
+  - {x: 13, y: 2, z: 0}
+  - {x: 13, y: 1, z: 0}
+  - {x: 12, y: 3, z: 0}
+  - {x: 12, y: 1, z: 0}
+  - {x: 11, y: 3, z: 0}
+  - {x: 11, y: 2, z: 0}
+  - {x: 11, y: 1, z: 0}
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &7209455747364558681
 GameObject:
   m_ObjectHideFlags: 0
@@ -1259,6 +1718,7 @@ MonoBehaviour:
   title: Plant the pattern!
   body: This is your inventory.
   scrollTo: {x: 0, y: 0}
+  isScrolling: 0
   isNextButtonActive: 0
   showHandPointer: 1
   handPosition: {x: 250, y: -420}
@@ -1269,6 +1729,11 @@ MonoBehaviour:
   seedBuyRequirement: 1
   panelNameToClose: FarmShopUI (Shop Panel)
   isSelectSeed: 0
+  isPlantSeed: 0
+  seedPlantRequirement: 0
+  seedPlantingPos: []
+  isCreateCompost: 0
+  poopRequirement: 0
 --- !u!1 &8289075417614132660
 GameObject:
   m_ObjectHideFlags: 0
@@ -1308,6 +1773,12 @@ RectTransform:
   - {fileID: 4044606162386231974}
   - {fileID: 7828219658291045235}
   - {fileID: 1348458373151082396}
+  - {fileID: 4600099156598913370}
+  - {fileID: 8220765872906353901}
+  - {fileID: 336755569027502739}
+  - {fileID: 6396293225933405442}
+  - {fileID: 8284929900743307464}
+  - {fileID: 3239599820525233639}
   m_Father: {fileID: 4510318437293829968}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1342,6 +1813,12 @@ MonoBehaviour:
   - {fileID: 7087567453483377310}
   - {fileID: 8308232230299848485}
   - {fileID: 1361016073199315866}
+  - {fileID: 1299604764619554511}
+  - {fileID: 5179928874786714906}
+  - {fileID: 4519116668063364258}
+  - {fileID: 8859017776770313848}
+  - {fileID: 6421060211944596901}
+  - {fileID: 4021486014470098562}
 --- !u!1 &8311643281399974558
 GameObject:
   m_ObjectHideFlags: 0

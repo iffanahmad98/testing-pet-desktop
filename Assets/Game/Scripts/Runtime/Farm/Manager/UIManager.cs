@@ -41,13 +41,17 @@ namespace MagicalGarden.Farm
         private bool isInitialized = false;
         [Header ("UI (World)")]
         public Canvas uIWorldNonScaleable;
-        
+
+        private FarmTutorial _tutorial;
+
         //coroutine for click popupHotel
         [HideInInspector] public Coroutine autoCloseCoroutine;
         private void Awake()
         {
             if (Instance == null) Instance = this;
             else Destroy(gameObject);
+
+            _tutorial = UnityEngine.Object.FindFirstObjectByType<FarmTutorial>(FindObjectsInactive.Include);
         }
 
         private void Start()
@@ -67,6 +71,11 @@ namespace MagicalGarden.Farm
                 ToggleUIActive(fertizerUI);
             else
                 ToggleUIDisable(fertizerUI);
+
+            if (_tutorial != null)
+            {
+                _tutorial.FertilizerUIOpened();
+            }
         }
         public void ShopUIToogle()
         {
