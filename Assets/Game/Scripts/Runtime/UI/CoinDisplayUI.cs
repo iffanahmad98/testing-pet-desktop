@@ -64,7 +64,10 @@ public class CoinDisplayUI : MonoBehaviour
 
         //int coins = MagicalGarden.Farm.CoinManager.Instance.coins;
 
-        if(tween != null && tween.IsPlaying())
+        //Make sure coin different text disabled at first
+        coinDifferentText.gameObject.SetActive(false);
+
+        if (tween != null && tween.IsPlaying())
         {
             mainCoinText.text = lastCoinDisplay.ToString();
             shopCoinText.text = lastCoinDisplay.ToString();

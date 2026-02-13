@@ -201,8 +201,6 @@ public class DecorationShopManager : MonoBehaviour
                 DecorationUIFixHandler.SetDecorationStats(card.DecorationData.decorationID);
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought and applied '{deco.decorationName}'!");
 
-                // Update UI Coin Text
-                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
                 MonsterManager.instance.audio.PlaySFX("buy");
             }
             else

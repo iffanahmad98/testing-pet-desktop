@@ -151,10 +151,6 @@ public class GachaManager : MonoBehaviour
             return;
         }
 
-
-        // Update UI Coin Text
-        ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
-
         // Increment total pull count
         totalPullCount++;
         IncrementAllPityCounters();

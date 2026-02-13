@@ -82,7 +82,6 @@ public class CoinController : MonoBehaviour, IPointerDownHandler, ITargetable, I
             .OnComplete(() =>
             {
                 CoinManager.AddCoins(value);
-                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
                 ServiceLocator.Get<MonsterManager>().DespawnToPool(gameObject);
             });
 

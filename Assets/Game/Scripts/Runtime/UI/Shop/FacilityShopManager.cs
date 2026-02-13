@@ -284,9 +284,6 @@ public class FacilityShopManager : MonoBehaviour
             if (SaveSystem.TryPurchaseFacility(facility))
             {
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{facility.name}'!");
-
-                // Update UI Coin Text
-                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
                 MonsterManager.instance.audio.PlaySFX("buy");
             }
             else
@@ -569,8 +566,6 @@ public class FacilityShopManager : MonoBehaviour
             {
                 SaveSystem.AddNPC(npcID);
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{npcData.monsterName}'!");
-                // Update UI Coin Text
-                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
 
                 OnNPCUse(card);
 

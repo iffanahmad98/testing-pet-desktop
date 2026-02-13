@@ -178,8 +178,6 @@ public class ItemShopManager : MonoBehaviour
                 ServiceLocator.Get<ItemInventoryUI>().StartPopulateAllInventories();
                 // Success message
                 ServiceLocator.Get<UIManager>().ShowMessage($"Bought {item.itemName}!", 2f);
-                // Update UI Coin Text
-                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
             }
             else
             {
