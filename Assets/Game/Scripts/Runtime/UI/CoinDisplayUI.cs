@@ -29,7 +29,7 @@ public class CoinDisplayUI : MonoBehaviour
         // {
         //     UpdateCoinText();
         // }
-        CoinManager.AddCoinChangedRefreshEvent (UpdateCoinText);
+        CoinManager.AddCoinChangedRefreshEvent (NewUpdateCoinText);
         UpdateCoinText();
     }
 
@@ -56,6 +56,11 @@ public class CoinDisplayUI : MonoBehaviour
         UpdateCoinText();
     }
 
+    void NewUpdateCoinText () {
+        mainCoinText.text = CoinManager.Coins.ToString ();
+        shopCoinText.text = CoinManager.Coins.ToString ();
+        coinDifferentText.text =  CoinManager.Coins.ToString ();
+    }
     public void UpdateCoinText()
     {
         //Template MagicalGarden

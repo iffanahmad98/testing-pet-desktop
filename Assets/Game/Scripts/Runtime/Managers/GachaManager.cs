@@ -130,9 +130,7 @@ public class GachaManager : MonoBehaviour
     {
         Debug.Log($"this is gacha cost = {gachaCost}");
         if (cdGacha) {return;}
-        drawGachaButton.interactable = false;
-        cdGacha = true;
-        onceEvent = true;
+       
         if (gachaResultPanel.coroutineFirework != null && gachaResultPanel.gameObject.activeInHierarchy && gachaResultPanel.chest.activeInHierarchy && gachaResultPanel.egg.activeInHierarchy )
         {
             ServiceLocator.Get<UIManager>().ShowMessage("You are click too fast!", 1f);
@@ -149,6 +147,10 @@ public class GachaManager : MonoBehaviour
             return;
         }
         
+        drawGachaButton.interactable = false;
+        cdGacha = true;
+        onceEvent = true;
+
         // Di sini ngecek jumlah monster kurang dari 25
         if (MonsterManager.instance.activeMonsters.Count >= 25)
         {
@@ -187,11 +189,14 @@ public class GachaManager : MonoBehaviour
 
         ShowGachaResult(selectedMonster, () => SellMonster(selectedMonster), () => SpawnMonster(selectedMonster));
         SfxCrackEgg ();
+
+        
     }
 
     IEnumerator nCDGacha () {
         
         yield return new WaitForSeconds (6);
+        ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
         drawGachaButton.interactable = true;
         cdGacha = false;
     }
@@ -455,6 +460,7 @@ public class GachaManager : MonoBehaviour
             onceEvent = false;
             ServiceLocator.Get<MonsterManager>().SellMonster(monsterData);
         }
+        
     }
 
     private void ShowGachaResult(MonsterDataSO monster, System.Action onSellComplete, System.Action onSpawnComplete)
