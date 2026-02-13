@@ -312,6 +312,27 @@ public class TransparentWindow : MonoBehaviour
             Debug.LogError($"Failed to set topmost mode: {ex.Message}");
         }
     }
+
+    private static readonly IntPtr HWND_NOTOPMOST = new(-2);
+
+    private void RemoveTopMost()
+    {
+        SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, 0, 0,
+            SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+    }
+    #endregion
+    #region WindowAdjustableCanvas
+    public void ChangeEnableTopMost(bool value)
+    {
+        enableTopMost = value;
+
+        if (windowHandle == IntPtr.Zero) return;
+
+        if (enableTopMost)
+            SetTopMost();
+        else
+            RemoveTopMost();
+    }
     #endregion
 }
 #endif

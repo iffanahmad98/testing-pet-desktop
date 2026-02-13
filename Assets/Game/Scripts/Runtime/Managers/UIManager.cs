@@ -59,7 +59,10 @@ public partial class UIManager : MonoBehaviour
 
     private static GameObject currentPanel; // simpan panel aktif sekarang
     private static CanvasGroup currentCanvas; // simpan canvas group aktif
-
+    
+    #endregion
+    #region Public Fields
+    public static bool transparentMode = false; // UIManager.MiniWindow, TooltipManager.cs
     #endregion
 
     #region Unity Lifecycle
