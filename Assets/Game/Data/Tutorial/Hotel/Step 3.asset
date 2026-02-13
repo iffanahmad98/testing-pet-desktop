@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c664816a13a867d498dd0dac59194c2c, type: 3}
   m_Name: Step 3
   m_EditorClassIdentifier: 
+  minNextClickDelay: 1
   usePointer: 0
   useNextButtonAsPointerTarget: 0
   useClickableObjectAsPointerTarget: 0
@@ -22,3 +23,11 @@ MonoBehaviour:
   handPointerSequence: {fileID: 11400000, guid: 9a7051e14cc5b554b8ed338d9815e2f5, type: 2}
   focusCameraOnLastCheckedInGuestRoom: 0
   cameraFocusDuration: 0
+  cameraFocusOffset: {x: 0, y: 0}
+  focusCameraOnLastCheckedInGuest: 0
+  guestCameraFocusOffset: {x: 0, y: 0}
+  spawnTutorialGiftFromLastAssignedHotelRoom: 0
+  accelerateGiftOnClean: 0
+  giftOnCleanBoostDuration: 10
+  waitBeforeNextStep: 0
+  waitBeforeNextDuration: 0

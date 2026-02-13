@@ -38,6 +38,10 @@ public partial class TutorialManager
             {
                 new LastAssignedHotelRoomTargetHandler(this, _targetingContext),
                 new HotelGiftTargetHandler(this, _targetingContext),
+                new HotelRandomLootTargetHandler(this, _targetingContext),
+                new HotelShopTargetHandler(this, _targetingContext),
+                new HotelFacilitiesHireButtonTargetHandler(this, _targetingContext),
+                new HotelFacilitiesApplyButtonTargetHandler(this, _targetingContext),
                 new HotelRoomTargetHandler(this, _targetingContext),
                 new GuestItemCheckInTargetHandler(this, _targetingContext),
                 new ClickableObjectTargetHandler(this, _targetingContext),
@@ -191,6 +195,12 @@ public partial class TutorialManager
             return "Type=LastAssignedHotelRoom";
         if (step.useHotelGiftTarget)
             return "Type=HotelGift";
+        if (step.useHotelShopTarget)
+            return "Type=HotelShop";
+        if (step.useHotelFacilitiesHireButtonTarget)
+            return "Type=HotelFacilitiesHireButton";
+        if (step.useHotelFacilitiesApplyButtonTarget)
+            return "Type=HotelFacilitiesApplyButton";
         if (step.useHotelRoomTarget)
             return $"Type=HotelRoom, GuestTypeFilter='{step.hotelRoomGuestTypeFilter}'";
         if (step.useClickableObjectTarget)
@@ -327,11 +337,20 @@ public partial class TutorialManager
         if (!ValidateSubTutorialState())
             return;
 
-        if (_targetingContext?.CurrentRect == null || _targetingContext?.Pointer == null)
+        var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
+        if (_targetingContext?.Pointer == null)
             return;
 
-        var step = _activeHandPointerSubTutorial.steps[_handPointerSubStepIndex];
-        _targetingContext.Pointer.PointTo(_targetingContext.CurrentRect, step.pointerOffset);
+        if (_targetingContext.CurrentRect != null)
+        {
+            _targetingContext.Pointer.PointTo(_targetingContext.CurrentRect, step.pointerOffset);
+            return;
+        }
+
+        if (_targetingContext.CurrentWorldTarget != null)
+        {
+            _targetingContext.Pointer.PointToWorld(_targetingContext.CurrentWorldTarget, step.pointerOffset);
+        }
     }
 
     #endregion

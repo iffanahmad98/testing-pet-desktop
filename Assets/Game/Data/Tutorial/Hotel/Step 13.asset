@@ -10,22 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c664816a13a867d498dd0dac59194c2c, type: 3}
-  m_Name: Step 2
+  m_Name: Step 13
   m_EditorClassIdentifier: 
   minNextClickDelay: 1
+  bringPanelRootToFront: 1
   usePointer: 0
   useNextButtonAsPointerTarget: 0
   useClickableObjectAsPointerTarget: 0
-  pointerOffset: {x: 10, y: 0}
+  pointerOffset: {x: 0, y: 0}
   nextButtonName: 
-  useClickableObjectAsNext: 1
-  clickableObjectId: 22
-  handPointerSequence: {fileID: 11400000, guid: 09d9ff69fdd6cd344b821c27921af6f6, type: 2}
+  useClickableObjectAsNext: 0
+  clickableObjectId: 
+  handPointerSequence: {fileID: 11400000, guid: 1c25a93d59312c546b8aa79c1725c4e6, type: 2}
   focusCameraOnLastCheckedInGuestRoom: 0
-  cameraFocusDuration: 1.5
+  cameraFocusDuration: 1
   cameraFocusOffset: {x: 0, y: 0}
   focusCameraOnLastCheckedInGuest: 0
   guestCameraFocusOffset: {x: 0, y: 0}
+  focusCameraOnHotelLootFromMarkedRoom: 0
+  hotelLootCameraFocusOffset: {x: 0, y: 0}
+  focusCameraOnHotelShop: 0
+  hotelShopCameraFocusOffset: {x: 0, y: 0}
   spawnTutorialGiftFromLastAssignedHotelRoom: 0
   accelerateGiftOnClean: 0
   giftOnCleanBoostDuration: 10

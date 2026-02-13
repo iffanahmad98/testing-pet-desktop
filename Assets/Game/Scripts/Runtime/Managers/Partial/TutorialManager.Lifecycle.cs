@@ -130,8 +130,6 @@ public partial class TutorialManager
                 Destroy(gameObject);
                 yield break;
             }
-
-            // Lock camera untuk hotel tutorial
             LockCameraForTutorial();
 
             DisableUIManagerButtonsForTutorial();
@@ -141,6 +139,14 @@ public partial class TutorialManager
         else
         {
             gameObject.SetActive(false);
+        }
+    }
+
+    private void Update()
+    {
+        if (_isRunningHandPointerSubTutorial)
+        {
+            UpdateCurrentHandPointerOffsetRealtime();
         }
     }
 

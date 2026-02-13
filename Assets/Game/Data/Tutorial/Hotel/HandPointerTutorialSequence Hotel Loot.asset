@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 21602a64789f7e84d8feada91fe75df7, type: 3}
-  m_Name: HandPointerTutorialSequence Gift
+  m_Name: HandPointerTutorialSequence Hotel Loot
   m_EditorClassIdentifier: 
   steps:
   - uiButtonIndex: 0
     ButtonKey: 
-    pointerOffset: {x: 0.45, y: -0.17}
+    pointerOffset: {x: 0.19, y: 0.52}
     useClickableObjectTarget: 0
     clickableObjectId: 
     useGuestItemCheckInButton: 0
     useHotelRoomTarget: 0
     hotelRoomGuestTypeFilter: 
     useLastAssignedHotelRoomTarget: 0
-    useHotelGiftTarget: 1
+    useHotelGiftTarget: 0
+    useHotelRandomLootTarget: 1
+    useHotelShopTarget: 0

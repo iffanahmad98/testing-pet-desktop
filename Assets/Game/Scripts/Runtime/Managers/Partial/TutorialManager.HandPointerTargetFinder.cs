@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using MagicalGarden.Hotel;
 using MagicalGarden.Manager;
@@ -131,6 +132,59 @@ public partial class TutorialManager
             Debug.Log($"[HotelTutorial] Found {candidates.Count} occupied hotel candidates, selecting random index {randomIndex} (guest={selected.nameGuest}, type={selected.typeGuest})");
 
             return selected;
+        }
+
+        public static ClickableShopHotel FindHotelShopClickable()
+        {
+            var shops = Object.FindObjectsOfType<ClickableShopHotel>(true);
+            if (shops == null || shops.Length == 0)
+            {
+                Debug.LogWarning("[HotelTutorial] FindHotelShopClickable: No ClickableShopHotel found in scene");
+                return null;
+            }
+
+            if (shops.Length > 1)
+            {
+                Debug.LogWarning($"[HotelTutorial] FindHotelShopClickable: Multiple ClickableShopHotel found ({shops.Length}), using the first one '{shops[0].name}'");
+            }
+
+            return shops[0];
+        }
+
+        public static Button FindFirstHotelFacilitiesHireButton()
+        {
+            var menu = Object.FindObjectOfType<HotelFacilitiesMenu>(true);
+            if (menu == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindFirstHotelFacilitiesHireButton: HotelFacilitiesMenu not found in scene");
+                return null;
+            }
+
+            var button = menu.GetFirstHireButton();
+            if (button == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindFirstHotelFacilitiesHireButton: first hire button is null");
+            }
+
+            return button;
+        }
+
+        public static Button FindFirstHotelFacilitiesApplyButton()
+        {
+            var menu = Object.FindObjectOfType<HotelFacilitiesMenu>(true);
+            if (menu == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindFirstHotelFacilitiesApplyButton: HotelFacilitiesMenu not found in scene");
+                return null;
+            }
+
+            var button = menu.GetFirstApplyButton();
+            if (button == null)
+            {
+                Debug.LogWarning("[HotelTutorial] FindFirstHotelFacilitiesApplyButton: first apply button is null");
+            }
+
+            return button;
         }
 
         #region Private Helper Methods

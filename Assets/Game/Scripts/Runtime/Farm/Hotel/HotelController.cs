@@ -215,6 +215,37 @@ namespace MagicalGarden.Hotel
             else
                 SetDirty();
         }
+        public void SpawnGiftBubbleForTutorial()
+        {
+            if (giftBubblePrefab == null || worldCanvas == null)
+            {
+                Debug.LogWarning($"[HotelTutorial] SpawnGiftBubbleForTutorial gagal: prefab/worldCanvas null pada '{gameObject.name}'");
+                return;
+            }
+            if (currentRequestBubble)
+            {
+                Destroy(currentRequestBubble);
+                currentRequestBubble = null;
+            }
+
+            GameObject clone = GameObject.Instantiate(giftBubblePrefab);
+            clone.SetActive(true);
+            clone.transform.position = this.transform.position;
+            clone.transform.SetParent(worldCanvas.GetComponent<RectTransform>());
+            clone.transform.localPosition += new Vector3(0, 10, 0);
+
+            var rect = clone.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                var pos = rect.localPosition;
+                pos.z = 0f;
+                rect.localPosition = pos;
+            }
+
+            currentRequestBubble = clone;
+
+            Debug.Log($"[HotelTutorial] SpawnGiftBubbleForTutorial: bubble gift tutorial muncul di kamar '{gameObject.name}'");
+        }
 
         public GameObject SpawnTutorialGift()
         {

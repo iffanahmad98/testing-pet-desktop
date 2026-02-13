@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using DG.Tweening;
 public class HotelMainUI : MonoBehaviour
 {
     public static HotelMainUI instance;
@@ -8,7 +9,7 @@ public class HotelMainUI : MonoBehaviour
     PlayerConfig playerConfig;
     [SerializeField] GoToPetScene gotoPetScene;
     [SerializeField] HotelLocker hotelLocker;
-    [Header ("Display UI")]
+    [Header("Display UI")]
     public TMP_Text coinText;
     public TMP_Text goldenTicketText;
     public TMP_Text hotelGiftText;
@@ -17,87 +18,112 @@ public class HotelMainUI : MonoBehaviour
     public Button backToPlainsButton;
     public Button muteButton;
     [SerializeField] Sprite onMute, offMute;
-    void Awake () {
+    void Awake()
+    {
         instance = this;
     }
 
-    void Start () {
-     playerConfig = SaveSystem.PlayerConfig;
-     backToPlainsButton.onClick.AddListener (BackToPlains);
-     muteButton.onClick.AddListener (ClickMuteButton);
-     CoinManager.AddCoinChangedRefreshEvent (RefreshCoin);
-     NormalEgg.AddCurrencyChangedRefreshEvent (RefreshEgg);
-     RareEgg.AddCurrencyChangedRefreshEvent (RefreshEgg);
-     GoldenTicket.AddCurrencyChangedRefreshEvent (RefreshGoldenTicket);
-     HotelGift.AddCurrencyChangedRefreshEvent (RefreshHotelGift);   
-     DebugTimeController.instance.AddLateDebuggingEvent (RefreshGoldenTicket);
-     DebugTimeController.instance.AddLateDebuggingEvent (RefreshEgg);
-     DebugTimeController.instance.AddLateDebuggingEvent (RefreshHotelRoom);
-     hotelLocker.AddEventHotelRoom (RefreshHotelRoom);
-     MagicalGarden.Manager.HotelManager.Instance.AddHotelEventClaimCoin (RefreshHotelRoom);
-     RefreshCoin ();
-     RefreshGoldenTicket ();
-     RefreshHotelGift ();
-     RefreshEgg ();
-     RefreshHotelRoom ();
-    }
-    
-    public void Show () { // SceneLoadManager.cs, BridgeTeleport.cs
-        Debug.Log ("Show Hotel UI");
-        mainCanvas.gameObject.SetActive (true);
-        RefreshSpriteMute ();
+    void Start()
+    {
+        playerConfig = SaveSystem.PlayerConfig;
+        backToPlainsButton.onClick.AddListener(BackToPlains);
+        muteButton.onClick.AddListener(ClickMuteButton);
+        CoinManager.AddCoinChangedRefreshEvent(RefreshCoin);
+        NormalEgg.AddCurrencyChangedRefreshEvent(RefreshEgg);
+        RareEgg.AddCurrencyChangedRefreshEvent(RefreshEgg);
+        GoldenTicket.AddCurrencyChangedRefreshEvent(RefreshGoldenTicket);
+        HotelGift.AddCurrencyChangedRefreshEvent(RefreshHotelGift);
+        DebugTimeController.instance.AddLateDebuggingEvent(RefreshGoldenTicket);
+        DebugTimeController.instance.AddLateDebuggingEvent(RefreshEgg);
+        DebugTimeController.instance.AddLateDebuggingEvent(RefreshHotelRoom);
+        hotelLocker.AddEventHotelRoom(RefreshHotelRoom);
+        MagicalGarden.Manager.HotelManager.Instance.AddHotelEventClaimCoin(RefreshHotelRoom);
+        RefreshCoin();
+        RefreshGoldenTicket();
+        RefreshHotelGift();
+        RefreshEgg();
+        RefreshHotelRoom();
     }
 
-    public void Hide () { // SceneLoadManager.cs, BridgeTeleport.cs
-        mainCanvas.gameObject.SetActive (false);
+    public void Show()
+    { // SceneLoadManager.cs, BridgeTeleport.cs
+        Debug.Log("Show Hotel UI");
+        mainCanvas.gameObject.SetActive(true);
+        RefreshSpriteMute();
+    }
+
+    public void Hide()
+    { // SceneLoadManager.cs, BridgeTeleport.cs
+        mainCanvas.gameObject.SetActive(false);
     }
     #region Coin
-    void RefreshCoin () {
-        coinText.text = playerConfig.coins.ToString ();
+    void RefreshCoin()
+    {
+        coinText.text = playerConfig.coins.ToString();
     }
     #endregion
     #region GoldenTicket
-    void RefreshGoldenTicket () {
-        goldenTicketText.text = playerConfig.goldenTicket.ToString ();
+    void RefreshGoldenTicket()
+    {
+        goldenTicketText.text = playerConfig.goldenTicket.ToString();
     }
     #endregion
     #region HotelGift
-    void RefreshHotelGift () {
-        hotelGiftText.text = playerConfig.hotelGift.ToString ();
+    void RefreshHotelGift()
+    {
+        hotelGiftText.text = playerConfig.hotelGift.ToString();
     }
     #endregion
     #region Egg
-    public void RefreshEgg () {
-        eggText.text = playerConfig.normalEgg.ToString () + " / " + playerConfig.rareEgg.ToString ();
+    public void RefreshEgg()
+    {
+        eggText.text = playerConfig.normalEgg.ToString() + " / " + playerConfig.rareEgg.ToString();
     }
     #endregion
     #region HotelRoom
 
-    public void RefreshHotelRoom () { // HotelController.cs, HotelManager.cs (Setelah load Coroutine)
-       hotelRoomText.text = MagicalGarden.Manager.HotelManager.Instance.GetTotalHotelControllerOccupiedAndHoldReward ().ToString () + " / " + playerConfig.listIdHotelOpen.Count.ToString ();
+    public void RefreshHotelRoom()
+    { // HotelController.cs, HotelManager.cs (Setelah load Coroutine)
+        hotelRoomText.text = MagicalGarden.Manager.HotelManager.Instance.GetTotalHotelControllerOccupiedAndHoldReward().ToString() + " / " + playerConfig.listIdHotelOpen.Count.ToString();
     }
 
     #endregion
     #region Back
-    public void BackToPlains () {
+    public void BackToPlains()
+    {
         MonsterManager.instance.audio.StopAllSFX();
-        gotoPetScene.PetScene ();
+        gotoPetScene.PetScene();
     }
 
     #endregion
     #region Mute
-    public void ClickMuteButton () {
-        ServiceLocator.Get<AudioSettingsManager> ().SetMute ();
-        RefreshSpriteMute ();
+    public void ClickMuteButton()
+    {
+        ServiceLocator.Get<AudioSettingsManager>().SetMute();
+        RefreshSpriteMute();
     }
 
-    void RefreshSpriteMute () {
-        bool isMuted = ServiceLocator.Get<AudioSettingsManager> ().GetMuted ();
-        if (isMuted) {
+    void RefreshSpriteMute()
+    {
+        bool isMuted = ServiceLocator.Get<AudioSettingsManager>().GetMuted();
+        if (isMuted)
+        {
             muteButton.image.sprite = onMute;
-        } else {
+        }
+        else
+        {
             muteButton.image.sprite = offMute;
         }
-    } 
+    }
     #endregion
+
+    public void PlayHideForHotelTutorial()
+    {
+        // Intentionally left empty: no hide animation when hotel tutorial starts.
+    }
+
+    public void PlayShowAfterHotelTutorial()
+    {
+        // Intentionally left empty: no show animation when hotel tutorial ends.
+    }
 }

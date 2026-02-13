@@ -17,27 +17,32 @@ public class HandPointerSubStep
     public Vector2 pointerOffset;
 
     [Header("Optional World Target (ClickableObject)")]
-    [Tooltip("Jika true, step ini akan menarget ClickableObject di scene berdasarkan clickableObjectId, bukan UI Button.")]
     public bool useClickableObjectTarget;
 
-    [Tooltip("TutorialId dari ClickableObject di scene yang ingin dijadikan target hand pointer.")]
     public string clickableObjectId;
 
     [Header("Optional GuestItem Button Target")]
-    [Tooltip("Jika true, step ini akan menarget check-in button dari GuestItem pertama di scroll view (paling atas).")]
     public bool useGuestItemCheckInButton;
 
     [Header("Optional Hotel Room Target")]
-    [Tooltip("Jika true, step ini akan menarget HotelController yang sedang ada guest-nya (IsOccupied=true), dipilih secara random.")]
     public bool useHotelRoomTarget;
 
-    [Tooltip("(Opsional) Filter berdasarkan type guest di hotel room. Kosongkan untuk pilih random dari semua occupied room.")]
     public string hotelRoomGuestTypeFilter;
 
     [Header("Optional Last Assigned Hotel Room Target (Hotel Mode Only)")]
-    [Tooltip("Jika true, step ini akan menarget HotelController yang terakhir dipakai untuk check-in guest (LastAssignedRoom di HotelManager) dan menunjuknya di world space.")]
     public bool useLastAssignedHotelRoomTarget;
 
     [Header("Optional Hotel Gift Target (Hotel Mode Only)")]
     public bool useHotelGiftTarget;
+
+    [Header("Optional Hotel Random Loot Target (Hotel Mode Only)")]
+    public bool useHotelRandomLootTarget;
+
+    [Header("Optional Hotel Shop Target (Hotel Mode Only)")]
+    public bool useHotelShopTarget;
+
+    [Header("Optional Hotel Facilities Buttons (Hotel Mode Only)")]
+    public bool useHotelFacilitiesHireButtonTarget;
+
+    public bool useHotelFacilitiesApplyButtonTarget;
 }

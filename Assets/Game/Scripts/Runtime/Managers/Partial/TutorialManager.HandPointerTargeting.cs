@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MagicalGarden.Hotel;
 using MagicalGarden.Manager;
+using MagicalGarden.Gift;
 
 public partial class TutorialManager
 {
@@ -10,12 +11,17 @@ public partial class TutorialManager
         public ITutorialPointer Pointer { get; private set; }
         public Button CurrentButton { get; set; }
         public RectTransform CurrentRect { get; set; }
+        public Transform CurrentWorldTarget { get; set; }
         public ClickableObject CurrentClickable { get; set; }
         public System.Func<(Button, RectTransform)> TargetResolver { get; set; }
         public System.Action PostClickAction { get; set; }
         public System.Collections.Generic.List<ClickableObject> DisabledClickableObjects { get; set; }
         public System.Collections.Generic.List<Collider> DisabledColliders { get; set; }
         public System.Collections.Generic.List<Collider2D> DisabledColliders2D { get; set; }
+        public HotelClickableHandler CurrentLootClickableHandler { get; set; }
+        public System.Action<GameObject> CurrentLootClickListener { get; set; }
+        public GameObject CurrentLootTarget { get; set; }
+        public System.Action<ClickableShopHotel> CurrentShopClickListener { get; set; }
 
         public HandPointerTargetingContext()
         {
@@ -42,6 +48,23 @@ public partial class TutorialManager
 
         public void ClearCurrentTargets()
         {
+            // Unsubscribe from loot click if used
+            if (CurrentLootClickableHandler != null && CurrentLootClickListener != null)
+            {
+                CurrentLootClickableHandler.OnShakedObject -= CurrentLootClickListener;
+            }
+
+            CurrentLootClickableHandler = null;
+            CurrentLootClickListener = null;
+            CurrentLootTarget = null;
+
+            // Unsubscribe from shop click if used
+            if (CurrentShopClickListener != null)
+            {
+                ClickableShopHotel.OnAnyShopClicked -= CurrentShopClickListener;
+            }
+            CurrentShopClickListener = null;
+
             if (CurrentButton != null)
             {
                 // Remove from protected buttons list
@@ -50,6 +73,7 @@ public partial class TutorialManager
             }
 
             CurrentRect = null;
+            CurrentWorldTarget = null;
 
             if (CurrentClickable != null)
             {
@@ -265,6 +289,207 @@ public partial class TutorialManager
         }
 
     }
+
+    private class HotelRandomLootTargetHandler : HandPointerTargetHandler
+    {
+        public HotelRandomLootTargetHandler(TutorialManager manager, HandPointerTargetingContext context)
+            : base(manager, context) { }
+
+        public override bool CanHandle(HandPointerSubStep step) => step.useHotelRandomLootTarget;
+
+        public override bool Apply(HandPointerSubStep step, System.Action onClickCallback)
+        {
+            var lootObject = Manager._hotelMarkedLootTarget;
+            if (lootObject == null && Manager._hotelMarkedRoomForLoot != null)
+            {
+                lootObject = Manager.FindClosestHotelLootNearRoom(Manager._hotelMarkedRoomForLoot);
+                Manager._hotelMarkedLootTarget = lootObject;
+            }
+
+            if (lootObject == null)
+            {
+                Debug.LogWarning("[HotelTutorial] HotelRandomLootTargetHandler: No suitable loot object found to target.");
+                return false;
+            }
+
+            var clickableHandler = Object.FindObjectOfType<HotelClickableHandler>();
+            if (clickableHandler == null)
+            {
+                Debug.LogWarning("[HotelTutorial] HotelRandomLootTargetHandler: HotelClickableHandler not found, cannot listen for loot click.");
+            }
+            else
+            {
+                Context.CurrentLootClickableHandler = clickableHandler;
+                Context.CurrentLootTarget = lootObject;
+
+                System.Action<GameObject> listener = null;
+                listener = (clickedObj) =>
+                {
+                    if (clickedObj == null || Context.CurrentLootTarget == null)
+                        return;
+
+                    if (clickedObj == Context.CurrentLootTarget)
+                    {
+                        clickableHandler.OnShakedObject -= listener;
+                        Context.CurrentLootClickableHandler = null;
+                        Context.CurrentLootClickListener = null;
+                        Context.CurrentLootTarget = null;
+
+                        onClickCallback?.Invoke();
+                    }
+                };
+
+                Context.CurrentLootClickListener = listener;
+                clickableHandler.OnShakedObject += listener;
+            }
+
+            if (Context.Pointer != null)
+            {
+                Context.Pointer.PointToWorld(lootObject.transform, step.pointerOffset);
+                Context.CurrentWorldTarget = lootObject.transform;
+            }
+
+            return true;
+        }
+    }
+
+    private class HotelFacilitiesHireButtonTargetHandler : HandPointerTargetHandler
+    {
+        public HotelFacilitiesHireButtonTargetHandler(TutorialManager manager, HandPointerTargetingContext context)
+            : base(manager, context) { }
+
+        public override bool CanHandle(HandPointerSubStep step) => step.useHotelFacilitiesHireButtonTarget;
+
+        public override bool Apply(HandPointerSubStep step, System.Action onClickCallback)
+        {
+            var button = HandPointerTargetFinder.FindFirstHotelFacilitiesHireButton();
+            if (button == null)
+            {
+                Debug.LogWarning("[HandPointerTutorial] HotelFacilitiesHireButtonTargetHandler: Hire button not found.");
+                return false;
+            }
+
+            var rect = button.transform as RectTransform;
+            if (rect == null)
+            {
+                Debug.LogWarning("[HandPointerTutorial] HotelFacilitiesHireButtonTargetHandler: RectTransform not found on hire button.");
+                return false;
+            }
+
+            SetupButtonTarget(button, rect, onClickCallback);
+
+            if (Context.Pointer != null)
+            {
+                Context.Pointer.PointTo(rect, step.pointerOffset);
+            }
+
+            return true;
+        }
+    }
+
+    private class HotelFacilitiesApplyButtonTargetHandler : HandPointerTargetHandler
+    {
+        public HotelFacilitiesApplyButtonTargetHandler(TutorialManager manager, HandPointerTargetingContext context)
+            : base(manager, context) { }
+
+        public override bool CanHandle(HandPointerSubStep step) => step.useHotelFacilitiesApplyButtonTarget;
+
+        public override bool Apply(HandPointerSubStep step, System.Action onClickCallback)
+        {
+            var button = HandPointerTargetFinder.FindFirstHotelFacilitiesApplyButton();
+            if (button == null)
+            {
+                Debug.LogWarning("[HandPointerTutorial] HotelFacilitiesApplyButtonTargetHandler: Apply button not found.");
+                return false;
+            }
+
+            var rect = button.transform as RectTransform;
+            if (rect == null)
+            {
+                Debug.LogWarning("[HandPointerTutorial] HotelFacilitiesApplyButtonTargetHandler: RectTransform not found on apply button.");
+                return false;
+            }
+
+            SetupButtonTarget(button, rect, onClickCallback);
+
+            if (Context.Pointer != null)
+            {
+                Context.Pointer.PointTo(rect, step.pointerOffset);
+            }
+
+            return true;
+        }
+    }
+
+    private class HotelShopTargetHandler : HandPointerTargetHandler
+    {
+        public HotelShopTargetHandler(TutorialManager manager, HandPointerTargetingContext context)
+            : base(manager, context) { }
+
+        public override bool CanHandle(HandPointerSubStep step) => step.useHotelShopTarget;
+
+        public override bool Apply(HandPointerSubStep step, System.Action onClickCallback)
+        {
+            var shop = HandPointerTargetFinder.FindHotelShopClickable();
+            if (shop == null)
+            {
+                Debug.LogWarning("[HandPointerTutorial] HotelShopTargetHandler: ClickableShopHotel not found");
+                return false;
+            }
+
+            // Focus camera on the shop position (fast ease)
+            try
+            {
+                var camController = Manager.cameraController;
+                if (camController == null)
+                {
+                    camController = Object.FindObjectOfType<MagicalGarden.Farm.CameraDragMove>(true);
+                    if (camController != null)
+                    {
+                        Manager.cameraController = camController;
+                    }
+                }
+
+                if (camController != null)
+                {
+                    var targetPos = shop.transform.position;
+                    camController.FocusOnTarget(targetPos, 4f, 0.35f, isHotel: true);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[HandPointerTutorial] HotelShopTargetHandler: Camera focus failed with exception: {ex.Message}");
+            }
+
+            // Subscribe to shop click to advance the sub-tutorial
+            System.Action<ClickableShopHotel> listener = null;
+            listener = (clickedShop) =>
+            {
+                if (clickedShop == null)
+                    return;
+
+                ClickableShopHotel.OnAnyShopClicked -= listener;
+                if (Context.CurrentShopClickListener == listener)
+                {
+                    Context.CurrentShopClickListener = null;
+                }
+
+                onClickCallback?.Invoke();
+            };
+
+            Context.CurrentShopClickListener = listener;
+            ClickableShopHotel.OnAnyShopClicked += listener;
+
+            // Point hand pointer to the shop in world space
+            if (Context.Pointer != null)
+            {
+                Context.CurrentWorldTarget = shop.transform;
+                Context.Pointer.PointToWorld(shop.transform, step.pointerOffset);
+            }
+
+            return true;
+        }
+    }
     private class LastAssignedHotelRoomTargetHandler : HandPointerTargetHandler
     {
         public LastAssignedHotelRoomTargetHandler(TutorialManager manager, HandPointerTargetingContext context)
@@ -283,29 +508,20 @@ public partial class TutorialManager
                 Debug.LogWarning("[HotelTutorial] HandPointerSub: LastAssignedHotelRoom tidak ditemukan atau belum ada guest yang check-in.");
                 return false;
             }
-
-            // Prioritaskan integrasi dengan ClickableObjectHotel (right-click buka info kamar)
-            // sehingga tutorial maju ketika pemain benar-benar membuka detail hotel.
             var clickableHotel = hotelRoom.GetComponent<ClickableObjectHotel>();
             if (clickableHotel != null)
             {
                 System.Action handler = null;
                 handler = () =>
                 {
-                    // Pastikan hanya terpanggil sekali untuk step ini.
                     clickableHotel.OnInfoShown -= handler;
                     onClickCallback?.Invoke();
                 };
                 clickableHotel.OnInfoShown += handler;
-
-                // Ketika step memakai last assigned hotel room sebagai target,
-                // anggap klik ke kamar (open info) inilah "Next" untuk panel hotel ini,
-                // jadi sembunyikan tombol Next UI-nya supaya pemain diarahkan ke kamar.
                 Manager.HideCurrentHotelNextButtonForLastAssignedRoomStep();
             }
             else
             {
-                // Fallback ke ClickableObject biasa jika tersedia.
                 var clickable = hotelRoom.GetComponent<ClickableObject>();
                 if (clickable != null)
                 {
@@ -322,6 +538,8 @@ public partial class TutorialManager
             {
                 Debug.Log($"[HotelTutorial] HandPointerSub: PointToWorld ke LAST HotelController '{hotelRoom.gameObject.name}' (guest={hotelRoom.nameGuest}, type={hotelRoom.typeGuest}) dengan offset {step.pointerOffset}.");
                 Context.Pointer.PointToWorld(hotelRoom.transform, step.pointerOffset);
+                Context.CurrentWorldTarget = hotelRoom.transform;
+                Context.CurrentRect = null;
             }
 
             return true;
@@ -343,9 +561,19 @@ public partial class TutorialManager
             var giftItem = HandPointerTargetFinder.FindLatestHotelGiftItem();
             if (giftItem == null)
             {
-                Debug.LogWarning("[HotelTutorial] HandPointerSub: Tidak ada GiftItem hotel yang tersedia untuk target tutorial.");
-                return false;
+                Debug.LogWarning("[HotelTutorial] HandPointerSub: Tidak ada GiftItem hotel yang tersedia untuk target tutorial. Menunggu gift spawn...");
+                Manager.StartCoroutine(WaitForGiftAndSetup(step, onClickCallback));
+                return true;
             }
+
+            SetupGiftTarget(giftItem, step, onClickCallback);
+            return true;
+        }
+
+        private void SetupGiftTarget(GiftItem giftItem, HandPointerSubStep step, System.Action onClickCallback)
+        {
+            if (giftItem == null)
+                return;
 
             System.Action handler = null;
             handler = () =>
@@ -355,17 +583,38 @@ public partial class TutorialManager
             };
             giftItem.OnGiftOpened += handler;
 
-            // Anggap klaim gift ini sebagai "Next" untuk panel hotel,
-            // jadi sembunyikan tombol Next UI supaya fokus ke gift.
             Manager.HideCurrentHotelNextButtonForLastAssignedRoomStep();
 
             if (Context.Pointer != null)
             {
                 Debug.Log($"[HotelTutorial] HandPointerSub: PointToWorld ke GiftItem '{giftItem.gameObject.name}' dengan offset {step.pointerOffset}.");
                 Context.Pointer.PointToWorld(giftItem.transform, step.pointerOffset);
+                Context.CurrentWorldTarget = giftItem.transform;
+                Context.CurrentRect = null;
+            }
+        }
+
+        private System.Collections.IEnumerator WaitForGiftAndSetup(HandPointerSubStep step, System.Action onClickCallback)
+        {
+            const float timeout = 30f;
+            const float pollInterval = 0.2f;
+            float elapsed = 0f;
+
+            while (elapsed < timeout && Manager._isRunningHandPointerSubTutorial)
+            {
+                var giftItem = HandPointerTargetFinder.FindLatestHotelGiftItem();
+                if (giftItem != null)
+                {
+                    Debug.Log("[HotelTutorial] HandPointerSub: GiftItem ditemukan setelah menunggu, mengatur pointer.");
+                    SetupGiftTarget(giftItem, step, onClickCallback);
+                    yield break;
+                }
+
+                elapsed += pollInterval;
+                yield return new WaitForSeconds(pollInterval);
             }
 
-            return true;
+            Debug.LogWarning("[HotelTutorial] HandPointerSub: Timeout menunggu GiftItem, pointer ke gift tidak akan di-setup.");
         }
     }
 
@@ -399,6 +648,8 @@ public partial class TutorialManager
             {
                 Debug.Log($"[HotelTutorial] HandPointerSub: PointToWorld ke HotelController '{hotelRoom.gameObject.name}' (guest={hotelRoom.nameGuest}, type={hotelRoom.typeGuest}) dengan offset {step.pointerOffset}.");
                 Context.Pointer.PointToWorld(hotelRoom.transform, step.pointerOffset);
+                Context.CurrentWorldTarget = hotelRoom.transform;
+                Context.CurrentRect = null;
             }
 
             return true;
@@ -500,6 +751,8 @@ public partial class TutorialManager
             {
                 Debug.Log($"[HotelTutorial] HandPointerSub: PointToWorld ke ClickableObject '{clickable.gameObject.name}' (id={step.clickableObjectId}) dengan offset {step.pointerOffset}.");
                 Context.Pointer.PointToWorld(clickable.transform, step.pointerOffset);
+                Context.CurrentWorldTarget = clickable.transform;
+                Context.CurrentRect = null;
             }
 
             return true;

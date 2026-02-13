@@ -21,13 +21,16 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
     [Tooltip("Kecepatan goyangan kiri-kanan.")]
     [SerializeField] private float swaySpeed = 3f;
 
+    [Header("World Target Sway (PointToWorld)")]
+    [Tooltip("Jarak goyangan kiri-kanan khusus saat mengikuti target dunia (PointToWorld).")]
+    [SerializeField] private float worldSwayAmplitude = 25f;
+
+    [Tooltip("Kecepatan goyangan khusus saat mengikuti target dunia (PointToWorld).")]
+    [SerializeField] private float worldSwaySpeed = 3.5f;
+
     [Header("Sorting (Layer)")]
     [Tooltip("Sorting order tinggi supaya pointer selalu di depan tanpa perlu mengubah hierarki.")]
     [SerializeField] private int sortingOrderOnTop = 5000;
-
-    [Header("Debug World Target Offset")]
-    [Tooltip("Offset tambahan untuk worldTarget yang bisa diatur realtime di inspector (untuk debug/tuning).")]
-    [SerializeField] private Vector3 debugWorldOffset = Vector3.zero;
 
     private RectTransform _canvasRect;
     private RectTransform _target;
@@ -74,7 +77,7 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
             _pointerCanvas.sortingOrder = sortingOrderOnTop;
 
             pointerRect.gameObject.SetActive(false);
-            
+
             // Ensure hand pointer doesn't block raycasts to buttons underneath
             var pointerImage = pointerRect.GetComponent<UnityEngine.UI.Image>();
             if (pointerImage != null)
@@ -82,7 +85,7 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
                 pointerImage.raycastTarget = false;
                 Debug.Log("[TutorialHandPointer] Awake: Set hand pointer raycastTarget = false to allow clicks through");
             }
-            
+
             var childImages = pointerRect.GetComponentsInChildren<UnityEngine.UI.Image>(true);
             foreach (var img in childImages)
             {
@@ -259,8 +262,7 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
             if (worldCam == null)
                 return;
 
-
-            Vector3 worldPos = _worldTarget.position + _worldOffset + debugWorldOffset;
+            Vector3 worldPos = _worldTarget.position + _worldOffset;
             Vector3 screenPos3D = worldCam.WorldToScreenPoint(worldPos);
 
             if (screenPos3D.z < 0)
@@ -288,13 +290,16 @@ public class TutorialHandPointer : MonoBehaviour, ITutorialPointer
         // =============================
         _swayTime += Time.deltaTime;
 
+        float amplitude = (_worldTarget != null ? worldSwayAmplitude : swayAmplitude);
+        float speed = (_worldTarget != null ? worldSwaySpeed : swaySpeed);
+
         float baseDir = -1f;
         if (Mathf.Abs(_offset.x) > 0.01f)
         {
             baseDir = -Mathf.Sign(_offset.x);
         }
 
-        float sway = Mathf.Sin(_swayTime * swaySpeed) * swayAmplitude;
+        float sway = Mathf.Sin(_swayTime * speed) * amplitude;
         Vector2 swayOffset = new Vector2(sway * baseDir, 0f);
 
         Vector2 desired = localPoint + _offset + swayOffset;

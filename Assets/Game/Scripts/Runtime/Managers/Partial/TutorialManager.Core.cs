@@ -66,8 +66,8 @@ public partial class TutorialManager
     // Enhanced button protection system with automatic restoration
     private static readonly Dictionary<Button, TutorialButtonProtection> _protectedButtons = new Dictionary<Button, TutorialButtonProtection>();
 
-    // Routine khusus untuk kamera hotel yang fokus ke kamar/monster setelah check-in
     private Coroutine _hotelMonsterCameraRoutine;
+    private bool _hotelCameraFocusCompleted;
 
     public static bool IsButtonProtectedByTutorial(Button button)
     {
@@ -297,6 +297,11 @@ public partial class TutorialManager
         }
 
         UnlockCameraAfterTutorial();
+
+        if (HotelMainUI.instance != null)
+        {
+            HotelMainUI.instance.PlayShowAfterHotelTutorial();
+        }
     }
 
     private bool IsPlainTutorialSkipped()

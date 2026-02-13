@@ -7,6 +7,8 @@ namespace MagicalGarden.Hotel
     [RequireComponent(typeof(Collider2D))]
     public class ClickableShopHotel : MonoBehaviour
     {
+        public static System.Action<ClickableShopHotel> OnAnyShopClicked;
+
         [SerializeField] HotelShop hotelShop;
         [SerializeField] private GameObject _shopUI;
         [SerializeField] private float _openDelay;
@@ -27,7 +29,7 @@ namespace MagicalGarden.Hotel
         private Vector3 originalScale;
         private bool isHovered = false;
 
-        [Header ("Audio")]
+        [Header("Audio")]
         public AudioClip openShopSFX;
         private void Start()
         {
@@ -55,7 +57,7 @@ namespace MagicalGarden.Hotel
             // Ignore if pointer is over UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
-            SfxOpenMenu ();
+            SfxOpenMenu();
             isHovered = true;
         }
 
@@ -77,6 +79,8 @@ namespace MagicalGarden.Hotel
             PlayClickedAnimation();
 
             StartCoroutine(OpenShopWithDelay());
+
+            OnAnyShopClicked?.Invoke(this);
         }
 
         private IEnumerator OpenShopWithDelay()
@@ -84,10 +88,10 @@ namespace MagicalGarden.Hotel
             // Tunggu animasi selesai
             yield return new WaitForSeconds(_openDelay);
 
-            hotelShop.OnShopUI ();
+            hotelShop.OnShopUI();
             if (_shopUI != null)
             {
-               // _shopUI.SetActive(true);
+                // _shopUI.SetActive(true);
 
                 // Set HotelController reference to HotelInformation if both are assigned
                 if (hotelInformation != null && hotelController != null)
@@ -106,7 +110,7 @@ namespace MagicalGarden.Hotel
             {
                 // Try to trigger animation by trigger name
                 animator.SetTrigger(clickedAnimationName);
-    
+
                 // Alternative: directly play animation state
                 // animator.Play(clickedAnimationName);
             }
@@ -116,8 +120,9 @@ namespace MagicalGarden.Hotel
             }
         }
         #region SFX
-        void SfxOpenMenu () {
-            ServiceLocator.Get<AudioManager> ().PlaySFX (openShopSFX);
+        void SfxOpenMenu()
+        {
+            ServiceLocator.Get<AudioManager>().PlaySFX(openShopSFX);
         }
         #endregion
     }

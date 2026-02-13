@@ -23,13 +23,26 @@ public partial class TutorialManager
 
     private void PlayPlainStepEffectForIndex(int stepIndex)
     {
-        if (plainStepEffects == null || plainStepEffects.Count == 0)
+        PlayStepEffectForIndex(plainStepEffects, stepIndex);
+    }
+
+    [Header("Hotel Step Effects")]
+    [SerializeField] private List<SimpleStepEffectEntry> hotelStepEffects = new List<SimpleStepEffectEntry>();
+
+    private void PlayHotelStepEffectForIndex(int stepIndex)
+    {
+        PlayStepEffectForIndex(hotelStepEffects, stepIndex);
+    }
+
+    private void PlayStepEffectForIndex(List<SimpleStepEffectEntry> effects, int stepIndex)
+    {
+        if (effects == null || effects.Count == 0)
             return;
 
         SimpleStepEffectEntry config = null;
-        for (int i = 0; i < plainStepEffects.Count; i++)
+        for (int i = 0; i < effects.Count; i++)
         {
-            var entry = plainStepEffects[i];
+            var entry = effects[i];
             if (entry != null && entry.stepIndex == stepIndex && entry.effectRoot != null)
             {
                 config = entry;
