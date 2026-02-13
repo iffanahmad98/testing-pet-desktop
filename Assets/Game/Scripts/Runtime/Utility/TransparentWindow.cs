@@ -55,6 +55,7 @@ public class TransparentWindow : MonoBehaviour
     private IntPtr windowHandle = IntPtr.Zero;
     private Camera mainCamera;
     private bool isMinimizing = false;
+    
     #endregion
 
     #region Unity Lifecycle
@@ -83,7 +84,7 @@ public class TransparentWindow : MonoBehaviour
     {
         ServiceLocator.Unregister<TransparentWindow>();
     }
-
+/*
     private void Start()
     {
         if (!enabled) return;
@@ -96,6 +97,23 @@ public class TransparentWindow : MonoBehaviour
         {
             Debug.LogWarning("No EventSystem found. UI interaction detection will not work.");
         }
+    }
+*/
+
+    private void Start()
+    {
+        if (!enabled) return;
+        StartCoroutine(InitializeAfterFrame());
+    }
+
+    private System.Collections.IEnumerator InitializeAfterFrame()
+    {
+        yield return new WaitForEndOfFrame();
+
+        InitializeWindow();
+        SetupCameraTransparency();
+
+        eventSystem = FindFirstObjectByType<EventSystem>();
     }
 
     private void Update()
@@ -182,7 +200,7 @@ public class TransparentWindow : MonoBehaviour
         MARGINS margins = new MARGINS { cxLeftWidth = -1 };
         DwmExtendFrameIntoClientArea(windowHandle, ref margins);
     }
-
+    
     private void HandleUIInteraction()
     {
         bool isOverUI = eventSystem.IsPointerOverGameObject();

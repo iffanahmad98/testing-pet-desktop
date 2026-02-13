@@ -107,6 +107,7 @@ public class BoardSign : MonoBehaviour, IUIButtonSource
 
         float maxHeight = settingsManager.GetMaxGameAreaHeight();
         settingsManager.UpdateGameAreaHeight(maxHeight);
+        settingsManager.UpdateSliderHeight (maxHeight);
         settingsManager.RepositionFoodsAfterScaling();
         settingsManager.RepositionPoopsAfterScaling();
 
@@ -127,6 +128,7 @@ public class BoardSign : MonoBehaviour, IUIButtonSource
 
         float minHeight = settingsManager.GetMinGameAreaHeight();
         settingsManager.UpdateGameAreaHeight(minHeight);
+        settingsManager.UpdateSliderHeight (minHeight);
         settingsManager.SnapPoopsToGroundIfMinHeight();
         settingsManager.SnapFoodToGroundIfMinHeight();
 
