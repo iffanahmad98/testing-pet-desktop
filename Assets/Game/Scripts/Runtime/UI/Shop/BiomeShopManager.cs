@@ -250,12 +250,6 @@ public class BiomeShopManager : MonoBehaviour
                 ServiceLocator.Get<UIManager>()?.ShowMessage($"Bought '{biome.biomeName}'!");
 
                 MonsterManager.instance.audio.PlaySFX("buy");
-
-                // Update UI Coin Text
-                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
-
-                // Update Shop Item
-                //ServiceLocator.Get<RefreshShopItems>().RefreshAllShop();
             }
             else
             {

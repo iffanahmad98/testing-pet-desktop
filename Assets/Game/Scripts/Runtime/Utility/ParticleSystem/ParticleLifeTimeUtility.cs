@@ -28,7 +28,7 @@ public class ParticleLifetimeByHeight : MonoBehaviour
     }
 
     void Update () {
-        ApplyLifetime (settingsManager.GetSavedMaxGameAreaHeight ());
+       ApplyLifetime (settingsManager.GetSavedMaxGameAreaHeight ());
     }
 
     /// <summary>
@@ -36,6 +36,7 @@ public class ParticleLifetimeByHeight : MonoBehaviour
     /// </summary>
     public void ApplyLifetime(float curHeight)
     {
+       // Debug.Log ("Cur Height" + curHeight);
         // Debug.Log ("Lifetime : " + curHeight);
         // Clamp height agar aman
         float clampedHeight = Mathf.Clamp(

@@ -202,9 +202,7 @@ public class MonsterShopManager : MonoBehaviour
                 // Success message
                 ServiceLocator.Get<UIManager>().ShowMessage($"Bought {monsterItem.name}!", 2f);
                  ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterItem);
-                // Update UI Coin Text
-                ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
-
+                
                 // Update List Monster Catalogue
                 if (ServiceLocator.Get<MonsterCatalogueListUI>() != null)
                     ServiceLocator.Get<MonsterCatalogueListUI>().RefreshCatalogue();

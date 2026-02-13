@@ -69,12 +69,13 @@ public class GachaManager : MonoBehaviour
     public TextMeshProUGUI gachaPriceText;
     public Image buyImage;
     public Image coinImage;
-
+    [SerializeField] Button drawGachaButton;
     [Header("Grayscale Components")]
     public Material grayscaleMaterial;
     [Header ("Audio")]
     public AudioClip openEggClip;
-
+    [SerializeField] bool cdGacha = false;
+    bool onceEvent = false;
     private void Awake()
     {
         ServiceLocator.Register(this);
@@ -128,17 +129,27 @@ public class GachaManager : MonoBehaviour
     public void RollGacha()
     {
         Debug.Log($"this is gacha cost = {gachaCost}");
-
-        if (!CoinManager.SpendCoins(gachaCost))
+        if (cdGacha) {return;}
+       
+        if (gachaResultPanel.coroutineFirework != null && gachaResultPanel.gameObject.activeInHierarchy && gachaResultPanel.chest.activeInHierarchy && gachaResultPanel.egg.activeInHierarchy )
         {
-            ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);
+            ServiceLocator.Get<UIManager>().ShowMessage("You are click too fast!", 1f);
             return;
         }
         else if (totalPullCount >= 7)
         {
             ServiceLocator.Get<UIManager>().ShowMessage("Limit Gacha!", 1f);
             return;
+        } 
+        else if (!CoinManager.SpendCoins(gachaCost))
+        {
+            ServiceLocator.Get<UIManager>().ShowMessage("Not enough coins for gacha!", 1f);
+            return;
         }
+        
+        drawGachaButton.interactable = false;
+        cdGacha = true;
+        onceEvent = true;
 
         // Di sini ngecek jumlah monster kurang dari 25
         if (MonsterManager.instance.activeMonsters.Count >= 25)
@@ -150,10 +161,6 @@ public class GachaManager : MonoBehaviour
 
             return;
         }
-
-
-        // Update UI Coin Text
-        ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
 
         // Increment total pull count
         totalPullCount++;
@@ -178,6 +185,16 @@ public class GachaManager : MonoBehaviour
 
         ShowGachaResult(selectedMonster, () => SellMonster(selectedMonster), () => SpawnMonster(selectedMonster));
         SfxCrackEgg ();
+
+        
+    }
+
+    IEnumerator nCDGacha () {
+        
+        yield return new WaitForSeconds (6);
+        ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
+        drawGachaButton.interactable = true;
+        cdGacha = false;
     }
 
     private IEnumerator EndHoverAfterDelay(float delay)
@@ -423,24 +440,33 @@ public class GachaManager : MonoBehaviour
 
     private void SpawnMonster(MonsterDataSO monsterData)
     {
-        ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
+        if (onceEvent) {
+            onceEvent = false;
+            ServiceLocator.Get<MonsterManager>().SpawnMonster(monsterData);
 
-        // Update List Monster Catalogue
-        if (ServiceLocator.Get<MonsterCatalogueListUI>() != null)
-            ServiceLocator.Get<MonsterCatalogueListUI>().RefreshCatalogue();
+            // Update List Monster Catalogue
+            if (ServiceLocator.Get<MonsterCatalogueListUI>() != null)
+                ServiceLocator.Get<MonsterCatalogueListUI>().RefreshCatalogue();
+        }
     }
 
     private void SellMonster(MonsterDataSO monsterData)
     {
-        ServiceLocator.Get<MonsterManager>().SellMonster(monsterData);
+        if (onceEvent) {
+            onceEvent = false;
+            ServiceLocator.Get<MonsterManager>().SellMonster(monsterData);
+        }
+        
     }
 
     private void ShowGachaResult(MonsterDataSO monster, System.Action onSellComplete, System.Action onSpawnComplete)
     {
-        if (gachaResultPanel != null)
+        if (gachaResultPanel != null && onceEvent)
         {
+            
             gachaResultPanel.Show(monster, onSellComplete, onSpawnComplete);
         }
+        StartCoroutine (nCDGacha ());
     }
 
     #region Audio

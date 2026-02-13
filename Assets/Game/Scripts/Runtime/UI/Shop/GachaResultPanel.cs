@@ -52,7 +52,7 @@ public class GachaResultPanel : MonoBehaviour
     private UIAnimator chestAnimatorUI;
     private TweenUIAnimator eggAnimatorUI;
     private Animator eggAnimator; // TEST
-
+    public Coroutine coroutineFirework;
     private void Start()
     {
         // Ensure all necessary components are present
@@ -150,7 +150,12 @@ public class GachaResultPanel : MonoBehaviour
             fireworkVFX.gameObject.SetActive(true);
             fireworkVFX?.Play();
         });
-        seq.AppendCallback(() => StartCoroutine(PlayMiniFireworksWithDelay()));
+       // if (coroutineFirework == null) {
+       seq.AppendCallback(() =>
+{
+    coroutineFirework = GameManager.instance.StartCoroutine(PlayMiniFireworksWithDelay());
+});
+      //  }
         seq.AppendCallback(() =>
         {
             shineVFX.gameObject.SetActive(false);
@@ -239,5 +244,7 @@ public class GachaResultPanel : MonoBehaviour
             miniFirework?.Play();
             yield return new WaitForSeconds(0.5f);
         }
+        Debug.Log ("Null");
+        coroutineFirework = null;
     }
 }

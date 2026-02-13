@@ -42,7 +42,7 @@ public class BiomeManager : MonoBehaviour
     private CloudAmbientSystem cloudSystem;
     public RectTransform skyBG;
     public RectTransform ambientBG;
-
+    public RectTransform skyBgInstantiated;
     [Header("Clear Sky")]
     public GameObject skyRaysVfxObj;
 
@@ -65,7 +65,7 @@ public class BiomeManager : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register(this);
-
+        
         // Store original positions
         if (skyBG != null) originalSkyBGPosition = skyBG.anchoredPosition;
         if (ambientBG != null) originalAmbientBGPosition = ambientBG.anchoredPosition;
@@ -111,6 +111,7 @@ public class BiomeManager : MonoBehaviour
 
     public void ToggleFilters(string filterName, bool active)
     {
+        
         if (filterName == "Darken")
         {
             if (darkenFilter != null)
@@ -122,6 +123,7 @@ public class BiomeManager : MonoBehaviour
         {
             Debug.LogWarning($"BiomeManager: Unknown filter '{filterName}'");
         }
+        
     }
 
     private void UpdateBackgroundPositions()
@@ -137,13 +139,21 @@ public class BiomeManager : MonoBehaviour
 
         // Calculate height percentage (0 = min height, 1 = max height)
         float heightPercentage = Mathf.InverseLerp(minHeight, maxHeight, currentHeight);
-
+        
         // Update skyBG position
         if (skyBG != null)
         {
             Vector2 newPos = skyBG.anchoredPosition;
             newPos.y = Mathf.Lerp(skyBGMinY, originalSkyBGPosition.y, heightPercentage);
             skyBG.anchoredPosition = newPos;
+        }
+
+        // Update skyBG position
+        if (skyBgInstantiated != null)
+        {
+            Vector2 newPos = skyBgInstantiated.anchoredPosition;
+            newPos.y = Mathf.Lerp(skyBGMinY, originalSkyBGPosition.y, heightPercentage);
+            skyBgInstantiated.anchoredPosition = newPos;
         }
 
         // Update ambientBG position
@@ -378,7 +388,7 @@ public class BiomeManager : MonoBehaviour
         {
             rainObj.SetActive(isRainBiome);
         }
-
+        
         //bool isDefaultBiome = biome.biomeID == "default_biome" || biome.biomeName.ToLower().Contains("default");
         if(skyRaysVfxObj != null)
         {
@@ -389,13 +399,13 @@ public class BiomeManager : MonoBehaviour
         ClearSpawnedObjects(spawnedSkyObjects);
 
         // Spawn new sky objects
-        if (biome.skyObjects != null && biome.skyObjects.Length > 0 && skyBG != null)
+        if (biome.skyObjects != null && biome.skyObjects.Length > 0 && skyBgInstantiated != null)
         {
             foreach (GameObject prefab in biome.skyObjects)
             {
                 if (prefab != null)
                 {
-                    GameObject obj = Instantiate(prefab, skyBG);
+                    GameObject obj = Instantiate(prefab, skyBgInstantiated);
                     spawnedSkyObjects.Add(obj);
                 }
             }
@@ -405,13 +415,13 @@ public class BiomeManager : MonoBehaviour
         ClearSpawnedObjects(spawnedEffectObjects);
 
         // Spawn new effect objects
-        if (biome.effectPrefabs != null && biome.effectPrefabs.Length > 0 && skyBG != null)
+        if (biome.effectPrefabs != null && biome.effectPrefabs.Length > 0 && skyBgInstantiated != null)
         {
             foreach (GameObject prefab in biome.effectPrefabs)
             {
                 if (prefab != null)
                 {
-                    GameObject obj = Instantiate(prefab, skyBG);
+                    GameObject obj = Instantiate(prefab, skyBgInstantiated);
                     spawnedEffectObjects.Add(obj);
                 }
             }

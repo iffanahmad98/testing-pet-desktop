@@ -161,7 +161,7 @@ public class MonsterManager : MonoBehaviour
         CoinManager.AddCoins(sellPrice);
 
         // Update Coin UI Value
-        ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
+      //  ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
     }
 
     public void BuyMonster(MonsterDataSO monsterData)

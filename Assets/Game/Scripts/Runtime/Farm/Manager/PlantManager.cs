@@ -38,6 +38,8 @@ namespace MagicalGarden.Farm
         public List <int> farmAreaIdsPurchased = new ();
         public event Action OnLoadEvent;
 
+        private FarmTutorial _tutorial;
+
         private void Update()
         {
             /*
@@ -59,6 +61,7 @@ namespace MagicalGarden.Farm
         private void Awake()
         {
             Instance = this;
+            _tutorial = UnityEngine.Object.FindFirstObjectByType<FarmTutorial>(FindObjectsInactive.Include);
         }
 
         void Start()
@@ -92,6 +95,17 @@ namespace MagicalGarden.Farm
             }
 
             if (!InventoryManager.Instance.HasItem(itemdata, 1)) return;
+
+            if (_tutorial != null)
+            {
+                bool canTutorialPlantSeed = _tutorial.CanPlantSeedsAt(cellPosition);
+                if (!canTutorialPlantSeed)
+                {
+                    Debug.Log("Posisi nanam biji salah");
+                    return;
+                }
+            }
+
             InventoryManager.Instance.RemoveAssistant (itemdata);
 
             // (Not Used :)

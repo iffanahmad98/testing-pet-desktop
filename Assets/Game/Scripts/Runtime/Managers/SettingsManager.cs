@@ -331,6 +331,7 @@ public class SettingsManager : MonoBehaviour
         OnGameAreaChanged?.Invoke();
     }
 
+    
     public void UpdateGameAreaHorizontalPosition(float value)
     {
         if (gameArea == null) return;
@@ -473,6 +474,24 @@ public class SettingsManager : MonoBehaviour
             if (poop == null) continue;
 
             var rectTransform = poop.GetComponent<RectTransform>();
+            if (rectTransform == null) continue;
+
+            rectTransform.anchoredPosition = new Vector2(
+                rectTransform.anchoredPosition.x,
+                GetPoopFloorY(rectTransform)
+            );
+        }
+    }
+
+    public void SnapFoodToGroundIfMinHeight()
+    {
+        if (!IsGameAreaAtMinHeight() || gameManager?.activeFoods == null) return;
+
+        foreach (var food in gameManager.activeFoods)
+        {
+            if (food == null) continue;
+
+            var rectTransform = food.GetComponent<RectTransform>();
             if (rectTransform == null) continue;
 
             rectTransform.anchoredPosition = new Vector2(
@@ -875,7 +894,7 @@ public class SettingsManager : MonoBehaviour
         #endregion
     }
 
-    private void RepositionFoodsAfterScaling()
+    public void RepositionFoodsAfterScaling()
     {
         if (gameManager?.activeFoods == null) return;
 
@@ -1040,7 +1059,7 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
-    private void RepositionPoopsAfterScaling()
+    public void RepositionPoopsAfterScaling()
     {
         if (gameManager?.activePoops == null) return;
 
@@ -1160,6 +1179,9 @@ public class SettingsManager : MonoBehaviour
         UpdateUIScale(savedUIScale);
         UpdatePetScale(savedPetScale);
 
+        // Reposition poop after reverting all changes
+        RepositionPoopsAfterScaling();
+        RepositionFoodsAfterScaling();
         foreach (var module in savableSettingsModules)
             module.RevertSettings();
 
@@ -1180,6 +1202,10 @@ public class SettingsManager : MonoBehaviour
         settingPanel.SetActive(false); // Hide settings panel
     }
 
+    public void UpdateSliderHeight (float value) { // BoardSign.cs
+        heightControl.SetValueWithoutNotify (value);
+    }
+
     public float GetMinGameAreaHeight()
     {
         return MIN_SIZE;
@@ -1193,5 +1219,10 @@ public class SettingsManager : MonoBehaviour
     public float GetSavedMaxGameAreaHeight()
     {
         return heightControl.slider.value;
+    }
+
+    public float GetGameAreaHeight ()
+    {
+        return initialGameAreaHeight;
     }
 }

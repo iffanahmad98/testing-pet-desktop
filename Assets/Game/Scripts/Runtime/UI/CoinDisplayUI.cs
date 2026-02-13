@@ -29,7 +29,7 @@ public class CoinDisplayUI : MonoBehaviour
         // {
         //     UpdateCoinText();
         // }
-        CoinManager.AddCoinChangedRefreshEvent (UpdateCoinText);
+        CoinManager.AddCoinChangedRefreshEvent (NewUpdateCoinText);
         UpdateCoinText();
     }
 
@@ -56,6 +56,11 @@ public class CoinDisplayUI : MonoBehaviour
         UpdateCoinText();
     }
 
+    void NewUpdateCoinText () {
+        mainCoinText.text = CoinManager.Coins.ToString ();
+        shopCoinText.text = CoinManager.Coins.ToString ();
+        coinDifferentText.text =  CoinManager.Coins.ToString ();
+    }
     public void UpdateCoinText()
     {
         //Template MagicalGarden
@@ -64,7 +69,10 @@ public class CoinDisplayUI : MonoBehaviour
 
         //int coins = MagicalGarden.Farm.CoinManager.Instance.coins;
 
-        if(tween != null && tween.IsPlaying())
+        //Make sure coin different text disabled at first
+        coinDifferentText.gameObject.SetActive(false);
+
+        if (tween != null && tween.IsPlaying())
         {
             mainCoinText.text = lastCoinDisplay.ToString();
             shopCoinText.text = lastCoinDisplay.ToString();

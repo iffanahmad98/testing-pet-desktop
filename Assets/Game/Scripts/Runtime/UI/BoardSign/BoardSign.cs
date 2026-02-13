@@ -107,6 +107,9 @@ public class BoardSign : MonoBehaviour, IUIButtonSource
 
         float maxHeight = settingsManager.GetMaxGameAreaHeight();
         settingsManager.UpdateGameAreaHeight(maxHeight);
+        settingsManager.UpdateSliderHeight (maxHeight);
+        settingsManager.RepositionFoodsAfterScaling();
+        settingsManager.RepositionPoopsAfterScaling();
 
         Debug.Log($"Game area height set to maximum: {maxHeight}");
     }
@@ -125,7 +128,9 @@ public class BoardSign : MonoBehaviour, IUIButtonSource
 
         float minHeight = settingsManager.GetMinGameAreaHeight();
         settingsManager.UpdateGameAreaHeight(minHeight);
+        settingsManager.UpdateSliderHeight (minHeight);
         settingsManager.SnapPoopsToGroundIfMinHeight();
+        settingsManager.SnapFoodToGroundIfMinHeight();
 
         Debug.Log($"Game area height set to minimum: {minHeight}");
     }

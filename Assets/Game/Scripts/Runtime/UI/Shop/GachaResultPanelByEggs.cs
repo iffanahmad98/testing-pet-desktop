@@ -39,7 +39,7 @@ public class GachaResultPanelByEggs : MonoBehaviour
 
     private CanvasGroup canvasGroup;
     private CanvasGroup monsterCanvas;
-
+    public Coroutine coroutineEgg;
     private void Start()
     {
         // Ensure all necessary components are present
@@ -112,7 +112,8 @@ public class GachaResultPanelByEggs : MonoBehaviour
             fireworkVFX.gameObject.SetActive(true);
             fireworkVFX?.Play();
         });
-        seq.AppendCallback(() => StartCoroutine(PlayMiniFireworksWithDelay()));
+
+        seq.AppendCallback(() => coroutineEgg = MagicalGarden.Farm.GameManager.Instance.StartCoroutine(PlayMiniFireworksWithDelay()));
         seq.AppendCallback(() =>
         {
             shineVFX.gameObject.SetActive(false);
@@ -204,6 +205,7 @@ public class GachaResultPanelByEggs : MonoBehaviour
             miniFirework?.Play();
             yield return new WaitForSeconds(0.5f);
         }
+        coroutineEgg = null;
     }
 
 }
