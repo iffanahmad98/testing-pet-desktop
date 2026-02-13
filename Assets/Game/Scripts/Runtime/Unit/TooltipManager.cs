@@ -134,7 +134,8 @@ public class TooltipManager : MonoBehaviour
 
     private void Show(string info)
     {
-
+        if (UIManager.transparentMode) {return;}
+        
         if (string.IsNullOrEmpty(info))
             infoText.gameObject.SetActive(false);
         else

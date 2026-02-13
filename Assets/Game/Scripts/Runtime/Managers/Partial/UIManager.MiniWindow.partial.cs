@@ -40,6 +40,9 @@ public partial class UIManager
             EnterMiniWindowMode();
         else
             ExitMiniWindowMode();
+
+        
+        TooltipManager.Instance.HideInstant();
     }
 
     private void EnterMiniWindowMode()
@@ -72,6 +75,8 @@ public partial class UIManager
         }
 
         transparentWindow?.SetTopMostMode(false);
+
+        transparentMode = true;
     }
 
     private void ExitMiniWindowMode()
@@ -106,6 +111,8 @@ public partial class UIManager
         }
 
         transparentWindow?.SetTopMostMode(true);
+
+        transparentMode = false;
     }
 
     private IEnumerator AnimateButtonScale(Vector3 fromScale, Vector3 toScale)

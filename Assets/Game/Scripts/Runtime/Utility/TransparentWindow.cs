@@ -313,5 +313,10 @@ public class TransparentWindow : MonoBehaviour
         }
     }
     #endregion
+    #region WindowAdjustableCanvas
+    public void ChangeEnableTopMost (bool value) {
+        enableTopMost = value;
+    }
+    #endregion
 }
 #endif
