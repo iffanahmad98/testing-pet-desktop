@@ -1,4 +1,5 @@
 using DG.Tweening;
+using MagicalGarden.Farm;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -18,6 +19,10 @@ public enum MenuBtn { None,
     FertilizerTab,
     SeedTab,
     HarvestTab,
+    GardenCompost,
+    ManaNectar,
+    MoonlightPollen,
+    SpiritSap,
     All }
 
 public class FarmTutorial : MonoBehaviour
@@ -34,8 +39,10 @@ public class FarmTutorial : MonoBehaviour
     readonly Dictionary<string, Button> _buyButtons = new();
     Button _currentTutorialButton;
 
-    int _seedBuyRequirement = 8;
     int _totalSeedBought = 0;
+    int _totalSeedPlanted = 0;
+
+    CameraDragMove camDragMove;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -44,6 +51,11 @@ public class FarmTutorial : MonoBehaviour
         _totalSeedBought = 0;
         
         var holder = menuBar.Find("GameObject");
+        var gardenCompost = FindImageIncludeInactive("Fertilizer Machine Tab 1 (Garden Compost)").transform;
+        var manaNectar = FindImageIncludeInactive("Fertilizer Machine Tab 1 (Mana Nectar)").transform;
+        var moonlightPollen = FindImageIncludeInactive("Fertilizer Machine Tab 1 (Moonlight Pollen)").transform;
+        var spiritSap = FindImageIncludeInactive("Fertilizer Machine Tab 2 (Spirit Sap)").transform;
+
         if (!holder) holder = menuBar; // fallback kalau container "GameObject" tidak ada
 
         _btn[MenuBtn.None] = null;
@@ -58,9 +70,15 @@ public class FarmTutorial : MonoBehaviour
         _btn[MenuBtn.FertilizerTab] = FindButtonIncludeInactive("ButtonFertilizer");
         _btn[MenuBtn.SeedTab] = FindButtonIncludeInactive("ButtonSeed");
         _btn[MenuBtn.HarvestTab] = FindButtonIncludeInactive("ButtonHarvest");
+        _btn[MenuBtn.GardenCompost] = gardenCompost.Find("Create_enable")?.GetComponent<Button>();
+        _btn[MenuBtn.ManaNectar] = manaNectar.Find("Create_enable")?.GetComponent<Button>();
+        _btn[MenuBtn.MoonlightPollen] = moonlightPollen.Find("Create_enable")?.GetComponent<Button>();
+        _btn[MenuBtn.SpiritSap] = spiritSap.Find("Create_enable")?.GetComponent<Button>();
 
         LockAll();
         ExecuteTutorialAtStep();
+
+        camDragMove = Object.FindFirstObjectByType<CameraDragMove>();
     }
 
     // Update is called once per frame
@@ -77,10 +95,12 @@ public class FarmTutorial : MonoBehaviour
             Debug.LogError("Step is bigger than the stepData array");
             return;
         }
+        Debug.Log($"Tutorial step index: {tutorialStepIndex}");
 
         FarmTutorialStepData currentStep = stepData[step];
         currentStep.DeletePreviousStep(handPointer);
         _totalSeedBought = 0;
+        _totalSeedPlanted = 0;
 
         PrepareButtonsFor(currentStep);
 
@@ -95,6 +115,11 @@ public class FarmTutorial : MonoBehaviour
             handPointer.transform.DOKill();
             handPointer.transform.DOMoveX(startingX + 20, 0.25f)
                 .SetEase(Ease.OutQuad).SetLoops(-1, LoopType.Yoyo);
+        }
+
+        if (currentStep.isScrolling)
+        {
+            camDragMove.FocusOnTarget(new Vector3(currentStep.scrollTo.x, currentStep.scrollTo.y), 5);
         }
     }
 
@@ -120,6 +145,29 @@ public class FarmTutorial : MonoBehaviour
         if (currentStep.isSelectSeed)
         {
             UnhookTutorialAdvance();
+        }
+
+        if (currentStep.isPlantSeed)
+        {
+            UnhookTutorialAdvance();
+        }
+
+        CheckPoop(currentStep);
+    }
+
+    private void CheckPoop(FarmTutorialStepData currentStep)
+    {
+        if (currentStep.isCreateCompost)
+        {
+            // cek apakah punya cukup poop
+            UnhookTutorialAdvance();
+            if (SaveSystem.LoadPoop() < currentStep.poopRequirement)
+            {
+                SaveSystem.SavePoop(currentStep.poopRequirement);
+                SaveSystem.Flush();
+
+                HookTutorialAdvance(_btn[currentStep.enabledButton]);
+            }
         }
     }
 
@@ -200,6 +248,19 @@ public class FarmTutorial : MonoBehaviour
             .FirstOrDefault(b => b.name == name && b.gameObject.scene.IsValid());
     }
 
+    Image FindImageIncludeInactive(string name)
+    {
+        return Object.FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+            .FirstOrDefault(b => b.name == name && b.gameObject.scene.IsValid());
+    }
+
+    public void FertilizerUIOpened()
+    {
+        // tampilan menu fertilizer dibuka
+        // langsung lanjut langkah berikutnya
+        OnNextButtonClicked();
+    }
+
     public void CountSeedBought()
     {
         // if (!stepData[tutorialStepIndex].isBuySeeds) return;
@@ -237,8 +298,61 @@ public class FarmTutorial : MonoBehaviour
 
     public void SelectSeedToSow()
     {
-        // Pemain klik tombol seed, lanjut ke langkah berikutnya
+        var currentStep = stepData[tutorialStepIndex];
+        if (currentStep.isSelectSeed == false) return;
+
+        Debug.Log("Select seed to sow");
+
+        if (camDragMove == null)
+        {
+            Debug.Log("camDragMove is null");
+            return;
+        }
+
         OnNextButtonClicked();
+
+        // set the camera to focus on the farm
+        
+        if (currentStep.isScrolling)
+        {
+            Debug.Log($"tutorial step index: {tutorialStepIndex}, scroll to: {currentStep.scrollTo}");
+            camDragMove.FocusOnTarget(new Vector3(currentStep.scrollTo.x, currentStep.scrollTo.y), 5);
+        }
+    }
+
+    public bool CanPlantSeedsAt(Vector3Int cellPos)
+    {
+        var currentStep = stepData[tutorialStepIndex];
+        bool correctCell = false;
+
+        for (var i = 0; i < currentStep.seedPlantingPos.Length; i++)
+        {
+            var curPos = currentStep.seedPlantingPos[i];
+            if (curPos == cellPos)
+            {
+                correctCell = true; 
+                break;
+            }
+        }
+
+        if (correctCell)
+        {
+            _totalSeedPlanted += 1;
+            CountSeedPlanted();
+        }
+
+        return correctCell;
+    }
+
+    private void CountSeedPlanted()
+    {
+        var currentStep = stepData[tutorialStepIndex];
+
+        if (_totalSeedPlanted == currentStep.seedPlantRequirement)
+        {
+            // Sudah selesai planting, lanjut ke langkah berikutnya
+            OnNextButtonClicked();
+        }
     }
 
     public void RegisterBuyButton(string itemId, Button btn)
