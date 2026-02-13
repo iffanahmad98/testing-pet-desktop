@@ -331,6 +331,7 @@ public class SettingsManager : MonoBehaviour
         OnGameAreaChanged?.Invoke();
     }
 
+    
     public void UpdateGameAreaHorizontalPosition(float value)
     {
         if (gameArea == null) return;
@@ -1201,6 +1202,10 @@ public class SettingsManager : MonoBehaviour
         settingPanel.SetActive(false); // Hide settings panel
     }
 
+    public void UpdateSliderHeight (float value) { // BoardSign.cs
+        heightControl.SetValueWithoutNotify (value);
+    }
+
     public float GetMinGameAreaHeight()
     {
         return MIN_SIZE;
@@ -1214,5 +1219,10 @@ public class SettingsManager : MonoBehaviour
     public float GetSavedMaxGameAreaHeight()
     {
         return heightControl.slider.value;
+    }
+
+    public float GetGameAreaHeight ()
+    {
+        return initialGameAreaHeight;
     }
 }

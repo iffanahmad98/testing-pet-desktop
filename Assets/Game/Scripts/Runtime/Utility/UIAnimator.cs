@@ -59,7 +59,7 @@ public class UIAnimator : MonoBehaviour
         }
         
         isPlaying = true;
-        animationCoroutine = StartCoroutine(AnimationCoroutine());
+        animationCoroutine = GameManager.instance.StartCoroutine(AnimationCoroutine());
     }
 
     private IEnumerator AnimationCoroutine()

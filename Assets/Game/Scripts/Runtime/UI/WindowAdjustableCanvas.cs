@@ -30,14 +30,14 @@ public class WindowAdjustableCanvas : MonoBehaviour
         if (isOn)
         {
             toggleWindowOnTop.image.sprite = checkboxOn;
-            Debug.LogError("Enable window");
+          //  Debug.LogError("Enable window");
             transparentWindow.ChangeEnableTopMost (true);
             // transparentWindow.SetWindowOnTop(true);
         }
         else
         {
             toggleWindowOnTop.image.sprite = checkboxOff;
-            Debug.LogError("Disable window");
+         //   Debug.LogError("Disable window");
             transparentWindow.ChangeEnableTopMost (false);
             // transparentWindow.SetWindowOnTop(false);
         }

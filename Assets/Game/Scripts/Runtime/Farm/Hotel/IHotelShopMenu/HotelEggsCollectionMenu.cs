@@ -16,7 +16,7 @@ public class HotelMenuEggCard {
    public TMP_Text remainText;
 
    [HideInInspector] public int remain;
-
+   
    public void RefreshRemain () {
       remain = GetLootUsable (lootType).GetCurrency ();
       remainText.text = remain.ToString ();
@@ -73,7 +73,7 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
    [SerializeField] Sprite openEggAvailable, openEggNotAvailable;
    [SerializeField] Image hotelShopBlocker;
    [SerializeField] SkeletonGraphic npcSkeletonGrpahic;
-
+   [SerializeField] GachaResultPanelByEggs gachaResultPanelByEggs;
    bool listenerLoaded = false;
    [Header ("Audio")]
    public AudioClip openEggClip;
@@ -135,11 +135,15 @@ public class HotelEggsCollectionMenu : HotelShopMenuBase
       
    }
    bool IsCanOpenEgg () {
-      if (selectedHotelMenuEgg.remain > 0) {
-         openEggButton.image.sprite = openEggAvailable;
-         return true;
+      if (gachaResultPanelByEggs.coroutineEgg == null && !gachaResultPanelByEggs.gameObject.activeInHierarchy) { 
+         if (selectedHotelMenuEgg.remain > 0) {
+            openEggButton.image.sprite = openEggAvailable;
+            return true;
+         } else {
+            openEggButton.image.sprite = openEggNotAvailable;
+            return false;
+         }
       } else {
-         openEggButton.image.sprite = openEggNotAvailable;
          return false;
       }
    }

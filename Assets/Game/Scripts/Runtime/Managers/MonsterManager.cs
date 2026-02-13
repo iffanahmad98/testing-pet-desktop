@@ -159,6 +159,9 @@ public class MonsterManager : MonoBehaviour
     {
         int sellPrice = monsterData.GetSellPrice(monsterDatabase.GetMonsterByID(monsterData.id)?.evolutionLevel ?? 69);
         CoinManager.AddCoins(sellPrice);
+
+        // Update Coin UI Value
+      //  ServiceLocator.Get<CoinDisplayUI>().UpdateCoinText();
     }
 
     public void BuyMonster(MonsterDataSO monsterData)
